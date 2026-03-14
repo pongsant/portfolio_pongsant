@@ -4,6 +4,7 @@ import { dirname } from "node:path";
 const dataPath = new URL("../site-data.json", import.meta.url);
 const data = JSON.parse(readFileSync(dataPath, "utf8"));
 const filialVideoSrc = "/video/filial%20web%20test%201.mov";
+const siteBasePath = normalizeBasePath(process.env.SITE_BASE_PATH ?? "/");
 
 const primaryNav = [
   { label: "PORTFOLIO", href: "/" },
@@ -16,8 +17,43 @@ const utilityLinks = contactPanelLinks.filter((item) =>
   item.label === "Email" || item.label === "Instagram" || item.label === "YouTube"
 );
 
+function normalizeBasePath(value) {
+  const normalized = String(value ?? "/").trim();
+
+  if (!normalized || normalized === "/") {
+    return "/";
+  }
+
+  const withLeadingSlash = normalized.startsWith("/") ? normalized : `/${normalized}`;
+
+  return withLeadingSlash.replace(/\/+$/, "");
+}
+
+function isExternalUrl(value) {
+  return /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(value);
+}
+
+function toPublicUrl(value) {
+  const raw = String(value ?? "");
+
+  if (!raw || isExternalUrl(raw) || !raw.startsWith("/")) {
+    return raw;
+  }
+
+  if (siteBasePath === "/") {
+    return raw;
+  }
+
+  if (raw === "/") {
+    return `${siteBasePath}/`;
+  }
+
+  return `${siteBasePath}${raw}`;
+}
+
 function toHref(route) {
-  return route === "/" ? "/" : `${route}/`;
+  const normalized = route === "/" ? "/" : `${route}/`;
+  return toPublicUrl(normalized);
 }
 
 function outputPathFor(route) {
@@ -164,7 +200,7 @@ function renderUtilityBar() {
         ${utilityLinks
           .map(
             (item) => `
-              <a class="chrome-button chrome-button--ghost" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+              <a class="chrome-button chrome-button--ghost" href="${escapeHtml(toPublicUrl(item.href))}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
                 <span>${escapeHtml(item.value || item.label)}</span>
               </a>
             `
@@ -192,7 +228,7 @@ function renderContactPanel() {
           ${contactPanelLinks
             .map(
               (item) => `
-                <a class="contact-panel__card" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                <a class="contact-panel__card" href="${escapeHtml(toPublicUrl(item.href))}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
                   <span class="contact-panel__label">${escapeHtml(item.label)}</span>
                   <strong class="contact-panel__value">${escapeHtml(item.value)}</strong>
                 </a>
@@ -223,7 +259,7 @@ function renderFooter() {
           ${utilityLinks
             .map(
               (item) => `
-                <a href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                <a href="${escapeHtml(toPublicUrl(item.href))}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
                   ${escapeHtml(item.label === "Email" ? item.value : item.label)}
                 </a>
               `
@@ -276,11 +312,11 @@ function renderLayout({ route, title, description, pageClass, content, showUtili
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="${escapeHtml(toPublicUrl("/styles.css"))}">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/script.js" defer></script>
+    <script src="${escapeHtml(toPublicUrl("/script.js"))}" defer></script>
   </head>
   <body class="page ${escapeHtml(pageClass)}">
     <div class="site-wash" aria-hidden="true">
@@ -367,7 +403,7 @@ function renderEditorialHero({ label, title, summary, media, pills = [], mediaAl
         ${renderMetaChips(pills, "meta-chips motion-reveal")}
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="${media}" alt="${escapeHtml(mediaAlt)}" data-parallax="8">
+        <img src="${escapeHtml(toPublicUrl(media))}" alt="${escapeHtml(mediaAlt)}" data-parallax="8">
       </figure>
     </section>
   `;
@@ -384,7 +420,7 @@ function renderEditorialPreviewRail(images, label) {
         .map(
           (image, index) => `
             <figure class="editorial-entry__preview-item">
-              <img src="${image}" alt="${escapeHtml(label)} preview ${index + 1}">
+              <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(label)} preview ${index + 1}">
             </figure>
           `
         )
@@ -403,7 +439,7 @@ function renderEditorialCollectionEntry(collection, index) {
   return `
     <article class="editorial-entry${index % 2 === 1 ? " editorial-entry--reverse" : ""}" data-section>
       <a class="editorial-entry__media motion-scale" href="${toHref(collection.route)}" data-parallax-wrap aria-label="Open ${escapeHtml(collection.label)}">
-        <img src="${representative.media}" alt="${escapeHtml(collection.label)}" data-parallax="${10 + index * 2}">
+        <img src="${escapeHtml(toPublicUrl(representative.media))}" alt="${escapeHtml(collection.label)}" data-parallax="${10 + index * 2}">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(collection.shortLabel)}</p>
@@ -435,7 +471,7 @@ function renderEditorialProjectEntry(project, index) {
   return `
     <article class="editorial-entry editorial-entry--project${index % 2 === 1 ? " editorial-entry--reverse" : ""}" data-section>
       <a class="editorial-entry__media motion-scale" href="${toHref(project.route)}" data-parallax-wrap aria-label="Open ${escapeHtml(project.title)}">
-        <img src="${project.cover}" alt="${escapeHtml(project.title)}" data-parallax="${10 + index * 2}">
+        <img src="${escapeHtml(toPublicUrl(project.cover))}" alt="${escapeHtml(project.title)}" data-parallax="${10 + index * 2}">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.disciplineLabel)}</p>
@@ -470,7 +506,7 @@ function renderGallerySequence(collection) {
               </div>
               <div class="gallery-sequence__media${group.length === 1 ? " gallery-sequence__media--single" : ""}">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="${group[0]}" alt="${escapeHtml(title)} image 1" data-parallax="${12 + index * 2}">
+                  <img src="${escapeHtml(toPublicUrl(group[0]))}" alt="${escapeHtml(title)} image 1" data-parallax="${12 + index * 2}">
                 </figure>
                 ${
                   group.length > 1
@@ -481,7 +517,7 @@ function renderGallerySequence(collection) {
                           .map(
                             (image, imageIndex) => `
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="${image}" alt="${escapeHtml(title)} image ${imageIndex + 2}" data-parallax="${10 + index * 2}">
+                                <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(title)} image ${imageIndex + 2}" data-parallax="${10 + index * 2}">
                               </figure>
                             `
                           )
@@ -561,8 +597,8 @@ function renderHomeStage() {
                   <div class="stage-slide__media-frame">
                     ${
                       slide.mediaType === "video"
-                        ? `<video class="stage-slide__media" src="${slide.media}" muted loop playsinline preload="metadata" data-stage-video></video>`
-                        : `<img class="stage-slide__media" src="${slide.media}" alt="${escapeHtml(slide.title)}">`
+                        ? `<video class="stage-slide__media" src="${escapeHtml(toPublicUrl(slide.media))}" muted loop playsinline preload="metadata" data-stage-video></video>`
+                        : `<img class="stage-slide__media" src="${escapeHtml(toPublicUrl(slide.media))}" alt="${escapeHtml(slide.title)}">`
                     }
                   </div>
                 </div>
@@ -572,7 +608,7 @@ function renderHomeStage() {
                   <p class="stage-slide__summary">${escapeHtml(slide.summary)}</p>
                   ${renderMetaChips(slide.tags, "meta-chips meta-chips--light")}
                   <div class="stage-slide__actions">
-                    <a class="chrome-button chrome-button--solid" href="${escapeHtml(slide.route)}"${slide.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                    <a class="chrome-button chrome-button--solid" href="${escapeHtml(toPublicUrl(slide.route))}"${slide.external ? ' target="_blank" rel="noreferrer"' : ""}>
                       <span>${escapeHtml(slide.buttonLabel)}</span>
                     </a>
                     <a class="chrome-button chrome-button--ghost" href="${slide.external ? toHref("/my-works") : toHref("/")}"${slide.external ? "" : ""}>
@@ -586,7 +622,7 @@ function renderHomeStage() {
                     .map(
                       (image, previewIndex) => `
                         <figure class="stage-slide__thumb stage-slide__thumb--${previewIndex + 1}">
-                          <img src="${image}" alt="${escapeHtml(slide.title)} preview ${previewIndex + 1}">
+                          <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(slide.title)} preview ${previewIndex + 1}">
                         </figure>
                       `
                     )
@@ -690,7 +726,7 @@ function renderHomePage(route = "/") {
             ${utilityLinks
               .map(
                 (item) => `
-                  <a href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                  <a href="${escapeHtml(toPublicUrl(item.href))}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
                     ${escapeHtml(item.label === "Email" ? item.value : item.label)}
                   </a>
                 `
@@ -799,7 +835,7 @@ function renderHomePage(route = "/") {
         </div>
         <div class="featured-project">
           <figure class="featured-project__media motion-scale" data-parallax-wrap>
-            <video class="featured-project__video" src="${filialVideoSrc}" muted loop playsinline preload="metadata" data-scroll-video data-parallax="8"></video>
+            <video class="featured-project__video" src="${escapeHtml(toPublicUrl(filialVideoSrc))}" muted loop playsinline preload="metadata" data-scroll-video data-parallax="8"></video>
           </figure>
           <div class="featured-project__content">
             <div class="featured-project__block motion-reveal">
@@ -811,7 +847,7 @@ function renderHomePage(route = "/") {
               <p>${escapeHtml(data.home.featuredStory.prototypeText)}</p>
             </div>
             <div class="featured-project__actions motion-reveal">
-              <a class="chrome-button chrome-button--solid" href="${escapeHtml(data.home.featuredStory.referenceUrl)}" target="_blank" rel="noreferrer"><span>GO TO WEB</span></a>
+              <a class="chrome-button chrome-button--solid" href="${escapeHtml(toPublicUrl(data.home.featuredStory.referenceUrl))}" target="_blank" rel="noreferrer"><span>GO TO WEB</span></a>
             </div>
           </div>
         </div>
@@ -835,7 +871,7 @@ function renderCollectionPanel(collection) {
   return `
     <article class="collection-panel collection-panel--${escapeHtml(collection.accent)}">
       <a class="collection-panel__media" href="${toHref(collection.route)}">
-        <img src="${collection.cover}" alt="${escapeHtml(collection.label)}">
+        <img src="${escapeHtml(toPublicUrl(collection.cover))}" alt="${escapeHtml(collection.label)}">
       </a>
       <div class="collection-panel__body">
         <p class="eyebrow">${escapeHtml(collection.shortLabel)}</p>
@@ -854,7 +890,7 @@ function renderCollectionPanel(collection) {
             .map(
               (image) => `
                 <figure class="collection-panel__preview-item">
-                  <img src="${image}" alt="${escapeHtml(collection.shortLabel)} preview">
+                  <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(collection.shortLabel)} preview">
                 </figure>
               `
             )
@@ -952,7 +988,7 @@ function renderContactPage() {
         ${contactPanelLinks
           .map(
             (item) => `
-              <a class="contact-directory__item motion-reveal" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+              <a class="contact-directory__item motion-reveal" href="${escapeHtml(toPublicUrl(item.href))}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
                 <span class="contact-directory__label">${escapeHtml(item.label)}</span>
                 <strong class="contact-directory__value">${escapeHtml(item.value)}</strong>
                 <span class="contact-directory__arrow">OPEN</span>
@@ -983,7 +1019,7 @@ function renderArchiveHero(title, label, summary, media, pills = []) {
         ${renderMetaChips(pills, "meta-chips")}
       </div>
       <figure class="archive-hero__media">
-        <img src="${media}" alt="${escapeHtml(title)}">
+        <img src="${escapeHtml(toPublicUrl(media))}" alt="${escapeHtml(title)}">
       </figure>
     </section>
   `;
@@ -993,7 +1029,7 @@ function renderProjectFeedCard(project) {
   return `
     <article class="project-feed-card">
       <a class="project-feed-card__media" href="${toHref(project.route)}">
-        <img src="${project.cover}" alt="${escapeHtml(project.title)}">
+        <img src="${escapeHtml(toPublicUrl(project.cover))}" alt="${escapeHtml(project.title)}">
       </a>
       <div class="project-feed-card__body">
         <p class="eyebrow">${escapeHtml(project.disciplineLabel)}</p>
@@ -1015,7 +1051,7 @@ function renderGalleryWall(images, title) {
         .map(
           (image, index) => `
             <figure class="gallery-wall__item gallery-wall__item--${(index % 5) + 1}">
-              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}">
+              <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(title)} image ${index + 1}">
             </figure>
           `
         )
@@ -1105,7 +1141,7 @@ function renderProjectMediaFlow(images, title) {
 
           return `
             <figure class="project-media-flow__item ${variant} motion-scale" data-parallax-wrap>
-              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}" data-parallax="${8 + (index % 4) * 2}">
+              <img src="${escapeHtml(toPublicUrl(image))}" alt="${escapeHtml(title)} image ${index + 1}" data-parallax="${8 + (index % 4) * 2}">
             </figure>
           `;
         })

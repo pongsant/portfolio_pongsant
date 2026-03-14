@@ -37,3 +37,9 @@ If you update `assets/site-import/manifest.tsv`, regenerate the data and pages w
 node scripts/generate-portfolio-data.mjs
 node scripts/build-site.mjs
 ```
+
+For this GitHub Pages URL (`https://pongsant.github.io/portfolio_pongsant/`), build with this base path:
+
+```bash
+SITE_BASE_PATH=/portfolio_pongsant node scripts/build-site.mjs
+```
