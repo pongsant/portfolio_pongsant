@@ -4,7 +4,9 @@ import { dirname } from "node:path";
 const dataPath = new URL("../site-data.json", import.meta.url);
 const data = JSON.parse(readFileSync(dataPath, "utf8"));
 const filialVideoSrc = "/video/filial%20web%20test%201.mov";
-const siteBasePath = normalizeBasePath(process.env.SITE_BASE_PATH ?? "/");
+const githubPagesProjectPath = normalizeBasePath(
+  process.env.GITHUB_PAGES_PROJECT_PATH ?? "/portfolio_pongsant"
+);
 
 const primaryNav = [
   { label: "PORTFOLIO", href: "/" },
@@ -33,6 +35,28 @@ function isExternalUrl(value) {
   return /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(value);
 }
 
+function escapeJs(value) {
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'");
+}
+
+function renderRuntimeBaseScript() {
+  const projectPath = githubPagesProjectPath === "/" ? "" : githubPagesProjectPath;
+
+  return `<script>
+      (() => {
+        const projectPath = '${escapeJs(projectPath)}';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>`;
+}
+
 function toPublicUrl(value) {
   const raw = String(value ?? "");
 
@@ -40,15 +64,11 @@ function toPublicUrl(value) {
     return raw;
   }
 
-  if (siteBasePath === "/") {
-    return raw;
-  }
-
   if (raw === "/") {
-    return `${siteBasePath}/`;
+    return "./";
   }
 
-  return `${siteBasePath}${raw}`;
+  return raw.slice(1);
 }
 
 function toHref(route) {
@@ -309,6 +329,7 @@ function renderLayout({ route, title, description, pageClass, content, showUtili
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(title)} | ${escapeHtml(data.site.title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
+    ${renderRuntimeBaseScript()}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">

@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GRAPHIC DESIGN | PORTFOLIO</title>
     <meta name="description" content="Final Design My final design is crafted in the distinctive style of David Carson, serving as a concise biography poster. Inspired by Carson’s artistic nuances, I incorporated signa...">
+    <script>
+      (() => {
+        const projectPath = '/portfolio_pongsant';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/portfolio_pongsant/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/portfolio_pongsant/script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page page-collection">
     <div class="site-wash" aria-hidden="true">
@@ -43,15 +54,15 @@
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
         
-              <a class="chrome-button" href="/portfolio_pongsant/">
+              <a class="chrome-button" href="./">
                 <span>PORTFOLIO</span>
               </a>
             
-              <a class="chrome-button is-active" href="/portfolio_pongsant/my-works/">
+              <a class="chrome-button is-active" href="my-works/">
                 <span>MY WORKS</span>
               </a>
             
-              <a class="chrome-button" href="/portfolio_pongsant/about/">
+              <a class="chrome-button" href="about/">
                 <span>ABOUT</span>
               </a>
             
@@ -108,7 +119,7 @@
                   <strong class="contact-panel__value">(424)599-3914</strong>
                 </a>
               
-                <a class="contact-panel__card" href="/portfolio_pongsant/contact">
+                <a class="contact-panel__card" href="contact">
                   <span class="contact-panel__label">Location</span>
                   <strong class="contact-panel__value">New York, NY</strong>
                 </a>
@@ -155,7 +166,7 @@
         
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="/portfolio_pongsant/assets/site-import/images/0085_p1.jpg" alt="GRAPHIC DESIGN" data-parallax="8">
+        <img src="assets/site-import/images/0085_p1.jpg" alt="GRAPHIC DESIGN" data-parallax="8">
       </figure>
     </section>
   
@@ -163,27 +174,27 @@
             <section class="editorial-project-list">
               
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-six-sz8wl-bb73t/" data-parallax-wrap aria-label="Open David Carson Poster Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0097_3.jpg" alt="David Carson Poster Design" data-parallax="10">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-six-sz8wl-bb73t/" data-parallax-wrap aria-label="Open David Carson Poster Design">
+        <img src="assets/site-import/images/0097_3.jpg" alt="David Carson Poster Design" data-parallax="10">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">01 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-six-sz8wl-bb73t/">David Carson Poster Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-six-sz8wl-bb73t/">David Carson Poster Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0154_2.jpg" alt="David Carson Poster Design preview 1">
+              <img src="assets/site-import/images/0154_2.jpg" alt="David Carson Poster Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0161_4.jpg" alt="David Carson Poster Design preview 2">
+              <img src="assets/site-import/images/0161_4.jpg" alt="David Carson Poster Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-six-sz8wl-bb73t/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-six-sz8wl-bb73t/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -191,27 +202,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-six-6f87e-hep2b/" data-parallax-wrap aria-label="Open Project Six">
-        <img src="/portfolio_pongsant/assets/site-import/images/0189_Screenshot%2B2026-01-04%2Bat%2B22.31.47.png" alt="Project Six" data-parallax="12">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-six-6f87e-hep2b/" data-parallax-wrap aria-label="Open Project Six">
+        <img src="assets/site-import/images/0189_Screenshot%2B2026-01-04%2Bat%2B22.31.47.png" alt="Project Six" data-parallax="12">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">02 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-six-6f87e-hep2b/">Project Six</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-six-6f87e-hep2b/">Project Six</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0076_Screenshot%2B2026-01-04%2Bat%2B22.32.39.png" alt="Project Six preview 1">
+              <img src="assets/site-import/images/0076_Screenshot%2B2026-01-04%2Bat%2B22.32.39.png" alt="Project Six preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0026_Screenshot%2B2026-01-04%2Bat%2B22.33.00.png" alt="Project Six preview 2">
+              <img src="assets/site-import/images/0026_Screenshot%2B2026-01-04%2Bat%2B22.33.00.png" alt="Project Six preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-six-6f87e-hep2b/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-six-6f87e-hep2b/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -219,27 +230,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-five-jkmzy-r6ser/" data-parallax-wrap aria-label="Open Portrait Poster Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0072_1.jpg" alt="Portrait Poster Design" data-parallax="14">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-five-jkmzy-r6ser/" data-parallax-wrap aria-label="Open Portrait Poster Design">
+        <img src="assets/site-import/images/0072_1.jpg" alt="Portrait Poster Design" data-parallax="14">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">03 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-five-jkmzy-r6ser/">Portrait Poster Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-five-jkmzy-r6ser/">Portrait Poster Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0120_2.jpg" alt="Portrait Poster Design preview 1">
+              <img src="assets/site-import/images/0120_2.jpg" alt="Portrait Poster Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0160_3.jpg" alt="Portrait Poster Design preview 2">
+              <img src="assets/site-import/images/0160_3.jpg" alt="Portrait Poster Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-five-jkmzy-r6ser/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-five-jkmzy-r6ser/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -247,27 +258,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-four-yjynj-8m64e/" data-parallax-wrap aria-label="Open Nature Poster Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0030_4.jpg" alt="Nature Poster Design" data-parallax="16">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-four-yjynj-8m64e/" data-parallax-wrap aria-label="Open Nature Poster Design">
+        <img src="assets/site-import/images/0030_4.jpg" alt="Nature Poster Design" data-parallax="16">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">04 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-four-yjynj-8m64e/">Nature Poster Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-four-yjynj-8m64e/">Nature Poster Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0168_3.jpg" alt="Nature Poster Design preview 1">
+              <img src="assets/site-import/images/0168_3.jpg" alt="Nature Poster Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0115_1.jpg" alt="Nature Poster Design preview 2">
+              <img src="assets/site-import/images/0115_1.jpg" alt="Nature Poster Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-four-yjynj-8m64e/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-four-yjynj-8m64e/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -275,15 +286,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-three-8zgh7-7kart/" data-parallax-wrap aria-label="Open Name Poster">
-        <img src="/portfolio_pongsant/assets/site-import/images/0185_pongsant%2Bposter.jpg" alt="Name Poster" data-parallax="18">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-three-8zgh7-7kart/" data-parallax-wrap aria-label="Open Name Poster">
+        <img src="assets/site-import/images/0185_pongsant%2Bposter.jpg" alt="Name Poster" data-parallax="18">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">05 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-three-8zgh7-7kart/">Name Poster</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-three-8zgh7-7kart/">Name Poster</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-three-8zgh7-7kart/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-three-8zgh7-7kart/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -291,15 +302,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-two-llrgk-499cz/" data-parallax-wrap aria-label="Open Josh Lennon Poster">
-        <img src="/portfolio_pongsant/assets/site-import/images/0112_john%2Blennon.jpg" alt="Josh Lennon Poster" data-parallax="20">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-two-llrgk-499cz/" data-parallax-wrap aria-label="Open Josh Lennon Poster">
+        <img src="assets/site-import/images/0112_john%2Blennon.jpg" alt="Josh Lennon Poster" data-parallax="20">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">06 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-two-llrgk-499cz/">Josh Lennon Poster</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-two-llrgk-499cz/">Josh Lennon Poster</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-two-llrgk-499cz/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-two-llrgk-499cz/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -307,27 +318,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/font-design-1/" data-parallax-wrap aria-label="Open Font Design 1">
-        <img src="/portfolio_pongsant/assets/site-import/images/0194_1.jpg" alt="Font Design 1" data-parallax="22">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/font-design-1/" data-parallax-wrap aria-label="Open Font Design 1">
+        <img src="assets/site-import/images/0194_1.jpg" alt="Font Design 1" data-parallax="22">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">07 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/font-design-1/">Font Design 1</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/font-design-1/">Font Design 1</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0028_2.jpg" alt="Font Design 1 preview 1">
+              <img src="assets/site-import/images/0028_2.jpg" alt="Font Design 1 preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0027_3.jpg" alt="Font Design 1 preview 2">
+              <img src="assets/site-import/images/0027_3.jpg" alt="Font Design 1 preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/font-design-1/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/font-design-1/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -335,15 +346,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/font-design-2/" data-parallax-wrap aria-label="Open Font Design 2">
-        <img src="/portfolio_pongsant/assets/site-import/images/0055_1.jpg" alt="Font Design 2" data-parallax="24">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/font-design-2/" data-parallax-wrap aria-label="Open Font Design 2">
+        <img src="assets/site-import/images/0055_1.jpg" alt="Font Design 2" data-parallax="24">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">08 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/font-design-2/">Font Design 2</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/font-design-2/">Font Design 2</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/font-design-2/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/font-design-2/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -351,27 +362,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/initial-logo-design/" data-parallax-wrap aria-label="Open Initial Logo Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0056_1.jpg" alt="Initial Logo Design" data-parallax="26">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/initial-logo-design/" data-parallax-wrap aria-label="Open Initial Logo Design">
+        <img src="assets/site-import/images/0056_1.jpg" alt="Initial Logo Design" data-parallax="26">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">09 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/initial-logo-design/">Initial Logo Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/initial-logo-design/">Initial Logo Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0035_3.jpg" alt="Initial Logo Design preview 1">
+              <img src="assets/site-import/images/0035_3.jpg" alt="Initial Logo Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0089_2.jpg" alt="Initial Logo Design preview 2">
+              <img src="assets/site-import/images/0089_2.jpg" alt="Initial Logo Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/initial-logo-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/initial-logo-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -379,23 +390,23 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/typographic-systems-handbook/" data-parallax-wrap aria-label="Open Typographic Systems Handbook">
-        <img src="/portfolio_pongsant/assets/site-import/images/0107_2.jpg" alt="Typographic Systems Handbook" data-parallax="28">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/typographic-systems-handbook/" data-parallax-wrap aria-label="Open Typographic Systems Handbook">
+        <img src="assets/site-import/images/0107_2.jpg" alt="Typographic Systems Handbook" data-parallax="28">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">10 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/typographic-systems-handbook/">Typographic Systems Handbook</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/typographic-systems-handbook/">Typographic Systems Handbook</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0181_1.jpg" alt="Typographic Systems Handbook preview 1">
+              <img src="assets/site-import/images/0181_1.jpg" alt="Typographic Systems Handbook preview 1">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/typographic-systems-handbook/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/typographic-systems-handbook/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -403,27 +414,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/calendar-design/" data-parallax-wrap aria-label="Open Calendar Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0020_1.jpg" alt="Calendar Design" data-parallax="30">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/calendar-design/" data-parallax-wrap aria-label="Open Calendar Design">
+        <img src="assets/site-import/images/0020_1.jpg" alt="Calendar Design" data-parallax="30">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">11 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/calendar-design/">Calendar Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/calendar-design/">Calendar Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0003_2.jpg" alt="Calendar Design preview 1">
+              <img src="assets/site-import/images/0003_2.jpg" alt="Calendar Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0162_3.jpg" alt="Calendar Design preview 2">
+              <img src="assets/site-import/images/0162_3.jpg" alt="Calendar Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/calendar-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/calendar-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -431,27 +442,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/branding-design/" data-parallax-wrap aria-label="Open Branding Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0116_2.jpg" alt="Branding Design" data-parallax="32">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/branding-design/" data-parallax-wrap aria-label="Open Branding Design">
+        <img src="assets/site-import/images/0116_2.jpg" alt="Branding Design" data-parallax="32">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">12 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/branding-design/">Branding Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/branding-design/">Branding Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0017_14.jpg" alt="Branding Design preview 1">
+              <img src="assets/site-import/images/0017_14.jpg" alt="Branding Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0080_3.jpg" alt="Branding Design preview 2">
+              <img src="assets/site-import/images/0080_3.jpg" alt="Branding Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/branding-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/branding-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -459,27 +470,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/visual-hierachy-design/" data-parallax-wrap aria-label="Open Visual Hierachy Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0121_2.jpg" alt="Visual Hierachy Design" data-parallax="34">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/visual-hierachy-design/" data-parallax-wrap aria-label="Open Visual Hierachy Design">
+        <img src="assets/site-import/images/0121_2.jpg" alt="Visual Hierachy Design" data-parallax="34">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">13 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/visual-hierachy-design/">Visual Hierachy Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/visual-hierachy-design/">Visual Hierachy Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0087_3.jpg" alt="Visual Hierachy Design preview 1">
+              <img src="assets/site-import/images/0087_3.jpg" alt="Visual Hierachy Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0105_4.jpg" alt="Visual Hierachy Design preview 2">
+              <img src="assets/site-import/images/0105_4.jpg" alt="Visual Hierachy Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/visual-hierachy-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/visual-hierachy-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -487,23 +498,23 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/year-poster-design/" data-parallax-wrap aria-label="Open Year Poster Design 1">
-        <img src="/portfolio_pongsant/assets/site-import/images/0178_1.jpg" alt="Year Poster Design 1" data-parallax="36">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/year-poster-design/" data-parallax-wrap aria-label="Open Year Poster Design 1">
+        <img src="assets/site-import/images/0178_1.jpg" alt="Year Poster Design 1" data-parallax="36">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">14 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/year-poster-design/">Year Poster Design 1</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/year-poster-design/">Year Poster Design 1</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0038_5.jpg" alt="Year Poster Design 1 preview 1">
+              <img src="assets/site-import/images/0038_5.jpg" alt="Year Poster Design 1 preview 1">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/year-poster-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/year-poster-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -511,27 +522,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/year-poster-design-2/" data-parallax-wrap aria-label="Open Year Poster Design 2">
-        <img src="/portfolio_pongsant/assets/site-import/images/0139_1.jpg" alt="Year Poster Design 2" data-parallax="38">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/year-poster-design-2/" data-parallax-wrap aria-label="Open Year Poster Design 2">
+        <img src="assets/site-import/images/0139_1.jpg" alt="Year Poster Design 2" data-parallax="38">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">15 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/year-poster-design-2/">Year Poster Design 2</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/year-poster-design-2/">Year Poster Design 2</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0031_2.jpg" alt="Year Poster Design 2 preview 1">
+              <img src="assets/site-import/images/0031_2.jpg" alt="Year Poster Design 2 preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0108_3.jpg" alt="Year Poster Design 2 preview 2">
+              <img src="assets/site-import/images/0108_3.jpg" alt="Year Poster Design 2 preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/year-poster-design-2/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/year-poster-design-2/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -539,27 +550,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/magazine-design/" data-parallax-wrap aria-label="Open Magazine Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0190_2.jpg" alt="Magazine Design" data-parallax="40">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/magazine-design/" data-parallax-wrap aria-label="Open Magazine Design">
+        <img src="assets/site-import/images/0190_2.jpg" alt="Magazine Design" data-parallax="40">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">16 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/magazine-design/">Magazine Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/magazine-design/">Magazine Design</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0049_3.jpg" alt="Magazine Design preview 1">
+              <img src="assets/site-import/images/0049_3.jpg" alt="Magazine Design preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0041_4.jpg" alt="Magazine Design preview 2">
+              <img src="assets/site-import/images/0041_4.jpg" alt="Magazine Design preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/magazine-design/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/magazine-design/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -567,27 +578,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/rebranding-coffeeblack/" data-parallax-wrap aria-label="Open Rebranding Coffeeblack">
-        <img src="/portfolio_pongsant/assets/site-import/images/0007_1.jpg" alt="Rebranding Coffeeblack" data-parallax="42">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/rebranding-coffeeblack/" data-parallax-wrap aria-label="Open Rebranding Coffeeblack">
+        <img src="assets/site-import/images/0007_1.jpg" alt="Rebranding Coffeeblack" data-parallax="42">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">17 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/rebranding-coffeeblack/">Rebranding Coffeeblack</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/rebranding-coffeeblack/">Rebranding Coffeeblack</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0071_2.jpg" alt="Rebranding Coffeeblack preview 1">
+              <img src="assets/site-import/images/0071_2.jpg" alt="Rebranding Coffeeblack preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0095_3.jpg" alt="Rebranding Coffeeblack preview 2">
+              <img src="assets/site-import/images/0095_3.jpg" alt="Rebranding Coffeeblack preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/rebranding-coffeeblack/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/rebranding-coffeeblack/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -595,27 +606,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/kwickcook-meal-plan-kit/" data-parallax-wrap aria-label="Open Kwickcook Meal Plan Kit">
-        <img src="/portfolio_pongsant/assets/site-import/images/0196_1.jpg" alt="Kwickcook Meal Plan Kit" data-parallax="44">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/kwickcook-meal-plan-kit/" data-parallax-wrap aria-label="Open Kwickcook Meal Plan Kit">
+        <img src="assets/site-import/images/0196_1.jpg" alt="Kwickcook Meal Plan Kit" data-parallax="44">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">18 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/kwickcook-meal-plan-kit/">Kwickcook Meal Plan Kit</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/kwickcook-meal-plan-kit/">Kwickcook Meal Plan Kit</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0128_2.jpg" alt="Kwickcook Meal Plan Kit preview 1">
+              <img src="assets/site-import/images/0128_2.jpg" alt="Kwickcook Meal Plan Kit preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0040_3.jpg" alt="Kwickcook Meal Plan Kit preview 2">
+              <img src="assets/site-import/images/0040_3.jpg" alt="Kwickcook Meal Plan Kit preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/kwickcook-meal-plan-kit/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/kwickcook-meal-plan-kit/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -623,27 +634,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/postcards-from-the-future/" data-parallax-wrap aria-label="Open Postcards from the Future">
-        <img src="/portfolio_pongsant/assets/site-import/images/0148_L1020496%2Bcopy.JPG" alt="Postcards from the Future" data-parallax="46">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/postcards-from-the-future/" data-parallax-wrap aria-label="Open Postcards from the Future">
+        <img src="assets/site-import/images/0148_L1020496%2Bcopy.JPG" alt="Postcards from the Future" data-parallax="46">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">19 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/postcards-from-the-future/">Postcards from the Future</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/postcards-from-the-future/">Postcards from the Future</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0065_L1020495%2Bcopy.JPG" alt="Postcards from the Future preview 1">
+              <img src="assets/site-import/images/0065_L1020495%2Bcopy.JPG" alt="Postcards from the Future preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0053_L1020494%2Bcopy.JPG" alt="Postcards from the Future preview 2">
+              <img src="assets/site-import/images/0053_L1020494%2Bcopy.JPG" alt="Postcards from the Future preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/postcards-from-the-future/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/postcards-from-the-future/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -651,15 +662,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-one-ephnc-e6ck8/" data-parallax-wrap aria-label="Open 7 Sins Design">
-        <img src="/portfolio_pongsant/assets/site-import/images/0141_7%2Bdeadly%2Bsin.jpg" alt="7 Sins Design" data-parallax="48">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-one-ephnc-e6ck8/" data-parallax-wrap aria-label="Open 7 Sins Design">
+        <img src="assets/site-import/images/0141_7%2Bdeadly%2Bsin.jpg" alt="7 Sins Design" data-parallax="48">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">20 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-one-ephnc-e6ck8/">7 Sins Design</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-one-ephnc-e6ck8/">7 Sins Design</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-one-ephnc-e6ck8/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-one-ephnc-e6ck8/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -667,15 +678,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/typography-car/" data-parallax-wrap aria-label="Open Typography Car">
-        <img src="/portfolio_pongsant/assets/site-import/images/0006_car%2Bcopy.png" alt="Typography Car" data-parallax="50">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/typography-car/" data-parallax-wrap aria-label="Open Typography Car">
+        <img src="assets/site-import/images/0006_car%2Bcopy.png" alt="Typography Car" data-parallax="50">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">21 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/typography-car/">Typography Car</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/typography-car/">Typography Car</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/typography-car/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/typography-car/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -683,27 +694,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-one-f5w4d-br6yr/" data-parallax-wrap aria-label="Open Project One">
-        <img src="/portfolio_pongsant/assets/site-import/images/0045_Screenshot%2B2026-01-04%2Bat%2B22.16.24.png" alt="Project One" data-parallax="52">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-one-f5w4d-br6yr/" data-parallax-wrap aria-label="Open Project One">
+        <img src="assets/site-import/images/0045_Screenshot%2B2026-01-04%2Bat%2B22.16.24.png" alt="Project One" data-parallax="52">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">22 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-one-f5w4d-br6yr/">Project One</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-one-f5w4d-br6yr/">Project One</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0155_Screenshot%2B2026-01-04%2Bat%2B22.42.57.png" alt="Project One preview 1">
+              <img src="assets/site-import/images/0155_Screenshot%2B2026-01-04%2Bat%2B22.42.57.png" alt="Project One preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0113_Screenshot%2B2026-01-04%2Bat%2B22.42.42.png" alt="Project One preview 2">
+              <img src="assets/site-import/images/0113_Screenshot%2B2026-01-04%2Bat%2B22.42.42.png" alt="Project One preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-one-f5w4d-br6yr/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-one-f5w4d-br6yr/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -711,27 +722,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/graphic-design/project-one-f5w4d-ebxzf/" data-parallax-wrap aria-label="Open POTRAIT OF THE SELFLESS SELF">
-        <img src="/portfolio_pongsant/assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF" data-parallax="54">
+      <a class="editorial-entry__media motion-scale" href="graphic-design/project-one-f5w4d-ebxzf/" data-parallax-wrap aria-label="Open POTRAIT OF THE SELFLESS SELF">
+        <img src="assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF" data-parallax="54">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">23 · Graphic Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/graphic-design/project-one-f5w4d-ebxzf/">POTRAIT OF THE SELFLESS SELF</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="graphic-design/project-one-f5w4d-ebxzf/">POTRAIT OF THE SELFLESS SELF</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF preview 1">
+              <img src="assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF preview 2">
+              <img src="assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/graphic-design/project-one-f5w4d-ebxzf/">
+          <a class="chrome-button chrome-button--solid" href="graphic-design/project-one-f5w4d-ebxzf/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -750,10 +761,10 @@
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
-          <a href="/portfolio_pongsant/">HOME</a>
-          <a href="/portfolio_pongsant/my-works/">MY WORKS</a>
-          <a href="/portfolio_pongsant/about/">ABOUT</a>
-          <a href="/portfolio_pongsant/contact/">CONTACT</a>
+          <a href="./">HOME</a>
+          <a href="my-works/">MY WORKS</a>
+          <a href="about/">ABOUT</a>
+          <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
           

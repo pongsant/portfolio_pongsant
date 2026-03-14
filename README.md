@@ -38,8 +38,10 @@ node scripts/generate-portfolio-data.mjs
 node scripts/build-site.mjs
 ```
 
-For this GitHub Pages URL (`https://pongsant.github.io/portfolio_pongsant/`), build with this base path:
+The generated HTML auto-detects your GitHub Pages project path (`/portfolio_pongsant/`) or local root (`/`), so the same build works for both local and deployed previews.
+
+If you ever rename the GitHub repo/path, you can override the project path:
 
 ```bash
-SITE_BASE_PATH=/portfolio_pongsant node scripts/build-site.mjs
+GITHUB_PAGES_PROJECT_PATH=/new-repo-name node scripts/build-site.mjs
 ```

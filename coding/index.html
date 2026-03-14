@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CODING | PORTFOLIO</title>
     <meta name="description" content="Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...">
+    <script>
+      (() => {
+        const projectPath = '/portfolio_pongsant';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/portfolio_pongsant/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/portfolio_pongsant/script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page page-collection">
     <div class="site-wash" aria-hidden="true">
@@ -43,15 +54,15 @@
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
         
-              <a class="chrome-button" href="/portfolio_pongsant/">
+              <a class="chrome-button" href="./">
                 <span>PORTFOLIO</span>
               </a>
             
-              <a class="chrome-button is-active" href="/portfolio_pongsant/my-works/">
+              <a class="chrome-button is-active" href="my-works/">
                 <span>MY WORKS</span>
               </a>
             
-              <a class="chrome-button" href="/portfolio_pongsant/about/">
+              <a class="chrome-button" href="about/">
                 <span>ABOUT</span>
               </a>
             
@@ -108,7 +119,7 @@
                   <strong class="contact-panel__value">(424)599-3914</strong>
                 </a>
               
-                <a class="contact-panel__card" href="/portfolio_pongsant/contact">
+                <a class="contact-panel__card" href="contact">
                   <span class="contact-panel__label">Location</span>
                   <strong class="contact-panel__value">New York, NY</strong>
                 </a>
@@ -155,7 +166,7 @@
         
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="/portfolio_pongsant/assets/site-import/images/0036_f1.2.jpg" alt="CODING" data-parallax="8">
+        <img src="assets/site-import/images/0036_f1.2.jpg" alt="CODING" data-parallax="8">
       </figure>
     </section>
   
@@ -163,23 +174,23 @@
             <section class="editorial-project-list">
               
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/coding/project-three-8zgh7-xtbsr/" data-parallax-wrap aria-label="Open Temperature Glow Lamp">
-        <img src="/portfolio_pongsant/assets/site-import/images/0136_IMG_6190.JPG" alt="Temperature Glow Lamp" data-parallax="10">
+      <a class="editorial-entry__media motion-scale" href="coding/project-three-8zgh7-xtbsr/" data-parallax-wrap aria-label="Open Temperature Glow Lamp">
+        <img src="assets/site-import/images/0136_IMG_6190.JPG" alt="Temperature Glow Lamp" data-parallax="10">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">01 · Coding</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/coding/project-three-8zgh7-xtbsr/">Temperature Glow Lamp</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="coding/project-three-8zgh7-xtbsr/">Temperature Glow Lamp</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0015_IMG_6192%2Bcopy.JPG" alt="Temperature Glow Lamp preview 1">
+              <img src="assets/site-import/images/0015_IMG_6192%2Bcopy.JPG" alt="Temperature Glow Lamp preview 1">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/coding/project-three-8zgh7-xtbsr/">
+          <a class="chrome-button chrome-button--solid" href="coding/project-three-8zgh7-xtbsr/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -187,15 +198,15 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/coding/project-two-llrgk-kx83j/" data-parallax-wrap aria-label="Open Web Design and Coding">
-        <img src="/portfolio_pongsant/assets/site-import/images/0052_2.jpg" alt="Web Design and Coding" data-parallax="12">
+      <a class="editorial-entry__media motion-scale" href="coding/project-two-llrgk-kx83j/" data-parallax-wrap aria-label="Open Web Design and Coding">
+        <img src="assets/site-import/images/0052_2.jpg" alt="Web Design and Coding" data-parallax="12">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">02 · Coding</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/coding/project-two-llrgk-kx83j/">Web Design and Coding</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="coding/project-two-llrgk-kx83j/">Web Design and Coding</a></h2>
         
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/coding/project-two-llrgk-kx83j/">
+          <a class="chrome-button chrome-button--solid" href="coding/project-two-llrgk-kx83j/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -203,27 +214,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/coding/project-one-ephnc-ngeg5/" data-parallax-wrap aria-label="Open Flower">
-        <img src="/portfolio_pongsant/assets/site-import/images/0174_1.jpg" alt="Flower" data-parallax="14">
+      <a class="editorial-entry__media motion-scale" href="coding/project-one-ephnc-ngeg5/" data-parallax-wrap aria-label="Open Flower">
+        <img src="assets/site-import/images/0174_1.jpg" alt="Flower" data-parallax="14">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">03 · Coding</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/coding/project-one-ephnc-ngeg5/">Flower</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="coding/project-one-ephnc-ngeg5/">Flower</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0137_2.jpg" alt="Flower preview 1">
+              <img src="assets/site-import/images/0137_2.jpg" alt="Flower preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0083_IMG_4432.JPG" alt="Flower preview 2">
+              <img src="assets/site-import/images/0083_IMG_4432.JPG" alt="Flower preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/coding/project-one-ephnc-ngeg5/">
+          <a class="chrome-button chrome-button--solid" href="coding/project-one-ephnc-ngeg5/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -231,27 +242,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/coding/the-last-hope/" data-parallax-wrap aria-label="Open The Last Hope">
-        <img src="/portfolio_pongsant/assets/site-import/images/0036_f1.2.jpg" alt="The Last Hope" data-parallax="16">
+      <a class="editorial-entry__media motion-scale" href="coding/the-last-hope/" data-parallax-wrap aria-label="Open The Last Hope">
+        <img src="assets/site-import/images/0036_f1.2.jpg" alt="The Last Hope" data-parallax="16">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">04 · Coding</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/coding/the-last-hope/">The Last Hope</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="coding/the-last-hope/">The Last Hope</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0135_f2.jpg" alt="The Last Hope preview 1">
+              <img src="assets/site-import/images/0135_f2.jpg" alt="The Last Hope preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0183_f3.jpg" alt="The Last Hope preview 2">
+              <img src="assets/site-import/images/0183_f3.jpg" alt="The Last Hope preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/coding/the-last-hope/">
+          <a class="chrome-button chrome-button--solid" href="coding/the-last-hope/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -270,10 +281,10 @@
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
-          <a href="/portfolio_pongsant/">HOME</a>
-          <a href="/portfolio_pongsant/my-works/">MY WORKS</a>
-          <a href="/portfolio_pongsant/about/">ABOUT</a>
-          <a href="/portfolio_pongsant/contact/">CONTACT</a>
+          <a href="./">HOME</a>
+          <a href="my-works/">MY WORKS</a>
+          <a href="about/">ABOUT</a>
+          <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
           

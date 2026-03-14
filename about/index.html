@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ABOUT | PORTFOLIO</title>
     <meta name="description" content="Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the world of art and music since childhood. His upbringing in a creative family-with a mother skilled in visual arts and a father who is both an Interior Architect and Graphic Designer instilled in him a passion for design and creativity. After moving to Los Angeles in 2021, he pursued his artistic journey in the United States, earning recognition and scholarships from prestigious art institutions.">
+    <script>
+      (() => {
+        const projectPath = '/portfolio_pongsant';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/portfolio_pongsant/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/portfolio_pongsant/script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page page-about">
     <div class="site-wash" aria-hidden="true">
@@ -43,15 +54,15 @@
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
         
-              <a class="chrome-button" href="/portfolio_pongsant/">
+              <a class="chrome-button" href="./">
                 <span>PORTFOLIO</span>
               </a>
             
-              <a class="chrome-button" href="/portfolio_pongsant/my-works/">
+              <a class="chrome-button" href="my-works/">
                 <span>MY WORKS</span>
               </a>
             
-              <a class="chrome-button is-active" href="/portfolio_pongsant/about/">
+              <a class="chrome-button is-active" href="about/">
                 <span>ABOUT</span>
               </a>
             
@@ -108,7 +119,7 @@
                   <strong class="contact-panel__value">(424)599-3914</strong>
                 </a>
               
-                <a class="contact-panel__card" href="/portfolio_pongsant/contact">
+                <a class="contact-panel__card" href="contact">
                   <span class="contact-panel__label">Location</span>
                   <strong class="contact-panel__value">New York, NY</strong>
                 </a>
@@ -155,7 +166,7 @@
         
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="/portfolio_pongsant/assets/site-import/images/0182_IMG_8477.JPG" alt="Pongsant Chintanapakdee" data-parallax="8">
+        <img src="assets/site-import/images/0182_IMG_8477.JPG" alt="Pongsant Chintanapakdee" data-parallax="8">
       </figure>
     </section>
   
@@ -175,10 +186,10 @@
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
-          <a href="/portfolio_pongsant/">HOME</a>
-          <a href="/portfolio_pongsant/my-works/">MY WORKS</a>
-          <a href="/portfolio_pongsant/about/">ABOUT</a>
-          <a href="/portfolio_pongsant/contact/">CONTACT</a>
+          <a href="./">HOME</a>
+          <a href="my-works/">MY WORKS</a>
+          <a href="about/">ABOUT</a>
+          <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
           

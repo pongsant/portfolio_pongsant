@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PRODUCT DESIGN | PORTFOLIO</title>
     <meta name="description" content="Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering...">
+    <script>
+      (() => {
+        const projectPath = '/portfolio_pongsant';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/portfolio_pongsant/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/portfolio_pongsant/script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page page-collection">
     <div class="site-wash" aria-hidden="true">
@@ -43,15 +54,15 @@
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
         
-              <a class="chrome-button" href="/portfolio_pongsant/">
+              <a class="chrome-button" href="./">
                 <span>PORTFOLIO</span>
               </a>
             
-              <a class="chrome-button is-active" href="/portfolio_pongsant/my-works/">
+              <a class="chrome-button is-active" href="my-works/">
                 <span>MY WORKS</span>
               </a>
             
-              <a class="chrome-button" href="/portfolio_pongsant/about/">
+              <a class="chrome-button" href="about/">
                 <span>ABOUT</span>
               </a>
             
@@ -108,7 +119,7 @@
                   <strong class="contact-panel__value">(424)599-3914</strong>
                 </a>
               
-                <a class="contact-panel__card" href="/portfolio_pongsant/contact">
+                <a class="contact-panel__card" href="contact">
                   <span class="contact-panel__label">Location</span>
                   <strong class="contact-panel__value">New York, NY</strong>
                 </a>
@@ -155,7 +166,7 @@
         
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="/portfolio_pongsant/assets/site-import/images/0010_2.jpg" alt="PRODUCT DESIGN" data-parallax="8">
+        <img src="assets/site-import/images/0010_2.jpg" alt="PRODUCT DESIGN" data-parallax="8">
       </figure>
     </section>
   
@@ -163,27 +174,27 @@
             <section class="editorial-project-list">
               
     <article class="editorial-entry editorial-entry--project" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/product/project-two-llrgk-3hjw3/" data-parallax-wrap aria-label="Open Decorative Box">
-        <img src="/portfolio_pongsant/assets/site-import/images/0068_1.jpg" alt="Decorative Box" data-parallax="10">
+      <a class="editorial-entry__media motion-scale" href="product/project-two-llrgk-3hjw3/" data-parallax-wrap aria-label="Open Decorative Box">
+        <img src="assets/site-import/images/0068_1.jpg" alt="Decorative Box" data-parallax="10">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">01 · Product Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/product/project-two-llrgk-3hjw3/">Decorative Box</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="product/project-two-llrgk-3hjw3/">Decorative Box</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0176_2.jpg" alt="Decorative Box preview 1">
+              <img src="assets/site-import/images/0176_2.jpg" alt="Decorative Box preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0114_3.jpg" alt="Decorative Box preview 2">
+              <img src="assets/site-import/images/0114_3.jpg" alt="Decorative Box preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/product/project-two-llrgk-3hjw3/">
+          <a class="chrome-button chrome-button--solid" href="product/project-two-llrgk-3hjw3/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -191,27 +202,27 @@
     </article>
   
     <article class="editorial-entry editorial-entry--project editorial-entry--reverse" data-section>
-      <a class="editorial-entry__media motion-scale" href="/portfolio_pongsant/product/project-one-ephnc-3368k/" data-parallax-wrap aria-label="Open Interactive Table">
-        <img src="/portfolio_pongsant/assets/site-import/images/0010_2.jpg" alt="Interactive Table" data-parallax="12">
+      <a class="editorial-entry__media motion-scale" href="product/project-one-ephnc-3368k/" data-parallax-wrap aria-label="Open Interactive Table">
+        <img src="assets/site-import/images/0010_2.jpg" alt="Interactive Table" data-parallax="12">
       </a>
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">02 · Product Design</p>
-        <h2 class="editorial-entry__title motion-reveal"><a href="/portfolio_pongsant/product/project-one-ephnc-3368k/">Interactive Table</a></h2>
+        <h2 class="editorial-entry__title motion-reveal"><a href="product/project-one-ephnc-3368k/">Interactive Table</a></h2>
         
     <div class="editorial-entry__preview motion-reveal">
       
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0047_1.jpg" alt="Interactive Table preview 1">
+              <img src="assets/site-import/images/0047_1.jpg" alt="Interactive Table preview 1">
             </figure>
           
             <figure class="editorial-entry__preview-item">
-              <img src="/portfolio_pongsant/assets/site-import/images/0063_3.jpg" alt="Interactive Table preview 2">
+              <img src="assets/site-import/images/0063_3.jpg" alt="Interactive Table preview 2">
             </figure>
           
     </div>
   
         <div class="editorial-entry__actions motion-reveal">
-          <a class="chrome-button chrome-button--solid" href="/portfolio_pongsant/product/project-one-ephnc-3368k/">
+          <a class="chrome-button chrome-button--solid" href="product/project-one-ephnc-3368k/">
             <span>VIEW PROJECT</span>
           </a>
         </div>
@@ -230,10 +241,10 @@
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
-          <a href="/portfolio_pongsant/">HOME</a>
-          <a href="/portfolio_pongsant/my-works/">MY WORKS</a>
-          <a href="/portfolio_pongsant/about/">ABOUT</a>
-          <a href="/portfolio_pongsant/contact/">CONTACT</a>
+          <a href="./">HOME</a>
+          <a href="my-works/">MY WORKS</a>
+          <a href="about/">ABOUT</a>
+          <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
           

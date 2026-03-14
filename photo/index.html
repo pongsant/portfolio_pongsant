@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PHOTO | PORTFOLIO</title>
     <meta name="description" content="Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.">
+    <script>
+      (() => {
+        const projectPath = '/portfolio_pongsant';
+        const pathname = window.location.pathname || '/';
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
+        const baseHref = useProjectBase ? projectPath + '/' : '/';
+        const baseTag = document.createElement('base');
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/portfolio_pongsant/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
-    <script src="/portfolio_pongsant/script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page page-collection">
     <div class="site-wash" aria-hidden="true">
@@ -43,15 +54,15 @@
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
         
-              <a class="chrome-button" href="/portfolio_pongsant/">
+              <a class="chrome-button" href="./">
                 <span>PORTFOLIO</span>
               </a>
             
-              <a class="chrome-button is-active" href="/portfolio_pongsant/my-works/">
+              <a class="chrome-button is-active" href="my-works/">
                 <span>MY WORKS</span>
               </a>
             
-              <a class="chrome-button" href="/portfolio_pongsant/about/">
+              <a class="chrome-button" href="about/">
                 <span>ABOUT</span>
               </a>
             
@@ -108,7 +119,7 @@
                   <strong class="contact-panel__value">(424)599-3914</strong>
                 </a>
               
-                <a class="contact-panel__card" href="/portfolio_pongsant/contact">
+                <a class="contact-panel__card" href="contact">
                   <span class="contact-panel__label">Location</span>
                   <strong class="contact-panel__value">New York, NY</strong>
                 </a>
@@ -155,7 +166,7 @@
         
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
-        <img src="/portfolio_pongsant/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO" data-parallax="8">
+        <img src="assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO" data-parallax="8">
       </figure>
     </section>
   
@@ -170,17 +181,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO image 1" data-parallax="12">
+                  <img src="assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO image 1" data-parallax="12">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0153_IMG_1094.JPG" alt="PHOTO image 2" data-parallax="10">
+                                <img src="assets/site-import/images/0153_IMG_1094.JPG" alt="PHOTO image 2" data-parallax="10">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0042_IMG_2152.JPG" alt="PHOTO image 3" data-parallax="10">
+                                <img src="assets/site-import/images/0042_IMG_2152.JPG" alt="PHOTO image 3" data-parallax="10">
                               </figure>
                             
                       </div>
@@ -196,17 +207,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0122_IMG_1253.JPG" alt="Photo 02 image 1" data-parallax="14">
+                  <img src="assets/site-import/images/0122_IMG_1253.JPG" alt="Photo 02 image 1" data-parallax="14">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0172_IMG_2135.JPG" alt="Photo 02 image 2" data-parallax="12">
+                                <img src="assets/site-import/images/0172_IMG_2135.JPG" alt="Photo 02 image 2" data-parallax="12">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0062_IMG_2163.JPG" alt="Photo 02 image 3" data-parallax="12">
+                                <img src="assets/site-import/images/0062_IMG_2163.JPG" alt="Photo 02 image 3" data-parallax="12">
                               </figure>
                             
                       </div>
@@ -222,17 +233,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0187_IMG_2136.JPG" alt="Photo 03 image 1" data-parallax="16">
+                  <img src="assets/site-import/images/0187_IMG_2136.JPG" alt="Photo 03 image 1" data-parallax="16">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0171_IMG_2292.JPG" alt="Photo 03 image 2" data-parallax="14">
+                                <img src="assets/site-import/images/0171_IMG_2292.JPG" alt="Photo 03 image 2" data-parallax="14">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0032_IMG_2138.JPG" alt="Photo 03 image 3" data-parallax="14">
+                                <img src="assets/site-import/images/0032_IMG_2138.JPG" alt="Photo 03 image 3" data-parallax="14">
                               </figure>
                             
                       </div>
@@ -248,17 +259,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0150_L1000065.jpeg" alt="Photo 04 image 1" data-parallax="18">
+                  <img src="assets/site-import/images/0150_L1000065.jpeg" alt="Photo 04 image 1" data-parallax="18">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0029_IMG_2150.JPG" alt="Photo 04 image 2" data-parallax="16">
+                                <img src="assets/site-import/images/0029_IMG_2150.JPG" alt="Photo 04 image 2" data-parallax="16">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0019_L1000282.jpeg" alt="Photo 04 image 3" data-parallax="16">
+                                <img src="assets/site-import/images/0019_L1000282.jpeg" alt="Photo 04 image 3" data-parallax="16">
                               </figure>
                             
                       </div>
@@ -274,17 +285,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0149_IMG_2233.JPG" alt="Photo 05 image 1" data-parallax="20">
+                  <img src="assets/site-import/images/0149_IMG_2233.JPG" alt="Photo 05 image 1" data-parallax="20">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0103_IMG_2198.JPG" alt="Photo 05 image 2" data-parallax="18">
+                                <img src="assets/site-import/images/0103_IMG_2198.JPG" alt="Photo 05 image 2" data-parallax="18">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0004_IMG_2207.JPG" alt="Photo 05 image 3" data-parallax="18">
+                                <img src="assets/site-import/images/0004_IMG_2207.JPG" alt="Photo 05 image 3" data-parallax="18">
                               </figure>
                             
                       </div>
@@ -300,17 +311,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0145_IMG_2118.JPG" alt="Photo 06 image 1" data-parallax="22">
+                  <img src="assets/site-import/images/0145_IMG_2118.JPG" alt="Photo 06 image 1" data-parallax="22">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0084_IMG_2229.JPG" alt="Photo 06 image 2" data-parallax="20">
+                                <img src="assets/site-import/images/0084_IMG_2229.JPG" alt="Photo 06 image 2" data-parallax="20">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0023_IMG_2259.JPG" alt="Photo 06 image 3" data-parallax="20">
+                                <img src="assets/site-import/images/0023_IMG_2259.JPG" alt="Photo 06 image 3" data-parallax="20">
                               </figure>
                             
                       </div>
@@ -326,17 +337,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0079_IMG_2265%2B2.JPG" alt="Photo 07 image 1" data-parallax="24">
+                  <img src="assets/site-import/images/0079_IMG_2265%2B2.JPG" alt="Photo 07 image 1" data-parallax="24">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0170_IMG_2269.JPG" alt="Photo 07 image 2" data-parallax="22">
+                                <img src="assets/site-import/images/0170_IMG_2269.JPG" alt="Photo 07 image 2" data-parallax="22">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0070_IMG_2284.JPG" alt="Photo 07 image 3" data-parallax="22">
+                                <img src="assets/site-import/images/0070_IMG_2284.JPG" alt="Photo 07 image 3" data-parallax="22">
                               </figure>
                             
                       </div>
@@ -352,17 +363,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0054_IMG_2291.JPG" alt="Photo 08 image 1" data-parallax="26">
+                  <img src="assets/site-import/images/0054_IMG_2291.JPG" alt="Photo 08 image 1" data-parallax="26">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0057_L1000078.jpeg" alt="Photo 08 image 2" data-parallax="24">
+                                <img src="assets/site-import/images/0057_L1000078.jpeg" alt="Photo 08 image 2" data-parallax="24">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0175_IMG_2295.JPG" alt="Photo 08 image 3" data-parallax="24">
+                                <img src="assets/site-import/images/0175_IMG_2295.JPG" alt="Photo 08 image 3" data-parallax="24">
                               </figure>
                             
                       </div>
@@ -378,17 +389,17 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0118_L1000072.jpeg" alt="Photo 09 image 1" data-parallax="28">
+                  <img src="assets/site-import/images/0118_L1000072.jpeg" alt="Photo 09 image 1" data-parallax="28">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0144_L1000082.jpeg" alt="Photo 09 image 2" data-parallax="26">
+                                <img src="assets/site-import/images/0144_L1000082.jpeg" alt="Photo 09 image 2" data-parallax="26">
                               </figure>
                             
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0164_L1000114.jpeg" alt="Photo 09 image 3" data-parallax="26">
+                                <img src="assets/site-import/images/0164_L1000114.jpeg" alt="Photo 09 image 3" data-parallax="26">
                               </figure>
                             
                       </div>
@@ -404,13 +415,13 @@
               </div>
               <div class="gallery-sequence__media">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
-                  <img src="/portfolio_pongsant/assets/site-import/images/0011_L1000236.jpeg" alt="Photo 10 image 1" data-parallax="30">
+                  <img src="assets/site-import/images/0011_L1000236.jpeg" alt="Photo 10 image 1" data-parallax="30">
                 </figure>
                 
                       <div class="gallery-sequence__secondary">
                         
                               <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
-                                <img src="/portfolio_pongsant/assets/site-import/images/0014_L1000260.jpeg" alt="Photo 10 image 2" data-parallax="28">
+                                <img src="assets/site-import/images/0014_L1000260.jpeg" alt="Photo 10 image 2" data-parallax="28">
                               </figure>
                             
                       </div>
@@ -430,10 +441,10 @@
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
-          <a href="/portfolio_pongsant/">HOME</a>
-          <a href="/portfolio_pongsant/my-works/">MY WORKS</a>
-          <a href="/portfolio_pongsant/about/">ABOUT</a>
-          <a href="/portfolio_pongsant/contact/">CONTACT</a>
+          <a href="./">HOME</a>
+          <a href="my-works/">MY WORKS</a>
+          <a href="about/">ABOUT</a>
+          <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
           
