@@ -413,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
           drawLoop(
             ctx,
             loop.points,
-            `rgba(5, 5, 5, ${Number(loop.alpha * depthOpacity).toFixed(3)})`,
+            `rgba(232, 238, 242, ${Number(loop.alpha * depthOpacity).toFixed(3)})`,
             loop.lineWidth
           );
         });
