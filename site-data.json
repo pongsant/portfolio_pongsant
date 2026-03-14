@@ -1,0 +1,877 @@
+{
+  "site": {
+    "title": "PORTFOLIO",
+    "owner": "Pongsant Chintanapakdee",
+    "location": "New York, NY",
+    "footerText": "Built from the currently published portfolio archive on March 14, 2026."
+  },
+  "navigation": [
+    {
+      "label": "MY WORKS",
+      "href": "/my-works"
+    },
+    {
+      "label": "ABOUT",
+      "href": "/about"
+    },
+    {
+      "label": "CONTACT",
+      "href": "/contact"
+    }
+  ],
+  "home": {
+    "route": "/",
+    "aliases": [
+      "/homepage-2"
+    ],
+    "title": "Pongsant Chintanapakdee",
+    "intro": "A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.",
+    "featuredStory": {
+      "title": "Filial Project",
+      "cover": "/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png",
+      "images": [
+        "/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png",
+        "/assets/site-import/images/0157_logo%2B2.png"
+      ],
+      "aboutLabel": "About",
+      "aboutText": "Filial Project is a clothing brand started with friends, focused on minimal design, strong identity, and thoughtful presentation across both fashion and digital platforms.",
+      "prototypeLabel": "Interactive Website Prototype",
+      "prototypeText": "Designed and coded independently using HTML, CSS, and JavaScript as a functional brand prototype for digital fashion presentation and interactive storytelling."
+    },
+    "collectionOrder": [
+      "/graphic-design",
+      "/photo",
+      "/drawing",
+      "/coding",
+      "/product"
+    ]
+  },
+  "about": {
+    "route": "/about",
+    "title": "ABOUT",
+    "loopText": "ABOUT * ABOUT * ABOUT *",
+    "portrait": "/assets/site-import/images/0182_IMG_8477.JPG",
+    "paragraphs": [
+      "Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the worlds of art and music since childhood.",
+      "Growing up in a creative family, with a mother grounded in visual arts and a father working across interior architecture and graphic design, gave him an early connection to design as both craft and daily life.",
+      "After moving to Los Angeles in 2021, he continued his artistic journey in the United States, earning recognition and scholarships from major art and design schools before continuing at Parsons in New York City."
+    ],
+    "education": [
+      {
+        "title": "Bachelor of Fine Arts (BFA)",
+        "detail": "Design and Technology, Parsons School of Design, New York City. Expected graduation: 2027."
+      },
+      {
+        "title": "Graphic Design",
+        "detail": "Santa Monica College, Los Angeles, 2023."
+      }
+    ],
+    "achievements": [
+      {
+        "title": "School of Visual Arts",
+        "detail": "Silas H. Rhodes Scholarship with 50% tuition support and additional grants."
+      },
+      {
+        "title": "Pratt Institute",
+        "detail": "60% tuition scholarship."
+      },
+      {
+        "title": "Parsons School of Design",
+        "detail": "40% tuition scholarship and acceptance for Fall 2024."
+      }
+    ],
+    "skills": [
+      "Photoshop",
+      "Illustrator",
+      "InDesign",
+      "XD",
+      "Premiere Pro",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Visual Arts"
+    ],
+    "interests": [
+      "Music",
+      "Guitar",
+      "Piano",
+      "Fashion",
+      "Content Creation"
+    ]
+  },
+  "contact": {
+    "route": "/contact",
+    "title": "CONTACT",
+    "loopText": "CONTACT * CONTACT * CONTACT *",
+    "portrait": "/assets/site-import/images/0060_IMG_2186.JPG",
+    "intro": "Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.",
+    "links": [
+      {
+        "label": "Email",
+        "value": "1pongsant@gmail.com",
+        "href": "mailto:1pongsant@gmail.com"
+      },
+      {
+        "label": "Phone",
+        "value": "(424)599-3914",
+        "href": "tel:+14245993914"
+      },
+      {
+        "label": "Location",
+        "value": "New York, NY",
+        "href": "/contact"
+      },
+      {
+        "label": "Instagram",
+        "value": "@prum20baht",
+        "href": "https://www.instagram.com/prum20baht/",
+        "external": true
+      },
+      {
+        "label": "YouTube",
+        "value": "@prum20baht",
+        "href": "https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB",
+        "external": true
+      }
+    ]
+  },
+  "worksHub": {
+    "route": "/my-works",
+    "title": "MY WORKS",
+    "loopText": "MY WORKS * MY WORKS * MY WORKS *",
+    "intro": "Browse the portfolio the same way the original site is organized: by discipline first, then by project."
+  },
+  "collections": [
+    {
+      "key": "graphic-design",
+      "label": "GRAPHIC DESIGN",
+      "shortLabel": "Graphic Design",
+      "route": "/graphic-design",
+      "type": "projects",
+      "description": "Poster systems, branding studies, publication work, and typography experiments.",
+      "coverRoute": "/graphic-design/project-one-f5w4d-ebxzf",
+      "cover": "/assets/site-import/images/0085_p1.jpg",
+      "itemCount": 23,
+      "imageCount": 110,
+      "preview": [
+        {
+          "title": "David Carson Poster Design",
+          "cover": "/assets/site-import/images/0097_3.jpg",
+          "href": "/graphic-design/project-six-sz8wl-bb73t"
+        },
+        {
+          "title": "Project Six",
+          "cover": "/assets/site-import/images/0189_Screenshot%2B2026-01-04%2Bat%2B22.31.47.png",
+          "href": "/graphic-design/project-six-6f87e-hep2b"
+        },
+        {
+          "title": "Portrait Poster Design",
+          "cover": "/assets/site-import/images/0072_1.jpg",
+          "href": "/graphic-design/project-five-jkmzy-r6ser"
+        },
+        {
+          "title": "Nature Poster Design",
+          "cover": "/assets/site-import/images/0030_4.jpg",
+          "href": "/graphic-design/project-four-yjynj-8m64e"
+        }
+      ]
+    },
+    {
+      "key": "photo",
+      "label": "PHOTO",
+      "shortLabel": "Photo",
+      "route": "/photo",
+      "type": "gallery",
+      "description": "Photography by Pongsant Chintanapakdee, built around mood, everyday detail, light, and movement.",
+      "coverRoute": "/photo",
+      "cover": "/assets/site-import/images/0064_IMG_2186.JPG",
+      "itemCount": 29,
+      "imageCount": 29,
+      "images": [
+        "/assets/site-import/images/0064_IMG_2186.JPG",
+        "/assets/site-import/images/0153_IMG_1094.JPG",
+        "/assets/site-import/images/0042_IMG_2152.JPG",
+        "/assets/site-import/images/0122_IMG_1253.JPG",
+        "/assets/site-import/images/0172_IMG_2135.JPG",
+        "/assets/site-import/images/0062_IMG_2163.JPG",
+        "/assets/site-import/images/0187_IMG_2136.JPG",
+        "/assets/site-import/images/0171_IMG_2292.JPG",
+        "/assets/site-import/images/0032_IMG_2138.JPG",
+        "/assets/site-import/images/0150_L1000065.jpeg",
+        "/assets/site-import/images/0029_IMG_2150.JPG",
+        "/assets/site-import/images/0019_L1000282.jpeg",
+        "/assets/site-import/images/0149_IMG_2233.JPG",
+        "/assets/site-import/images/0103_IMG_2198.JPG",
+        "/assets/site-import/images/0004_IMG_2207.JPG",
+        "/assets/site-import/images/0145_IMG_2118.JPG",
+        "/assets/site-import/images/0084_IMG_2229.JPG",
+        "/assets/site-import/images/0023_IMG_2259.JPG",
+        "/assets/site-import/images/0079_IMG_2265%2B2.JPG",
+        "/assets/site-import/images/0170_IMG_2269.JPG",
+        "/assets/site-import/images/0070_IMG_2284.JPG",
+        "/assets/site-import/images/0054_IMG_2291.JPG",
+        "/assets/site-import/images/0057_L1000078.jpeg",
+        "/assets/site-import/images/0175_IMG_2295.JPG",
+        "/assets/site-import/images/0118_L1000072.jpeg",
+        "/assets/site-import/images/0144_L1000082.jpeg",
+        "/assets/site-import/images/0164_L1000114.jpeg",
+        "/assets/site-import/images/0011_L1000236.jpeg",
+        "/assets/site-import/images/0014_L1000260.jpeg"
+      ],
+      "preview": [
+        {
+          "title": "Photo 1",
+          "cover": "/assets/site-import/images/0064_IMG_2186.JPG",
+          "href": "/photo"
+        },
+        {
+          "title": "Photo 2",
+          "cover": "/assets/site-import/images/0153_IMG_1094.JPG",
+          "href": "/photo"
+        },
+        {
+          "title": "Photo 3",
+          "cover": "/assets/site-import/images/0042_IMG_2152.JPG",
+          "href": "/photo"
+        },
+        {
+          "title": "Photo 4",
+          "cover": "/assets/site-import/images/0122_IMG_1253.JPG",
+          "href": "/photo"
+        }
+      ]
+    },
+    {
+      "key": "drawing",
+      "label": "DRAWING",
+      "shortLabel": "Drawing",
+      "route": "/drawing",
+      "type": "gallery",
+      "description": "Sketches, studies, and hand-drawn work that stay visible alongside digital projects.",
+      "coverRoute": "/drawing",
+      "cover": "/assets/site-import/images/0188_1.jpg",
+      "itemCount": 16,
+      "imageCount": 16,
+      "images": [
+        "/assets/site-import/images/0188_1.jpg",
+        "/assets/site-import/images/0192_2.jpg",
+        "/assets/site-import/images/0066_3.jpg",
+        "/assets/site-import/images/0069_4.jpg",
+        "/assets/site-import/images/0077_5.jpg",
+        "/assets/site-import/images/0169_6.jpg",
+        "/assets/site-import/images/0140_7.jpg",
+        "/assets/site-import/images/0127_8.jpg",
+        "/assets/site-import/images/0091_IMG_0640%2Bcopy.JPG",
+        "/assets/site-import/images/0059_IMG_0641%2Bcopy.JPG",
+        "/assets/site-import/images/0008_IMG_0642%2Bcopy.JPG",
+        "/assets/site-import/images/0100_IMG_0666%2Bcopy.JPG",
+        "/assets/site-import/images/0167_IMG_0667%2Bcopy.JPG",
+        "/assets/site-import/images/0186_Untitled_Artwork%2Bcopy.jpg",
+        "/assets/site-import/images/0022_IMG_0668%252Bcopy.jpg",
+        "/assets/site-import/images/0151_9.jpg"
+      ],
+      "preview": [
+        {
+          "title": "Drawing 1",
+          "cover": "/assets/site-import/images/0188_1.jpg",
+          "href": "/drawing"
+        },
+        {
+          "title": "Drawing 2",
+          "cover": "/assets/site-import/images/0192_2.jpg",
+          "href": "/drawing"
+        },
+        {
+          "title": "Drawing 3",
+          "cover": "/assets/site-import/images/0066_3.jpg",
+          "href": "/drawing"
+        },
+        {
+          "title": "Drawing 4",
+          "cover": "/assets/site-import/images/0069_4.jpg",
+          "href": "/drawing"
+        }
+      ]
+    },
+    {
+      "key": "coding",
+      "label": "CODING",
+      "shortLabel": "Coding",
+      "route": "/coding",
+      "type": "projects",
+      "description": "Interactive prototypes and creative technology built through HTML, CSS, JavaScript, and physical computing.",
+      "coverRoute": "/coding/the-last-hope",
+      "cover": "/assets/site-import/images/0036_f1.2.jpg",
+      "itemCount": 4,
+      "imageCount": 14,
+      "preview": [
+        {
+          "title": "Temperature Glow Lamp",
+          "cover": "/assets/site-import/images/0136_IMG_6190.JPG",
+          "href": "/coding/project-three-8zgh7-xtbsr"
+        },
+        {
+          "title": "Web Design and Coding",
+          "cover": "/assets/site-import/images/0052_2.jpg",
+          "href": "/coding/project-two-llrgk-kx83j"
+        },
+        {
+          "title": "Flower",
+          "cover": "/assets/site-import/images/0174_1.jpg",
+          "href": "/coding/project-one-ephnc-ngeg5"
+        },
+        {
+          "title": "The Last Hope",
+          "cover": "/assets/site-import/images/0036_f1.2.jpg",
+          "href": "/coding/the-last-hope"
+        }
+      ]
+    },
+    {
+      "key": "product",
+      "label": "PRODUCT DESIGN",
+      "shortLabel": "Product Design",
+      "route": "/product",
+      "type": "projects",
+      "description": "Objects and spatial interactions shaped by material thinking, display, and cultural references.",
+      "coverRoute": "/product/project-one-ephnc-3368k",
+      "cover": "/assets/site-import/images/0010_2.jpg",
+      "itemCount": 2,
+      "imageCount": 14,
+      "preview": [
+        {
+          "title": "Decorative Box",
+          "cover": "/assets/site-import/images/0068_1.jpg",
+          "href": "/product/project-two-llrgk-3hjw3"
+        },
+        {
+          "title": "Interactive Table",
+          "cover": "/assets/site-import/images/0010_2.jpg",
+          "href": "/product/project-one-ephnc-3368k"
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "route": "/graphic-design/project-six-sz8wl-bb73t",
+      "slug": "project-six-sz8wl-bb73t",
+      "title": "David Carson Poster Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0097_3.jpg",
+        "/assets/site-import/images/0154_2.jpg",
+        "/assets/site-import/images/0161_4.jpg",
+        "/assets/site-import/images/0009_5.jpg",
+        "/assets/site-import/images/0074_6.jpg",
+        "/assets/site-import/images/0111_7.jpg",
+        "/assets/site-import/images/0147_8.jpg",
+        "/assets/site-import/images/0124_9.jpg",
+        "/assets/site-import/images/0129_10.jpg",
+        "/assets/site-import/images/0082_1.jpg"
+      ],
+      "cover": "/assets/site-import/images/0097_3.jpg",
+      "imageCount": 10
+    },
+    {
+      "route": "/graphic-design/project-six-6f87e-hep2b",
+      "slug": "project-six-6f87e-hep2b",
+      "title": "Project Six",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0189_Screenshot%2B2026-01-04%2Bat%2B22.31.47.png",
+        "/assets/site-import/images/0076_Screenshot%2B2026-01-04%2Bat%2B22.32.39.png",
+        "/assets/site-import/images/0026_Screenshot%2B2026-01-04%2Bat%2B22.33.00.png"
+      ],
+      "cover": "/assets/site-import/images/0189_Screenshot%2B2026-01-04%2Bat%2B22.31.47.png",
+      "imageCount": 3
+    },
+    {
+      "route": "/graphic-design/project-five-jkmzy-r6ser",
+      "slug": "project-five-jkmzy-r6ser",
+      "title": "Portrait Poster Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0072_1.jpg",
+        "/assets/site-import/images/0120_2.jpg",
+        "/assets/site-import/images/0160_3.jpg",
+        "/assets/site-import/images/0086_4.jpg"
+      ],
+      "cover": "/assets/site-import/images/0072_1.jpg",
+      "imageCount": 4
+    },
+    {
+      "route": "/graphic-design/project-four-yjynj-8m64e",
+      "slug": "project-four-yjynj-8m64e",
+      "title": "Nature Poster Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0030_4.jpg",
+        "/assets/site-import/images/0168_3.jpg",
+        "/assets/site-import/images/0115_1.jpg",
+        "/assets/site-import/images/0110_2.jpg"
+      ],
+      "cover": "/assets/site-import/images/0030_4.jpg",
+      "imageCount": 4
+    },
+    {
+      "route": "/graphic-design/project-three-8zgh7-7kart",
+      "slug": "project-three-8zgh7-7kart",
+      "title": "Name Poster",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0185_pongsant%2Bposter.jpg"
+      ],
+      "cover": "/assets/site-import/images/0185_pongsant%2Bposter.jpg",
+      "imageCount": 1
+    },
+    {
+      "route": "/graphic-design/project-two-llrgk-499cz",
+      "slug": "project-two-llrgk-499cz",
+      "title": "Josh Lennon Poster",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0112_john%2Blennon.jpg"
+      ],
+      "cover": "/assets/site-import/images/0112_john%2Blennon.jpg",
+      "imageCount": 1
+    },
+    {
+      "route": "/graphic-design/font-design-1",
+      "slug": "font-design-1",
+      "title": "Font Design 1",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0194_1.jpg",
+        "/assets/site-import/images/0028_2.jpg",
+        "/assets/site-import/images/0027_3.jpg",
+        "/assets/site-import/images/0173_4.jpg",
+        "/assets/site-import/images/0034_5.jpg",
+        "/assets/site-import/images/0193_6.jpg"
+      ],
+      "cover": "/assets/site-import/images/0194_1.jpg",
+      "imageCount": 6
+    },
+    {
+      "route": "/graphic-design/font-design-2",
+      "slug": "font-design-2",
+      "title": "Font Design 2",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0055_1.jpg"
+      ],
+      "cover": "/assets/site-import/images/0055_1.jpg",
+      "imageCount": 1
+    },
+    {
+      "route": "/graphic-design/initial-logo-design",
+      "slug": "initial-logo-design",
+      "title": "Initial Logo Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0056_1.jpg",
+        "/assets/site-import/images/0035_3.jpg",
+        "/assets/site-import/images/0089_2.jpg"
+      ],
+      "cover": "/assets/site-import/images/0056_1.jpg",
+      "imageCount": 3
+    },
+    {
+      "route": "/graphic-design/typographic-systems-handbook",
+      "slug": "typographic-systems-handbook",
+      "title": "Typographic Systems Handbook",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0107_2.jpg",
+        "/assets/site-import/images/0181_1.jpg"
+      ],
+      "cover": "/assets/site-import/images/0107_2.jpg",
+      "imageCount": 2
+    },
+    {
+      "route": "/graphic-design/calendar-design",
+      "slug": "calendar-design",
+      "title": "Calendar Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0020_1.jpg",
+        "/assets/site-import/images/0003_2.jpg",
+        "/assets/site-import/images/0162_3.jpg",
+        "/assets/site-import/images/0092_4.jpg"
+      ],
+      "cover": "/assets/site-import/images/0020_1.jpg",
+      "imageCount": 4
+    },
+    {
+      "route": "/graphic-design/branding-design",
+      "slug": "branding-design",
+      "title": "Branding Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0116_2.jpg",
+        "/assets/site-import/images/0017_14.jpg",
+        "/assets/site-import/images/0080_3.jpg",
+        "/assets/site-import/images/0101_15.jpg",
+        "/assets/site-import/images/0081_4.jpg",
+        "/assets/site-import/images/0016_16.jpg",
+        "/assets/site-import/images/0126_5.jpg",
+        "/assets/site-import/images/0061_17.jpg",
+        "/assets/site-import/images/0044_6.jpg",
+        "/assets/site-import/images/0163_18.jpg",
+        "/assets/site-import/images/0002_7.jpg",
+        "/assets/site-import/images/0058_19.jpg",
+        "/assets/site-import/images/0131_8.jpg",
+        "/assets/site-import/images/0104_9.jpg",
+        "/assets/site-import/images/0051_10.jpg",
+        "/assets/site-import/images/0078_11.jpg",
+        "/assets/site-import/images/0158_12.jpg",
+        "/assets/site-import/images/0138_13.jpg",
+        "/assets/site-import/images/0166_1.jpg"
+      ],
+      "cover": "/assets/site-import/images/0116_2.jpg",
+      "imageCount": 19
+    },
+    {
+      "route": "/graphic-design/visual-hierachy-design",
+      "slug": "visual-hierachy-design",
+      "title": "Visual Hierachy Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0121_2.jpg",
+        "/assets/site-import/images/0087_3.jpg",
+        "/assets/site-import/images/0105_4.jpg"
+      ],
+      "cover": "/assets/site-import/images/0121_2.jpg",
+      "imageCount": 3
+    },
+    {
+      "route": "/graphic-design/year-poster-design",
+      "slug": "year-poster-design",
+      "title": "Year Poster Design 1",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0178_1.jpg",
+        "/assets/site-import/images/0038_5.jpg"
+      ],
+      "cover": "/assets/site-import/images/0178_1.jpg",
+      "imageCount": 2
+    },
+    {
+      "route": "/graphic-design/year-poster-design-2",
+      "slug": "year-poster-design-2",
+      "title": "Year Poster Design 2",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0139_1.jpg",
+        "/assets/site-import/images/0031_2.jpg",
+        "/assets/site-import/images/0108_3.jpg"
+      ],
+      "cover": "/assets/site-import/images/0139_1.jpg",
+      "imageCount": 3
+    },
+    {
+      "route": "/graphic-design/magazine-design",
+      "slug": "magazine-design",
+      "title": "Magazine Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0190_2.jpg",
+        "/assets/site-import/images/0049_3.jpg",
+        "/assets/site-import/images/0041_4.jpg",
+        "/assets/site-import/images/0096_1.jpg",
+        "/assets/site-import/images/0177_5.jpg",
+        "/assets/site-import/images/0142_6.jpg"
+      ],
+      "cover": "/assets/site-import/images/0190_2.jpg",
+      "imageCount": 6
+    },
+    {
+      "route": "/graphic-design/rebranding-coffeeblack",
+      "slug": "rebranding-coffeeblack",
+      "title": "Rebranding Coffeeblack",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0007_1.jpg",
+        "/assets/site-import/images/0071_2.jpg",
+        "/assets/site-import/images/0095_3.jpg",
+        "/assets/site-import/images/0050_4.jpg",
+        "/assets/site-import/images/0156_5.jpg",
+        "/assets/site-import/images/0046_7.jpg",
+        "/assets/site-import/images/0109_6.jpg"
+      ],
+      "cover": "/assets/site-import/images/0007_1.jpg",
+      "imageCount": 7
+    },
+    {
+      "route": "/graphic-design/kwickcook-meal-plan-kit",
+      "slug": "kwickcook-meal-plan-kit",
+      "title": "Kwickcook Meal Plan Kit",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0196_1.jpg",
+        "/assets/site-import/images/0128_2.jpg",
+        "/assets/site-import/images/0040_3.jpg"
+      ],
+      "cover": "/assets/site-import/images/0196_1.jpg",
+      "imageCount": 3
+    },
+    {
+      "route": "/graphic-design/postcards-from-the-future",
+      "slug": "postcards-from-the-future",
+      "title": "Postcards from the Future",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "A graphic design project with a strong image rhythm that works well as a full project page in the rebuilt archive.",
+      "images": [
+        "/assets/site-import/images/0148_L1020496%2Bcopy.JPG",
+        "/assets/site-import/images/0065_L1020495%2Bcopy.JPG",
+        "/assets/site-import/images/0053_L1020494%2Bcopy.JPG",
+        "/assets/site-import/images/0159_Untitled-1-01.jpg",
+        "/assets/site-import/images/0048_Untitled-1-02.jpg"
+      ],
+      "cover": "/assets/site-import/images/0148_L1020496%2Bcopy.JPG",
+      "imageCount": 5
+    },
+    {
+      "route": "/graphic-design/project-one-ephnc-e6ck8",
+      "slug": "project-one-ephnc-e6ck8",
+      "title": "7 Sins Design",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0141_7%2Bdeadly%2Bsin.jpg"
+      ],
+      "cover": "/assets/site-import/images/0141_7%2Bdeadly%2Bsin.jpg",
+      "imageCount": 1
+    },
+    {
+      "route": "/graphic-design/typography-car",
+      "slug": "typography-car",
+      "title": "Typography Car",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0006_car%2Bcopy.png"
+      ],
+      "cover": "/assets/site-import/images/0006_car%2Bcopy.png",
+      "imageCount": 1
+    },
+    {
+      "route": "/graphic-design/project-one-f5w4d-br6yr",
+      "slug": "project-one-f5w4d-br6yr",
+      "title": "Project One",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "Graphic Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0045_Screenshot%2B2026-01-04%2Bat%2B22.16.24.png",
+        "/assets/site-import/images/0155_Screenshot%2B2026-01-04%2Bat%2B22.42.57.png",
+        "/assets/site-import/images/0113_Screenshot%2B2026-01-04%2Bat%2B22.42.42.png",
+        "/assets/site-import/images/0005_Screenshot%2B2026-01-04%2Bat%2B22.43.11.png",
+        "/assets/site-import/images/0119_Screenshot%2B2026-01-04%2Bat%2B22.43.33.png",
+        "/assets/site-import/images/0195_Screenshot%2B2026-01-04%2Bat%2B22.43.46.png"
+      ],
+      "cover": "/assets/site-import/images/0045_Screenshot%2B2026-01-04%2Bat%2B22.16.24.png",
+      "imageCount": 6
+    },
+    {
+      "route": "/graphic-design/project-one-f5w4d-ebxzf",
+      "slug": "project-one-f5w4d-ebxzf",
+      "title": "POTRAIT OF THE SELFLESS SELF",
+      "discipline": "graphic-design",
+      "disciplineLabel": "Graphic Design",
+      "collectionRoute": "/graphic-design",
+      "summary": "A high-image graphic design project carried over from the live archive and rebuilt as a clean standalone detail page.",
+      "images": [
+        "/assets/site-import/images/0085_p1.jpg",
+        "/assets/site-import/images/0067_p2.jpg",
+        "/assets/site-import/images/0106_p3.jpg",
+        "/assets/site-import/images/0143_p4.jpg",
+        "/assets/site-import/images/0125_p5.jpg",
+        "/assets/site-import/images/0152_p6.jpg",
+        "/assets/site-import/images/0001_p7.jpg",
+        "/assets/site-import/images/0165_p8.jpg",
+        "/assets/site-import/images/0037_p10.jpg",
+        "/assets/site-import/images/0132_p9.jpg",
+        "/assets/site-import/images/0179_p11.jpg",
+        "/assets/site-import/images/0184_p12.jpg",
+        "/assets/site-import/images/0013_p13.jpg",
+        "/assets/site-import/images/0098_p14.jpg",
+        "/assets/site-import/images/0021_p15.jpg"
+      ],
+      "cover": "/assets/site-import/images/0085_p1.jpg",
+      "imageCount": 15
+    },
+    {
+      "route": "/coding/project-three-8zgh7-xtbsr",
+      "slug": "project-three-8zgh7-xtbsr",
+      "title": "Temperature Glow Lamp",
+      "discipline": "coding",
+      "disciplineLabel": "Coding",
+      "collectionRoute": "/coding",
+      "summary": "Coding work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0136_IMG_6190.JPG",
+        "/assets/site-import/images/0015_IMG_6192%2Bcopy.JPG"
+      ],
+      "cover": "/assets/site-import/images/0136_IMG_6190.JPG",
+      "imageCount": 2
+    },
+    {
+      "route": "/coding/project-two-llrgk-kx83j",
+      "slug": "project-two-llrgk-kx83j",
+      "title": "Web Design and Coding",
+      "discipline": "coding",
+      "disciplineLabel": "Coding",
+      "collectionRoute": "/coding",
+      "summary": "Coding work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0052_2.jpg"
+      ],
+      "cover": "/assets/site-import/images/0052_2.jpg",
+      "imageCount": 1
+    },
+    {
+      "route": "/coding/project-one-ephnc-ngeg5",
+      "slug": "project-one-ephnc-ngeg5",
+      "title": "Flower",
+      "discipline": "coding",
+      "disciplineLabel": "Coding",
+      "collectionRoute": "/coding",
+      "summary": "Coding work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0174_1.jpg",
+        "/assets/site-import/images/0137_2.jpg",
+        "/assets/site-import/images/0083_IMG_4432.JPG"
+      ],
+      "cover": "/assets/site-import/images/0174_1.jpg",
+      "imageCount": 3
+    },
+    {
+      "route": "/coding/the-last-hope",
+      "slug": "the-last-hope",
+      "title": "The Last Hope",
+      "discipline": "coding",
+      "disciplineLabel": "Coding",
+      "collectionRoute": "/coding",
+      "summary": "A coding project presented as a visual story sequence, now translated into a page structure that matches the original portfolio hierarchy.",
+      "images": [
+        "/assets/site-import/images/0036_f1.2.jpg",
+        "/assets/site-import/images/0135_f2.jpg",
+        "/assets/site-import/images/0183_f3.jpg",
+        "/assets/site-import/images/0024_f4.jpg",
+        "/assets/site-import/images/0093_f5.jpg",
+        "/assets/site-import/images/0191_f6.jpg",
+        "/assets/site-import/images/0012_f7.jpg",
+        "/assets/site-import/images/0180_f8.jpg"
+      ],
+      "cover": "/assets/site-import/images/0036_f1.2.jpg",
+      "imageCount": 8
+    },
+    {
+      "route": "/product/project-two-llrgk-3hjw3",
+      "slug": "project-two-llrgk-3hjw3",
+      "title": "Decorative Box",
+      "discipline": "product",
+      "disciplineLabel": "Product Design",
+      "collectionRoute": "/product",
+      "summary": "Product Design work imported from the current live portfolio and ready to swap later with original high-resolution files.",
+      "images": [
+        "/assets/site-import/images/0068_1.jpg",
+        "/assets/site-import/images/0176_2.jpg",
+        "/assets/site-import/images/0114_3.jpg",
+        "/assets/site-import/images/0094_4.jpg",
+        "/assets/site-import/images/0090_5.jpg",
+        "/assets/site-import/images/0102_8.jpg",
+        "/assets/site-import/images/0039_7.jpg",
+        "/assets/site-import/images/0043_6.jpg"
+      ],
+      "cover": "/assets/site-import/images/0068_1.jpg",
+      "imageCount": 8
+    },
+    {
+      "route": "/product/project-one-ephnc-3368k",
+      "slug": "project-one-ephnc-3368k",
+      "title": "Interactive Table",
+      "discipline": "product",
+      "disciplineLabel": "Product Design",
+      "collectionRoute": "/product",
+      "summary": "A product design project focused on form, interaction, and presentation through the original published image sequence.",
+      "images": [
+        "/assets/site-import/images/0010_2.jpg",
+        "/assets/site-import/images/0047_1.jpg",
+        "/assets/site-import/images/0063_3.jpg",
+        "/assets/site-import/images/0033_5.jpg",
+        "/assets/site-import/images/0133_6.jpg",
+        "/assets/site-import/images/0117_IMG_6166.JPG"
+      ],
+      "cover": "/assets/site-import/images/0010_2.jpg",
+      "imageCount": 6
+    }
+  ],
+  "stats": {
+    "projectPages": 29,
+    "collectionPages": 5,
+    "importedImages": 196
+  }
+}
