@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -45,28 +62,6 @@
     </header>
   
     
-    <div class="site-utility">
-      <div class="site-utility__note">
-        <span>New York, NY</span>
-        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
-      </div>
-      <nav class="site-utility__links" aria-label="Direct links">
-        
-              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
-                <span>1pongsant@gmail.com</span>
-              </a>
-            
-              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
-                <span>@prum20baht</span>
-              </a>
-            
-              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
-                <span>@prum20baht</span>
-              </a>
-            
-      </nav>
-    </div>
-  
     
     <div class="contact-panel" data-contact-panel hidden>
       <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
@@ -77,7 +72,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -115,128 +110,86 @@
       <section class="home-section home-portal" data-section data-home-portal>
         <div class="home-portal__intro">
           <p class="eyebrow motion-reveal">PORTFOLIO CATEGORIES</p>
-          <h1 class="home-portal__title motion-reveal">Pongsant Chintanapakdee</h1>
-          <p class="home-portal__summary motion-reveal">A floating stack of selected works from each category. Hover or use the labels to bring one forward, then click the panel to open the full archive.</p>
-          <div class="home-portal__nav motion-reveal" aria-label="Category preview navigation">
-            
-                  <button class="home-portal__nav-button is-active" type="button" data-portal-index="0">
-                    <small>01</small>
-                    <span>GRAPHIC DESIGN</span>
-                  </button>
-                
-                  <button class="home-portal__nav-button" type="button" data-portal-index="1">
-                    <small>02</small>
-                    <span>PHOTO</span>
-                  </button>
-                
-                  <button class="home-portal__nav-button" type="button" data-portal-index="2">
-                    <small>03</small>
-                    <span>DRAWING</span>
-                  </button>
-                
-                  <button class="home-portal__nav-button" type="button" data-portal-index="3">
-                    <small>04</small>
-                    <span>CODING</span>
-                  </button>
-                
-                  <button class="home-portal__nav-button" type="button" data-portal-index="4">
-                    <small>05</small>
-                    <span>PRODUCT DESIGN</span>
-                  </button>
-                
+          <div class="home-portal__headline">
+            <h1 class="home-portal__title motion-reveal"><span data-hero-line>Pongsant Chintanapakdee</span></h1>
+            <p class="home-portal__summary motion-reveal">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
           </div>
-          <div class="home-portal__details">
-            
-                  <article class="home-portal__detail is-active" data-portal-detail="0">
-                    <p class="eyebrow">01 · GRAPHIC DESIGN</p>
-                    <h2 class="home-portal__detail-title">David Carson Poster Design</h2>
-                    <p class="home-portal__detail-summary">Final Design My final design is crafted in the distinctive style of David Carson, serving as a concise biography poster. Inspired by Carson’s artistic nuances, I incorporated signa...</p>
-                    
-    <div class="meta-chips">
-      <span>Graphic Design</span><span>23 projects</span><span>David Carson Poster Design</span>
-    </div>
-  
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="/graphic-design/">
-                        <span>OPEN GRAPHIC DESIGN</span>
-                      </a>
-                    </div>
-                  </article>
-                
-                  <article class="home-portal__detail" data-portal-detail="1">
-                    <p class="eyebrow">02 · PHOTO</p>
-                    <h2 class="home-portal__detail-title">Photo Selection</h2>
-                    <p class="home-portal__detail-summary">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creati...</p>
-                    
-    <div class="meta-chips">
-      <span>Photo</span><span>29 images</span><span>Photo Selection</span>
-    </div>
-  
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="/photo/">
-                        <span>OPEN PHOTO</span>
-                      </a>
-                    </div>
-                  </article>
-                
-                  <article class="home-portal__detail" data-portal-detail="2">
-                    <p class="eyebrow">03 · DRAWING</p>
-                    <h2 class="home-portal__detail-title">Drawing Selection</h2>
-                    <p class="home-portal__detail-summary">Sketches, studies, and hand-drawn work that stay visible alongside digital projects.</p>
-                    
-    <div class="meta-chips">
-      <span>Drawing</span><span>16 images</span><span>Drawing Selection</span>
-    </div>
-  
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="/drawing/">
-                        <span>OPEN DRAWING</span>
-                      </a>
-                    </div>
-                  </article>
-                
-                  <article class="home-portal__detail" data-portal-detail="3">
-                    <p class="eyebrow">04 · CODING</p>
-                    <h2 class="home-portal__detail-title">Temperature Glow Lamp</h2>
-                    <p class="home-portal__detail-summary">Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...</p>
-                    
-    <div class="meta-chips">
-      <span>Coding</span><span>4 projects</span><span>Temperature Glow Lamp</span>
-    </div>
-  
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="/coding/">
-                        <span>OPEN CODING</span>
-                      </a>
-                    </div>
-                  </article>
-                
-                  <article class="home-portal__detail" data-portal-detail="4">
-                    <p class="eyebrow">05 · PRODUCT DESIGN</p>
-                    <h2 class="home-portal__detail-title">Decorative Box</h2>
-                    <p class="home-portal__detail-summary">Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering...</p>
-                    
-    <div class="meta-chips">
-      <span>Product Design</span><span>2 projects</span><span>Decorative Box</span>
-    </div>
-  
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="/product/">
-                        <span>OPEN PRODUCT DESIGN</span>
-                      </a>
-                    </div>
-                  </article>
-                
+          <div class="home-portal__controls">
+            <div class="home-portal__nav motion-reveal" aria-label="Category preview navigation">
+              
+                    <button class="home-portal__nav-button is-active" type="button" data-portal-index="0">
+                      <small>01</small>
+                      <span>GRAPHIC DESIGN</span>
+                    </button>
+                  
+                    <button class="home-portal__nav-button" type="button" data-portal-index="1">
+                      <small>02</small>
+                      <span>PHOTO</span>
+                    </button>
+                  
+                    <button class="home-portal__nav-button" type="button" data-portal-index="2">
+                      <small>03</small>
+                      <span>DRAWING</span>
+                    </button>
+                  
+                    <button class="home-portal__nav-button" type="button" data-portal-index="3">
+                      <small>04</small>
+                      <span>CODING</span>
+                    </button>
+                  
+                    <button class="home-portal__nav-button" type="button" data-portal-index="4">
+                      <small>05</small>
+                      <span>PRODUCT DESIGN</span>
+                    </button>
+                  
+            </div>
+            <div class="home-portal__progress motion-reveal" aria-hidden="true">
+              <span data-portal-progress></span>
+            </div>
           </div>
         </div>
-        <div class="home-portal__scene motion-scale" data-portal-scene>
+        <div class="home-portal__scene motion-scale" data-portal-scene tabindex="0" aria-label="Portfolio category stage">
+          <div class="home-portal__utility motion-reveal">
+            <span>New York, NY</span>
+            
+                  <a href="mailto:1pongsant@gmail.com">
+                    1pongsant@gmail.com
+                  </a>
+                
+                  <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                    Instagram
+                  </a>
+                
+                  <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                    YouTube
+                  </a>
+                
+          </div>
           <div class="home-portal__ambient home-portal__ambient--one" aria-hidden="true"></div>
           <div class="home-portal__ambient home-portal__ambient--two" aria-hidden="true"></div>
           <div class="home-portal__glow" aria-hidden="true"></div>
+          
+    <div
+      class="torus-field home-portal__torus torus-field--hero"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="hero"
+      data-torus-speed="0.86"
+      data-torus-density="1.06"
+      data-torus-scale="1.08"
+      data-torus-depth="1.1"
+      data-torus-interactive="true"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
           <div class="home-portal__stage" data-portal-stage>
             
+                  
                   <a
-                    class="home-portal__layer is-active"
+                    class="home-portal__layer home-portal__layer--text is-active"
                     href="/graphic-design/"
                     data-portal-layer="0"
                     aria-label="Open GRAPHIC DESIGN"
@@ -255,15 +208,16 @@
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="/assets/site-import/images/0097_3.jpg" alt="David Carson Poster Design">
                     <span class="home-portal__layer-copy">
                       <strong>Graphic Design</strong>
                       <em>David Carson Poster Design</em>
                     </span>
                   </a>
                 
+                
+                  
                   <a
-                    class="home-portal__layer"
+                    class="home-portal__layer home-portal__layer--text"
                     href="/photo/"
                     data-portal-layer="1"
                     aria-label="Open PHOTO"
@@ -282,15 +236,16 @@
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="Photo Selection">
                     <span class="home-portal__layer-copy">
                       <strong>Photo</strong>
                       <em>Photo Selection</em>
                     </span>
                   </a>
                 
+                
+                  
                   <a
-                    class="home-portal__layer"
+                    class="home-portal__layer home-portal__layer--text"
                     href="/drawing/"
                     data-portal-layer="2"
                     aria-label="Open DRAWING"
@@ -309,15 +264,16 @@
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="/assets/site-import/images/0188_1.jpg" alt="Drawing Selection">
                     <span class="home-portal__layer-copy">
                       <strong>Drawing</strong>
                       <em>Drawing Selection</em>
                     </span>
                   </a>
                 
+                
+                  
                   <a
-                    class="home-portal__layer"
+                    class="home-portal__layer home-portal__layer--text"
                     href="/coding/"
                     data-portal-layer="3"
                     aria-label="Open CODING"
@@ -336,15 +292,16 @@
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="/assets/site-import/images/0136_IMG_6190.JPG" alt="Temperature Glow Lamp">
                     <span class="home-portal__layer-copy">
                       <strong>Coding</strong>
                       <em>Temperature Glow Lamp</em>
                     </span>
                   </a>
                 
+                
+                  
                   <a
-                    class="home-portal__layer"
+                    class="home-portal__layer home-portal__layer--text"
                     href="/product/"
                     data-portal-layer="4"
                     aria-label="Open PRODUCT DESIGN"
@@ -363,24 +320,130 @@
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="/assets/site-import/images/0068_1.jpg" alt="Decorative Box">
                     <span class="home-portal__layer-copy">
                       <strong>Product Design</strong>
                       <em>Decorative Box</em>
                     </span>
                   </a>
                 
+                
           </div>
+        </div>
+        <div class="home-portal__status">
+          <div class="home-portal__details">
+            
+                  <article class="home-portal__detail is-active" data-portal-detail="0">
+                    <p class="eyebrow">01 · GRAPHIC DESIGN</p>
+                    <h2 class="home-portal__detail-title">David Carson Poster Design</h2>
+                    <p class="home-portal__detail-summary">Final Design My final design is crafted in the distinctive style of David Carson, serving as a concise biography poster. Inspired by Carson’s artistic nuances, I incorporated signa...</p>
+                    
+    <div class="meta-chips meta-chips--portal">
+      <span>23 PROJECTS</span><span>GRAPHIC DESIGN</span>
+    </div>
+  
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="/graphic-design/">
+                        <span>ENTER GRAPHIC DESIGN</span>
+                      </a>
+                    </div>
+                  </article>
+                
+                  <article class="home-portal__detail" data-portal-detail="1">
+                    <p class="eyebrow">02 · PHOTO</p>
+                    <h2 class="home-portal__detail-title">Photo Selection</h2>
+                    <p class="home-portal__detail-summary">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.</p>
+                    
+    <div class="meta-chips meta-chips--portal">
+      <span>29 IMAGES</span><span>PHOTO</span>
+    </div>
+  
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="/photo/">
+                        <span>ENTER PHOTO</span>
+                      </a>
+                    </div>
+                  </article>
+                
+                  <article class="home-portal__detail" data-portal-detail="2">
+                    <p class="eyebrow">03 · DRAWING</p>
+                    <h2 class="home-portal__detail-title">Drawing Selection</h2>
+                    <p class="home-portal__detail-summary">Sketches, studies, and hand-drawn work that stay visible alongside digital projects.</p>
+                    
+    <div class="meta-chips meta-chips--portal">
+      <span>16 IMAGES</span><span>DRAWING</span>
+    </div>
+  
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="/drawing/">
+                        <span>ENTER DRAWING</span>
+                      </a>
+                    </div>
+                  </article>
+                
+                  <article class="home-portal__detail" data-portal-detail="3">
+                    <p class="eyebrow">04 · CODING</p>
+                    <h2 class="home-portal__detail-title">Temperature Glow Lamp</h2>
+                    <p class="home-portal__detail-summary">Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...</p>
+                    
+    <div class="meta-chips meta-chips--portal">
+      <span>4 PROJECTS</span><span>CODING</span>
+    </div>
+  
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="/coding/">
+                        <span>ENTER CODING</span>
+                      </a>
+                    </div>
+                  </article>
+                
+                  <article class="home-portal__detail" data-portal-detail="4">
+                    <p class="eyebrow">05 · PRODUCT DESIGN</p>
+                    <h2 class="home-portal__detail-title">Decorative Box</h2>
+                    <p class="home-portal__detail-summary">Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering...</p>
+                    
+    <div class="meta-chips meta-chips--portal">
+      <span>2 PROJECTS</span><span>PRODUCT DESIGN</span>
+    </div>
+  
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="/product/">
+                        <span>ENTER PRODUCT DESIGN</span>
+                      </a>
+                    </div>
+                  </article>
+                
+          </div>
+          <a class="home-portal__cue motion-reveal" href="#filial-project">
+            <span>SCROLL</span>
+            <strong>FILIAL PROJECT</strong>
+          </a>
         </div>
       </section>
 
-      <section class="home-section home-featured-section" data-section>
+      <section class="home-section home-featured-section" id="filial-project" data-section>
+        
+    <div
+      class="torus-field home-featured-section__torus torus-field--bridge"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="bridge"
+      data-torus-speed="0.68"
+      data-torus-density="0.72"
+      data-torus-scale="0.9"
+      data-torus-depth="0.76"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <div class="home-section__header">
           <div>
             <p class="eyebrow motion-reveal">FILIAL PROJECT</p>
             <h2 class="home-section__title motion-reveal">Filial Project</h2>
           </div>
-          <p class="home-section__lede motion-reveal">Scroll down from the category sequence into Filial Project, then open the live prototype site from here.</p>
+          
         </div>
         <div class="featured-project">
           <figure class="featured-project__media motion-scale" data-parallax-wrap>
@@ -388,7 +451,7 @@
           </figure>
           <div class="featured-project__content">
             <div class="featured-project__block motion-reveal">
-              <p class="eyebrow">ABOUT FILIAL PROJECT</p>
+              <p class="eyebrow">About</p>
               <p>Filial Project is a clothing brand started with friends, focused on minimal design, strong identity, and thoughtful presentation across both fashion and digital platforms.</p>
             </div>
             <div class="featured-project__block motion-reveal">
@@ -409,7 +472,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

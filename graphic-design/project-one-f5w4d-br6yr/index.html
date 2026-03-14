@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -118,15 +135,27 @@
         </a>
       </div>
       <section class="project-detail" data-section>
+        
+    <div
+      class="torus-field project-detail__torus torus-field--detail"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="detail"
+      data-torus-speed="0.52"
+      data-torus-density="0.7"
+      data-torus-scale="0.82"
+      data-torus-depth="0.7"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">Graphic Design</p>
           <h1 class="project-detail__title motion-reveal">Typography Women Designers Poster Series</h1>
-          <p class="project-detail__summary motion-reveal">This project is a poster series celebrating four women type designers: Veronika Burian, Julieta Ulanovsky, Zuzana Licko, and Pooja Saxena. Each poster focuses on the designer’s nam...</p>
-          
-    <div class="meta-chips motion-reveal">
-      <span>6 IMAGES</span><span>PORTFOLIO</span>
-    </div>
-  
+          <div class="project-detail__lead motion-reveal"><p class="project-detail__paragraph">This project is a poster series celebrating four women type designers: Veronika Burian, Julieta Ulanovsky, Zuzana Licko, and Pooja Saxena. Each poster focuses on the designer’s name and biography, using typography as the main visual element.</p><p class="project-detail__paragraph">The design explores repetition, scale, and layering of letterforms to show how type can create both meaning and visual texture. The background is made from overlapping letters, while the large names create hierarchy and identity for each poster. The goal of the project was to connect research about each designer with a strong visual expression.</p><p class="project-detail__paragraph">Skills: Typography, Layout, Poster Design<br>Tools: Adobe Illustrator, Adobe InDesign</p></div>
         </header>
         
     <section class="project-media-flow">
@@ -157,9 +186,7 @@
           
     </section>
   
-        <section class="project-detail__copy motion-reveal">
-          <p class="project-detail__paragraph">This project is a poster series celebrating four women type designers: Veronika Burian, Julieta Ulanovsky, Zuzana Licko, and Pooja Saxena. Each poster focuses on the designer’s name and biography, using typography as the main visual element.</p><p class="project-detail__paragraph">The design explores repetition, scale, and layering of letterforms to show how type can create both meaning and visual texture. The background is made from overlapping letters, while the large names create hierarchy and identity for each poster. The goal of the project was to connect research about each designer with a strong visual expression.</p><p class="project-detail__paragraph">Skills: Typography, Layout, Poster Design<br>Tools: Adobe Illustrator, Adobe InDesign</p>
-        </section>
+        
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <a class="chrome-button chrome-button--ghost" href="/graphic-design/typography-car/"><span>PREVIOUS · Typography Car</span></a>
@@ -173,7 +200,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

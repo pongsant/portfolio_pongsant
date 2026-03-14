@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -114,15 +131,28 @@
     <main class="page-main page-main--stack">
       
     <section class="editorial-hero" data-section>
+      
+    <div
+      class="torus-field editorial-hero__torus torus-field--editorial"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="editorial"
+      data-torus-speed="0.58"
+      data-torus-density="0.78"
+      data-torus-scale="0.96"
+      data-torus-depth="0.82"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
       <div class="editorial-hero__copy">
         <p class="eyebrow motion-reveal">ABOUT</p>
         <h1 class="editorial-hero__title motion-reveal">Pongsant Chintanapakdee</h1>
-        <p class="editorial-hero__summary motion-reveal">Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the worlds of art and music since childhood.</p>
         
-    <div class="meta-chips motion-reveal">
-      <span>GRAPHIC DESIGN</span><span>PHOTOGRAPHY</span><span>CREATIVE TECHNOLOGY</span>
-    </div>
-  
+        
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
         <img src="/assets/site-import/images/0182_IMG_8477.JPG" alt="Pongsant Chintanapakdee" data-parallax="8">
@@ -130,34 +160,9 @@
     </section>
   
       <section class="editorial-bio" data-section>
-        <div class="editorial-bio__lead">
-          <p class="editorial-bio__paragraph motion-reveal">Growing up in a creative family, with a mother grounded in visual arts and a father working across interior architecture and graphic design, gave him an early connection to design as both craft and daily life.</p><p class="editorial-bio__paragraph motion-reveal">After moving to Los Angeles in 2021, he continued his artistic journey in the United States, earning recognition and scholarships from major art and design schools before continuing at Parsons in New York City.</p>
-        </div>
+        <div class="editorial-bio__lead"></div>
         <div class="editorial-info-stack">
           
-    <section class="editorial-info-block">
-      <p class="eyebrow motion-reveal">SUMMARY</p>
-      <div class="editorial-info-block__body motion-reveal"><p class="editorial-info-block__paragraph">Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the world of art and music since childhood. His upbringing in a creative family-with a mother skilled in visual arts and a father who is both an Interior Architect and Graphic Designer instilled in him a passion for design and creativity. After moving to Los Angeles in 2021, he pursued his artistic journey in the United States, earning recognition and scholarships from prestigious art institutions.</p></div>
-    </section>
-  
-          
-    <section class="editorial-info-block">
-      <p class="eyebrow motion-reveal">EDUCATION</p>
-      <div class="editorial-info-block__body motion-reveal"><p class="editorial-info-block__paragraph">BACHELOR OF FINE ARTS (BFA) In Design and Technology</p><p class="editorial-info-block__paragraph">- Parsons School of Design, New York City, Expected Graduation: 2027</p><p class="editorial-info-block__paragraph">Graphic Design</p><p class="editorial-info-block__paragraph">- Santa Monica College, Los Angeles (2023)</p></div>
-    </section>
-  
-          
-    <section class="editorial-info-block">
-      <p class="eyebrow motion-reveal">SCHOLARSHIPS</p>
-      <div class="editorial-info-block__body motion-reveal"><p class="editorial-info-block__paragraph">- Silas H. Rhodes Scholarship, School of Visual Arts (SVA) Awarded a 50% tuition scholarship, along with additional grants.</p><p class="editorial-info-block__paragraph">- Scholarships and Grants, Pratt Institute and Parsons School of Design</p><p class="editorial-info-block__paragraph">- Pratt Institute: 60% tuition scholarship.</p><p class="editorial-info-block__paragraph">- Parsons School of Design: 40% tuition scholarship, accepted for Fall 2024.</p></div>
-    </section>
-  
-          
-    <section class="editorial-info-block">
-      <p class="eyebrow motion-reveal">SKILLS &amp; INTERESTS</p>
-      <div class="editorial-info-block__body motion-reveal"><p class="editorial-info-block__paragraph">- Skill: Graphic Design (Photoshop, Illustrator, InDesign Xd, Premiere Pro), Visual Arts, Coding (CSS, html, js)</p><p class="editorial-info-block__paragraph">- Interests: Music (guitar, piano), Fashion and content Creation</p></div>
-    </section>
-  
         </div>
       </section>
     </main>
@@ -168,7 +173,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

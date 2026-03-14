@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -114,15 +131,28 @@
     <main class="page-main page-main--stack">
       
     <section class="editorial-hero" data-section>
+      
+    <div
+      class="torus-field editorial-hero__torus torus-field--editorial"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="editorial"
+      data-torus-speed="0.58"
+      data-torus-density="0.78"
+      data-torus-scale="0.96"
+      data-torus-depth="0.82"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
       <div class="editorial-hero__copy">
         <p class="eyebrow motion-reveal">CONTACT</p>
         <h1 class="editorial-hero__title motion-reveal">Contacts</h1>
-        <p class="editorial-hero__summary motion-reveal">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         
-    <div class="meta-chips motion-reveal">
-      <span>EMAIL</span><span>INSTAGRAM</span><span>YOUTUBE</span>
-    </div>
-  
+        
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
         <img src="/assets/site-import/images/0060_IMG_2186.JPG" alt="Contacts" data-parallax="8">
@@ -170,7 +200,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

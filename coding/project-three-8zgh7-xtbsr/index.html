@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -118,15 +135,27 @@
         </a>
       </div>
       <section class="project-detail" data-section>
+        
+    <div
+      class="torus-field project-detail__torus torus-field--detail"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="detail"
+      data-torus-speed="0.52"
+      data-torus-density="0.7"
+      data-torus-scale="0.82"
+      data-torus-depth="0.7"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">Coding</p>
           <h1 class="project-detail__title motion-reveal">Temperature Glow Lamp</h1>
-          <p class="project-detail__summary motion-reveal">Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...</p>
-          
-    <div class="meta-chips motion-reveal">
-      <span>2 IMAGES</span><span>PORTFOLIO</span>
-    </div>
-  
+          <div class="project-detail__lead motion-reveal"><p class="project-detail__paragraph">Temperature Glow Lamp</p><p class="project-detail__paragraph">Concept</p><p class="project-detail__paragraph">Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and feel). The goal is to create a simple and interactive system that helps people notice, understand, and connect with their surroundings in a clearer and more meaningful way.</p><p class="project-detail__paragraph">How does your system work?</p><p class="project-detail__paragraph">My system integrates a DHT22 temperature and humidity sensor, a TTP223B touch sensor, and a WS2812B LED strip controlled by an Arduino. Here’s how the system works:</p><p class="project-detail__paragraph">Inputs : The DHT22 sensor provides real-time temperature readings.</p><p class="project-detail__paragraph">The TTP223B touch sensor acts as a toggle switch to control the brightness of the LED strip.</p><p class="project-detail__paragraph">Outputs : The WS2812B LED strip lights up and changes color based on the</p><p class="project-detail__paragraph">temperature :</p><p class="project-detail__paragraph">Blue (&lt;20°C): Cold temperatures.</p><p class="project-detail__paragraph">Green (20–30°C): Moderate temperatures.</p><p class="project-detail__paragraph">Red (&gt;30°C): Hot temperatures.</p><p class="project-detail__paragraph">The brightness of the LED strip changes incrementally with each touch of the TTP223B sensor.</p></div>
         </header>
         
     <section class="project-media-flow">
@@ -141,9 +170,7 @@
           
     </section>
   
-        <section class="project-detail__copy motion-reveal">
-          <p class="project-detail__paragraph">Temperature Glow Lamp</p><p class="project-detail__paragraph">Concept</p><p class="project-detail__paragraph">Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and feel). The goal is to create a simple and interactive system that helps people notice, understand, and connect with their surroundings in a clearer and more meaningful way.</p><p class="project-detail__paragraph">How does your system work?</p><p class="project-detail__paragraph">My system integrates a DHT22 temperature and humidity sensor, a TTP223B touch sensor, and a WS2812B LED strip controlled by an Arduino. Here’s how the system works:</p><p class="project-detail__paragraph">Inputs : The DHT22 sensor provides real-time temperature readings.</p><p class="project-detail__paragraph">The TTP223B touch sensor acts as a toggle switch to control the brightness of the LED strip.</p><p class="project-detail__paragraph">Outputs : The WS2812B LED strip lights up and changes color based on the</p><p class="project-detail__paragraph">temperature :</p><p class="project-detail__paragraph">Blue (&lt;20°C): Cold temperatures.</p><p class="project-detail__paragraph">Green (20–30°C): Moderate temperatures.</p><p class="project-detail__paragraph">Red (&gt;30°C): Hot temperatures.</p><p class="project-detail__paragraph">The brightness of the LED strip changes incrementally with each touch of the TTP223B sensor.</p>
-        </section>
+        
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <span></span>
@@ -157,7 +184,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

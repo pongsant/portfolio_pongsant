@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -118,15 +135,27 @@
         </a>
       </div>
       <section class="project-detail" data-section>
+        
+    <div
+      class="torus-field project-detail__torus torus-field--detail"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="detail"
+      data-torus-speed="0.52"
+      data-torus-density="0.7"
+      data-torus-scale="0.82"
+      data-torus-depth="0.7"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">Graphic Design</p>
           <h1 class="project-detail__title motion-reveal">Branding Design</h1>
-          <p class="project-detail__summary motion-reveal">Branding Design This project involves the creative process of designing a logo and establishing a personalized guitar product brand. Inspired by a passion for guitars, I aim to cra...</p>
-          
-    <div class="meta-chips motion-reveal">
-      <span>19 IMAGES</span><span>PORTFOLIO</span>
-    </div>
-  
+          <div class="project-detail__lead motion-reveal"><p class="project-detail__paragraph">Branding Design</p><p class="project-detail__paragraph">This project involves the creative process of designing a logo and establishing a personalized guitar product brand. Inspired by a passion for guitars, I aim to craft meticulously designed products under my brand. The challenge includes creating a visually compelling logo and strategically conceiving a brand name that reflects the essence and values of my guitar products. The logo development incorporates musical motifs, diverse color palettes, and symbolic representations to capture the brand’s spirit. Simultaneously, the brand name is carefully chosen to convey authenticity and quality, creating a connection with potential customers. Overall, this project represents a fusion of artistic expression and entrepreneurial vision, translating my love for guitars into a brand with a compelling narrative. The finalized logo and brand name will serve as the visual and conceptual pillars, marking the culmination of my creative and entrepreneurial aspirations in the realm of guitar products</p></div>
         </header>
         
     <section class="project-media-flow">
@@ -209,9 +238,11 @@
           
     </section>
   
+        
         <section class="project-detail__copy motion-reveal">
-          <p class="project-detail__paragraph">Branding Design</p><p class="project-detail__paragraph">This project involves the creative process of designing a logo and establishing a personalized guitar product brand. Inspired by a passion for guitars, I aim to craft meticulously designed products under my brand. The challenge includes creating a visually compelling logo and strategically conceiving a brand name that reflects the essence and values of my guitar products. The logo development incorporates musical motifs, diverse color palettes, and symbolic representations to capture the brand’s spirit. Simultaneously, the brand name is carefully chosen to convey authenticity and quality, creating a connection with potential customers. Overall, this project represents a fusion of artistic expression and entrepreneurial vision, translating my love for guitars into a brand with a compelling narrative. The finalized logo and brand name will serve as the visual and conceptual pillars, marking the culmination of my creative and entrepreneurial aspirations in the realm of guitar products</p><p class="project-detail__paragraph">Logo Design</p><p class="project-detail__paragraph">This final logo marks the completion of my meticulous design process, featuring a carefully crafted guitar referencing a real image in Illustrator. The fusion of this intricately drafted guitar with the chosen brand name results in a visually compelling and cohesive logo. Beyond serving as a visual identity for the products, the design reflects the essence of my passion for guitars. It seamlessly blends digital rendering with symbolic representation, showcasing dedication and craftsmanship invested in each guitar under the brand name.</p>
+          <p class="project-detail__paragraph">Logo Design</p><p class="project-detail__paragraph">This final logo marks the completion of my meticulous design process, featuring a carefully crafted guitar referencing a real image in Illustrator. The fusion of this intricately drafted guitar with the chosen brand name results in a visually compelling and cohesive logo. Beyond serving as a visual identity for the products, the design reflects the essence of my passion for guitars. It seamlessly blends digital rendering with symbolic representation, showcasing dedication and craftsmanship invested in each guitar under the brand name.</p>
         </section>
+          
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <a class="chrome-button chrome-button--ghost" href="/graphic-design/calendar-design/"><span>PREVIOUS · Calendar Design</span></a>
@@ -225,7 +256,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

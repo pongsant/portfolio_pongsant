@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -118,15 +135,27 @@
         </a>
       </div>
       <section class="project-detail" data-section>
+        
+    <div
+      class="torus-field project-detail__torus torus-field--detail"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="detail"
+      data-torus-speed="0.52"
+      data-torus-density="0.7"
+      data-torus-scale="0.82"
+      data-torus-depth="0.7"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">Graphic Design</p>
           <h1 class="project-detail__title motion-reveal">POTRAIT OF THE SELFLESS SELF</h1>
-          <p class="project-detail__summary motion-reveal">POTRAIT OF THE SELFLESS SELF This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as somethin...</p>
-          
-    <div class="meta-chips motion-reveal">
-      <span>15 IMAGES</span><span>PORTFOLIO</span>
-    </div>
-  
+          <div class="project-detail__lead motion-reveal"><p class="project-detail__paragraph">POTRAIT OF THE SELFLESS SELF</p><p class="project-detail__paragraph">This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as something that forms through conditions, attention, and experience. In this sense, Buddhism offers the idea of a selfless self: a way of being that still moves through the world, but without clinging to identity as stable or owned. We studied meditation practices that help reduce attachment to desire and selfhood. At the same time, we read stories about individuals moving through suffering, repetition, and release. These works show that even if the self is illusory, its journey still matters. This photo book follows that idea. Instead of focusing on one person, it uses places, landscapes, and moments of travel as a portrait of a self in motion. The images do not try to define who the self is. They trace how it appears, shifts, pauses, and changes. Each image marks a stage of samsara such as refuge, desire, repetition, or release. The self here is present, but not centered, shaped by movement rather than form. All photographs were taken on a Pentax Espio 125M 35mm film camera during travel in Japan, the United States, and Australia. The softness and grain of film reflect impermanence. Nothing here is meant to feel finished. The images move forward slowly and invite the viewer to move with them. This book is meant to be experienced as a passage. It begins with shelter and form, moves through attachment and repetition, and gradually opens toward self liberation. There is no final ending, only a lighter way of moving.</p></div>
         </header>
         
     <section class="project-media-flow">
@@ -193,9 +222,7 @@
           
     </section>
   
-        <section class="project-detail__copy motion-reveal">
-          <p class="project-detail__paragraph">POTRAIT OF THE SELFLESS SELF</p><p class="project-detail__paragraph">This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as something that forms through conditions, attention, and experience. In this sense, Buddhism offers the idea of a selfless self: a way of being that still moves through the world, but without clinging to identity as stable or owned. We studied meditation practices that help reduce attachment to desire and selfhood. At the same time, we read stories about individuals moving through suffering, repetition, and release. These works show that even if the self is illusory, its journey still matters. This photo book follows that idea. Instead of focusing on one person, it uses places, landscapes, and moments of travel as a portrait of a self in motion. The images do not try to define who the self is. They trace how it appears, shifts, pauses, and changes. Each image marks a stage of samsara such as refuge, desire, repetition, or release. The self here is present, but not centered, shaped by movement rather than form. All photographs were taken on a Pentax Espio 125M 35mm film camera during travel in Japan, the United States, and Australia. The softness and grain of film reflect impermanence. Nothing here is meant to feel finished. The images move forward slowly and invite the viewer to move with them. This book is meant to be experienced as a passage. It begins with shelter and form, moves through attachment and repetition, and gradually opens toward self liberation. There is no final ending, only a lighter way of moving.</p>
-        </section>
+        
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <a class="chrome-button chrome-button--ghost" href="/graphic-design/project-one-f5w4d-br6yr/"><span>PREVIOUS · Project One</span></a>
@@ -209,7 +236,6 @@
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

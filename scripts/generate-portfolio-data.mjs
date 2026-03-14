@@ -3,6 +3,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const manifestPath = new URL("../assets/site-import/manifest.tsv", import.meta.url);
 const outputPath = new URL("../site-data.json", import.meta.url);
 const projectCopyPath = new URL("../project-copy.json", import.meta.url);
+const liveContentPath = new URL("../live-content.json", import.meta.url);
 
 const routeMeta = {
   "/graphic-design/project-six-sz8wl-bb73t": {
@@ -178,13 +179,6 @@ const collectionDefs = [
   },
 ];
 
-const summaryOverrides = {
-  "POTRAIT OF THE SELFLESS SELF": "A high-image graphic design project carried over from the live archive and rebuilt as a clean standalone detail page.",
-  "The Last Hope": "A coding project presented as a visual story sequence, now translated into a page structure that matches the original portfolio hierarchy.",
-  "Interactive Table": "A product design project focused on form, interaction, and presentation through the original published image sequence.",
-  "Postcards from the Future": "A graphic design project with a strong image rhythm that works well as a full project page in the rebuilt archive.",
-};
-
 const disciplineLabels = {
   "graphic-design": "Graphic Design",
   coding: "Coding",
@@ -211,6 +205,9 @@ const manifestLines = readFileSync(manifestPath, "utf8")
 const projectCopy = existsSync(projectCopyPath)
   ? JSON.parse(readFileSync(projectCopyPath, "utf8"))
   : {};
+const liveContent = existsSync(liveContentPath)
+  ? JSON.parse(readFileSync(liveContentPath, "utf8"))
+  : { pages: {}, projects: {} };
 
 const refs = manifestLines.map((line) => {
   const [pageUrl, imageUrl, localPath] = line.split("\t");
@@ -240,28 +237,28 @@ function routeToSlug(route) {
   return route.split("/").filter(Boolean).at(-1);
 }
 
-function trimSummary(value, maxLength = 180) {
-  const normalized = value.replace(/\s+/g, " ").trim();
-
-  if (normalized.length <= maxLength) {
-    return normalized;
-  }
-
-  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+function pageBlocks(route) {
+  return liveContent.pages?.[route]?.blocks ?? [];
 }
 
-function createSummary(route, title, discipline) {
-  const copyBlock = (projectCopy[route]?.blocks ?? []).find((block) => block.type === "body");
+function projectBlocks(route) {
+  return liveContent.projects?.[route]?.blocks ?? [];
+}
 
-  if (copyBlock?.text) {
-    return trimSummary(copyBlock.text);
-  }
+function splitHeadingBlock(text) {
+  const parts = String(text ?? "")
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean);
 
-  if (summaryOverrides[title]) {
-    return summaryOverrides[title];
-  }
+  return {
+    heading: parts[0] ?? "",
+    body: parts.slice(1).join("\n\n").trim(),
+  };
+}
 
-  return `${disciplineLabels[discipline]} work imported from the current live portfolio and ready to swap later with original high-resolution files.`;
+function createSummary(route) {
+  return projectBlocks(route)[0] ?? (projectCopy[route]?.blocks ?? []).find((block) => block.type === "body")?.text ?? "";
 }
 
 const featuredStoryRefs = (groupedRefs["/homepage-2"] ?? []).filter((ref) => {
@@ -275,17 +272,36 @@ const featuredStoryImages = featuredStoryRefs.length
   ? featuredStoryRefs.map((ref) => toAssetUrl(ref.localPath))
   : localImagesFor("/homepage-2").slice(0, 2);
 
+const homeBlocks = pageBlocks("/homepage-2");
+const aboutBlocks = pageBlocks("/about");
+const contactBlocks = pageBlocks("/contact");
+const photoBlocks = pageBlocks("/photo");
+const myWorksBlocks = pageBlocks("/my-works");
+
+const homeFilial = splitHeadingBlock(homeBlocks[2]);
+const homePrototype = splitHeadingBlock(homeBlocks[3]);
+const aboutSections = aboutBlocks.map((block) => splitHeadingBlock(block));
+const aboutSummary = aboutSections.find((section) => section.heading.toUpperCase().startsWith("SUMMARY"))?.body ?? "";
+const aboutEducation = aboutSections.find((section) => section.heading.toUpperCase().startsWith("EDUCATION"))?.body ?? "";
+const aboutScholarships =
+  aboutSections.find((section) => section.heading.toUpperCase().startsWith("SCHOLARSHIP"))?.body ?? "";
+const aboutSkills = aboutSections.find((section) => section.heading.toUpperCase().startsWith("SKILLS"))?.body ?? "";
+const contactBlock = contactBlocks[0] ?? "";
+const [contactHeadingLine = "Contacts", ...contactDetailLines] = contactBlock.split("\n").map((line) => line.trim()).filter(Boolean);
+
 const projects = Object.entries(routeMeta).map(([route, meta]) => {
   const images = localImagesFor(route);
+  const liveProjectTitle = liveContent.projects?.[route]?.title?.trim();
+
   return {
     route,
     slug: routeToSlug(route),
-    title: meta.title,
+    title: liveProjectTitle || meta.title,
     discipline: meta.discipline,
     disciplineLabel: disciplineLabels[meta.discipline],
     collectionRoute: disciplineToRoute[meta.discipline],
-    summary: createSummary(route, meta.title, meta.discipline),
-    detailTitle: projectCopy[route]?.detailTitle || meta.title,
+    summary: createSummary(route),
+    detailTitle: liveProjectTitle || projectCopy[route]?.detailTitle || meta.title,
     copyBlocks: projectCopy[route]?.blocks ?? [],
     images,
     cover: images[0],
@@ -298,6 +314,7 @@ const collections = collectionDefs.map((collection) => {
     const items = projects.filter((project) => project.collectionRoute === collection.route);
     return {
       ...collection,
+      description: collection.route === "/photo" ? photoBlocks[0] ?? "" : "",
       cover: firstImageFor(collection.coverRoute) || items[0]?.cover || "",
       itemCount: items.length,
       imageCount: items.reduce((total, item) => total + item.imageCount, 0),
@@ -312,6 +329,8 @@ const collections = collectionDefs.map((collection) => {
   const images = localImagesFor(collection.route);
   return {
     ...collection,
+    description: collection.route === "/photo" ? photoBlocks[0] ?? "" : "",
+    pageIntro: collection.route === "/photo" ? photoBlocks[0] ?? "" : "",
     cover: firstImageFor(collection.coverRoute),
     itemCount: images.length,
     imageCount: images.length,
@@ -336,8 +355,8 @@ const data = {
     route: "/",
     aliases: ["/homepage-2"],
     title: "Pongsant Chintanapakdee",
-    intro:
-      "A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.",
+    intro: aboutSummary,
+    nameLines: homeBlocks.slice(0, 2),
     moodWords: [
       "Graphic Systems",
       "Interactive Stage",
@@ -350,15 +369,14 @@ const data = {
       title: "Filial Project",
       cover: featuredStoryImages[0],
       images: featuredStoryImages,
-      aboutLabel: "About",
-      aboutText:
-        "Filial Project is a clothing brand started with friends, focused on minimal design, strong identity, and thoughtful presentation across both fashion and digital platforms.",
-      prototypeLabel: "Interactive Website Prototype",
-      prototypeText:
-        "Designed and coded independently using HTML, CSS, and JavaScript as a functional brand prototype for digital fashion presentation and interactive storytelling.",
+      aboutLabel: homeFilial.heading || "About Filial Project",
+      aboutText: homeFilial.body,
+      prototypeLabel: homePrototype.heading || "Interactive Website Prototype",
+      prototypeText: homePrototype.body,
       referenceUrl: "https://pongsant.github.io/filial-project-web-test/gate.html?next=index.html",
       referenceLabel: "Open Filial Project",
     },
+    photoMeta: homeBlocks[6] ?? "",
     collectionOrder: collections.map((collection) => collection.route),
   },
   about: {
@@ -366,93 +384,34 @@ const data = {
     title: "ABOUT",
     loopText: "ABOUT * ABOUT * ABOUT *",
     portrait: firstImageFor("/about"),
-    summaryText:
-      "Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the world of art and music since childhood. His upbringing in a creative family-with a mother skilled in visual arts and a father who is both an Interior Architect and Graphic Designer instilled in him a passion for design and creativity. After moving to Los Angeles in 2021, he pursued his artistic journey in the United States, earning recognition and scholarships from prestigious art institutions.",
-    educationLines: [
-      "BACHELOR OF FINE ARTS (BFA) In Design and Technology",
-      "- Parsons School of Design, New York City, Expected Graduation: 2027",
-      "Graphic Design",
-      "- Santa Monica College, Los Angeles (2023)",
-    ],
-    achievementLines: [
-      "- Silas H. Rhodes Scholarship, School of Visual Arts (SVA) Awarded a 50% tuition scholarship, along with additional grants.",
-      "- Scholarships and Grants, Pratt Institute and Parsons School of Design",
-      "- Pratt Institute: 60% tuition scholarship.",
-      "- Parsons School of Design: 40% tuition scholarship, accepted for Fall 2024.",
-    ],
-    skillsInterestLines: [
-      "- Skill: Graphic Design (Photoshop, Illustrator, InDesign Xd, Premiere Pro), Visual Arts, Coding (CSS, html, js)",
-      "- Interests: Music (guitar, piano), Fashion and content Creation",
-    ],
-    paragraphs: [
-      "Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the worlds of art and music since childhood.",
-      "Growing up in a creative family, with a mother grounded in visual arts and a father working across interior architecture and graphic design, gave him an early connection to design as both craft and daily life.",
-      "After moving to Los Angeles in 2021, he continued his artistic journey in the United States, earning recognition and scholarships from major art and design schools before continuing at Parsons in New York City.",
-    ],
-    education: [
-      {
-        title: "Bachelor of Fine Arts (BFA)",
-        detail: "Design and Technology, Parsons School of Design, New York City. Expected graduation: 2027.",
-      },
-      {
-        title: "Graphic Design",
-        detail: "Santa Monica College, Los Angeles, 2023.",
-      },
-    ],
-    achievements: [
-      {
-        title: "School of Visual Arts",
-        detail: "Silas H. Rhodes Scholarship with 50% tuition support and additional grants.",
-      },
-      {
-        title: "Pratt Institute",
-        detail: "60% tuition scholarship.",
-      },
-      {
-        title: "Parsons School of Design",
-        detail: "40% tuition scholarship and acceptance for Fall 2024.",
-      },
-    ],
-    skills: [
-      "Photoshop",
-      "Illustrator",
-      "InDesign",
-      "XD",
-      "Premiere Pro",
-      "HTML",
-      "CSS",
-      "JavaScript",
-      "Visual Arts",
-    ],
-    interests: [
-      "Music",
-      "Guitar",
-      "Piano",
-      "Fashion",
-      "Content Creation",
-    ],
+    summaryText: aboutSummary,
+    educationLines: aboutEducation.split("\n").map((line) => line.trim()).filter(Boolean),
+    achievementLines: aboutScholarships.split("\n").map((line) => line.trim()).filter(Boolean),
+    skillsInterestLines: aboutSkills.split("\n").map((line) => line.trim()).filter(Boolean),
+    sections: aboutSections,
   },
   contact: {
     route: "/contact",
     title: "CONTACT",
     loopText: "CONTACT * CONTACT * CONTACT *",
     portrait: firstImageFor("/contact"),
-    heading: "Contacts",
-    intro: "Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.",
+    heading: contactHeadingLine,
+    intro: "",
+    textBlock: contactBlock,
     links: [
       {
         label: "Email",
-        value: "1pongsant@gmail.com",
+        value: contactDetailLines[0] ?? "1pongsant@gmail.com",
         href: "mailto:1pongsant@gmail.com",
       },
       {
         label: "Phone",
-        value: "(424)599-3914",
+        value: contactDetailLines[1] ?? "(424)599-3914",
         href: "tel:+14245993914",
       },
       {
         label: "Location",
-        value: "New York, NY",
+        value: contactDetailLines[2] ?? "New York, NY",
         href: "/contact",
       },
       {
@@ -473,7 +432,8 @@ const data = {
     route: "/my-works",
     title: "MY WORKS",
     loopText: "MY WORKS * MY WORKS * MY WORKS *",
-    intro: "Browse the portfolio the same way the original site is organized: by discipline first, then by project.",
+    intro: "",
+    categories: myWorksBlocks,
   },
   collections,
   projects,

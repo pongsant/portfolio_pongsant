@@ -21,6 +21,23 @@
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      
+    <div
+      class="torus-field site-wash__torus torus-field--ambient"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="ambient"
+      data-torus-speed="0.42"
+      data-torus-density="0.82"
+      data-torus-scale="1.18"
+      data-torus-depth="0.72"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
     </div>
     
     <header class="site-chrome">
@@ -77,7 +94,7 @@
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
         <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
         <div class="contact-panel__grid">
           
@@ -118,17 +135,29 @@
         </a>
       </div>
       <section class="project-detail" data-section>
+        
+    <div
+      class="torus-field project-detail__torus torus-field--detail"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="detail"
+      data-torus-speed="0.52"
+      data-torus-density="0.7"
+      data-torus-scale="0.82"
+      data-torus-depth="0.7"
+      data-torus-interactive="false"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">Graphic Design</p>
           <h1 class="project-detail__title motion-reveal">Soft Hands
 
 Concept Album Packaging &amp; Poster Design</h1>
-          <p class="project-detail__summary motion-reveal">This project is a conceptual album and poster design created for a design assignment exploring the relationship between art and typography. The artist name and album title are enti...</p>
-          
-    <div class="meta-chips motion-reveal">
-      <span>3 IMAGES</span><span>PORTFOLIO</span>
-    </div>
-  
+          <div class="project-detail__lead motion-reveal"><p class="project-detail__paragraph">This project is a conceptual album and poster design created for a design assignment exploring the relationship between art and typography. The artist name and album title are entirely fictional and were created by me for this project. All visuals, typography, and design elements were also developed by me from concept to final layout.</p><p class="project-detail__paragraph">I designed a full visual system including an album cover, tracklist layout, and promotional poster. The project focuses on mood and atmosphere, using soft light, gradients, and minimal typography to create a calm and emotional tone that reflects the imagined music style behind the album.</p><p class="project-detail__paragraph">Skills: Visual Identity, Typography, Layout, Art Direction<br>Deliverables: Album Cover, Poster, Tracklist Layout<br>Tools: Adobe Photoshop, Adobe Illustrator</p></div>
         </header>
         
     <section class="project-media-flow">
@@ -147,9 +176,7 @@ Concept Album Packaging &amp; Poster Design</h1>
           
     </section>
   
-        <section class="project-detail__copy motion-reveal">
-          <p class="project-detail__paragraph">This project is a conceptual album and poster design created for a design assignment exploring the relationship between art and typography. The artist name and album title are entirely fictional and were created by me for this project. All visuals, typography, and design elements were also developed by me from concept to final layout.</p><p class="project-detail__paragraph">I designed a full visual system including an album cover, tracklist layout, and promotional poster. The project focuses on mood and atmosphere, using soft light, gradients, and minimal typography to create a calm and emotional tone that reflects the imagined music style behind the album.</p><p class="project-detail__paragraph">Skills: Visual Identity, Typography, Layout, Art Direction<br>Deliverables: Album Cover, Poster, Tracklist Layout<br>Tools: Adobe Photoshop, Adobe Illustrator</p>
-        </section>
+        
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <a class="chrome-button chrome-button--ghost" href="/graphic-design/project-six-sz8wl-bb73t/"><span>PREVIOUS · David Carson Poster Design</span></a>
@@ -163,7 +190,6 @@ Concept Album Packaging &amp; Poster Design</h1>
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
-          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="/">HOME</a>

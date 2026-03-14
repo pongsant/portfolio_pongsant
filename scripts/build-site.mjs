@@ -117,10 +117,15 @@ function getProjectCopy(project) {
 }
 
 function renderMetaChips(items, className = "meta-chips") {
+  const filteredItems = items.filter(Boolean);
+
+  if (!filteredItems.length) {
+    return "";
+  }
+
   return `
     <div class="${className}">
-      ${items
-        .filter(Boolean)
+      ${filteredItems
         .map((item) => `<span>${escapeHtml(item)}</span>`)
         .join("")}
     </div>
@@ -181,8 +186,8 @@ function renderContactPanel() {
             <span>CLOSE</span>
           </button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
-        <p class="contact-panel__intro">${escapeHtml(data.contact.intro)}</p>
+        <h2 id="contact-panel-title" class="contact-panel__title">${escapeHtml(data.contact.heading)}</h2>
+        ${data.contact.intro ? `<p class="contact-panel__intro">${escapeHtml(data.contact.intro)}</p>` : ""}
         <div class="contact-panel__grid">
           ${contactPanelLinks
             .map(
@@ -207,7 +212,6 @@ function renderFooter() {
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
           <h2 class="site-footer__title">${escapeHtml(data.site.owner)}</h2>
-          <p class="site-footer__summary">${escapeHtml(data.home.intro)}</p>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="${toHref("/")}">HOME</a>
@@ -231,7 +235,37 @@ function renderFooter() {
   `;
 }
 
-function renderLayout({ route, title, description, pageClass, content }) {
+function renderTorusField({
+  className = "",
+  kind = "ambient",
+  speed = 0.8,
+  density = 1,
+  scale = 1,
+  depth = 1,
+  interactive = false,
+} = {}) {
+  const classes = ["torus-field", className].filter(Boolean).join(" ");
+
+  return `
+    <div
+      class="${escapeHtml(classes)}"
+      aria-hidden="true"
+      data-torus-field
+      data-torus-kind="${escapeHtml(kind)}"
+      data-torus-speed="${escapeHtml(speed)}"
+      data-torus-density="${escapeHtml(density)}"
+      data-torus-scale="${escapeHtml(scale)}"
+      data-torus-depth="${escapeHtml(depth)}"
+      data-torus-interactive="${interactive ? "true" : "false"}"
+    >
+      <canvas class="torus-field__canvas"></canvas>
+      <span class="torus-field__glow torus-field__glow--one"></span>
+      <span class="torus-field__glow torus-field__glow--two"></span>
+    </div>
+  `;
+}
+
+function renderLayout({ route, title, description, pageClass, content, showUtilityBar = true }) {
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -255,9 +289,17 @@ function renderLayout({ route, title, description, pageClass, content }) {
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
+      ${renderTorusField({
+        className: "site-wash__torus torus-field--ambient",
+        kind: "ambient",
+        speed: 0.42,
+        density: 0.82,
+        scale: 1.18,
+        depth: 0.72,
+      })}
     </div>
     ${renderChrome(route)}
-    ${renderUtilityBar()}
+    ${showUtilityBar ? renderUtilityBar() : ""}
     ${renderContactPanel()}
     ${content}
     ${renderFooter()}
@@ -279,7 +321,7 @@ function getCollectionRepresentative(collection) {
     title:
       previewProject?.title ??
       (collection.type === "gallery" ? `${collection.shortLabel} Archive` : previewItem?.title ?? collection.shortLabel),
-    summary: trimText(previewProject?.summary ?? collection.pageIntro ?? collection.description, 200),
+    summary: previewProject?.summary ?? collection.pageIntro ?? collection.description ?? "",
     media: previewProject?.cover ?? previewItem?.cover ?? collection.cover,
     previewImages,
     tags: [
@@ -294,7 +336,7 @@ function getProjectLead(project, maxLength = 260) {
   const { blocks } = getProjectCopy(project);
   const leadParagraph = blocks.find((block) => block.type !== "heading")?.text ?? project.summary;
 
-  return trimText(leadParagraph, maxLength);
+  return leadParagraph;
 }
 
 function chunkArray(items, size) {
@@ -310,10 +352,18 @@ function chunkArray(items, size) {
 function renderEditorialHero({ label, title, summary, media, pills = [], mediaAlt = title }) {
   return `
     <section class="editorial-hero" data-section>
+      ${renderTorusField({
+        className: "editorial-hero__torus torus-field--editorial",
+        kind: "editorial",
+        speed: 0.58,
+        density: 0.78,
+        scale: 0.96,
+        depth: 0.82,
+      })}
       <div class="editorial-hero__copy">
         <p class="eyebrow motion-reveal">${escapeHtml(label)}</p>
         <h1 class="editorial-hero__title motion-reveal">${escapeHtml(title)}</h1>
-        <p class="editorial-hero__summary motion-reveal">${escapeHtml(summary)}</p>
+        ${summary ? `<p class="editorial-hero__summary motion-reveal">${escapeHtml(summary)}</p>` : ""}
         ${renderMetaChips(pills, "meta-chips motion-reveal")}
       </div>
       <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
@@ -345,7 +395,6 @@ function renderEditorialPreviewRail(images, label) {
 
 function renderEditorialCollectionEntry(collection, index) {
   const representative = getCollectionRepresentative(collection);
-  const previewProject = collection.preview?.[0] ? getProjectByRoute(collection.preview[0].href) : null;
   const additionalTitles = (collection.preview ?? [])
     .slice(0, 3)
     .map((item) => item.title)
@@ -359,16 +408,7 @@ function renderEditorialCollectionEntry(collection, index) {
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(collection.shortLabel)}</p>
         <h2 class="editorial-entry__title motion-reveal"><a href="${toHref(collection.route)}">${escapeHtml(collection.label)}</a></h2>
-        <p class="editorial-entry__summary motion-reveal">${escapeHtml(collection.pageIntro ?? collection.description)}</p>
-        <p class="editorial-entry__detail motion-reveal">${escapeHtml(previewProject ? getProjectLead(previewProject, 220) : representative.summary)}</p>
-        ${renderMetaChips(
-          [
-            collection.type === "projects" ? `${collection.itemCount} PROJECTS` : `${collection.imageCount} IMAGES`,
-            previewProject?.title ?? representative.title,
-            "PORTFOLIO",
-          ],
-          "meta-chips motion-reveal"
-        )}
+        ${(collection.pageIntro || collection.description) ? `<p class="editorial-entry__summary motion-reveal">${escapeHtml(collection.pageIntro ?? collection.description)}</p>` : ""}
         ${
           additionalTitles.length
             ? `
@@ -400,9 +440,6 @@ function renderEditorialProjectEntry(project, index) {
       <div class="editorial-entry__copy">
         <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.disciplineLabel)}</p>
         <h2 class="editorial-entry__title motion-reveal"><a href="${toHref(project.route)}">${escapeHtml(project.title)}</a></h2>
-        <p class="editorial-entry__summary motion-reveal">${escapeHtml(trimText(project.summary, 220))}</p>
-        <p class="editorial-entry__detail motion-reveal">${escapeHtml(getProjectLead(project, 230))}</p>
-        ${renderMetaChips([`${project.imageCount} IMAGES`, project.disciplineLabel.toUpperCase(), "PROJECT"], "meta-chips motion-reveal")}
         ${renderEditorialPreviewRail(previewImages, project.title)}
         <div class="editorial-entry__actions motion-reveal">
           <a class="chrome-button chrome-button--solid" href="${toHref(project.route)}">
@@ -422,21 +459,14 @@ function renderGallerySequence(collection) {
       ${groups
         .map((group, index) => {
           const title = index === 0 ? collection.label : `${collection.shortLabel} ${String(index + 1).padStart(2, "0")}`;
-          const summary =
-            index === 0
-              ? collection.pageIntro ?? collection.description
-              : `Selected images from the ${collection.shortLabel.toLowerCase()} archive.`;
+          const summary = index === 0 ? collection.pageIntro ?? collection.description : "";
 
           return `
             <article class="gallery-sequence__group${index % 2 === 1 ? " gallery-sequence__group--reverse" : ""}" data-section>
               <div class="gallery-sequence__copy">
                 <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(collection.shortLabel)}</p>
                 <h2 class="gallery-sequence__title motion-reveal">${escapeHtml(title)}</h2>
-                <p class="gallery-sequence__summary motion-reveal">${escapeHtml(summary)}</p>
-                ${renderMetaChips(
-                  [`${group.length} IMAGES`, collection.shortLabel.toUpperCase(), index === 0 ? "ARCHIVE" : "SELECTION"],
-                  "meta-chips motion-reveal"
-                )}
+                ${summary ? `<p class="gallery-sequence__summary motion-reveal">${escapeHtml(summary)}</p>` : ""}
               </div>
               <div class="gallery-sequence__media${group.length === 1 ? " gallery-sequence__media--single" : ""}">
                 <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
@@ -618,7 +648,7 @@ function renderHomePage(route = "/") {
         workTitle:
           previewProject?.title ??
           (collection.type === "gallery" ? `${collection.shortLabel} Selection` : previewItem?.title ?? collection.shortLabel),
-        summary: trimText(previewProject?.summary ?? collection.pageIntro ?? collection.description, 210),
+        summary: previewProject?.summary ?? collection.pageIntro ?? collection.description ?? "",
         media: previewProject?.cover ?? previewItem?.cover ?? collection.cover,
         countLabel: collection.type === "projects" ? `${collection.itemCount} projects` : `${collection.imageCount} images`,
       };
@@ -630,56 +660,66 @@ function renderHomePage(route = "/") {
       <section class="home-section home-portal" data-section data-home-portal>
         <div class="home-portal__intro">
           <p class="eyebrow motion-reveal">PORTFOLIO CATEGORIES</p>
-          <h1 class="home-portal__title motion-reveal">${escapeHtml(data.site.owner)}</h1>
-          <p class="home-portal__summary motion-reveal">A floating stack of selected works from each category. Hover or use the labels to bring one forward, then click the panel to open the full archive.</p>
-          <div class="home-portal__nav motion-reveal" aria-label="Category preview navigation">
-            ${collectionEntries
-              .map(
-                (entry) => `
-                  <button class="home-portal__nav-button${entry.index === 0 ? " is-active" : ""}" type="button" data-portal-index="${entry.index}">
-                    <small>${String(entry.index + 1).padStart(2, "0")}</small>
-                    <span>${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
-                  </button>
-                `
-              )
-              .join("")}
+          <div class="home-portal__headline">
+            <h1 class="home-portal__title motion-reveal">${(data.home.nameLines ?? [data.site.owner])
+              .map((line) => `<span data-hero-line>${escapeHtml(line)}</span>`)
+              .join("")}</h1>
+            ${data.home.intro ? `<p class="home-portal__summary motion-reveal">${escapeHtml(data.home.intro)}</p>` : ""}
           </div>
-          <div class="home-portal__details">
-            ${collectionEntries
-              .map(
-                (entry) => `
-                  <article class="home-portal__detail${entry.index === 0 ? " is-active" : ""}" data-portal-detail="${entry.index}">
-                    <p class="eyebrow">${String(entry.index + 1).padStart(2, "0")} · ${escapeHtml(entry.collection.label)}</p>
-                    <h2 class="home-portal__detail-title">${escapeHtml(entry.workTitle)}</h2>
-                    <p class="home-portal__detail-summary">${escapeHtml(entry.summary)}</p>
-                    ${renderMetaChips(
-                      [entry.collection.shortLabel, entry.countLabel, entry.workTitle],
-                      "meta-chips"
-                    )}
-                    <div class="home-portal__actions">
-                      <a class="chrome-button chrome-button--solid" href="${toHref(entry.route)}">
-                        <span>OPEN ${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
-                      </a>
-                    </div>
-                  </article>
-                `
-              )
-              .join("")}
+          <div class="home-portal__controls">
+            <div class="home-portal__nav motion-reveal" aria-label="Category preview navigation">
+              ${collectionEntries
+                .map(
+                  (entry) => `
+                    <button class="home-portal__nav-button${entry.index === 0 ? " is-active" : ""}" type="button" data-portal-index="${entry.index}">
+                      <small>${String(entry.index + 1).padStart(2, "0")}</small>
+                      <span>${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
+                    </button>
+                  `
+                )
+                .join("")}
+            </div>
+            <div class="home-portal__progress motion-reveal" aria-hidden="true">
+              <span data-portal-progress></span>
+            </div>
           </div>
         </div>
-        <div class="home-portal__scene motion-scale" data-portal-scene>
+        <div class="home-portal__scene motion-scale" data-portal-scene tabindex="0" aria-label="Portfolio category stage">
+          <div class="home-portal__utility motion-reveal">
+            <span>${escapeHtml(data.site.location)}</span>
+            ${utilityLinks
+              .map(
+                (item) => `
+                  <a href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                    ${escapeHtml(item.label === "Email" ? item.value : item.label)}
+                  </a>
+                `
+              )
+              .join("")}
+          </div>
           <div class="home-portal__ambient home-portal__ambient--one" aria-hidden="true"></div>
           <div class="home-portal__ambient home-portal__ambient--two" aria-hidden="true"></div>
           <div class="home-portal__glow" aria-hidden="true"></div>
+          ${renderTorusField({
+            className: "home-portal__torus torus-field--hero",
+            kind: "hero",
+            speed: 0.86,
+            density: 1.06,
+            scale: 1.08,
+            depth: 1.1,
+            interactive: true,
+          })}
           <div class="home-portal__stage" data-portal-stage>
             ${collectionEntries
               .map(
-                (entry) => {
-                  const pose = initialPortalPoses[entry.index] ?? initialPortalPoses[0];
+                (entry) => `
+                  ${
+                    (() => {
+                      const pose = initialPortalPoses[entry.index] ?? initialPortalPoses[0];
 
-                  return `
+                      return `
                   <a
-                    class="home-portal__layer${entry.index === 0 ? " is-active" : ""}"
+                    class="home-portal__layer home-portal__layer--text${entry.index === 0 ? " is-active" : ""}"
                     href="${toHref(entry.route)}"
                     data-portal-layer="${entry.index}"
                     aria-label="Open ${escapeHtml(entry.collection.label)}"
@@ -698,27 +738,64 @@ function renderHomePage(route = "/") {
                     "
                   >
                     <span class="home-portal__layer-sheen" aria-hidden="true"></span>
-                    <img src="${entry.media}" alt="${escapeHtml(entry.workTitle)}">
                     <span class="home-portal__layer-copy">
                       <strong>${escapeHtml(entry.collection.shortLabel)}</strong>
                       <em>${escapeHtml(entry.workTitle)}</em>
                     </span>
                   </a>
                 `;
-                }
+                    })()
+                  }
+                `
               )
               .join("")}
           </div>
         </div>
+        <div class="home-portal__status">
+          <div class="home-portal__details">
+            ${collectionEntries
+              .map(
+                (entry) => `
+                  <article class="home-portal__detail${entry.index === 0 ? " is-active" : ""}" data-portal-detail="${entry.index}">
+                    <p class="eyebrow">${String(entry.index + 1).padStart(2, "0")} · ${escapeHtml(entry.collection.label)}</p>
+                    <h2 class="home-portal__detail-title">${escapeHtml(entry.workTitle)}</h2>
+                    ${entry.summary ? `<p class="home-portal__detail-summary">${escapeHtml(entry.summary)}</p>` : ""}
+                    ${renderMetaChips(
+                      [entry.countLabel.toUpperCase(), entry.collection.shortLabel.toUpperCase()],
+                      "meta-chips meta-chips--portal"
+                    )}
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="${toHref(entry.route)}">
+                        <span>ENTER ${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
+                      </a>
+                    </div>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+          <a class="home-portal__cue motion-reveal" href="#filial-project">
+            <span>SCROLL</span>
+            <strong>FILIAL PROJECT</strong>
+          </a>
+        </div>
       </section>
 
-      <section class="home-section home-featured-section" data-section>
+      <section class="home-section home-featured-section" id="filial-project" data-section>
+        ${renderTorusField({
+          className: "home-featured-section__torus torus-field--bridge",
+          kind: "bridge",
+          speed: 0.68,
+          density: 0.72,
+          scale: 0.9,
+          depth: 0.76,
+        })}
         <div class="home-section__header">
           <div>
             <p class="eyebrow motion-reveal">FILIAL PROJECT</p>
             <h2 class="home-section__title motion-reveal">${escapeHtml(data.home.featuredStory.title)}</h2>
           </div>
-          <p class="home-section__lede motion-reveal">Scroll down from the category sequence into Filial Project, then open the live prototype site from here.</p>
+          ${data.home.photoMeta ? `<div class="home-section__lede motion-reveal">${renderParagraphs(data.home.photoMeta, "home-section__lede-paragraph")}</div>` : ""}
         </div>
         <div class="featured-project">
           <figure class="featured-project__media motion-scale" data-parallax-wrap>
@@ -726,7 +803,7 @@ function renderHomePage(route = "/") {
           </figure>
           <div class="featured-project__content">
             <div class="featured-project__block motion-reveal">
-              <p class="eyebrow">ABOUT FILIAL PROJECT</p>
+              <p class="eyebrow">${escapeHtml(data.home.featuredStory.aboutLabel)}</p>
               <p>${escapeHtml(data.home.featuredStory.aboutText)}</p>
             </div>
             <div class="featured-project__block motion-reveal">
@@ -748,6 +825,7 @@ function renderHomePage(route = "/") {
     description: data.home.intro,
     pageClass: "page-home",
     content,
+    showUtilityBar: false,
   });
 }
 
@@ -799,7 +877,7 @@ function renderWorksHub() {
         title: data.worksHub.title,
         summary: data.worksHub.intro,
         media: heroMedia,
-        pills: [`${data.collections.length} CATEGORIES`, `${data.projects.length} PROJECTS`, "PORTFOLIO ARCHIVE"],
+        pills: [],
       })}
       <section class="editorial-directory">
         ${data.collections.map((collection, index) => renderEditorialCollectionEntry(collection, index)).join("")}
@@ -831,35 +909,21 @@ function renderAboutPage() {
       ${renderEditorialHero({
         label: "ABOUT",
         title: data.site.owner,
-        summary: data.about.paragraphs[0],
+        summary: "",
         media: data.about.portrait,
-        pills: ["GRAPHIC DESIGN", "PHOTOGRAPHY", "CREATIVE TECHNOLOGY"],
+        pills: [],
       })}
       <section class="editorial-bio" data-section>
-        <div class="editorial-bio__lead">
-          ${renderParagraphs(data.about.paragraphs.slice(1).join("\n\n"), "editorial-bio__paragraph motion-reveal")}
-        </div>
+        <div class="editorial-bio__lead"></div>
         <div class="editorial-info-stack">
-          ${renderEditorialInfoBlock(
-            "SUMMARY",
-            renderParagraphs(data.about.summaryText, "editorial-info-block__paragraph")
-          )}
-          ${renderEditorialInfoBlock(
-            "EDUCATION",
-            data.about.educationLines.map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`).join("")
-          )}
-          ${renderEditorialInfoBlock(
-            "SCHOLARSHIPS",
-            data.about.achievementLines
-              .map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`)
-              .join("")
-          )}
-          ${renderEditorialInfoBlock(
-            "SKILLS & INTERESTS",
-            data.about.skillsInterestLines
-              .map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`)
-              .join("")
-          )}
+          ${(data.about.sections ?? [])
+            .map((section) =>
+              renderEditorialInfoBlock(
+                section.heading,
+                renderParagraphs(section.body, "editorial-info-block__paragraph")
+              )
+            )
+            .join("")}
         </div>
       </section>
     </main>
@@ -880,9 +944,9 @@ function renderContactPage() {
       ${renderEditorialHero({
         label: "CONTACT",
         title: data.contact.heading,
-        summary: data.contact.intro,
+        summary: "",
         media: data.contact.portrait,
-        pills: ["EMAIL", "INSTAGRAM", "YOUTUBE"],
+        pills: [],
       })}
       <section class="contact-directory" data-section>
         ${contactPanelLinks
@@ -975,7 +1039,7 @@ function renderCollectionPage(collection) {
         title: collection.label,
         summary: collection.pageIntro || collection.description,
         media: collection.cover,
-        pills,
+        pills: [],
       })}
       ${
         collection.type === "projects"
@@ -1056,6 +1120,7 @@ function renderProjectPage(project) {
   const previous = siblings[index - 1] ?? null;
   const next = siblings[index + 1] ?? null;
   const { title, blocks } = getProjectCopy(project);
+  const [leadBlock, ...restBlocks] = blocks;
 
   const content = `
     <main class="page-main page-main--stack">
@@ -1065,15 +1130,32 @@ function renderProjectPage(project) {
         </a>
       </div>
       <section class="project-detail" data-section>
+        ${renderTorusField({
+          className: "project-detail__torus torus-field--detail",
+          kind: "detail",
+          speed: 0.52,
+          density: 0.7,
+          scale: 0.82,
+          depth: 0.7,
+        })}
         <header class="project-detail__intro">
           <p class="eyebrow motion-reveal">${escapeHtml(project.disciplineLabel)}</p>
           <h1 class="project-detail__title motion-reveal">${escapeHtml(title)}</h1>
-          <p class="project-detail__summary motion-reveal">${escapeHtml(project.summary)}</p>
-          ${renderMetaChips([`${project.imageCount} IMAGES`, "PORTFOLIO"], "meta-chips motion-reveal")}
+          ${
+            leadBlock
+              ? `<div class="project-detail__lead motion-reveal">${renderParagraphs(
+                  leadBlock.text,
+                  "project-detail__paragraph"
+                )}</div>`
+              : ""
+          }
         </header>
         ${renderProjectMediaFlow(project.images, project.title)}
+        ${
+          restBlocks.length
+            ? `
         <section class="project-detail__copy motion-reveal">
-          ${blocks
+          ${restBlocks
             .map((block) => {
               if (block.type === "heading") {
                 return `<h2 class="project-detail__heading">${escapeHtml(block.text)}</h2>`;
@@ -1083,6 +1165,9 @@ function renderProjectPage(project) {
             })
             .join("")}
         </section>
+          `
+            : ""
+        }
       </section>
       <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         ${
