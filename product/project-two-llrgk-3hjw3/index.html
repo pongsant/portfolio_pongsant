@@ -7,150 +7,205 @@
     <meta name="description" content="Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering...">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page page-project">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
+    
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
         
-              <a href="/my-works/" class="is-active">
-                MY WORKS
+              <a class="chrome-button" href="/">
+                <span>PORTFOLIO</span>
               </a>
             
-              <a href="/about/" class="">
-                ABOUT
+              <a class="chrome-button is-active" href="/my-works/">
+                <span>MY WORKS</span>
               </a>
             
-              <a href="/contact/" class="">
-                CONTACT
+              <a class="chrome-button" href="/about/">
+                <span>ABOUT</span>
+              </a>
+            
+        <button class="chrome-button" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  
+    
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>New York, NY</span>
+        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        
+              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
+                <span>1pongsant@gmail.com</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
               </a>
             
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      
-    <div class="site-social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
+    </div>
+  
     
-            </a>
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <div class="contact-panel__grid">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
+                  <span class="contact-panel__label">Email</span>
+                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
+                <a class="contact-panel__card" href="tel:+14245993914">
+                  <span class="contact-panel__label">Phone</span>
+                  <strong class="contact-panel__value">(424)599-3914</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="/contact">
+                  <span class="contact-panel__label">Location</span>
+                  <strong class="contact-panel__value">New York, NY</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">Instagram</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">YouTube</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+        </div>
+      </section>
     </div>
   
-    </header>
-  
-      
-    <main class="page-main archive-page archive-page--project">
-      <div class="archive-back-row archive-back-row--project">
-        <a class="archive-back-link" href="/product/">back</a>
+    
+    <main class="page-main page-main--stack">
+      <div class="project-breadcrumbs motion-reveal">
+        <a class="chrome-button chrome-button--ghost" href="/product/">
+          <span>BACK TO PRODUCT DESIGN</span>
+        </a>
       </div>
-      <section class="archive-project">
-        
-    <div class="archive-project-copy">
-      <h1 class="archive-project-copy__title">Decorative Box</h1>
-      <p class="archive-project-copy__paragraph">Concepts</p><p class="archive-project-copy__paragraph">I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering flames, bringing energy and liveliness to the design. The sides of the box have floral patterns that feel calm and peaceful, like flowers gently moving in the wind. Together, these designs create a nice balance between energy and stillness, showing the beauty of nature and Thai culture in a simple, modern way.</p><p class="archive-project-copy__paragraph">Final</p><p class="archive-project-copy__paragraph">This project was a valuable learning experience that helped me improve my woodworking skills and explore the blend of traditional Thai patterns with modern technology. I designed and built a decorative plywood box inspired by OTOP crafts, learning to use woodworking tools like saws, drills, and sanders. Initially challenging, I grew more confident as I practiced. Careful planning and precise measurements were crucial to ensuring the box fit together correctly.</p><p class="archive-project-copy__paragraph">The most exciting part was engraving Thai patterns using a laser cutter, merging cultural heritage with contemporary techniques. Adjusting the laser settings to achieve clean designs was both challenging and rewarding. This project deepened my appreciation for the balance between traditional craftsmanship and modern tools, reinforcing the importance of patience, detail, and thoughtful execution. Ultimately, it strengthened my connection to Thai culture and the joy of creating something meaningful.</p>
+      <section class="project-detail" data-section>
+        <header class="project-detail__intro">
+          <p class="eyebrow motion-reveal">Product Design</p>
+          <h1 class="project-detail__title motion-reveal">Decorative Box</h1>
+          <p class="project-detail__summary motion-reveal">Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering...</p>
+          
+    <div class="meta-chips motion-reveal">
+      <span>8 IMAGES</span><span>PORTFOLIO</span>
     </div>
   
-        <section class="archive-project-gallery">
+        </header>
+        
+    <section class="project-media-flow">
+      
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0068_1.jpg" alt="Decorative Box image 1" data-parallax="8">
+            </figure>
           
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0068_1.jpg" alt="Decorative Box image 1">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0176_2.jpg" alt="Decorative Box image 2">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0114_3.jpg" alt="Decorative Box image 3">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0094_4.jpg" alt="Decorative Box image 4">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0090_5.jpg" alt="Decorative Box image 5">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0102_8.jpg" alt="Decorative Box image 6">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0039_7.jpg" alt="Decorative Box image 7">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0043_6.jpg" alt="Decorative Box image 8">
-                </figure>
-              
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0176_2.jpg" alt="Decorative Box image 2" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--square motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0114_3.jpg" alt="Decorative Box image 3" data-parallax="12">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--tall motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0094_4.jpg" alt="Decorative Box image 4" data-parallax="14">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--landscape motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0090_5.jpg" alt="Decorative Box image 5" data-parallax="8">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0102_8.jpg" alt="Decorative Box image 6" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0039_7.jpg" alt="Decorative Box image 7" data-parallax="12">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--square motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0043_6.jpg" alt="Decorative Box image 8" data-parallax="14">
+            </figure>
+          
+    </section>
+  
+        <section class="project-detail__copy motion-reveal">
+          <p class="project-detail__paragraph">Concepts</p><p class="project-detail__paragraph">I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering flames, bringing energy and liveliness to the design. The sides of the box have floral patterns that feel calm and peaceful, like flowers gently moving in the wind. Together, these designs create a nice balance between energy and stillness, showing the beauty of nature and Thai culture in a simple, modern way.</p><p class="project-detail__paragraph">Final</p><p class="project-detail__paragraph">This project was a valuable learning experience that helped me improve my woodworking skills and explore the blend of traditional Thai patterns with modern technology. I designed and built a decorative plywood box inspired by OTOP crafts, learning to use woodworking tools like saws, drills, and sanders. Initially challenging, I grew more confident as I practiced. Careful planning and precise measurements were crucial to ensuring the box fit together correctly.</p><p class="project-detail__paragraph">The most exciting part was engraving Thai patterns using a laser cutter, merging cultural heritage with contemporary techniques. Adjusting the laser settings to achieve clean designs was both challenging and rewarding. This project deepened my appreciation for the balance between traditional craftsmanship and modern tools, reinforcing the importance of patience, detail, and thoughtful execution. Ultimately, it strengthened my connection to Thai culture and the joy of creating something meaningful.</p>
         </section>
       </section>
-      <nav class="archive-pagination" aria-label="Project pagination">
+      <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <span></span>
-        <a href="/product/">Product Design</a>
-        <a href="/product/project-one-ephnc-3368k/">Next: Interactive Table</a>
+        <a class="chrome-button chrome-button--ghost" href="/product/project-one-ephnc-3368k/"><span>NEXT · Interactive Table</span></a>
       </nav>
     </main>
   
-      
-    <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      
-    <div class="site-footer__social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
     
-            </a>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
+          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="/">HOME</a>
+          <a href="/my-works/">MY WORKS</a>
+          <a href="/about/">ABOUT</a>
+          <a href="/contact/">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a href="mailto:1pongsant@gmail.com">
+                  1pongsant@gmail.com
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
-    </div>
-  
-      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+              
+                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  YouTube
+                </a>
+              
+        </div>
+      </div>
     </footer>
   
-    </div>
   </body>
 </html>

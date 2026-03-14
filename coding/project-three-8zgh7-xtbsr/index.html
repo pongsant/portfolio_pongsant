@@ -7,126 +7,181 @@
     <meta name="description" content="Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page page-project">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
+    
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
         
-              <a href="/my-works/" class="is-active">
-                MY WORKS
+              <a class="chrome-button" href="/">
+                <span>PORTFOLIO</span>
               </a>
             
-              <a href="/about/" class="">
-                ABOUT
+              <a class="chrome-button is-active" href="/my-works/">
+                <span>MY WORKS</span>
               </a>
             
-              <a href="/contact/" class="">
-                CONTACT
+              <a class="chrome-button" href="/about/">
+                <span>ABOUT</span>
+              </a>
+            
+        <button class="chrome-button" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  
+    
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>New York, NY</span>
+        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        
+              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
+                <span>1pongsant@gmail.com</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
               </a>
             
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      
-    <div class="site-social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
+    </div>
+  
     
-            </a>
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <div class="contact-panel__grid">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
+                  <span class="contact-panel__label">Email</span>
+                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
+                <a class="contact-panel__card" href="tel:+14245993914">
+                  <span class="contact-panel__label">Phone</span>
+                  <strong class="contact-panel__value">(424)599-3914</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="/contact">
+                  <span class="contact-panel__label">Location</span>
+                  <strong class="contact-panel__value">New York, NY</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">Instagram</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">YouTube</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+        </div>
+      </section>
     </div>
   
-    </header>
-  
-      
-    <main class="page-main archive-page archive-page--project">
-      <div class="archive-back-row archive-back-row--project">
-        <a class="archive-back-link" href="/coding/">back</a>
+    
+    <main class="page-main page-main--stack">
+      <div class="project-breadcrumbs motion-reveal">
+        <a class="chrome-button chrome-button--ghost" href="/coding/">
+          <span>BACK TO CODING</span>
+        </a>
       </div>
-      <section class="archive-project">
-        
-    <div class="archive-project-copy">
-      <h1 class="archive-project-copy__title">Temperature Glow Lamp</h1>
-      <p class="archive-project-copy__paragraph">Concept</p><p class="archive-project-copy__paragraph">Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and feel). The goal is to create a simple and interactive system that helps people notice, understand, and connect with their surroundings in a clearer and more meaningful way.</p><p class="archive-project-copy__paragraph">How does your system work?</p><p class="archive-project-copy__paragraph">My system integrates a DHT22 temperature and humidity sensor, a TTP223B touch sensor, and a WS2812B LED strip controlled by an Arduino. Here’s how the system works:</p><p class="archive-project-copy__paragraph">Inputs : The DHT22 sensor provides real-time temperature readings.</p><p class="archive-project-copy__paragraph">The TTP223B touch sensor acts as a toggle switch to control the brightness of the LED strip.</p><p class="archive-project-copy__paragraph">Outputs : The WS2812B LED strip lights up and changes color based on the</p><p class="archive-project-copy__paragraph">temperature :</p><p class="archive-project-copy__paragraph">Blue (&lt;20°C): Cold temperatures.</p><p class="archive-project-copy__paragraph">Green (20–30°C): Moderate temperatures.</p><p class="archive-project-copy__paragraph">Red (&gt;30°C): Hot temperatures.</p><p class="archive-project-copy__paragraph">The brightness of the LED strip changes incrementally with each touch of the TTP223B sensor.</p>
+      <section class="project-detail" data-section>
+        <header class="project-detail__intro">
+          <p class="eyebrow motion-reveal">Coding</p>
+          <h1 class="project-detail__title motion-reveal">Temperature Glow Lamp</h1>
+          <p class="project-detail__summary motion-reveal">Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and...</p>
+          
+    <div class="meta-chips motion-reveal">
+      <span>2 IMAGES</span><span>PORTFOLIO</span>
     </div>
   
-        <section class="archive-project-gallery">
+        </header>
+        
+    <section class="project-media-flow">
+      
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0136_IMG_6190.JPG" alt="Temperature Glow Lamp image 1" data-parallax="8">
+            </figure>
           
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0136_IMG_6190.JPG" alt="Temperature Glow Lamp image 1">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0015_IMG_6192%2Bcopy.JPG" alt="Temperature Glow Lamp image 2">
-                </figure>
-              
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0015_IMG_6192%2Bcopy.JPG" alt="Temperature Glow Lamp image 2" data-parallax="10">
+            </figure>
+          
+    </section>
+  
+        <section class="project-detail__copy motion-reveal">
+          <p class="project-detail__paragraph">Temperature Glow Lamp</p><p class="project-detail__paragraph">Concept</p><p class="project-detail__paragraph">Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and feel). The goal is to create a simple and interactive system that helps people notice, understand, and connect with their surroundings in a clearer and more meaningful way.</p><p class="project-detail__paragraph">How does your system work?</p><p class="project-detail__paragraph">My system integrates a DHT22 temperature and humidity sensor, a TTP223B touch sensor, and a WS2812B LED strip controlled by an Arduino. Here’s how the system works:</p><p class="project-detail__paragraph">Inputs : The DHT22 sensor provides real-time temperature readings.</p><p class="project-detail__paragraph">The TTP223B touch sensor acts as a toggle switch to control the brightness of the LED strip.</p><p class="project-detail__paragraph">Outputs : The WS2812B LED strip lights up and changes color based on the</p><p class="project-detail__paragraph">temperature :</p><p class="project-detail__paragraph">Blue (&lt;20°C): Cold temperatures.</p><p class="project-detail__paragraph">Green (20–30°C): Moderate temperatures.</p><p class="project-detail__paragraph">Red (&gt;30°C): Hot temperatures.</p><p class="project-detail__paragraph">The brightness of the LED strip changes incrementally with each touch of the TTP223B sensor.</p>
         </section>
       </section>
-      <nav class="archive-pagination" aria-label="Project pagination">
+      <nav class="project-pagination motion-reveal" aria-label="Project navigation">
         <span></span>
-        <a href="/coding/">Coding</a>
-        <a href="/coding/project-two-llrgk-kx83j/">Next: Web Design and Coding</a>
+        <a class="chrome-button chrome-button--ghost" href="/coding/project-two-llrgk-kx83j/"><span>NEXT · Web Design and Coding</span></a>
       </nav>
     </main>
   
-      
-    <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      
-    <div class="site-footer__social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
     
-            </a>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
+          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="/">HOME</a>
+          <a href="/my-works/">MY WORKS</a>
+          <a href="/about/">ABOUT</a>
+          <a href="/contact/">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a href="mailto:1pongsant@gmail.com">
+                  1pongsant@gmail.com
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
-    </div>
-  
-      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+              
+                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  YouTube
+                </a>
+              
+        </div>
+      </div>
     </footer>
   
-    </div>
   </body>
 </html>

@@ -7,109 +7,364 @@
     <meta name="description" content="Browse the portfolio the same way the original site is organized: by discipline first, then by project.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page page-hub">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
+    
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
         
-              <a href="/my-works/" class="is-active">
-                MY WORKS
+              <a class="chrome-button" href="/">
+                <span>PORTFOLIO</span>
               </a>
             
-              <a href="/about/" class="">
-                ABOUT
+              <a class="chrome-button is-active" href="/my-works/">
+                <span>MY WORKS</span>
               </a>
             
-              <a href="/contact/" class="">
-                CONTACT
+              <a class="chrome-button" href="/about/">
+                <span>ABOUT</span>
+              </a>
+            
+        <button class="chrome-button" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  
+    
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>New York, NY</span>
+        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        
+              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
+                <span>1pongsant@gmail.com</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
               </a>
             
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      
-    <div class="site-social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
-    
-            </a>
-          
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
-              
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
+    </div>
   
-            </a>
+    
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <div class="contact-panel__grid">
+          
+                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
+                  <span class="contact-panel__label">Email</span>
+                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="tel:+14245993914">
+                  <span class="contact-panel__label">Phone</span>
+                  <strong class="contact-panel__value">(424)599-3914</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="/contact">
+                  <span class="contact-panel__label">Location</span>
+                  <strong class="contact-panel__value">New York, NY</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">Instagram</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">YouTube</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+        </div>
+      </section>
+    </div>
+  
+    
+    <main class="page-main page-main--stack">
+      
+    <section class="editorial-hero" data-section>
+      <div class="editorial-hero__copy">
+        <p class="eyebrow motion-reveal">PORTFOLIO INDEX</p>
+        <h1 class="editorial-hero__title motion-reveal">MY WORKS</h1>
+        <p class="editorial-hero__summary motion-reveal">Browse the portfolio the same way the original site is organized: by discipline first, then by project.</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>5 CATEGORIES</span><span>29 PROJECTS</span><span>PORTFOLIO ARCHIVE</span>
+    </div>
+  
+      </div>
+      <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
+        <img src="/assets/site-import/images/0085_p1.jpg" alt="MY WORKS" data-parallax="8">
+      </figure>
+    </section>
+  
+      <section class="editorial-directory">
+        
+    <article class="editorial-entry" data-section>
+      <a class="editorial-entry__media motion-scale" href="/graphic-design/" data-parallax-wrap aria-label="Open GRAPHIC DESIGN">
+        <img src="/assets/site-import/images/0097_3.jpg" alt="GRAPHIC DESIGN" data-parallax="10">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">01 · Graphic Design</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="/graphic-design/">GRAPHIC DESIGN</a></h2>
+        <p class="editorial-entry__summary motion-reveal">Poster systems, branding studies, publication work, and typography experiments.</p>
+        <p class="editorial-entry__detail motion-reveal">Final Design My final design is crafted in the distinctive style of David Carson, serving as a concise biography poster. Inspired by Carson’s artistic nuances, I incorporated signature elements to pay homage and infuse t...</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>23 PROJECTS</span><span>David Carson Poster Design</span><span>PORTFOLIO</span>
+    </div>
+  
+        
+              <ul class="editorial-entry__list motion-reveal">
+                <li>David Carson Poster Design</li><li>Project Six</li><li>Portrait Poster Design</li>
+              </ul>
+            
+        
+    <div class="editorial-entry__preview motion-reveal">
+      
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0097_3.jpg" alt="Graphic Design preview 1">
+            </figure>
+          
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0154_2.jpg" alt="Graphic Design preview 2">
+            </figure>
           
     </div>
   
-    </header>
-  
-      
-    <main class="page-main archive-page archive-page--works">
-      <section class="home-works archive-works-page">
-        <div class="home-works__inner home-grid">
-          <h1 class="home-works__title">MY WORKS</h1>
-          <a class="home-works__link home-works__link--graphic" href="/graphic-design/">GRAPHIC DESIGN</a>
-          <a class="home-works__link home-works__link--photo" href="/photo/">PHOTO</a>
-          <a class="home-works__link home-works__link--drawing" href="/drawing/">DRAWING</a>
-          <a class="home-works__link home-works__link--coding" href="/coding/">CODING</a>
-          <a class="home-works__link home-works__link--product" href="/product/">PRODUCT DESIGN</a>
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="/graphic-design/">
+            <span>OPEN GRAPHIC DESIGN</span>
+          </a>
         </div>
+      </div>
+    </article>
+  
+    <article class="editorial-entry editorial-entry--reverse" data-section>
+      <a class="editorial-entry__media motion-scale" href="/photo/" data-parallax-wrap aria-label="Open PHOTO">
+        <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO" data-parallax="12">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">02 · Photo</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="/photo/">PHOTO</a></h2>
+        <p class="editorial-entry__summary motion-reveal">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.</p>
+        <p class="editorial-entry__detail motion-reveal">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding i...</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>29 IMAGES</span><span>Photo Archive</span><span>PORTFOLIO</span>
+    </div>
+  
+        
+              <ul class="editorial-entry__list motion-reveal">
+                <li>Photo 1</li><li>Photo 2</li><li>Photo 3</li>
+              </ul>
+            
+        
+    <div class="editorial-entry__preview motion-reveal">
+      
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="Photo preview 1">
+            </figure>
+          
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0153_IMG_1094.JPG" alt="Photo preview 2">
+            </figure>
+          
+    </div>
+  
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="/photo/">
+            <span>OPEN PHOTO</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  
+    <article class="editorial-entry" data-section>
+      <a class="editorial-entry__media motion-scale" href="/drawing/" data-parallax-wrap aria-label="Open DRAWING">
+        <img src="/assets/site-import/images/0188_1.jpg" alt="DRAWING" data-parallax="14">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">03 · Drawing</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="/drawing/">DRAWING</a></h2>
+        <p class="editorial-entry__summary motion-reveal">Sketches, studies, and hand-drawn work that stay visible alongside digital projects.</p>
+        <p class="editorial-entry__detail motion-reveal">Sketches, studies, and hand-drawn work that stay visible alongside digital projects.</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>16 IMAGES</span><span>Drawing Archive</span><span>PORTFOLIO</span>
+    </div>
+  
+        
+              <ul class="editorial-entry__list motion-reveal">
+                <li>Drawing 1</li><li>Drawing 2</li><li>Drawing 3</li>
+              </ul>
+            
+        
+    <div class="editorial-entry__preview motion-reveal">
+      
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0188_1.jpg" alt="Drawing preview 1">
+            </figure>
+          
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0192_2.jpg" alt="Drawing preview 2">
+            </figure>
+          
+    </div>
+  
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="/drawing/">
+            <span>OPEN DRAWING</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  
+    <article class="editorial-entry editorial-entry--reverse" data-section>
+      <a class="editorial-entry__media motion-scale" href="/coding/" data-parallax-wrap aria-label="Open CODING">
+        <img src="/assets/site-import/images/0136_IMG_6190.JPG" alt="CODING" data-parallax="16">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">04 · Coding</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="/coding/">CODING</a></h2>
+        <p class="editorial-entry__summary motion-reveal">Interactive prototypes and creative technology built through HTML, CSS, JavaScript, and physical computing.</p>
+        <p class="editorial-entry__detail motion-reveal">Temperature Glow Lamp Concept Connecting nature and human experience through technology by using temperature (a natural part of the environment) and light (something we can see and feel). The goal is to create a simple a...</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>4 PROJECTS</span><span>Temperature Glow Lamp</span><span>PORTFOLIO</span>
+    </div>
+  
+        
+              <ul class="editorial-entry__list motion-reveal">
+                <li>Temperature Glow Lamp</li><li>Web Design and Coding</li><li>Flower</li>
+              </ul>
+            
+        
+    <div class="editorial-entry__preview motion-reveal">
+      
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0136_IMG_6190.JPG" alt="Coding preview 1">
+            </figure>
+          
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0015_IMG_6192%2Bcopy.JPG" alt="Coding preview 2">
+            </figure>
+          
+    </div>
+  
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="/coding/">
+            <span>OPEN CODING</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  
+    <article class="editorial-entry" data-section>
+      <a class="editorial-entry__media motion-scale" href="/product/" data-parallax-wrap aria-label="Open PRODUCT DESIGN">
+        <img src="/assets/site-import/images/0068_1.jpg" alt="PRODUCT DESIGN" data-parallax="18">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">05 · Product Design</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="/product/">PRODUCT DESIGN</a></h2>
+        <p class="editorial-entry__summary motion-reveal">Objects and spatial interactions shaped by material thinking, display, and cultural references.</p>
+        <p class="editorial-entry__detail motion-reveal">Concepts I designed a decorative box that uses Thai patterns inspired by traditional OTOP crafts, mixing art and nature. The top of the box has a pattern that looks like flickering flames, bringing energy and liveliness...</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>2 PROJECTS</span><span>Decorative Box</span><span>PORTFOLIO</span>
+    </div>
+  
+        
+              <ul class="editorial-entry__list motion-reveal">
+                <li>Decorative Box</li><li>Interactive Table</li>
+              </ul>
+            
+        
+    <div class="editorial-entry__preview motion-reveal">
+      
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0068_1.jpg" alt="Product Design preview 1">
+            </figure>
+          
+            <figure class="editorial-entry__preview-item">
+              <img src="/assets/site-import/images/0176_2.jpg" alt="Product Design preview 2">
+            </figure>
+          
+    </div>
+  
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="/product/">
+            <span>OPEN PRODUCT DESIGN</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  
       </section>
     </main>
   
-      
-    <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      
-    <div class="site-footer__social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
     
-            </a>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
+          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="/">HOME</a>
+          <a href="/my-works/">MY WORKS</a>
+          <a href="/about/">ABOUT</a>
+          <a href="/contact/">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a href="mailto:1pongsant@gmail.com">
+                  1pongsant@gmail.com
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
-    </div>
-  
-      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+              
+                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  YouTube
+                </a>
+              
+        </div>
+      </div>
     </footer>
   
-    </div>
   </body>
 </html>

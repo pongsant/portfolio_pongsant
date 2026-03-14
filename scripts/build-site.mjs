@@ -5,31 +5,16 @@ const dataPath = new URL("../site-data.json", import.meta.url);
 const data = JSON.parse(readFileSync(dataPath, "utf8"));
 const filialVideoSrc = "/video/filial%20web%20test%201.mov";
 
-function toAssetUrl(localPath) {
-  return `/${localPath.split("/").map(encodeURIComponent).join("/")}`;
-}
+const primaryNav = [
+  { label: "PORTFOLIO", href: "/" },
+  { label: "MY WORKS", href: "/my-works" },
+  { label: "ABOUT", href: "/about" },
+];
 
-const homeAssets = {
-  heroPoster: data.home.featuredStory.cover,
-  featuredLogo: toAssetUrl("assets/site-import/images/0157_logo+2.png"),
-  graphicPoster: toAssetUrl("assets/site-import/images/0123_pongsant+poster.jpg"),
-  graphicTall: toAssetUrl("assets/site-import/images/0146_1.jpg"),
-  graphicLandscape: toAssetUrl("assets/site-import/images/0075_1.jpg"),
-  graphicSquare: toAssetUrl("assets/site-import/images/0130_Screenshot+2026-01-04+at+22.32.39.png"),
-  graphicTower: toAssetUrl("assets/site-import/images/0134_Screenshot+2026-01-04+at+22.42.42.png"),
-  photoPortrait: toAssetUrl("assets/site-import/images/0025_L1000282.jpeg"),
-  photoWideOne: toAssetUrl("assets/site-import/images/0018_IMG_2138.JPG"),
-  photoTall: toAssetUrl("assets/site-import/images/0088_IMG_2292.JPG"),
-  photoWideTwo: toAssetUrl("assets/site-import/images/0099_IMG_2265.JPG"),
-};
-
-const socialLinks = (data.contact?.links ?? [])
-  .filter((item) => item.label === "Instagram" || item.label === "YouTube")
-  .map((item) => ({
-    href: item.href,
-    label: item.label,
-    icon: item.label.toLowerCase(),
-  }));
+const contactPanelLinks = (data.contact?.links ?? []).filter(Boolean);
+const utilityLinks = contactPanelLinks.filter((item) =>
+  item.label === "Email" || item.label === "Instagram" || item.label === "YouTube"
+);
 
 function toHref(route) {
   return route === "/" ? "/" : `${route}/`;
@@ -50,7 +35,7 @@ function ensureWrite(route, html) {
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -58,7 +43,41 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function splitParagraphs(text) {
+  return String(text ?? "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function renderParagraphs(text, className = "rich-copy__paragraph") {
+  return splitParagraphs(text)
+    .map((paragraph) => {
+      const withBreaks = paragraph
+        .split("\n")
+        .map((line) => escapeHtml(line))
+        .join("<br>");
+
+      return `<p class="${className}">${withBreaks}</p>`;
+    })
+    .join("");
+}
+
+function trimText(value, maxLength = 220) {
+  const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+}
+
 function currentNav(route, href) {
+  if (href === "/") {
+    return route === "/" || route === "/homepage-2";
+  }
+
   if (href === "/my-works") {
     return (
       route === "/my-works" ||
@@ -71,101 +90,144 @@ function currentNav(route, href) {
   return route === href;
 }
 
-function renderSocialIcon(name) {
-  if (name === "instagram") {
-    return `
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
-    `;
-  }
-
-  return `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  `;
+function getProjectByRoute(route) {
+  return data.projects.find((project) => project.route === route) ?? null;
 }
 
-function renderSocialLinks(className = "site-social") {
+function getCollectionByRoute(route) {
+  return data.collections.find((collection) => collection.route === route) ?? null;
+}
+
+function getProjectsForCollection(route) {
+  return data.projects.filter((project) => project.collectionRoute === route);
+}
+
+function getProjectCopy(project) {
+  const blocks = (project.copyBlocks ?? [])
+    .map((block) => ({
+      type: block.type,
+      text: String(block.text ?? "").trim(),
+    }))
+    .filter((block) => block.text);
+
+  return {
+    title: project.detailTitle || project.title,
+    blocks,
+  };
+}
+
+function renderMetaChips(items, className = "meta-chips") {
   return `
-    <div class="${className}" aria-label="Social links">
-      ${socialLinks
-        .map(
-          (item) => `
-            <a href="${escapeHtml(item.href)}" target="_blank" rel="noreferrer" aria-label="${escapeHtml(item.label)}">
-              ${renderSocialIcon(item.icon)}
-            </a>
-          `
-        )
+    <div class="${className}">
+      ${items
+        .filter(Boolean)
+        .map((item) => `<span>${escapeHtml(item)}</span>`)
         .join("")}
     </div>
   `;
 }
 
-function renderHeader(route) {
+function renderChrome(route) {
   return `
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
-        ${data.navigation
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
+        ${primaryNav
           .map(
             (item) => `
-              <a href="${toHref(item.href)}" class="${currentNav(route, item.href) ? "is-active" : ""}">
-                ${escapeHtml(item.label)}
+              <a class="chrome-button${currentNav(route, item.href) ? " is-active" : ""}" href="${toHref(item.href)}">
+                <span>${escapeHtml(item.label)}</span>
+              </a>
+            `
+          )
+          .join("")}
+        <button class="chrome-button${route === "/contact" ? " is-active" : ""}" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  `;
+}
+
+function renderUtilityBar() {
+  return `
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>${escapeHtml(data.site.location)}</span>
+        <span>${escapeHtml(data.site.footerText)}</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        ${utilityLinks
+          .map(
+            (item) => `
+              <a class="chrome-button chrome-button--ghost" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                <span>${escapeHtml(item.value || item.label)}</span>
               </a>
             `
           )
           .join("")}
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      ${renderSocialLinks()}
-    </header>
+    </div>
+  `;
+}
+
+function renderContactPanel() {
+  return `
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">${escapeHtml(data.contact.intro)}</p>
+        <div class="contact-panel__grid">
+          ${contactPanelLinks
+            .map(
+              (item) => `
+                <a class="contact-panel__card" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                  <span class="contact-panel__label">${escapeHtml(item.label)}</span>
+                  <strong class="contact-panel__value">${escapeHtml(item.value)}</strong>
+                </a>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
   `;
 }
 
 function renderFooter() {
   return `
     <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      ${renderSocialLinks("site-footer__social")}
-      <a class="site-footer__link site-footer__link--about" href="${toHref("/about")}">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="${toHref("/my-works")}">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="${toHref("/contact")}">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">${escapeHtml(data.site.owner)}</h2>
+          <p class="site-footer__summary">${escapeHtml(data.home.intro)}</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="${toHref("/")}">HOME</a>
+          <a href="${toHref("/my-works")}">MY WORKS</a>
+          <a href="${toHref("/about")}">ABOUT</a>
+          <a href="${toHref("/contact")}">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
+          ${utilityLinks
+            .map(
+              (item) => `
+                <a href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                  ${escapeHtml(item.label === "Email" ? item.value : item.label)}
+                </a>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
     </footer>
-  `;
-}
-
-function renderLoop(text) {
-  return `
-    <div class="page-loop" aria-hidden="true">
-      <div class="page-loop__track">
-        <span>${escapeHtml(text)}</span>
-        <span>${escapeHtml(text)}</span>
-        <span>${escapeHtml(text)}</span>
-        <span>${escapeHtml(text)}</span>
-      </div>
-    </div>
-  `;
-}
-
-function renderMoodTrack(words) {
-  const safeWords = Array.isArray(words) && words.length ? words : ["Portfolio Interface"];
-
-  return `
-    <section class="signal-band" aria-label="Design mood">
-      <div class="signal-band__track">
-        ${safeWords
-          .concat(safeWords)
-          .map((word) => `<span>${escapeHtml(word)}</span>`)
-          .join("")}
-      </div>
-    </section>
   `;
 }
 
@@ -179,326 +241,502 @@ function renderLayout({ route, title, description, pageClass, content }) {
     <meta name="description" content="${escapeHtml(description)}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page ${escapeHtml(pageClass)}">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      ${renderHeader(route)}
-      ${content}
-      ${renderFooter()}
-    </div>
+    ${renderChrome(route)}
+    ${renderUtilityBar()}
+    ${renderContactPanel()}
+    ${content}
+    ${renderFooter()}
   </body>
 </html>
 `;
 }
 
-function renderStatsStrip(items) {
-  return `
-    <div class="stat-strip">
-      ${items
-        .map(
-          (item) => `
-            <div class="stat-strip__item">
-              <strong>${escapeHtml(item.value)}</strong>
-              <span>${escapeHtml(item.label)}</span>
-            </div>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function renderCollectionCard(collection, options = {}) {
-  const previewItems = (collection.preview ?? []).slice(0, options.compact ? 3 : 4);
-  const metaLabel = collection.type === "projects"
-    ? `${collection.itemCount} projects`
-    : `${collection.imageCount} images`;
-
-  return `
-    <article class="collection-card collection-card--${escapeHtml(collection.accent)}${options.compact ? " collection-card--compact" : ""}">
-      <a class="collection-card__media" href="${toHref(collection.route)}">
-        <span class="collection-card__halo"></span>
-        <img src="${collection.cover}" alt="${escapeHtml(collection.shortLabel)}">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">${escapeHtml(collection.shortLabel)}</p>
-        <h3><a href="${toHref(collection.route)}">${escapeHtml(collection.label)}</a></h3>
-        <p>${escapeHtml(collection.description)}</p>
-        <div class="collection-card__preview">
-          ${previewItems
-            .map(
-              (item) => `
-                <a class="collection-card__preview-item" href="${toHref(item.href)}">
-                  <img src="${item.cover}" alt="${escapeHtml(item.title)}">
-                </a>
-              `
-            )
-            .join("")}
-        </div>
-        <div class="collection-card__meta">
-          <span>${escapeHtml(metaLabel)}</span>
-          <a class="text-link" href="${toHref(collection.route)}">Open ${escapeHtml(collection.shortLabel)}</a>
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function renderProjectCard(project, index = 0) {
-  return `
-    <article class="project-card${index === 0 ? " project-card--lead" : ""}">
-      <a class="project-card__media" href="${toHref(project.route)}">
-        <img src="${project.cover}" alt="${escapeHtml(project.title)}">
-      </a>
-      <div class="project-card__body">
-        <p class="section-kicker">${escapeHtml(project.disciplineLabel)}</p>
-        <h3><a href="${toHref(project.route)}">${escapeHtml(project.title)}</a></h3>
-        <p>${escapeHtml(project.summary)}</p>
-        <div class="project-card__meta">
-          <span>${escapeHtml(String(project.imageCount))} images</span>
-          <a class="text-link" href="${toHref(project.route)}">View project</a>
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function renderGalleryMasonry(images) {
-  return `
-    <div class="gallery-wall">
-      ${images
-        .map(
-          (image, index) => `
-            <figure class="gallery-wall__item gallery-wall__item--${(index % 5) + 1}">
-              <img src="${image}" alt="Gallery image ${index + 1}">
-            </figure>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function renderProjectGallery(images, title) {
-  return `
-    <section class="project-gallery">
-      ${images
-        .map((image, index) => {
-          let variant = "project-gallery__item--square";
-          if (index === 0) {
-            variant = "project-gallery__item--wide";
-          } else if (index % 5 === 0) {
-            variant = "project-gallery__item--tall";
-          } else if (index % 3 === 0) {
-            variant = "project-gallery__item--landscape";
-          }
-
-          return `
-            <figure class="project-gallery__item ${variant}">
-              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}">
-            </figure>
-          `;
-        })
-        .join("")}
-      </section>
-  `;
-}
-
-function splitParagraphs(text) {
-  return String(text)
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
-}
-
-function renderParagraphs(text, className = "archive-copy__paragraph") {
-  return splitParagraphs(text)
-    .map((paragraph) => {
-      const withBreaks = paragraph
-        .split("\n")
-        .map((line) => escapeHtml(line))
-        .join("<br>");
-
-      return `<p class="${className}">${withBreaks}</p>`;
-    })
-    .join("");
-}
-
-function normalizeComparable(value) {
-  return String(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-}
-
-function getProjectCopy(project) {
-  const blocks = (project.copyBlocks ?? []).map((block) => ({ ...block }));
-  let title = project.detailTitle || project.title;
-
-  if (blocks[0]?.type === "body") {
-    const parts = splitParagraphs(blocks[0].text);
-    const lead = parts[0];
-
-    if (lead && normalizeComparable(lead) === normalizeComparable(title)) {
-      title = lead;
-
-      const remainder = parts.slice(1).join("\n\n").trim();
-
-      if (remainder) {
-        blocks[0] = { ...blocks[0], text: remainder };
-      } else {
-        blocks.shift();
-      }
-    }
-  }
+function getCollectionRepresentative(collection) {
+  const previewItem = collection.preview?.[0] ?? null;
+  const previewProject = previewItem ? getProjectByRoute(previewItem.href) : null;
+  const previewImages = previewProject?.images?.slice(0, 3) ?? collection.images?.slice(0, 3) ?? [];
 
   return {
-    title,
-    blocks: blocks.filter((block) => block.text.trim()),
+    label: collection.label,
+    shortLabel: collection.shortLabel,
+    route: previewProject?.route ?? collection.route,
+    buttonLabel: previewProject ? "OPEN PROJECT" : "OPEN ARCHIVE",
+    title:
+      previewProject?.title ??
+      (collection.type === "gallery" ? `${collection.shortLabel} Archive` : previewItem?.title ?? collection.shortLabel),
+    summary: trimText(previewProject?.summary ?? collection.pageIntro ?? collection.description, 200),
+    media: previewProject?.cover ?? previewItem?.cover ?? collection.cover,
+    previewImages,
+    tags: [
+      collection.shortLabel,
+      collection.type === "projects" ? `${collection.itemCount} PROJECTS` : `${collection.imageCount} IMAGES`,
+      "PORTFOLIO",
+    ],
   };
 }
 
-function renderArchiveProjectCard(project) {
+function getProjectLead(project, maxLength = 260) {
+  const { blocks } = getProjectCopy(project);
+  const leadParagraph = blocks.find((block) => block.type !== "heading")?.text ?? project.summary;
+
+  return trimText(leadParagraph, maxLength);
+}
+
+function chunkArray(items, size) {
+  const chunks = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+
+  return chunks;
+}
+
+function renderEditorialHero({ label, title, summary, media, pills = [], mediaAlt = title }) {
   return `
-    <article class="archive-project-card">
-      <a class="archive-project-card__media" href="${toHref(project.route)}">
-        <img src="${project.cover}" alt="${escapeHtml(project.title)}">
+    <section class="editorial-hero" data-section>
+      <div class="editorial-hero__copy">
+        <p class="eyebrow motion-reveal">${escapeHtml(label)}</p>
+        <h1 class="editorial-hero__title motion-reveal">${escapeHtml(title)}</h1>
+        <p class="editorial-hero__summary motion-reveal">${escapeHtml(summary)}</p>
+        ${renderMetaChips(pills, "meta-chips motion-reveal")}
+      </div>
+      <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
+        <img src="${media}" alt="${escapeHtml(mediaAlt)}" data-parallax="8">
+      </figure>
+    </section>
+  `;
+}
+
+function renderEditorialPreviewRail(images, label) {
+  if (!images.length) {
+    return "";
+  }
+
+  return `
+    <div class="editorial-entry__preview motion-reveal">
+      ${images
+        .map(
+          (image, index) => `
+            <figure class="editorial-entry__preview-item">
+              <img src="${image}" alt="${escapeHtml(label)} preview ${index + 1}">
+            </figure>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderEditorialCollectionEntry(collection, index) {
+  const representative = getCollectionRepresentative(collection);
+  const previewProject = collection.preview?.[0] ? getProjectByRoute(collection.preview[0].href) : null;
+  const additionalTitles = (collection.preview ?? [])
+    .slice(0, 3)
+    .map((item) => item.title)
+    .filter(Boolean);
+
+  return `
+    <article class="editorial-entry${index % 2 === 1 ? " editorial-entry--reverse" : ""}" data-section>
+      <a class="editorial-entry__media motion-scale" href="${toHref(collection.route)}" data-parallax-wrap aria-label="Open ${escapeHtml(collection.label)}">
+        <img src="${representative.media}" alt="${escapeHtml(collection.label)}" data-parallax="${10 + index * 2}">
       </a>
-      <h2 class="archive-project-card__title">
-        <a href="${toHref(project.route)}">${escapeHtml(project.title)}</a>
-      </h2>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(collection.shortLabel)}</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="${toHref(collection.route)}">${escapeHtml(collection.label)}</a></h2>
+        <p class="editorial-entry__summary motion-reveal">${escapeHtml(collection.pageIntro ?? collection.description)}</p>
+        <p class="editorial-entry__detail motion-reveal">${escapeHtml(previewProject ? getProjectLead(previewProject, 220) : representative.summary)}</p>
+        ${renderMetaChips(
+          [
+            collection.type === "projects" ? `${collection.itemCount} PROJECTS` : `${collection.imageCount} IMAGES`,
+            previewProject?.title ?? representative.title,
+            "PORTFOLIO",
+          ],
+          "meta-chips motion-reveal"
+        )}
+        ${
+          additionalTitles.length
+            ? `
+              <ul class="editorial-entry__list motion-reveal">
+                ${additionalTitles.map((title) => `<li>${escapeHtml(title)}</li>`).join("")}
+              </ul>
+            `
+            : ""
+        }
+        ${renderEditorialPreviewRail((representative.previewImages ?? []).slice(0, 2), collection.shortLabel)}
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="${toHref(collection.route)}">
+            <span>OPEN ${escapeHtml(collection.shortLabel.toUpperCase())}</span>
+          </a>
+        </div>
+      </div>
     </article>
   `;
 }
 
-function renderArchiveGallery(images, className, title) {
+function renderEditorialProjectEntry(project, index) {
+  const previewImages = project.images.slice(1, 3);
+
   return `
-    <section class="${className}">
-      ${images
-        .map(
-          (image, index) => `
-            <figure class="archive-gallery__item">
-              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}">
-            </figure>
-          `
-        )
+    <article class="editorial-entry editorial-entry--project${index % 2 === 1 ? " editorial-entry--reverse" : ""}" data-section>
+      <a class="editorial-entry__media motion-scale" href="${toHref(project.route)}" data-parallax-wrap aria-label="Open ${escapeHtml(project.title)}">
+        <img src="${project.cover}" alt="${escapeHtml(project.title)}" data-parallax="${10 + index * 2}">
+      </a>
+      <div class="editorial-entry__copy">
+        <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.disciplineLabel)}</p>
+        <h2 class="editorial-entry__title motion-reveal"><a href="${toHref(project.route)}">${escapeHtml(project.title)}</a></h2>
+        <p class="editorial-entry__summary motion-reveal">${escapeHtml(trimText(project.summary, 220))}</p>
+        <p class="editorial-entry__detail motion-reveal">${escapeHtml(getProjectLead(project, 230))}</p>
+        ${renderMetaChips([`${project.imageCount} IMAGES`, project.disciplineLabel.toUpperCase(), "PROJECT"], "meta-chips motion-reveal")}
+        ${renderEditorialPreviewRail(previewImages, project.title)}
+        <div class="editorial-entry__actions motion-reveal">
+          <a class="chrome-button chrome-button--solid" href="${toHref(project.route)}">
+            <span>VIEW PROJECT</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderGallerySequence(collection) {
+  const groups = chunkArray(collection.images ?? [], 3);
+
+  return `
+    <section class="gallery-sequence">
+      ${groups
+        .map((group, index) => {
+          const title = index === 0 ? collection.label : `${collection.shortLabel} ${String(index + 1).padStart(2, "0")}`;
+          const summary =
+            index === 0
+              ? collection.pageIntro ?? collection.description
+              : `Selected images from the ${collection.shortLabel.toLowerCase()} archive.`;
+
+          return `
+            <article class="gallery-sequence__group${index % 2 === 1 ? " gallery-sequence__group--reverse" : ""}" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">${String(index + 1).padStart(2, "0")} · ${escapeHtml(collection.shortLabel)}</p>
+                <h2 class="gallery-sequence__title motion-reveal">${escapeHtml(title)}</h2>
+                <p class="gallery-sequence__summary motion-reveal">${escapeHtml(summary)}</p>
+                ${renderMetaChips(
+                  [`${group.length} IMAGES`, collection.shortLabel.toUpperCase(), index === 0 ? "ARCHIVE" : "SELECTION"],
+                  "meta-chips motion-reveal"
+                )}
+              </div>
+              <div class="gallery-sequence__media${group.length === 1 ? " gallery-sequence__media--single" : ""}">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="${group[0]}" alt="${escapeHtml(title)} image 1" data-parallax="${12 + index * 2}">
+                </figure>
+                ${
+                  group.length > 1
+                    ? `
+                      <div class="gallery-sequence__secondary">
+                        ${group
+                          .slice(1)
+                          .map(
+                            (image, imageIndex) => `
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="${image}" alt="${escapeHtml(title)} image ${imageIndex + 2}" data-parallax="${10 + index * 2}">
+                              </figure>
+                            `
+                          )
+                          .join("")}
+                      </div>
+                    `
+                    : ""
+                }
+              </div>
+            </article>
+          `;
+        })
         .join("")}
     </section>
   `;
 }
 
-function renderArchiveProjectBlocks(project) {
-  const { title, blocks } = getProjectCopy(project);
+function renderEditorialInfoBlock(title, body) {
+  return `
+    <section class="editorial-info-block">
+      <p class="eyebrow motion-reveal">${escapeHtml(title)}</p>
+      <div class="editorial-info-block__body motion-reveal">${body}</div>
+    </section>
+  `;
+}
+
+function getHomeSlides() {
+  const slides = [
+    {
+      key: "filial-project",
+      label: "FEATURED PROJECT",
+      navLabel: "FILIAL PROJECT",
+      title: data.home.featuredStory.title,
+      summary: trimText(
+        `${data.home.featuredStory.aboutText} ${data.home.featuredStory.prototypeText}`,
+        220
+      ),
+      route: data.home.featuredStory.referenceUrl,
+      buttonLabel: "GO TO WEB",
+      external: true,
+      mediaType: "video",
+      media: filialVideoSrc,
+      previewImages: data.home.featuredStory.images ?? [],
+      tags: ["BRAND", "PROTOTYPE", "WEB"],
+    },
+  ];
+
+  for (const route of data.home.collectionOrder ?? []) {
+    const collection = getCollectionByRoute(route);
+
+    if (!collection) {
+      continue;
+    }
+
+    slides.push({
+      key: collection.key,
+      navLabel: collection.shortLabel.toUpperCase(),
+      ...getCollectionRepresentative(collection),
+      mediaType: "image",
+    });
+  }
+
+  return slides;
+}
+
+function renderHomeStage() {
+  const slides = getHomeSlides();
 
   return `
-    <div class="archive-project-copy">
-      <h1 class="archive-project-copy__title">${escapeHtml(title)}</h1>
-      ${blocks
-        .map((block) => {
-          if (block.type === "heading") {
-            return `<h2 class="archive-project-copy__heading">${escapeHtml(block.text)}</h2>`;
-          }
-
-          return renderParagraphs(block.text, "archive-project-copy__paragraph");
-        })
-        .join("")}
-    </div>
+    <section class="home-stage" data-stage>
+      <div class="home-stage__slides">
+        ${slides
+          .map(
+            (slide, index) => `
+              <article class="stage-slide${index === 0 ? " is-active" : ""}" data-stage-slide="${index}">
+                <div class="stage-slide__media-shell">
+                  <div class="stage-slide__media-frame">
+                    ${
+                      slide.mediaType === "video"
+                        ? `<video class="stage-slide__media" src="${slide.media}" muted loop playsinline preload="metadata" data-stage-video></video>`
+                        : `<img class="stage-slide__media" src="${slide.media}" alt="${escapeHtml(slide.title)}">`
+                    }
+                  </div>
+                </div>
+                <div class="stage-slide__copy">
+                  <p class="eyebrow">${String(index + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")} · ${escapeHtml(slide.label)}</p>
+                  <h1 class="stage-slide__title">${escapeHtml(slide.title)}</h1>
+                  <p class="stage-slide__summary">${escapeHtml(slide.summary)}</p>
+                  ${renderMetaChips(slide.tags, "meta-chips meta-chips--light")}
+                  <div class="stage-slide__actions">
+                    <a class="chrome-button chrome-button--solid" href="${escapeHtml(slide.route)}"${slide.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                      <span>${escapeHtml(slide.buttonLabel)}</span>
+                    </a>
+                    <a class="chrome-button chrome-button--ghost" href="${slide.external ? toHref("/my-works") : toHref("/")}"${slide.external ? "" : ""}>
+                      <span>${slide.external ? "VIEW PORTFOLIO" : "BACK HOME"}</span>
+                    </a>
+                  </div>
+                </div>
+                <div class="stage-slide__stack">
+                  ${(slide.previewImages ?? [])
+                    .slice(0, 3)
+                    .map(
+                      (image, previewIndex) => `
+                        <figure class="stage-slide__thumb stage-slide__thumb--${previewIndex + 1}">
+                          <img src="${image}" alt="${escapeHtml(slide.title)} preview ${previewIndex + 1}">
+                        </figure>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+      <aside class="home-stage__rail">
+        <div class="home-stage__rail-head">
+          <p class="eyebrow">SELECTED WORKS</p>
+          <p class="home-stage__counter"><span data-stage-current>01</span><span>/</span><span>${String(slides.length).padStart(2, "0")}</span></p>
+        </div>
+        <div class="home-stage__progress">
+          <span data-stage-progress></span>
+        </div>
+        <div class="home-stage__nav">
+          ${slides
+            .map(
+              (slide, index) => `
+                <button class="home-stage__nav-button${index === 0 ? " is-active" : ""}" type="button" data-stage-index="${index}">
+                  <small>${String(index + 1).padStart(2, "0")}</small>
+                  <span>${escapeHtml(slide.navLabel)}</span>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      </aside>
+    </section>
   `;
 }
 
 function renderHomePage(route = "/") {
+  const initialPortalPoses = [
+    { x: "8%", y: "-4%", z: "32px", rx: "0deg", ry: "0deg", rz: "0deg", scale: "1", opacity: "1", blur: "0px", saturate: "1", zIndex: "40" },
+    { x: "30%", y: "-17%", z: "180px", rx: "2deg", ry: "-12deg", rz: "6deg", scale: "1.05", opacity: "0.86", blur: "0px", saturate: "1.02", zIndex: "30" },
+    { x: "50%", y: "-29%", z: "320px", rx: "3deg", ry: "-20deg", rz: "10deg", scale: "1.1", opacity: "0.58", blur: "1px", saturate: "0.92", zIndex: "20" },
+    { x: "-42%", y: "20%", z: "-320px", rx: "-3deg", ry: "22deg", rz: "-10deg", scale: "0.82", opacity: "0.42", blur: "4px", saturate: "0.82", zIndex: "5" },
+    { x: "-16%", y: "8%", z: "-120px", rx: "-1deg", ry: "12deg", rz: "-5deg", scale: "0.92", opacity: "0.68", blur: "2px", saturate: "0.9", zIndex: "15" },
+  ];
+  const collectionEntries = (data.home.collectionOrder ?? [])
+    .map((route, index) => {
+      const collection = getCollectionByRoute(route);
+
+      if (!collection) {
+        return null;
+      }
+
+      const previewItem = collection.preview?.[0] ?? null;
+      const previewProject = previewItem ? getProjectByRoute(previewItem.href) : null;
+
+      return {
+        index,
+        collection,
+        route: collection.route,
+        workTitle:
+          previewProject?.title ??
+          (collection.type === "gallery" ? `${collection.shortLabel} Selection` : previewItem?.title ?? collection.shortLabel),
+        summary: trimText(previewProject?.summary ?? collection.pageIntro ?? collection.description, 210),
+        media: previewProject?.cover ?? previewItem?.cover ?? collection.cover,
+        countLabel: collection.type === "projects" ? `${collection.itemCount} projects` : `${collection.imageCount} images`,
+      };
+    })
+    .filter(Boolean);
+
   const content = `
-    <main class="page-main">
-      <section class="home-section home-grid home-hero">
-        <h1 class="home-hero__line home-hero__line--primary">PONGSANT</h1>
-        <h2 class="home-hero__line home-hero__line--secondary">CHINTANAPAKDEE</h2>
-        <figure class="home-hero__poster">
-          <img src="${homeAssets.heroPoster}" alt="${escapeHtml(data.site.owner)} poster">
-        </figure>
-        <div class="home-divider"></div>
+    <main class="page-main page-main--stack page-main--home-flow">
+      <section class="home-section home-portal" data-section data-home-portal>
+        <div class="home-portal__intro">
+          <p class="eyebrow motion-reveal">PORTFOLIO CATEGORIES</p>
+          <h1 class="home-portal__title motion-reveal">${escapeHtml(data.site.owner)}</h1>
+          <p class="home-portal__summary motion-reveal">A floating stack of selected works from each category. Hover or use the labels to bring one forward, then click the panel to open the full archive.</p>
+          <div class="home-portal__nav motion-reveal" aria-label="Category preview navigation">
+            ${collectionEntries
+              .map(
+                (entry) => `
+                  <button class="home-portal__nav-button${entry.index === 0 ? " is-active" : ""}" type="button" data-portal-index="${entry.index}">
+                    <small>${String(entry.index + 1).padStart(2, "0")}</small>
+                    <span>${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+          <div class="home-portal__details">
+            ${collectionEntries
+              .map(
+                (entry) => `
+                  <article class="home-portal__detail${entry.index === 0 ? " is-active" : ""}" data-portal-detail="${entry.index}">
+                    <p class="eyebrow">${String(entry.index + 1).padStart(2, "0")} · ${escapeHtml(entry.collection.label)}</p>
+                    <h2 class="home-portal__detail-title">${escapeHtml(entry.workTitle)}</h2>
+                    <p class="home-portal__detail-summary">${escapeHtml(entry.summary)}</p>
+                    ${renderMetaChips(
+                      [entry.collection.shortLabel, entry.countLabel, entry.workTitle],
+                      "meta-chips"
+                    )}
+                    <div class="home-portal__actions">
+                      <a class="chrome-button chrome-button--solid" href="${toHref(entry.route)}">
+                        <span>OPEN ${escapeHtml(entry.collection.shortLabel.toUpperCase())}</span>
+                      </a>
+                    </div>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        </div>
+        <div class="home-portal__scene motion-scale" data-portal-scene>
+          <div class="home-portal__ambient home-portal__ambient--one" aria-hidden="true"></div>
+          <div class="home-portal__ambient home-portal__ambient--two" aria-hidden="true"></div>
+          <div class="home-portal__glow" aria-hidden="true"></div>
+          <div class="home-portal__stage" data-portal-stage>
+            ${collectionEntries
+              .map(
+                (entry) => {
+                  const pose = initialPortalPoses[entry.index] ?? initialPortalPoses[0];
+
+                  return `
+                  <a
+                    class="home-portal__layer${entry.index === 0 ? " is-active" : ""}"
+                    href="${toHref(entry.route)}"
+                    data-portal-layer="${entry.index}"
+                    aria-label="Open ${escapeHtml(entry.collection.label)}"
+                    style="
+                      --layer-x: ${pose.x};
+                      --layer-y: ${pose.y};
+                      --layer-z: ${pose.z};
+                      --layer-rx: ${pose.rx};
+                      --layer-ry: ${pose.ry};
+                      --layer-rz: ${pose.rz};
+                      --layer-scale: ${pose.scale};
+                      --layer-opacity: ${pose.opacity};
+                      --layer-blur: ${pose.blur};
+                      --layer-saturate: ${pose.saturate};
+                      z-index: ${pose.zIndex};
+                    "
+                  >
+                    <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+                    <img src="${entry.media}" alt="${escapeHtml(entry.workTitle)}">
+                    <span class="home-portal__layer-copy">
+                      <strong>${escapeHtml(entry.collection.shortLabel)}</strong>
+                      <em>${escapeHtml(entry.workTitle)}</em>
+                    </span>
+                  </a>
+                `;
+                }
+              )
+              .join("")}
+          </div>
+        </div>
       </section>
 
-      <section class="home-section home-grid home-featured">
-        <figure class="home-featured__logo">
-          <img src="${homeAssets.featuredLogo}" alt="${escapeHtml(data.home.featuredStory.title)} logo">
-        </figure>
-        <div class="home-copy home-featured__about">
-          <p><strong>${escapeHtml(data.home.featuredStory.aboutLabel)} ${escapeHtml(data.home.featuredStory.title)}</strong></p>
-          <p>${escapeHtml(data.home.featuredStory.aboutText)}</p>
+      <section class="home-section home-featured-section" data-section>
+        <div class="home-section__header">
+          <div>
+            <p class="eyebrow motion-reveal">FILIAL PROJECT</p>
+            <h2 class="home-section__title motion-reveal">${escapeHtml(data.home.featuredStory.title)}</h2>
+          </div>
+          <p class="home-section__lede motion-reveal">Scroll down from the category sequence into Filial Project, then open the live prototype site from here.</p>
         </div>
-        <figure class="home-featured__video">
-          <video src="${filialVideoSrc}" poster="${data.home.featuredStory.cover}" preload="metadata" controls loop playsinline></video>
-        </figure>
-        <div class="home-copy home-featured__prototype">
-          <p><strong>${escapeHtml(data.home.featuredStory.prototypeLabel)}</strong></p>
-          <p>${escapeHtml(data.home.featuredStory.prototypeText)}</p>
-        </div>
-        <div class="home-featured__action">
-          <a class="home-button" href="${escapeHtml(data.home.featuredStory.referenceUrl)}" target="_blank" rel="noreferrer">GO TO WEB</a>
-        </div>
-      </section>
-
-      <section class="home-section home-grid home-graphic">
-        <h2 class="home-section-title home-graphic__title">Graphic Design</h2>
-        <figure class="home-graphic__poster">
-          <img src="${homeAssets.graphicPoster}" alt="Graphic Design poster">
-        </figure>
-        <figure class="home-graphic__tall">
-          <img src="${homeAssets.graphicTall}" alt="Graphic Design preview one">
-        </figure>
-        <figure class="home-graphic__landscape">
-          <img src="${homeAssets.graphicLandscape}" alt="Graphic Design preview two">
-        </figure>
-        <figure class="home-graphic__square">
-          <img src="${homeAssets.graphicSquare}" alt="Graphic Design preview three">
-        </figure>
-        <figure class="home-graphic__tower">
-          <img src="${homeAssets.graphicTower}" alt="Graphic Design preview four">
-        </figure>
-        <div class="home-graphic__action">
-          <a class="home-button" href="${toHref("/graphic-design")}">Learn more</a>
-        </div>
-        <div class="home-divider"></div>
-      </section>
-
-      <section class="home-section home-grid home-photo">
-        <h2 class="home-section-title home-photo__title">PHOTOGRAPHY</h2>
-        <div class="home-copy home-photo__meta">
-          <p><strong>By</strong><br>${escapeHtml(data.site.owner)}</p>
-          <p><strong>Year</strong><br>2024</p>
-        </div>
-        <figure class="home-photo__portrait">
-          <img src="${homeAssets.photoPortrait}" alt="Photography preview one">
-        </figure>
-        <figure class="home-photo__wide-one">
-          <img src="${homeAssets.photoWideOne}" alt="Photography preview two">
-        </figure>
-        <div class="home-photo__action">
-          <a class="home-button" href="${toHref("/photo")}">Photo</a>
-        </div>
-        <figure class="home-photo__tall">
-          <img src="${homeAssets.photoTall}" alt="Photography preview three">
-        </figure>
-        <figure class="home-photo__wide-two">
-          <img src="${homeAssets.photoWideTwo}" alt="Photography preview four">
-        </figure>
-      </section>
-
-      <section class="home-works">
-        <div class="home-works__inner home-grid">
-          <h2 class="home-works__title">MY WORKS</h2>
-          <a class="home-works__link home-works__link--graphic" href="${toHref("/graphic-design")}">GRAPHIC DESIGN</a>
-          <a class="home-works__link home-works__link--photo" href="${toHref("/photo")}">PHOTO</a>
-          <a class="home-works__link home-works__link--drawing" href="${toHref("/drawing")}">DRAWING</a>
-          <a class="home-works__link home-works__link--coding" href="${toHref("/coding")}">CODING</a>
-          <a class="home-works__link home-works__link--product" href="${toHref("/product")}">PRODUCT DESIGN</a>
+        <div class="featured-project">
+          <figure class="featured-project__media motion-scale" data-parallax-wrap>
+            <video class="featured-project__video" src="${filialVideoSrc}" muted loop playsinline preload="metadata" data-scroll-video data-parallax="8"></video>
+          </figure>
+          <div class="featured-project__content">
+            <div class="featured-project__block motion-reveal">
+              <p class="eyebrow">ABOUT FILIAL PROJECT</p>
+              <p>${escapeHtml(data.home.featuredStory.aboutText)}</p>
+            </div>
+            <div class="featured-project__block motion-reveal">
+              <p class="eyebrow">${escapeHtml(data.home.featuredStory.prototypeLabel)}</p>
+              <p>${escapeHtml(data.home.featuredStory.prototypeText)}</p>
+            </div>
+            <div class="featured-project__actions motion-reveal">
+              <a class="chrome-button chrome-button--solid" href="${escapeHtml(data.home.featuredStory.referenceUrl)}" target="_blank" rel="noreferrer"><span>GO TO WEB</span></a>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -513,18 +751,58 @@ function renderHomePage(route = "/") {
   });
 }
 
-function renderWorksHub() {
-  const content = `
-    <main class="page-main archive-page archive-page--works">
-      <section class="home-works archive-works-page">
-        <div class="home-works__inner home-grid">
-          <h1 class="home-works__title">MY WORKS</h1>
-          <a class="home-works__link home-works__link--graphic" href="${toHref("/graphic-design")}">GRAPHIC DESIGN</a>
-          <a class="home-works__link home-works__link--photo" href="${toHref("/photo")}">PHOTO</a>
-          <a class="home-works__link home-works__link--drawing" href="${toHref("/drawing")}">DRAWING</a>
-          <a class="home-works__link home-works__link--coding" href="${toHref("/coding")}">CODING</a>
-          <a class="home-works__link home-works__link--product" href="${toHref("/product")}">PRODUCT DESIGN</a>
+function renderCollectionPanel(collection) {
+  const representative = getCollectionRepresentative(collection);
+
+  return `
+    <article class="collection-panel collection-panel--${escapeHtml(collection.accent)}">
+      <a class="collection-panel__media" href="${toHref(collection.route)}">
+        <img src="${collection.cover}" alt="${escapeHtml(collection.label)}">
+      </a>
+      <div class="collection-panel__body">
+        <p class="eyebrow">${escapeHtml(collection.shortLabel)}</p>
+        <h2 class="collection-panel__title"><a href="${toHref(collection.route)}">${escapeHtml(collection.label)}</a></h2>
+        <p class="collection-panel__summary">${escapeHtml(collection.description)}</p>
+        ${renderMetaChips(
+          [
+            collection.type === "projects" ? `${collection.itemCount} PROJECTS` : `${collection.imageCount} IMAGES`,
+            representative.title,
+          ],
+          "meta-chips"
+        )}
+        <div class="collection-panel__preview">
+          ${(representative.previewImages ?? [])
+            .slice(0, 3)
+            .map(
+              (image) => `
+                <figure class="collection-panel__preview-item">
+                  <img src="${image}" alt="${escapeHtml(collection.shortLabel)} preview">
+                </figure>
+              `
+            )
+            .join("")}
         </div>
+        <a class="chrome-button chrome-button--solid" href="${toHref(collection.route)}">
+          <span>OPEN ${escapeHtml(collection.shortLabel.toUpperCase())}</span>
+        </a>
+      </div>
+    </article>
+  `;
+}
+
+function renderWorksHub() {
+  const heroMedia = data.collections[0]?.cover ?? data.about.portrait;
+  const content = `
+    <main class="page-main page-main--stack">
+      ${renderEditorialHero({
+        label: "PORTFOLIO INDEX",
+        title: data.worksHub.title,
+        summary: data.worksHub.intro,
+        media: heroMedia,
+        pills: [`${data.collections.length} CATEGORIES`, `${data.projects.length} PROJECTS`, "PORTFOLIO ARCHIVE"],
+      })}
+      <section class="editorial-directory">
+        ${data.collections.map((collection, index) => renderEditorialCollectionEntry(collection, index)).join("")}
       </section>
     </main>
   `;
@@ -538,30 +816,50 @@ function renderWorksHub() {
   });
 }
 
+function renderInfoBlock(title, body) {
+  return `
+    <section class="info-card">
+      <p class="eyebrow">${escapeHtml(title)}</p>
+      <div class="info-card__body">${body}</div>
+    </section>
+  `;
+}
+
 function renderAboutPage() {
   const content = `
-    <main class="page-main archive-page archive-page--about">
-      <section class="archive-single archive-single--about">
-        <figure class="archive-single__media archive-single__media--portrait">
-          <img src="${data.about.portrait}" alt="${escapeHtml(data.site.owner)}">
-        </figure>
-        <div class="archive-about__content">
-          <section class="archive-info-block">
-            <h2 class="archive-info-block__title">EDUCATION</h2>
-            ${data.about.educationLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
-          </section>
-          <section class="archive-info-block">
-            <h2 class="archive-info-block__title">SCHOLARSHIP AND ACHIEVEMENTS</h2>
-            ${data.about.achievementLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
-          </section>
-          <section class="archive-info-block">
-            <h2 class="archive-info-block__title">SKILLS &amp; INTERESTS</h2>
-            ${data.about.skillsInterestLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
-          </section>
-          <section class="archive-info-block">
-            <h2 class="archive-info-block__title">SUMMARY</h2>
-            ${renderParagraphs(data.about.summaryText, "archive-info-block__line")}
-          </section>
+    <main class="page-main page-main--stack">
+      ${renderEditorialHero({
+        label: "ABOUT",
+        title: data.site.owner,
+        summary: data.about.paragraphs[0],
+        media: data.about.portrait,
+        pills: ["GRAPHIC DESIGN", "PHOTOGRAPHY", "CREATIVE TECHNOLOGY"],
+      })}
+      <section class="editorial-bio" data-section>
+        <div class="editorial-bio__lead">
+          ${renderParagraphs(data.about.paragraphs.slice(1).join("\n\n"), "editorial-bio__paragraph motion-reveal")}
+        </div>
+        <div class="editorial-info-stack">
+          ${renderEditorialInfoBlock(
+            "SUMMARY",
+            renderParagraphs(data.about.summaryText, "editorial-info-block__paragraph")
+          )}
+          ${renderEditorialInfoBlock(
+            "EDUCATION",
+            data.about.educationLines.map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`).join("")
+          )}
+          ${renderEditorialInfoBlock(
+            "SCHOLARSHIPS",
+            data.about.achievementLines
+              .map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`)
+              .join("")
+          )}
+          ${renderEditorialInfoBlock(
+            "SKILLS & INTERESTS",
+            data.about.skillsInterestLines
+              .map((line) => `<p class="editorial-info-block__paragraph">${escapeHtml(line)}</p>`)
+              .join("")
+          )}
         </div>
       </section>
     </main>
@@ -570,32 +868,34 @@ function renderAboutPage() {
   return renderLayout({
     route: data.about.route,
     title: data.about.title,
-    description: data.about.paragraphs[0],
+    description: data.about.summaryText,
     pageClass: "page-about",
     content,
   });
 }
 
 function renderContactPage() {
-  const mainLinks = data.contact.links.filter((item) =>
-    item.label === "Email" || item.label === "Phone" || item.label === "Location"
-  );
-
   const content = `
-    <main class="page-main archive-page archive-page--contact">
-      <section class="archive-single archive-single--contact">
-        <figure class="archive-single__media archive-single__media--landscape">
-          <img src="${data.contact.portrait}" alt="${escapeHtml(data.site.owner)}">
-        </figure>
-        <div class="archive-contact__content">
-          <h1 class="archive-contact__marquee">Contact</h1>
-          <section class="archive-contact__block">
-            <h2 class="archive-contact__heading">${escapeHtml(data.contact.heading)}</h2>
-            <p class="archive-contact__details">
-              ${mainLinks.map((item) => escapeHtml(item.value)).join("<br>")}
-            </p>
-          </section>
-        </div>
+    <main class="page-main page-main--stack">
+      ${renderEditorialHero({
+        label: "CONTACT",
+        title: data.contact.heading,
+        summary: data.contact.intro,
+        media: data.contact.portrait,
+        pills: ["EMAIL", "INSTAGRAM", "YOUTUBE"],
+      })}
+      <section class="contact-directory" data-section>
+        ${contactPanelLinks
+          .map(
+            (item) => `
+              <a class="contact-directory__item motion-reveal" href="${escapeHtml(item.href)}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
+                <span class="contact-directory__label">${escapeHtml(item.label)}</span>
+                <strong class="contact-directory__value">${escapeHtml(item.value)}</strong>
+                <span class="contact-directory__arrow">OPEN</span>
+              </a>
+            `
+          )
+          .join("")}
       </section>
     </main>
   `;
@@ -609,117 +909,192 @@ function renderContactPage() {
   });
 }
 
-function renderCollectionHero(collection) {
-  const stats = collection.type === "projects"
-    ? [
-        { value: collection.itemCount, label: "projects" },
-        { value: collection.imageCount, label: "images" },
-        { value: collection.shortLabel, label: "discipline" },
-      ]
-    : [
-        { value: collection.imageCount, label: "images" },
-        { value: collection.shortLabel, label: "discipline" },
-        { value: "Archive", label: "mode" },
-      ];
-
+function renderArchiveHero(title, label, summary, media, pills = []) {
   return `
-    <section class="collection-hero collection-hero--${escapeHtml(collection.accent)}">
-      <div class="collection-hero__copy">
-        <p class="section-kicker">${escapeHtml(collection.shortLabel)}</p>
-        <h1>${escapeHtml(collection.label)}</h1>
-        <p>${escapeHtml(collection.description)}</p>
-        ${renderStatsStrip(stats)}
+    <section class="archive-hero">
+      <div class="archive-hero__copy">
+        <p class="eyebrow">${escapeHtml(label)}</p>
+        <h1 class="archive-hero__title">${escapeHtml(title)}</h1>
+        <p class="archive-hero__summary">${escapeHtml(summary)}</p>
+        ${renderMetaChips(pills, "meta-chips")}
       </div>
-      <div class="collection-hero__visual">
-        <figure class="collection-hero__cover">
-          <img src="${collection.cover}" alt="${escapeHtml(collection.shortLabel)}">
-        </figure>
-        <div class="collection-hero__stack">
-          ${(collection.preview ?? [])
-            .slice(0, 3)
-            .map(
-              (item) => `
-                <a class="collection-hero__mini" href="${toHref(item.href)}">
-                  <img src="${item.cover}" alt="${escapeHtml(item.title)}">
-                </a>
-              `
-            )
-            .join("")}
-        </div>
+      <figure class="archive-hero__media">
+        <img src="${media}" alt="${escapeHtml(title)}">
+      </figure>
+    </section>
+  `;
+}
+
+function renderProjectFeedCard(project) {
+  return `
+    <article class="project-feed-card">
+      <a class="project-feed-card__media" href="${toHref(project.route)}">
+        <img src="${project.cover}" alt="${escapeHtml(project.title)}">
+      </a>
+      <div class="project-feed-card__body">
+        <p class="eyebrow">${escapeHtml(project.disciplineLabel)}</p>
+        <h2 class="project-feed-card__title"><a href="${toHref(project.route)}">${escapeHtml(project.title)}</a></h2>
+        <p class="project-feed-card__summary">${escapeHtml(trimText(project.summary, 210))}</p>
+        ${renderMetaChips([`${project.imageCount} IMAGES`, project.disciplineLabel.toUpperCase()], "meta-chips")}
+        <a class="chrome-button chrome-button--solid" href="${toHref(project.route)}">
+          <span>VIEW PROJECT</span>
+        </a>
       </div>
+    </article>
+  `;
+}
+
+function renderGalleryWall(images, title) {
+  return `
+    <section class="gallery-wall">
+      ${images
+        .map(
+          (image, index) => `
+            <figure class="gallery-wall__item gallery-wall__item--${(index % 5) + 1}">
+              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}">
+            </figure>
+          `
+        )
+        .join("")}
     </section>
   `;
 }
 
 function renderCollectionPage(collection) {
-  const projects = data.projects.filter((project) => project.collectionRoute === collection.route);
+  const representative = getCollectionRepresentative(collection);
+  const projects = getProjectsForCollection(collection.route);
+  const pills =
+    collection.type === "projects"
+      ? [`${collection.itemCount} PROJECTS`, `${collection.imageCount} IMAGES`, collection.shortLabel.toUpperCase()]
+      : [`${collection.imageCount} IMAGES`, collection.shortLabel.toUpperCase(), "ARCHIVE"];
 
-  const content = collection.type === "projects"
-    ? `
-      <main class="page-main archive-page archive-page--collection archive-page--project-index">
-        <section class="archive-project-index">
-          ${projects.map((project) => renderArchiveProjectCard(project)).join("")}
-        </section>
-      </main>
-    `
-    : `
-      <main class="page-main archive-page archive-page--collection archive-page--gallery">
-        ${collection.route === "/photo"
+  const content = `
+    <main class="page-main page-main--stack">
+      ${renderEditorialHero({
+        label: collection.shortLabel,
+        title: collection.label,
+        summary: collection.pageIntro || collection.description,
+        media: collection.cover,
+        pills,
+      })}
+      ${
+        collection.type === "projects"
           ? `
-            <div class="archive-back-row">
-              <a class="archive-back-link" href="${toHref("/my-works")}">back</a>
-            </div>
-            <section class="archive-copy archive-copy--photo">
-              ${renderParagraphs(collection.pageIntro || collection.description)}
+            <section class="editorial-project-list">
+              ${projects.map((project, index) => renderEditorialProjectEntry(project, index)).join("")}
             </section>
           `
-          : ""}
-        ${renderArchiveGallery(
-          collection.images,
-          collection.route === "/photo" ? "archive-gallery archive-gallery--photo" : "archive-gallery archive-gallery--drawing",
-          collection.label
-        )}
-      </main>
-    `;
+          : renderGallerySequence(collection)
+      }
+    </main>
+  `;
 
   return renderLayout({
     route: collection.route,
     title: collection.label,
-    description: collection.description,
+    description: representative.summary,
     pageClass: "page-collection",
     content,
   });
 }
 
+function renderProjectNarrative(project) {
+  const { title, blocks } = getProjectCopy(project);
+
+  return `
+    <section class="project-narrative">
+      <p class="eyebrow">${escapeHtml(project.disciplineLabel)}</p>
+      <h1 class="project-narrative__title">${escapeHtml(title)}</h1>
+      <p class="project-narrative__summary">${escapeHtml(project.summary)}</p>
+      ${renderMetaChips([`${project.imageCount} IMAGES`, "PORTFOLIO"], "meta-chips")}
+      <div class="project-narrative__body">
+        ${blocks
+          .map((block) => {
+            if (block.type === "heading") {
+              return `<h2 class="project-narrative__heading">${escapeHtml(block.text)}</h2>`;
+            }
+
+            return renderParagraphs(block.text, "project-narrative__paragraph");
+          })
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProjectMediaFlow(images, title) {
+  return `
+    <section class="project-media-flow">
+      ${images
+        .map((image, index) => {
+          let variant = "project-media-flow__item--wide";
+
+          if (index % 5 === 1) {
+            variant = "project-media-flow__item--portrait";
+          } else if (index % 5 === 2) {
+            variant = "project-media-flow__item--square";
+          } else if (index % 5 === 3) {
+            variant = "project-media-flow__item--tall";
+          } else if (index % 5 === 4) {
+            variant = "project-media-flow__item--landscape";
+          }
+
+          return `
+            <figure class="project-media-flow__item ${variant} motion-scale" data-parallax-wrap>
+              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}" data-parallax="${8 + (index % 4) * 2}">
+            </figure>
+          `;
+        })
+        .join("")}
+    </section>
+  `;
+}
+
 function renderProjectPage(project) {
-  const siblings = data.projects.filter((item) => item.collectionRoute === project.collectionRoute);
+  const siblings = getProjectsForCollection(project.collectionRoute);
   const index = siblings.findIndex((item) => item.route === project.route);
   const previous = siblings[index - 1] ?? null;
   const next = siblings[index + 1] ?? null;
+  const { title, blocks } = getProjectCopy(project);
 
   const content = `
-    <main class="page-main archive-page archive-page--project">
-      <div class="archive-back-row archive-back-row--project">
-        <a class="archive-back-link" href="${toHref(project.collectionRoute)}">back</a>
+    <main class="page-main page-main--stack">
+      <div class="project-breadcrumbs motion-reveal">
+        <a class="chrome-button chrome-button--ghost" href="${toHref(project.collectionRoute)}">
+          <span>BACK TO ${escapeHtml(project.disciplineLabel.toUpperCase())}</span>
+        </a>
       </div>
-      <section class="archive-project">
-        ${renderArchiveProjectBlocks(project)}
-        <section class="archive-project-gallery">
-          ${project.images
-            .map(
-              (image, imageIndex) => `
-                <figure class="archive-project-gallery__item">
-                  <img src="${image}" alt="${escapeHtml(project.title)} image ${imageIndex + 1}">
-                </figure>
-              `
-            )
+      <section class="project-detail" data-section>
+        <header class="project-detail__intro">
+          <p class="eyebrow motion-reveal">${escapeHtml(project.disciplineLabel)}</p>
+          <h1 class="project-detail__title motion-reveal">${escapeHtml(title)}</h1>
+          <p class="project-detail__summary motion-reveal">${escapeHtml(project.summary)}</p>
+          ${renderMetaChips([`${project.imageCount} IMAGES`, "PORTFOLIO"], "meta-chips motion-reveal")}
+        </header>
+        ${renderProjectMediaFlow(project.images, project.title)}
+        <section class="project-detail__copy motion-reveal">
+          ${blocks
+            .map((block) => {
+              if (block.type === "heading") {
+                return `<h2 class="project-detail__heading">${escapeHtml(block.text)}</h2>`;
+              }
+
+              return renderParagraphs(block.text, "project-detail__paragraph");
+            })
             .join("")}
         </section>
       </section>
-      <nav class="archive-pagination" aria-label="Project pagination">
-        ${previous ? `<a href="${toHref(previous.route)}">Previous: ${escapeHtml(previous.title)}</a>` : `<span></span>`}
-        <a href="${toHref(project.collectionRoute)}">${escapeHtml(project.disciplineLabel)}</a>
-        ${next ? `<a href="${toHref(next.route)}">Next: ${escapeHtml(next.title)}</a>` : `<span></span>`}
+      <nav class="project-pagination motion-reveal" aria-label="Project navigation">
+        ${
+          previous
+            ? `<a class="chrome-button chrome-button--ghost" href="${toHref(previous.route)}"><span>PREVIOUS · ${escapeHtml(previous.title)}</span></a>`
+            : `<span></span>`
+        }
+        ${
+          next
+            ? `<a class="chrome-button chrome-button--ghost" href="${toHref(next.route)}"><span>NEXT · ${escapeHtml(next.title)}</span></a>`
+            : `<span></span>`
+        }
       </nav>
     </main>
   `;

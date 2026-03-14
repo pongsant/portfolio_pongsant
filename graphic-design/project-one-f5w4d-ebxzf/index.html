@@ -7,178 +7,233 @@
     <meta name="description" content="POTRAIT OF THE SELFLESS SELF This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as somethin...">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page page-project">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
+    
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
         
-              <a href="/my-works/" class="is-active">
-                MY WORKS
+              <a class="chrome-button" href="/">
+                <span>PORTFOLIO</span>
               </a>
             
-              <a href="/about/" class="">
-                ABOUT
+              <a class="chrome-button is-active" href="/my-works/">
+                <span>MY WORKS</span>
               </a>
             
-              <a href="/contact/" class="">
-                CONTACT
+              <a class="chrome-button" href="/about/">
+                <span>ABOUT</span>
+              </a>
+            
+        <button class="chrome-button" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  
+    
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>New York, NY</span>
+        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        
+              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
+                <span>1pongsant@gmail.com</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
               </a>
             
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      
-    <div class="site-social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
+    </div>
+  
     
-            </a>
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <div class="contact-panel__grid">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
+                  <span class="contact-panel__label">Email</span>
+                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
+                <a class="contact-panel__card" href="tel:+14245993914">
+                  <span class="contact-panel__label">Phone</span>
+                  <strong class="contact-panel__value">(424)599-3914</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="/contact">
+                  <span class="contact-panel__label">Location</span>
+                  <strong class="contact-panel__value">New York, NY</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">Instagram</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">YouTube</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+        </div>
+      </section>
     </div>
   
-    </header>
-  
-      
-    <main class="page-main archive-page archive-page--project">
-      <div class="archive-back-row archive-back-row--project">
-        <a class="archive-back-link" href="/graphic-design/">back</a>
+    
+    <main class="page-main page-main--stack">
+      <div class="project-breadcrumbs motion-reveal">
+        <a class="chrome-button chrome-button--ghost" href="/graphic-design/">
+          <span>BACK TO GRAPHIC DESIGN</span>
+        </a>
       </div>
-      <section class="archive-project">
-        
-    <div class="archive-project-copy">
-      <h1 class="archive-project-copy__title">POTRAIT OF THE SELFLESS SELF</h1>
-      <p class="archive-project-copy__paragraph">This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as something that forms through conditions, attention, and experience. In this sense, Buddhism offers the idea of a selfless self: a way of being that still moves through the world, but without clinging to identity as stable or owned. We studied meditation practices that help reduce attachment to desire and selfhood. At the same time, we read stories about individuals moving through suffering, repetition, and release. These works show that even if the self is illusory, its journey still matters. This photo book follows that idea. Instead of focusing on one person, it uses places, landscapes, and moments of travel as a portrait of a self in motion. The images do not try to define who the self is. They trace how it appears, shifts, pauses, and changes. Each image marks a stage of samsara such as refuge, desire, repetition, or release. The self here is present, but not centered, shaped by movement rather than form. All photographs were taken on a Pentax Espio 125M 35mm film camera during travel in Japan, the United States, and Australia. The softness and grain of film reflect impermanence. Nothing here is meant to feel finished. The images move forward slowly and invite the viewer to move with them. This book is meant to be experienced as a passage. It begins with shelter and form, moves through attachment and repetition, and gradually opens toward self liberation. There is no final ending, only a lighter way of moving.</p>
+      <section class="project-detail" data-section>
+        <header class="project-detail__intro">
+          <p class="eyebrow motion-reveal">Graphic Design</p>
+          <h1 class="project-detail__title motion-reveal">POTRAIT OF THE SELFLESS SELF</h1>
+          <p class="project-detail__summary motion-reveal">POTRAIT OF THE SELFLESS SELF This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as somethin...</p>
+          
+    <div class="meta-chips motion-reveal">
+      <span>15 IMAGES</span><span>PORTFOLIO</span>
     </div>
   
-        <section class="archive-project-gallery">
+        </header>
+        
+    <section class="project-media-flow">
+      
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF image 1" data-parallax="8">
+            </figure>
           
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF image 1">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF image 2">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF image 3">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0143_p4.jpg" alt="POTRAIT OF THE SELFLESS SELF image 4">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0125_p5.jpg" alt="POTRAIT OF THE SELFLESS SELF image 5">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0152_p6.jpg" alt="POTRAIT OF THE SELFLESS SELF image 6">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0001_p7.jpg" alt="POTRAIT OF THE SELFLESS SELF image 7">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0165_p8.jpg" alt="POTRAIT OF THE SELFLESS SELF image 8">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0037_p10.jpg" alt="POTRAIT OF THE SELFLESS SELF image 9">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0132_p9.jpg" alt="POTRAIT OF THE SELFLESS SELF image 10">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0179_p11.jpg" alt="POTRAIT OF THE SELFLESS SELF image 11">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0184_p12.jpg" alt="POTRAIT OF THE SELFLESS SELF image 12">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0013_p13.jpg" alt="POTRAIT OF THE SELFLESS SELF image 13">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0098_p14.jpg" alt="POTRAIT OF THE SELFLESS SELF image 14">
-                </figure>
-              
-                <figure class="archive-project-gallery__item">
-                  <img src="/assets/site-import/images/0021_p15.jpg" alt="POTRAIT OF THE SELFLESS SELF image 15">
-                </figure>
-              
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF image 2" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--square motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF image 3" data-parallax="12">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--tall motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0143_p4.jpg" alt="POTRAIT OF THE SELFLESS SELF image 4" data-parallax="14">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--landscape motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0125_p5.jpg" alt="POTRAIT OF THE SELFLESS SELF image 5" data-parallax="8">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0152_p6.jpg" alt="POTRAIT OF THE SELFLESS SELF image 6" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0001_p7.jpg" alt="POTRAIT OF THE SELFLESS SELF image 7" data-parallax="12">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--square motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0165_p8.jpg" alt="POTRAIT OF THE SELFLESS SELF image 8" data-parallax="14">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--tall motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0037_p10.jpg" alt="POTRAIT OF THE SELFLESS SELF image 9" data-parallax="8">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--landscape motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0132_p9.jpg" alt="POTRAIT OF THE SELFLESS SELF image 10" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--wide motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0179_p11.jpg" alt="POTRAIT OF THE SELFLESS SELF image 11" data-parallax="12">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--portrait motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0184_p12.jpg" alt="POTRAIT OF THE SELFLESS SELF image 12" data-parallax="14">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--square motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0013_p13.jpg" alt="POTRAIT OF THE SELFLESS SELF image 13" data-parallax="8">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--tall motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0098_p14.jpg" alt="POTRAIT OF THE SELFLESS SELF image 14" data-parallax="10">
+            </figure>
+          
+            <figure class="project-media-flow__item project-media-flow__item--landscape motion-scale" data-parallax-wrap>
+              <img src="/assets/site-import/images/0021_p15.jpg" alt="POTRAIT OF THE SELFLESS SELF image 15" data-parallax="12">
+            </figure>
+          
+    </section>
+  
+        <section class="project-detail__copy motion-reveal">
+          <p class="project-detail__paragraph">POTRAIT OF THE SELFLESS SELF</p><p class="project-detail__paragraph">This semester we learned that Buddhism teaches that the self is not fixed or permanent. Rather than something solid, the self is understood as something that forms through conditions, attention, and experience. In this sense, Buddhism offers the idea of a selfless self: a way of being that still moves through the world, but without clinging to identity as stable or owned. We studied meditation practices that help reduce attachment to desire and selfhood. At the same time, we read stories about individuals moving through suffering, repetition, and release. These works show that even if the self is illusory, its journey still matters. This photo book follows that idea. Instead of focusing on one person, it uses places, landscapes, and moments of travel as a portrait of a self in motion. The images do not try to define who the self is. They trace how it appears, shifts, pauses, and changes. Each image marks a stage of samsara such as refuge, desire, repetition, or release. The self here is present, but not centered, shaped by movement rather than form. All photographs were taken on a Pentax Espio 125M 35mm film camera during travel in Japan, the United States, and Australia. The softness and grain of film reflect impermanence. Nothing here is meant to feel finished. The images move forward slowly and invite the viewer to move with them. This book is meant to be experienced as a passage. It begins with shelter and form, moves through attachment and repetition, and gradually opens toward self liberation. There is no final ending, only a lighter way of moving.</p>
         </section>
       </section>
-      <nav class="archive-pagination" aria-label="Project pagination">
-        <a href="/graphic-design/project-one-f5w4d-br6yr/">Previous: Project One</a>
-        <a href="/graphic-design/">Graphic Design</a>
+      <nav class="project-pagination motion-reveal" aria-label="Project navigation">
+        <a class="chrome-button chrome-button--ghost" href="/graphic-design/project-one-f5w4d-br6yr/"><span>PREVIOUS · Project One</span></a>
         <span></span>
       </nav>
     </main>
   
-      
-    <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      
-    <div class="site-footer__social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
     
-            </a>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
+          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="/">HOME</a>
+          <a href="/my-works/">MY WORKS</a>
+          <a href="/about/">ABOUT</a>
+          <a href="/contact/">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a href="mailto:1pongsant@gmail.com">
+                  1pongsant@gmail.com
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
-    </div>
-  
-      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+              
+                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  YouTube
+                </a>
+              
+        </div>
+      </div>
     </footer>
   
-    </div>
   </body>
 </html>

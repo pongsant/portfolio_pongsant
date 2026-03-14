@@ -4,231 +4,475 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PHOTO | PORTFOLIO</title>
-    <meta name="description" content="Photography by Pongsant Chintanapakdee, built around mood, everyday detail, light, and movement.">
+    <meta name="description" content="Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding i...">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="/script.js" defer></script>
   </head>
   <body class="page page-collection">
-    <div class="site-backdrop" aria-hidden="true">
-      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
-      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
-      <div class="site-backdrop__noise"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
     </div>
-    <div class="site-shell">
-      
-    <header class="site-header">
-      <nav class="site-nav" aria-label="Primary">
+    
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
         
-              <a href="/my-works/" class="is-active">
-                MY WORKS
+              <a class="chrome-button" href="/">
+                <span>PORTFOLIO</span>
               </a>
             
-              <a href="/about/" class="">
-                ABOUT
+              <a class="chrome-button is-active" href="/my-works/">
+                <span>MY WORKS</span>
               </a>
             
-              <a href="/contact/" class="">
-                CONTACT
+              <a class="chrome-button" href="/about/">
+                <span>ABOUT</span>
+              </a>
+            
+        <button class="chrome-button" type="button" data-contact-open>
+          <span>CONTACT</span>
+        </button>
+      </nav>
+    </header>
+  
+    
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>New York, NY</span>
+        <span>Built from the currently published portfolio archive on March 14, 2026.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Direct links">
+        
+              <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com">
+                <span>1pongsant@gmail.com</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
+              </a>
+            
+              <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                <span>@prum20baht</span>
               </a>
             
       </nav>
-      <div class="site-title">
-        <a href="/">PORTFOLIO</a>
-      </div>
-      
-    <div class="site-social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
-    
-            </a>
-          
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
-              
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
     </div>
   
-    </header>
+    
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+        <div class="contact-panel__head">
+          <p class="eyebrow">CONTACT</p>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
+            <span>CLOSE</span>
+          </button>
+        </div>
+        <h2 id="contact-panel-title" class="contact-panel__title">Reach out</h2>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <div class="contact-panel__grid">
+          
+                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
+                  <span class="contact-panel__label">Email</span>
+                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="tel:+14245993914">
+                  <span class="contact-panel__label">Phone</span>
+                  <strong class="contact-panel__value">(424)599-3914</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="/contact">
+                  <span class="contact-panel__label">Location</span>
+                  <strong class="contact-panel__value">New York, NY</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">Instagram</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  <span class="contact-panel__label">YouTube</span>
+                  <strong class="contact-panel__value">@prum20baht</strong>
+                </a>
+              
+        </div>
+      </section>
+    </div>
+  
+    
+    <main class="page-main page-main--stack">
+      
+    <section class="editorial-hero" data-section>
+      <div class="editorial-hero__copy">
+        <p class="eyebrow motion-reveal">Photo</p>
+        <h1 class="editorial-hero__title motion-reveal">PHOTO</h1>
+        <p class="editorial-hero__summary motion-reveal">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.</p>
+        
+    <div class="meta-chips motion-reveal">
+      <span>29 IMAGES</span><span>PHOTO</span><span>ARCHIVE</span>
+    </div>
+  
+      </div>
+      <figure class="editorial-hero__media motion-scale" data-parallax-wrap>
+        <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO" data-parallax="8">
+      </figure>
+    </section>
   
       
-      <main class="page-main archive-page archive-page--collection archive-page--gallery">
-        
-            <div class="archive-back-row">
-              <a class="archive-back-link" href="/my-works/">back</a>
-            </div>
-            <section class="archive-copy archive-copy--photo">
-              <p class="archive-copy__paragraph">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.</p>
-            </section>
-          
-        
-    <section class="archive-gallery archive-gallery--photo">
+    <section class="gallery-sequence">
       
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO image 1">
-            </figure>
+            <article class="gallery-sequence__group" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">01 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">PHOTO</h2>
+                <p class="gallery-sequence__summary motion-reveal">Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>ARCHIVE</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO image 1" data-parallax="12">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0153_IMG_1094.JPG" alt="PHOTO image 2" data-parallax="10">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0042_IMG_2152.JPG" alt="PHOTO image 3" data-parallax="10">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0153_IMG_1094.JPG" alt="PHOTO image 2">
-            </figure>
+            <article class="gallery-sequence__group gallery-sequence__group--reverse" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">02 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 02</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0122_IMG_1253.JPG" alt="Photo 02 image 1" data-parallax="14">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0172_IMG_2135.JPG" alt="Photo 02 image 2" data-parallax="12">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0062_IMG_2163.JPG" alt="Photo 02 image 3" data-parallax="12">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0042_IMG_2152.JPG" alt="PHOTO image 3">
-            </figure>
+            <article class="gallery-sequence__group" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">03 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 03</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0187_IMG_2136.JPG" alt="Photo 03 image 1" data-parallax="16">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0171_IMG_2292.JPG" alt="Photo 03 image 2" data-parallax="14">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0032_IMG_2138.JPG" alt="Photo 03 image 3" data-parallax="14">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0122_IMG_1253.JPG" alt="PHOTO image 4">
-            </figure>
+            <article class="gallery-sequence__group gallery-sequence__group--reverse" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">04 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 04</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0150_L1000065.jpeg" alt="Photo 04 image 1" data-parallax="18">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0029_IMG_2150.JPG" alt="Photo 04 image 2" data-parallax="16">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0019_L1000282.jpeg" alt="Photo 04 image 3" data-parallax="16">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0172_IMG_2135.JPG" alt="PHOTO image 5">
-            </figure>
+            <article class="gallery-sequence__group" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">05 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 05</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0149_IMG_2233.JPG" alt="Photo 05 image 1" data-parallax="20">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0103_IMG_2198.JPG" alt="Photo 05 image 2" data-parallax="18">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0004_IMG_2207.JPG" alt="Photo 05 image 3" data-parallax="18">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0062_IMG_2163.JPG" alt="PHOTO image 6">
-            </figure>
+            <article class="gallery-sequence__group gallery-sequence__group--reverse" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">06 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 06</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0145_IMG_2118.JPG" alt="Photo 06 image 1" data-parallax="22">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0084_IMG_2229.JPG" alt="Photo 06 image 2" data-parallax="20">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0023_IMG_2259.JPG" alt="Photo 06 image 3" data-parallax="20">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0187_IMG_2136.JPG" alt="PHOTO image 7">
-            </figure>
+            <article class="gallery-sequence__group" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">07 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 07</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0079_IMG_2265%2B2.JPG" alt="Photo 07 image 1" data-parallax="24">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0170_IMG_2269.JPG" alt="Photo 07 image 2" data-parallax="22">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0070_IMG_2284.JPG" alt="Photo 07 image 3" data-parallax="22">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0171_IMG_2292.JPG" alt="PHOTO image 8">
-            </figure>
+            <article class="gallery-sequence__group gallery-sequence__group--reverse" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">08 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 08</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0054_IMG_2291.JPG" alt="Photo 08 image 1" data-parallax="26">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0057_L1000078.jpeg" alt="Photo 08 image 2" data-parallax="24">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0175_IMG_2295.JPG" alt="Photo 08 image 3" data-parallax="24">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0032_IMG_2138.JPG" alt="PHOTO image 9">
-            </figure>
+            <article class="gallery-sequence__group" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">09 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 09</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>3 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0118_L1000072.jpeg" alt="Photo 09 image 1" data-parallax="28">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0144_L1000082.jpeg" alt="Photo 09 image 2" data-parallax="26">
+                              </figure>
+                            
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0164_L1000114.jpeg" alt="Photo 09 image 3" data-parallax="26">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0150_L1000065.jpeg" alt="PHOTO image 10">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0029_IMG_2150.JPG" alt="PHOTO image 11">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0019_L1000282.jpeg" alt="PHOTO image 12">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0149_IMG_2233.JPG" alt="PHOTO image 13">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0103_IMG_2198.JPG" alt="PHOTO image 14">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0004_IMG_2207.JPG" alt="PHOTO image 15">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0145_IMG_2118.JPG" alt="PHOTO image 16">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0084_IMG_2229.JPG" alt="PHOTO image 17">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0023_IMG_2259.JPG" alt="PHOTO image 18">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0079_IMG_2265%2B2.JPG" alt="PHOTO image 19">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0170_IMG_2269.JPG" alt="PHOTO image 20">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0070_IMG_2284.JPG" alt="PHOTO image 21">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0054_IMG_2291.JPG" alt="PHOTO image 22">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0057_L1000078.jpeg" alt="PHOTO image 23">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0175_IMG_2295.JPG" alt="PHOTO image 24">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0118_L1000072.jpeg" alt="PHOTO image 25">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0144_L1000082.jpeg" alt="PHOTO image 26">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0164_L1000114.jpeg" alt="PHOTO image 27">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0011_L1000236.jpeg" alt="PHOTO image 28">
-            </figure>
-          
-            <figure class="archive-gallery__item">
-              <img src="/assets/site-import/images/0014_L1000260.jpeg" alt="PHOTO image 29">
-            </figure>
+            <article class="gallery-sequence__group gallery-sequence__group--reverse" data-section>
+              <div class="gallery-sequence__copy">
+                <p class="eyebrow motion-reveal">10 · Photo</p>
+                <h2 class="gallery-sequence__title motion-reveal">Photo 10</h2>
+                <p class="gallery-sequence__summary motion-reveal">Selected images from the photo archive.</p>
+                
+    <div class="meta-chips motion-reveal">
+      <span>2 IMAGES</span><span>PHOTO</span><span>SELECTION</span>
+    </div>
+  
+              </div>
+              <div class="gallery-sequence__media">
+                <figure class="gallery-sequence__primary motion-scale" data-parallax-wrap>
+                  <img src="/assets/site-import/images/0011_L1000236.jpeg" alt="Photo 10 image 1" data-parallax="30">
+                </figure>
+                
+                      <div class="gallery-sequence__secondary">
+                        
+                              <figure class="gallery-sequence__secondary-item motion-scale" data-parallax-wrap>
+                                <img src="/assets/site-import/images/0014_L1000260.jpeg" alt="Photo 10 image 2" data-parallax="28">
+                              </figure>
+                            
+                      </div>
+                    
+              </div>
+            </article>
           
     </section>
   
-      </main>
+    </main>
+  
     
-      
     <footer class="site-footer">
-      <div class="site-footer__rule"></div>
-      
-    <div class="site-footer__social" aria-label="Social links">
-      
-            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
-              
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
-        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
-      </svg>
-    
-            </a>
+      <div class="site-footer__inner">
+        <div class="site-footer__brand">
+          <p class="eyebrow">PORTFOLIO</p>
+          <h2 class="site-footer__title">Pongsant Chintanapakdee</h2>
+          <p class="site-footer__summary">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
+        </div>
+        <nav class="site-footer__nav" aria-label="Footer navigation">
+          <a href="/">HOME</a>
+          <a href="/my-works/">MY WORKS</a>
+          <a href="/about/">ABOUT</a>
+          <a href="/contact/">CONTACT</a>
+        </nav>
+        <div class="site-footer__social">
           
-            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <a href="mailto:1pongsant@gmail.com">
+                  1pongsant@gmail.com
+                </a>
               
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
-    </svg>
-  
-            </a>
-          
-    </div>
-  
-      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
-      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
-      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
-      <a class="site-footer__title" href="/">PORTFOLIO</a>
+                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
+                  Instagram
+                </a>
+              
+                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
+                  YouTube
+                </a>
+              
+        </div>
+      </div>
     </footer>
   
-    </div>
   </body>
 </html>
