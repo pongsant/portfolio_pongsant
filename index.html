@@ -7,14 +7,18 @@
     <meta name="description" content="A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body class="page page-home">
+    <div class="site-backdrop" aria-hidden="true">
+      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
+      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
+      <div class="site-backdrop__noise"></div>
+    </div>
     <div class="site-shell">
       
     <header class="site-header">
-      <a class="site-logo" href="/">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
         
               <a href="/my-works/" class="">
@@ -30,128 +34,155 @@
               </a>
             
       </nav>
+      <div class="site-title">
+        <a href="/">PORTFOLIO</a>
+      </div>
+      
+    <div class="site-social" aria-label="Social links">
+      
+            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
+              
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
+      </svg>
+    
+            </a>
+          
+            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+              
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
+    </svg>
+  
+            </a>
+          
+    </div>
+  
     </header>
   
       
-    <main>
-      <section class="home-hero">
-        <div class="home-hero__copy">
-          <p class="section-kicker">PORTFOLIO</p>
-          <h1>PONGSANT CHINTANAPAKDEE</h1>
-          <p class="home-hero__text">A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.</p>
-          <div class="hero-links">
-            <a class="button-link" href="/my-works/">MY WORKS</a>
-            <a class="text-link" href="/about/">ABOUT</a>
-          </div>
-        </div>
-        <div class="home-hero__image">
-          <img src="/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png" alt="Filial Project">
-        </div>
+    <main class="page-main">
+      <section class="home-section home-grid home-hero">
+        <h1 class="home-hero__line home-hero__line--primary">PONGSANT</h1>
+        <h2 class="home-hero__line home-hero__line--secondary">CHINTANAPAKDEE</h2>
+        <figure class="home-hero__poster">
+          <img src="/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png" alt="Pongsant Chintanapakdee poster">
+        </figure>
+        <div class="home-divider"></div>
       </section>
 
-      <section class="home-feature section-block">
-        <div class="home-feature__copy">
-          <p class="section-kicker">About</p>
-          <h2>Filial Project</h2>
+      <section class="home-section home-grid home-featured">
+        <figure class="home-featured__logo">
+          <img src="/assets/site-import/images/0157_logo%2B2.png" alt="Filial Project logo">
+        </figure>
+        <div class="home-copy home-featured__about">
+          <p><strong>About Filial Project</strong></p>
           <p>Filial Project is a clothing brand started with friends, focused on minimal design, strong identity, and thoughtful presentation across both fashion and digital platforms.</p>
-          <h3>Interactive Website Prototype</h3>
-          <p>Designed and coded independently using HTML, CSS, and JavaScript as a functional brand prototype for digital fashion presentation and interactive storytelling.</p>
-          <a class="text-link" href="/my-works/">GO TO WORKS</a>
         </div>
-        <div class="home-feature__stack">
-          
-                <div class="home-feature__image home-feature__image--primary">
-                  <img src="/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png" alt="Filial Project image 1">
-                </div>
-              
-                <div class="home-feature__image">
-                  <img src="/assets/site-import/images/0157_logo%2B2.png" alt="Filial Project image 2">
-                </div>
-              
+        <figure class="home-featured__video">
+          <video src="/video/filial%20web%20test%201.mov" poster="/assets/site-import/images/0073_Screenshot%2B2025-04-02%2Bat%2B11.48.25%25E2%2580%25AFPM.png" preload="metadata" controls loop playsinline></video>
+        </figure>
+        <div class="home-copy home-featured__prototype">
+          <p><strong>Interactive Website Prototype</strong></p>
+          <p>Designed and coded independently using HTML, CSS, and JavaScript as a functional brand prototype for digital fashion presentation and interactive storytelling.</p>
+        </div>
+        <div class="home-featured__action">
+          <a class="home-button" href="https://pongsant.github.io/filial-project-web-test/gate.html?next=index.html" target="_blank" rel="noreferrer">GO TO WEB</a>
         </div>
       </section>
 
-      <section class="section-block">
-        <div class="section-head">
-          <p class="section-kicker">MY WORKS</p>
-          <h2>Explore the archive by discipline.</h2>
+      <section class="home-section home-grid home-graphic">
+        <h2 class="home-section-title home-graphic__title">Graphic Design</h2>
+        <figure class="home-graphic__poster">
+          <img src="/assets/site-import/images/0123_pongsant%2Bposter.jpg" alt="Graphic Design poster">
+        </figure>
+        <figure class="home-graphic__tall">
+          <img src="/assets/site-import/images/0146_1.jpg" alt="Graphic Design preview one">
+        </figure>
+        <figure class="home-graphic__landscape">
+          <img src="/assets/site-import/images/0075_1.jpg" alt="Graphic Design preview two">
+        </figure>
+        <figure class="home-graphic__square">
+          <img src="/assets/site-import/images/0130_Screenshot%2B2026-01-04%2Bat%2B22.32.39.png" alt="Graphic Design preview three">
+        </figure>
+        <figure class="home-graphic__tower">
+          <img src="/assets/site-import/images/0134_Screenshot%2B2026-01-04%2Bat%2B22.42.42.png" alt="Graphic Design preview four">
+        </figure>
+        <div class="home-graphic__action">
+          <a class="home-button" href="/graphic-design/">Learn more</a>
         </div>
-        <div class="collection-grid">
-          
-    <article class="collection-card collection-card--compact">
-      <a class="collection-card__media" href="/graphic-design/">
-        <img src="/assets/site-import/images/0085_p1.jpg" alt="Graphic Design">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">Graphic Design</p>
-        <h3><a href="/graphic-design/">GRAPHIC DESIGN</a></h3>
-        <p>Poster systems, branding studies, publication work, and typography experiments.</p>
-        <span class="text-link">23 projects</span>
-      </div>
-    </article>
-  
-    <article class="collection-card collection-card--compact">
-      <a class="collection-card__media" href="/photo/">
-        <img src="/assets/site-import/images/0064_IMG_2186.JPG" alt="Photo">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">Photo</p>
-        <h3><a href="/photo/">PHOTO</a></h3>
-        <p>Photography by Pongsant Chintanapakdee, built around mood, everyday detail, light, and movement.</p>
-        <span class="text-link">29 images</span>
-      </div>
-    </article>
-  
-    <article class="collection-card collection-card--compact">
-      <a class="collection-card__media" href="/drawing/">
-        <img src="/assets/site-import/images/0188_1.jpg" alt="Drawing">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">Drawing</p>
-        <h3><a href="/drawing/">DRAWING</a></h3>
-        <p>Sketches, studies, and hand-drawn work that stay visible alongside digital projects.</p>
-        <span class="text-link">16 images</span>
-      </div>
-    </article>
-  
-    <article class="collection-card collection-card--compact">
-      <a class="collection-card__media" href="/coding/">
-        <img src="/assets/site-import/images/0036_f1.2.jpg" alt="Coding">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">Coding</p>
-        <h3><a href="/coding/">CODING</a></h3>
-        <p>Interactive prototypes and creative technology built through HTML, CSS, JavaScript, and physical computing.</p>
-        <span class="text-link">4 projects</span>
-      </div>
-    </article>
-  
-    <article class="collection-card collection-card--compact">
-      <a class="collection-card__media" href="/product/">
-        <img src="/assets/site-import/images/0010_2.jpg" alt="Product Design">
-      </a>
-      <div class="collection-card__body">
-        <p class="section-kicker">Product Design</p>
-        <h3><a href="/product/">PRODUCT DESIGN</a></h3>
-        <p>Objects and spatial interactions shaped by material thinking, display, and cultural references.</p>
-        <span class="text-link">2 projects</span>
-      </div>
-    </article>
-  
+        <div class="home-divider"></div>
+      </section>
+
+      <section class="home-section home-grid home-photo">
+        <h2 class="home-section-title home-photo__title">PHOTOGRAPHY</h2>
+        <div class="home-copy home-photo__meta">
+          <p><strong>By</strong><br>Pongsant Chintanapakdee</p>
+          <p><strong>Year</strong><br>2024</p>
+        </div>
+        <figure class="home-photo__portrait">
+          <img src="/assets/site-import/images/0025_L1000282.jpeg" alt="Photography preview one">
+        </figure>
+        <figure class="home-photo__wide-one">
+          <img src="/assets/site-import/images/0018_IMG_2138.JPG" alt="Photography preview two">
+        </figure>
+        <div class="home-photo__action">
+          <a class="home-button" href="/photo/">Photo</a>
+        </div>
+        <figure class="home-photo__tall">
+          <img src="/assets/site-import/images/0088_IMG_2292.JPG" alt="Photography preview three">
+        </figure>
+        <figure class="home-photo__wide-two">
+          <img src="/assets/site-import/images/0099_IMG_2265.JPG" alt="Photography preview four">
+        </figure>
+      </section>
+
+      <section class="home-works">
+        <div class="home-works__inner home-grid">
+          <h2 class="home-works__title">MY WORKS</h2>
+          <a class="home-works__link home-works__link--graphic" href="/graphic-design/">GRAPHIC DESIGN</a>
+          <a class="home-works__link home-works__link--photo" href="/photo/">PHOTO</a>
+          <a class="home-works__link home-works__link--drawing" href="/drawing/">DRAWING</a>
+          <a class="home-works__link home-works__link--coding" href="/coding/">CODING</a>
+          <a class="home-works__link home-works__link--product" href="/product/">PRODUCT DESIGN</a>
         </div>
       </section>
     </main>
   
       
     <footer class="site-footer">
-      <nav class="site-footer__nav" aria-label="Footer">
-        <a href="/about/">ABOUT</a>
-        <a href="/my-works/">MY WORKS</a>
-        <a href="/contact/">CONTACT</a>
-        <a href="/">PORTFOLIO</a>
-      </nav>
-      <p class="site-footer__copy">Pongsant Chintanapakdee · New York, NY</p>
-      <p class="site-footer__copy">Built from the currently published portfolio archive on March 14, 2026.</p>
+      <div class="site-footer__rule"></div>
+      
+    <div class="site-footer__social" aria-label="Social links">
+      
+            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
+              
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
+      </svg>
+    
+            </a>
+          
+            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+              
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
+    </svg>
+  
+            </a>
+          
+    </div>
+  
+      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
+      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
+      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
+      <a class="site-footer__title" href="/">PORTFOLIO</a>
     </footer>
   
     </div>

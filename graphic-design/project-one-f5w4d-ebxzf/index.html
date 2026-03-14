@@ -7,14 +7,18 @@
     <meta name="description" content="A high-image graphic design project carried over from the live archive and rebuilt as a clean standalone detail page.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body class="page page-project">
+    <div class="site-backdrop" aria-hidden="true">
+      <div class="site-backdrop__glow site-backdrop__glow--one"></div>
+      <div class="site-backdrop__glow site-backdrop__glow--two"></div>
+      <div class="site-backdrop__noise"></div>
+    </div>
     <div class="site-shell">
       
     <header class="site-header">
-      <a class="site-logo" href="/">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
         
               <a href="/my-works/" class="is-active">
@@ -30,16 +34,97 @@
               </a>
             
       </nav>
+      <div class="site-title">
+        <a href="/">PORTFOLIO</a>
+      </div>
+      
+    <div class="site-social" aria-label="Social links">
+      
+            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
+              
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
+      </svg>
+    
+            </a>
+          
+            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+              
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
+    </svg>
+  
+            </a>
+          
+    </div>
+  
     </header>
   
       
-    <main>
-      <section class="project-hero">
-        <a class="back-link" href="/graphic-design/">Graphic Design</a>
-        <p class="section-kicker">Graphic Design</p>
-        <h1>POTRAIT OF THE SELFLESS SELF</h1>
-        <p>A high-image graphic design project carried over from the live archive and rebuilt as a clean standalone detail page.</p>
+    <main class="page-main">
+      <section class="project-stage">
+        <div class="project-stage__copy">
+          <a class="back-link" href="/graphic-design/">Graphic Design</a>
+          <p class="section-kicker">Graphic Design</p>
+          <h1>POTRAIT OF THE SELFLESS SELF</h1>
+          <p>A high-image graphic design project carried over from the live archive and rebuilt as a clean standalone detail page.</p>
+          
+    <div class="stat-strip">
+      
+            <div class="stat-strip__item">
+              <strong>15</strong>
+              <span>images</span>
+            </div>
+          
+            <div class="stat-strip__item">
+              <strong>Graphic Design</strong>
+              <span>discipline</span>
+            </div>
+          
+            <div class="stat-strip__item">
+              <strong>Live Archive</strong>
+              <span>source</span>
+            </div>
+          
+    </div>
+  
+        </div>
+        <div class="project-stage__visual">
+          <figure class="project-stage__hero-image">
+            <img src="/assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF">
+          </figure>
+          <div class="project-stage__thumbs">
+            
+                  <figure class="project-stage__thumb">
+                    <img src="/assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF thumb 1">
+                  </figure>
+                
+                  <figure class="project-stage__thumb">
+                    <img src="/assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF thumb 2">
+                  </figure>
+                
+                  <figure class="project-stage__thumb">
+                    <img src="/assets/site-import/images/0143_p4.jpg" alt="POTRAIT OF THE SELFLESS SELF thumb 3">
+                  </figure>
+                
+          </div>
+        </div>
       </section>
+
+      <section class="project-panels">
+        <article class="project-panel">
+          <p class="section-kicker">Project Note</p>
+          <p>This page keeps the original live archive images visible while shifting the presentation toward a more cinematic, case-study-like reading experience.</p>
+        </article>
+        <article class="project-panel">
+          <p class="section-kicker">Navigate</p>
+          <p>Use the sequence below to move through the project and then continue to the next work in the same discipline.</p>
+        </article>
+      </section>
+
       
     <section class="project-gallery">
       
@@ -47,80 +132,103 @@
               <img src="/assets/site-import/images/0085_p1.jpg" alt="POTRAIT OF THE SELFLESS SELF image 1">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0067_p2.jpg" alt="POTRAIT OF THE SELFLESS SELF image 2">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0106_p3.jpg" alt="POTRAIT OF THE SELFLESS SELF image 3">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--landscape">
               <img src="/assets/site-import/images/0143_p4.jpg" alt="POTRAIT OF THE SELFLESS SELF image 4">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0125_p5.jpg" alt="POTRAIT OF THE SELFLESS SELF image 5">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--tall">
               <img src="/assets/site-import/images/0152_p6.jpg" alt="POTRAIT OF THE SELFLESS SELF image 6">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--landscape">
               <img src="/assets/site-import/images/0001_p7.jpg" alt="POTRAIT OF THE SELFLESS SELF image 7">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0165_p8.jpg" alt="POTRAIT OF THE SELFLESS SELF image 8">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0037_p10.jpg" alt="POTRAIT OF THE SELFLESS SELF image 9">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--landscape">
               <img src="/assets/site-import/images/0132_p9.jpg" alt="POTRAIT OF THE SELFLESS SELF image 10">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--tall">
               <img src="/assets/site-import/images/0179_p11.jpg" alt="POTRAIT OF THE SELFLESS SELF image 11">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0184_p12.jpg" alt="POTRAIT OF THE SELFLESS SELF image 12">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--landscape">
               <img src="/assets/site-import/images/0013_p13.jpg" alt="POTRAIT OF THE SELFLESS SELF image 13">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0098_p14.jpg" alt="POTRAIT OF THE SELFLESS SELF image 14">
             </figure>
           
-            <figure class="project-gallery__item">
+            <figure class="project-gallery__item project-gallery__item--square">
               <img src="/assets/site-import/images/0021_p15.jpg" alt="POTRAIT OF THE SELFLESS SELF image 15">
             </figure>
           
     </section>
   
+
       <section class="project-pagination">
         <a href="/graphic-design/project-one-f5w4d-br6yr/">Previous: Project One</a>
+        <a href="/graphic-design/">Back to Graphic Design</a>
         <span></span>
       </section>
     </main>
   
       
     <footer class="site-footer">
-      <nav class="site-footer__nav" aria-label="Footer">
-        <a href="/about/">ABOUT</a>
-        <a href="/my-works/">MY WORKS</a>
-        <a href="/contact/">CONTACT</a>
-        <a href="/">PORTFOLIO</a>
-      </nav>
-      <p class="site-footer__copy">Pongsant Chintanapakdee · New York, NY</p>
-      <p class="site-footer__copy">Built from the currently published portfolio archive on March 14, 2026.</p>
+      <div class="site-footer__rule"></div>
+      
+    <div class="site-footer__social" aria-label="Social links">
+      
+            <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer" aria-label="Instagram">
+              
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" ry="4.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+        <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+        <circle cx="17.4" cy="6.7" r="1.2" fill="currentColor"></circle>
+      </svg>
+    
+            </a>
+          
+            <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer" aria-label="YouTube">
+              
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.1" y="6.6" width="17.8" height="10.8" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+      <path d="M10 9.3 15.7 12 10 14.7Z" fill="currentColor"></path>
+    </svg>
+  
+            </a>
+          
+    </div>
+  
+      <a class="site-footer__link site-footer__link--about" href="/about/">ABOUT</a>
+      <a class="site-footer__link site-footer__link--works" href="/my-works/">MY WORKS</a>
+      <a class="site-footer__link site-footer__link--contact" href="/contact/">CONTACT</a>
+      <a class="site-footer__title" href="/">PORTFOLIO</a>
     </footer>
   
     </div>
