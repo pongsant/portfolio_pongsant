@@ -1,7 +1,8 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const manifestPath = new URL("../assets/site-import/manifest.tsv", import.meta.url);
 const outputPath = new URL("../site-data.json", import.meta.url);
+const projectCopyPath = new URL("../project-copy.json", import.meta.url);
 
 const routeMeta = {
   "/graphic-design/project-six-sz8wl-bb73t": {
@@ -141,6 +142,8 @@ const collectionDefs = [
     type: "gallery",
     accent: "silver",
     description: "Photography by Pongsant Chintanapakdee, built around mood, everyday detail, light, and movement.",
+    pageIntro:
+      "Photography, for me, is more than capturing moments; it’s about revealing emotions, memories, and fragments of truth hidden in everyday life. Coming from a background in graphic design and expanding into creative technology, I approach photography with a mix of composition, concept, and curiosity. Each photo in this portfolio is a quiet reflection of how I see the world, through light, shadow, movement, and mood. Whether it’s a candid street scene or a surreal still life, my goal is to tell stories that make people feel, think, or simply pause.",
     coverRoute: "/photo",
   },
   {
@@ -205,6 +208,10 @@ const manifestLines = readFileSync(manifestPath, "utf8")
   .split("\n")
   .filter(Boolean);
 
+const projectCopy = existsSync(projectCopyPath)
+  ? JSON.parse(readFileSync(projectCopyPath, "utf8"))
+  : {};
+
 const refs = manifestLines.map((line) => {
   const [pageUrl, imageUrl, localPath] = line.split("\t");
   const route = new URL(pageUrl).pathname;
@@ -233,7 +240,23 @@ function routeToSlug(route) {
   return route.split("/").filter(Boolean).at(-1);
 }
 
-function createSummary(title, discipline) {
+function trimSummary(value, maxLength = 180) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+}
+
+function createSummary(route, title, discipline) {
+  const copyBlock = (projectCopy[route]?.blocks ?? []).find((block) => block.type === "body");
+
+  if (copyBlock?.text) {
+    return trimSummary(copyBlock.text);
+  }
+
   if (summaryOverrides[title]) {
     return summaryOverrides[title];
   }
@@ -261,7 +284,9 @@ const projects = Object.entries(routeMeta).map(([route, meta]) => {
     discipline: meta.discipline,
     disciplineLabel: disciplineLabels[meta.discipline],
     collectionRoute: disciplineToRoute[meta.discipline],
-    summary: createSummary(meta.title, meta.discipline),
+    summary: createSummary(route, meta.title, meta.discipline),
+    detailTitle: projectCopy[route]?.detailTitle || meta.title,
+    copyBlocks: projectCopy[route]?.blocks ?? [],
     images,
     cover: images[0],
     imageCount: images.length,
@@ -341,6 +366,24 @@ const data = {
     title: "ABOUT",
     loopText: "ABOUT * ABOUT * ABOUT *",
     portrait: firstImageFor("/about"),
+    summaryText:
+      "Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the world of art and music since childhood. His upbringing in a creative family-with a mother skilled in visual arts and a father who is both an Interior Architect and Graphic Designer instilled in him a passion for design and creativity. After moving to Los Angeles in 2021, he pursued his artistic journey in the United States, earning recognition and scholarships from prestigious art institutions.",
+    educationLines: [
+      "BACHELOR OF FINE ARTS (BFA) In Design and Technology",
+      "- Parsons School of Design, New York City, Expected Graduation: 2027",
+      "Graphic Design",
+      "- Santa Monica College, Los Angeles (2023)",
+    ],
+    achievementLines: [
+      "- Silas H. Rhodes Scholarship, School of Visual Arts (SVA) Awarded a 50% tuition scholarship, along with additional grants.",
+      "- Scholarships and Grants, Pratt Institute and Parsons School of Design",
+      "- Pratt Institute: 60% tuition scholarship.",
+      "- Parsons School of Design: 40% tuition scholarship, accepted for Fall 2024.",
+    ],
+    skillsInterestLines: [
+      "- Skill: Graphic Design (Photoshop, Illustrator, InDesign Xd, Premiere Pro), Visual Arts, Coding (CSS, html, js)",
+      "- Interests: Music (guitar, piano), Fashion and content Creation",
+    ],
     paragraphs: [
       "Born and raised in Bangkok, Thailand, Pongsant Chintanapakdee has been deeply inspired by the worlds of art and music since childhood.",
       "Growing up in a creative family, with a mother grounded in visual arts and a father working across interior architecture and graphic design, gave him an early connection to design as both craft and daily life.",
@@ -394,6 +437,7 @@ const data = {
     title: "CONTACT",
     loopText: "CONTACT * CONTACT * CONTACT *",
     portrait: firstImageFor("/contact"),
+    heading: "Contacts",
     intro: "Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.",
     links: [
       {

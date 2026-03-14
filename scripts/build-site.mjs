@@ -307,7 +307,109 @@ function renderProjectGallery(images, title) {
           `;
         })
         .join("")}
+      </section>
+  `;
+}
+
+function splitParagraphs(text) {
+  return String(text)
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function renderParagraphs(text, className = "archive-copy__paragraph") {
+  return splitParagraphs(text)
+    .map((paragraph) => {
+      const withBreaks = paragraph
+        .split("\n")
+        .map((line) => escapeHtml(line))
+        .join("<br>");
+
+      return `<p class="${className}">${withBreaks}</p>`;
+    })
+    .join("");
+}
+
+function normalizeComparable(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function getProjectCopy(project) {
+  const blocks = (project.copyBlocks ?? []).map((block) => ({ ...block }));
+  let title = project.detailTitle || project.title;
+
+  if (blocks[0]?.type === "body") {
+    const parts = splitParagraphs(blocks[0].text);
+    const lead = parts[0];
+
+    if (lead && normalizeComparable(lead) === normalizeComparable(title)) {
+      title = lead;
+
+      const remainder = parts.slice(1).join("\n\n").trim();
+
+      if (remainder) {
+        blocks[0] = { ...blocks[0], text: remainder };
+      } else {
+        blocks.shift();
+      }
+    }
+  }
+
+  return {
+    title,
+    blocks: blocks.filter((block) => block.text.trim()),
+  };
+}
+
+function renderArchiveProjectCard(project) {
+  return `
+    <article class="archive-project-card">
+      <a class="archive-project-card__media" href="${toHref(project.route)}">
+        <img src="${project.cover}" alt="${escapeHtml(project.title)}">
+      </a>
+      <h2 class="archive-project-card__title">
+        <a href="${toHref(project.route)}">${escapeHtml(project.title)}</a>
+      </h2>
+    </article>
+  `;
+}
+
+function renderArchiveGallery(images, className, title) {
+  return `
+    <section class="${className}">
+      ${images
+        .map(
+          (image, index) => `
+            <figure class="archive-gallery__item">
+              <img src="${image}" alt="${escapeHtml(title)} image ${index + 1}">
+            </figure>
+          `
+        )
+        .join("")}
     </section>
+  `;
+}
+
+function renderArchiveProjectBlocks(project) {
+  const { title, blocks } = getProjectCopy(project);
+
+  return `
+    <div class="archive-project-copy">
+      <h1 class="archive-project-copy__title">${escapeHtml(title)}</h1>
+      ${blocks
+        .map((block) => {
+          if (block.type === "heading") {
+            return `<h2 class="archive-project-copy__heading">${escapeHtml(block.text)}</h2>`;
+          }
+
+          return renderParagraphs(block.text, "archive-project-copy__paragraph");
+        })
+        .join("")}
+    </div>
   `;
 }
 
@@ -413,31 +515,15 @@ function renderHomePage(route = "/") {
 
 function renderWorksHub() {
   const content = `
-    <main class="page-main">
-      ${renderLoop(data.worksHub.loopText)}
-      <section class="page-intro page-intro--hub">
-        <div>
-          <p class="section-kicker">${escapeHtml(data.site.title)}</p>
-          <h1>${escapeHtml(data.worksHub.title)}</h1>
-          <p>${escapeHtml(data.worksHub.intro)}</p>
-        </div>
-        <div class="page-intro__stack">
-          ${data.collections
-            .slice(0, 3)
-            .map(
-              (collection) => `
-                <div class="page-intro__stack-item">
-                  <img src="${collection.cover}" alt="${escapeHtml(collection.shortLabel)}">
-                  <span>${escapeHtml(collection.shortLabel)}</span>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </section>
-      <section class="section-block">
-        <div class="collection-grid">
-          ${data.collections.map((collection) => renderCollectionCard(collection)).join("")}
+    <main class="page-main archive-page archive-page--works">
+      <section class="home-works archive-works-page">
+        <div class="home-works__inner home-grid">
+          <h1 class="home-works__title">MY WORKS</h1>
+          <a class="home-works__link home-works__link--graphic" href="${toHref("/graphic-design")}">GRAPHIC DESIGN</a>
+          <a class="home-works__link home-works__link--photo" href="${toHref("/photo")}">PHOTO</a>
+          <a class="home-works__link home-works__link--drawing" href="${toHref("/drawing")}">DRAWING</a>
+          <a class="home-works__link home-works__link--coding" href="${toHref("/coding")}">CODING</a>
+          <a class="home-works__link home-works__link--product" href="${toHref("/product")}">PRODUCT DESIGN</a>
         </div>
       </section>
     </main>
@@ -454,62 +540,29 @@ function renderWorksHub() {
 
 function renderAboutPage() {
   const content = `
-    <main class="page-main">
-      ${renderLoop(data.about.loopText)}
-      <section class="page-intro page-intro--split">
-        <div class="page-intro__copy">
-          <p class="section-kicker">${escapeHtml(data.site.title)}</p>
-          <h1>${escapeHtml(data.about.title)}</h1>
-          ${data.about.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
+    <main class="page-main archive-page archive-page--about">
+      <section class="archive-single archive-single--about">
+        <figure class="archive-single__media archive-single__media--portrait">
+          <img src="${data.about.portrait}" alt="${escapeHtml(data.site.owner)}">
+        </figure>
+        <div class="archive-about__content">
+          <section class="archive-info-block">
+            <h2 class="archive-info-block__title">EDUCATION</h2>
+            ${data.about.educationLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
+          </section>
+          <section class="archive-info-block">
+            <h2 class="archive-info-block__title">SCHOLARSHIP AND ACHIEVEMENTS</h2>
+            ${data.about.achievementLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
+          </section>
+          <section class="archive-info-block">
+            <h2 class="archive-info-block__title">SKILLS &amp; INTERESTS</h2>
+            ${data.about.skillsInterestLines.map((line) => `<p class="archive-info-block__line">${escapeHtml(line)}</p>`).join("")}
+          </section>
+          <section class="archive-info-block">
+            <h2 class="archive-info-block__title">SUMMARY</h2>
+            ${renderParagraphs(data.about.summaryText, "archive-info-block__line")}
+          </section>
         </div>
-        <div class="portrait-stage">
-          <div class="portrait-stage__frame">
-            <img src="${data.about.portrait}" alt="${escapeHtml(data.site.owner)}">
-          </div>
-          <blockquote class="quote-card">
-            <p>Bangkok, Los Angeles, and New York all stay visible in the way the work moves between image, interface, and object.</p>
-          </blockquote>
-        </div>
-      </section>
-      <section class="info-grid">
-        <article class="info-card">
-          <p class="section-kicker">Education</p>
-          ${data.about.education
-            .map(
-              (item) => `
-                <div class="info-item">
-                  <h3>${escapeHtml(item.title)}</h3>
-                  <p>${escapeHtml(item.detail)}</p>
-                </div>
-              `
-            )
-            .join("")}
-        </article>
-        <article class="info-card">
-          <p class="section-kicker">Scholarships</p>
-          ${data.about.achievements
-            .map(
-              (item) => `
-                <div class="info-item">
-                  <h3>${escapeHtml(item.title)}</h3>
-                  <p>${escapeHtml(item.detail)}</p>
-                </div>
-              `
-            )
-            .join("")}
-        </article>
-        <article class="info-card">
-          <p class="section-kicker">Skills</p>
-          <div class="tag-list">
-            ${data.about.skills.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
-          </div>
-        </article>
-        <article class="info-card">
-          <p class="section-kicker">Interests</p>
-          <div class="tag-list">
-            ${data.about.interests.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
-          </div>
-        </article>
       </section>
     </main>
   `;
@@ -524,35 +577,24 @@ function renderAboutPage() {
 }
 
 function renderContactPage() {
+  const mainLinks = data.contact.links.filter((item) =>
+    item.label === "Email" || item.label === "Phone" || item.label === "Location"
+  );
+
   const content = `
-    <main class="page-main">
-      ${renderLoop(data.contact.loopText)}
-      <section class="page-intro page-intro--split">
-        <div class="page-intro__copy">
-          <p class="section-kicker">${escapeHtml(data.site.title)}</p>
-          <h1>${escapeHtml(data.contact.title)}</h1>
-          <p>${escapeHtml(data.contact.intro)}</p>
-          <div class="contact-list">
-            ${data.contact.links
-              .map(
-                (item) => `
-                  <a href="${item.href}"${item.external ? ' target="_blank" rel="noreferrer"' : ""}>
-                    <span>${escapeHtml(item.label)}</span>
-                    <strong>${escapeHtml(item.value)}</strong>
-                  </a>
-                `
-              )
-              .join("")}
-          </div>
-        </div>
-        <div class="portrait-stage portrait-stage--contact">
-          <div class="portrait-stage__frame">
-            <img src="${data.contact.portrait}" alt="${escapeHtml(data.site.owner)}">
-          </div>
-          <div class="contact-note">
-            <p class="section-kicker">Available for</p>
-            <p>Graphic design, interactive portfolio direction, visual storytelling, and creative web presentations.</p>
-          </div>
+    <main class="page-main archive-page archive-page--contact">
+      <section class="archive-single archive-single--contact">
+        <figure class="archive-single__media archive-single__media--landscape">
+          <img src="${data.contact.portrait}" alt="${escapeHtml(data.site.owner)}">
+        </figure>
+        <div class="archive-contact__content">
+          <h1 class="archive-contact__marquee">Contact</h1>
+          <section class="archive-contact__block">
+            <h2 class="archive-contact__heading">${escapeHtml(data.contact.heading)}</h2>
+            <p class="archive-contact__details">
+              ${mainLinks.map((item) => escapeHtml(item.value)).join("<br>")}
+            </p>
+          </section>
         </div>
       </section>
     </main>
@@ -610,28 +652,33 @@ function renderCollectionHero(collection) {
 }
 
 function renderCollectionPage(collection) {
+  const projects = data.projects.filter((project) => project.collectionRoute === collection.route);
+
   const content = collection.type === "projects"
     ? `
-      <main class="page-main">
-        ${renderLoop(`${collection.label} * ${collection.label} *`)}
-        ${renderCollectionHero(collection)}
-        <section class="section-block">
-          <div class="project-grid">
-            ${data.projects
-              .filter((project) => project.collectionRoute === collection.route)
-              .map((project, index) => renderProjectCard(project, index))
-              .join("")}
-          </div>
+      <main class="page-main archive-page archive-page--collection archive-page--project-index">
+        <section class="archive-project-index">
+          ${projects.map((project) => renderArchiveProjectCard(project)).join("")}
         </section>
       </main>
     `
     : `
-      <main class="page-main">
-        ${renderLoop(`${collection.label} * ${collection.label} *`)}
-        ${renderCollectionHero(collection)}
-        <section class="section-block">
-          ${renderGalleryMasonry(collection.images)}
-        </section>
+      <main class="page-main archive-page archive-page--collection archive-page--gallery">
+        ${collection.route === "/photo"
+          ? `
+            <div class="archive-back-row">
+              <a class="archive-back-link" href="${toHref("/my-works")}">back</a>
+            </div>
+            <section class="archive-copy archive-copy--photo">
+              ${renderParagraphs(collection.pageIntro || collection.description)}
+            </section>
+          `
+          : ""}
+        ${renderArchiveGallery(
+          collection.images,
+          collection.route === "/photo" ? "archive-gallery archive-gallery--photo" : "archive-gallery archive-gallery--drawing",
+          collection.label
+        )}
       </main>
     `;
 
@@ -649,58 +696,31 @@ function renderProjectPage(project) {
   const index = siblings.findIndex((item) => item.route === project.route);
   const previous = siblings[index - 1] ?? null;
   const next = siblings[index + 1] ?? null;
-  const galleryThumbs = project.images.slice(1, 4);
 
   const content = `
-    <main class="page-main">
-      <section class="project-stage">
-        <div class="project-stage__copy">
-          <a class="back-link" href="${toHref(project.collectionRoute)}">${escapeHtml(project.disciplineLabel)}</a>
-          <p class="section-kicker">${escapeHtml(project.disciplineLabel)}</p>
-          <h1>${escapeHtml(project.title)}</h1>
-          <p>${escapeHtml(project.summary)}</p>
-          ${renderStatsStrip([
-            { value: project.imageCount, label: "images" },
-            { value: project.disciplineLabel, label: "discipline" },
-            { value: "Live Archive", label: "source" },
-          ])}
-        </div>
-        <div class="project-stage__visual">
-          <figure class="project-stage__hero-image">
-            <img src="${project.cover}" alt="${escapeHtml(project.title)}">
-          </figure>
-          <div class="project-stage__thumbs">
-            ${galleryThumbs
-              .map(
-                (image, thumbIndex) => `
-                  <figure class="project-stage__thumb">
-                    <img src="${image}" alt="${escapeHtml(project.title)} thumb ${thumbIndex + 1}">
-                  </figure>
-                `
-              )
-              .join("")}
-          </div>
-        </div>
+    <main class="page-main archive-page archive-page--project">
+      <div class="archive-back-row archive-back-row--project">
+        <a class="archive-back-link" href="${toHref(project.collectionRoute)}">back</a>
+      </div>
+      <section class="archive-project">
+        ${renderArchiveProjectBlocks(project)}
+        <section class="archive-project-gallery">
+          ${project.images
+            .map(
+              (image, imageIndex) => `
+                <figure class="archive-project-gallery__item">
+                  <img src="${image}" alt="${escapeHtml(project.title)} image ${imageIndex + 1}">
+                </figure>
+              `
+            )
+            .join("")}
+        </section>
       </section>
-
-      <section class="project-panels">
-        <article class="project-panel">
-          <p class="section-kicker">Project Note</p>
-          <p>This page keeps the original live archive images visible while shifting the presentation toward a more cinematic, case-study-like reading experience.</p>
-        </article>
-        <article class="project-panel">
-          <p class="section-kicker">Navigate</p>
-          <p>Use the sequence below to move through the project and then continue to the next work in the same discipline.</p>
-        </article>
-      </section>
-
-      ${renderProjectGallery(project.images, project.title)}
-
-      <section class="project-pagination">
+      <nav class="archive-pagination" aria-label="Project pagination">
         ${previous ? `<a href="${toHref(previous.route)}">Previous: ${escapeHtml(previous.title)}</a>` : `<span></span>`}
-        <a href="${toHref(project.collectionRoute)}">Back to ${escapeHtml(project.disciplineLabel)}</a>
+        <a href="${toHref(project.collectionRoute)}">${escapeHtml(project.disciplineLabel)}</a>
         ${next ? `<a href="${toHref(next.route)}">Next: ${escapeHtml(next.title)}</a>` : `<span></span>`}
-      </section>
+      </nav>
     </main>
   `;
 
