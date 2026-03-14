@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CONTACT | PORTFOLIO</title>
-    <meta name="description" content="A contact placeholder page for the new editorial shell.">
+    <title>AFTERLIGHT ATLAS | PORTFOLIO</title>
+    <meta name="description" content="Placeholder project page for the new editorial shell.">
     <script>
       (() => {
         const projectPath = "/portfolio_pongsant";
@@ -25,7 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
     <script src="script.js" defer></script>
   </head>
-  <body class="page page-contact">
+  <body class="page page-project">
     <div class="page-transition" aria-hidden="true"></div>
 
     <div class="site-wash" aria-hidden="true">
@@ -41,30 +41,30 @@
         <a class="chrome-button" href="./"><span>PORTFOLIO</span></a>
         <a class="chrome-button" href="research/"><span>RESEARCH</span></a>
         <a class="chrome-button" href="studio/"><span>STUDIO</span></a>
-        <button class="chrome-button is-active" type="button" data-contact-open><span>CONTACT</span></button>
+        <button class="chrome-button" type="button" data-contact-open><span>CONTACT</span></button>
       </nav>
     </header>
 
     <div class="site-utility">
       <div class="site-utility__note">
-        <span>Contact list</span>
-        <span>A minimal directory page that keeps the same tone as the rest of the shell.</span>
+        <span>Project 01 / 05</span>
+        <span>Campaign placeholder for large frames and tighter pacing.</span>
       </div>
       <nav class="site-utility__links" aria-label="Utility">
-        <a class="chrome-button chrome-button--ghost" href="mailto:hello@portfolio.local"><span>hello@portfolio.local</span></a>
+        <a class="chrome-button chrome-button--ghost" href="./"><span>HOME</span></a>
         <a class="chrome-button chrome-button--ghost" href="research/"><span>RESEARCH</span></a>
-        <a class="chrome-button chrome-button--ghost" href="studio/"><span>STUDIO</span></a>
+        <a class="chrome-button chrome-button--ghost" href="contact/"><span>CONTACT</span></a>
       </nav>
     </div>
 
     <div class="contact-panel" data-contact-panel hidden>
       <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
-      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="afterlight-contact-title">
         <div class="contact-panel__head">
           <p class="eyebrow">CONTACT</p>
           <button class="chrome-button chrome-button--ghost" type="button" data-contact-close><span>CLOSE</span></button>
         </div>
-        <h2 id="contact-panel-title" class="contact-panel__title">Connect</h2>
+        <h2 id="afterlight-contact-title" class="contact-panel__title">Connect</h2>
         <p class="contact-panel__intro">Temporary contact placeholders for the redesign.</p>
         <div class="contact-panel__grid">
           <a class="contact-panel__card" href="mailto:hello@portfolio.local"><span class="contact-panel__label">Email</span><strong class="contact-panel__value">hello@portfolio.local</strong></a>
@@ -75,44 +75,52 @@
       </section>
     </div>
 
-    <main class="page-main page-main--stack shell-page shell-contact">
-      <section class="shell-hero shell-hero--contact" data-section>
-        <div class="shell-hero__main">
-          <p class="eyebrow motion-reveal">CONTACT</p>
-          <h1 class="shell-hero__title"><span data-hero-line>CONNECT</span></h1>
-          <p class="shell-copy shell-hero__copy motion-reveal">A simple placeholder page for contact information, kept intentionally direct so it feels like part of the same system rather than a separate marketing page.</p>
+    <main class="page-main page-main--stack shell-page shell-project-page">
+      <div class="shell-breadcrumbs motion-reveal">
+        <a class="chrome-button chrome-button--ghost" href="./"><span>BACK TO HOME</span></a>
+      </div>
+
+      <section class="shell-project-hero" data-section>
+        <div class="shell-project-hero__meta motion-reveal">01 / 05</div>
+        <div class="shell-project-hero__body">
+          <p class="eyebrow motion-reveal">PLACEHOLDER CAMPAIGN</p>
+          <h1 class="shell-project-hero__title motion-reveal">Afterlight Atlas</h1>
+          <p class="shell-copy motion-reveal">A project shell for campaign work with oversized frames, reduced chrome, and a slower transition from overview into detail.</p>
+          <div class="meta-chips motion-reveal"><span>Campaign</span><span>Motion</span><span>Placeholder</span></div>
         </div>
       </section>
 
-      <section class="shell-contact-list" data-section>
-        <a class="shell-contact-row motion-reveal" href="mailto:hello@portfolio.local">
-          <span class="shell-contact-row__label">Email</span>
-          <strong class="shell-contact-row__value">hello@portfolio.local</strong>
-          <span class="shell-contact-row__meta">OPEN</span>
-        </a>
-        <a class="shell-contact-row motion-reveal" href="https://instagram.com/" target="_blank" rel="noreferrer">
-          <span class="shell-contact-row__label">Instagram</span>
-          <strong class="shell-contact-row__value">@portfolio.frame</strong>
-          <span class="shell-contact-row__meta">OPEN</span>
-        </a>
-        <a class="shell-contact-row motion-reveal" href="contact/">
-          <span class="shell-contact-row__label">Location</span>
-          <strong class="shell-contact-row__value">New York / Remote</strong>
-          <span class="shell-contact-row__meta">INFO</span>
-        </a>
-        <a class="shell-contact-row motion-reveal" href="contact/">
-          <span class="shell-contact-row__label">Status</span>
-          <strong class="shell-contact-row__value">Selected commissions open</strong>
-          <span class="shell-contact-row__meta">INFO</span>
-        </a>
+      <section class="shell-project-layout" data-section>
+        <aside class="shell-project-aside motion-reveal">
+          <div class="shell-aside-block">
+            <span class="shell-aside-block__label">Use later for</span>
+            <p class="shell-copy">Synopsis, role, timeline, release context, and collaborators.</p>
+          </div>
+          <div class="shell-aside-block">
+            <span class="shell-aside-block__label">Why this exists</span>
+            <p class="shell-copy">To prove that large media can coexist with sparse text without feeling empty.</p>
+          </div>
+        </aside>
+
+        <div class="shell-project-gallery">
+          <figure class="shell-project-gallery__item shell-project-gallery__item--wide motion-scale" data-parallax-wrap><img src="assets/site-import/images/0097_3.jpg" alt="Afterlight Atlas frame one" data-parallax="8"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--portrait motion-scale" data-parallax-wrap><img src="assets/site-import/images/0154_2.jpg" alt="Afterlight Atlas frame two" data-parallax="10"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--square motion-scale" data-parallax-wrap><img src="assets/site-import/images/0123_pongsant+poster.jpg" alt="Afterlight Atlas frame three" data-parallax="6"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--landscape motion-scale" data-parallax-wrap><img src="assets/site-import/images/0037_p10.jpg" alt="Afterlight Atlas frame four" data-parallax="8"></figure>
+        </div>
       </section>
+
+      <nav class="project-pagination motion-reveal" aria-label="Project pagination">
+        <span></span>
+        <span><a class="chrome-button chrome-button--ghost" href="projects/monument-zero/"><span>NEXT PROJECT</span></a></span>
+      </nav>
     </main>
 
     <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__brand">
           <p class="eyebrow">PORTFOLIO</p>
-          <h2 class="site-footer__title">Contact List</h2>
+          <h2 class="site-footer__title">Afterlight Atlas</h2>
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="./">HOME</a>

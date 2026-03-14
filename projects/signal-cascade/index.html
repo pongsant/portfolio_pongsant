@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIGNAL CASCADE | PORTFOLIO</title>
+    <meta name="description" content="Placeholder project page for the new editorial shell.">
+    <script>
+      (() => {
+        const projectPath = "/portfolio_pongsant";
+        const pathname = window.location.pathname || "/";
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + "/"));
+        const baseHref = useProjectBase ? projectPath + "/" : "/";
+        const baseTag = document.createElement("base");
+        baseTag.href = baseHref;
+        document.head.prepend(baseTag);
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body class="page page-project">
+    <div class="page-transition" aria-hidden="true"></div>
+    <div class="site-wash" aria-hidden="true">
+      <div class="site-wash__layer site-wash__layer--base"></div>
+      <div class="site-wash__layer site-wash__layer--grain"></div>
+      <div class="site-wash__layer site-wash__layer--diagonal"></div>
+      <div class="site-wash__orb site-wash__orb--one"></div>
+      <div class="site-wash__orb site-wash__orb--two"></div>
+    </div>
+    <header class="site-chrome">
+      <nav class="chrome-nav" aria-label="Primary">
+        <a class="chrome-button" href="./"><span>PORTFOLIO</span></a>
+        <a class="chrome-button" href="research/"><span>RESEARCH</span></a>
+        <a class="chrome-button" href="studio/"><span>STUDIO</span></a>
+        <button class="chrome-button" type="button" data-contact-open><span>CONTACT</span></button>
+      </nav>
+    </header>
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>Project 04 / 05</span>
+        <span>Prototype placeholder for system and interaction-led work.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Utility">
+        <a class="chrome-button chrome-button--ghost" href="./"><span>HOME</span></a>
+        <a class="chrome-button chrome-button--ghost" href="research/"><span>RESEARCH</span></a>
+        <a class="chrome-button chrome-button--ghost" href="contact/"><span>CONTACT</span></a>
+      </nav>
+    </div>
+    <div class="contact-panel" data-contact-panel hidden>
+      <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
+      <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="signal-contact-title">
+        <div class="contact-panel__head"><p class="eyebrow">CONTACT</p><button class="chrome-button chrome-button--ghost" type="button" data-contact-close><span>CLOSE</span></button></div>
+        <h2 id="signal-contact-title" class="contact-panel__title">Connect</h2>
+        <p class="contact-panel__intro">Temporary contact placeholders for the redesign.</p>
+        <div class="contact-panel__grid">
+          <a class="contact-panel__card" href="mailto:hello@portfolio.local"><span class="contact-panel__label">Email</span><strong class="contact-panel__value">hello@portfolio.local</strong></a>
+          <a class="contact-panel__card" href="https://instagram.com/" target="_blank" rel="noreferrer"><span class="contact-panel__label">Instagram</span><strong class="contact-panel__value">@portfolio.frame</strong></a>
+          <a class="contact-panel__card" href="contact/"><span class="contact-panel__label">Location</span><strong class="contact-panel__value">New York / Remote</strong></a>
+          <a class="contact-panel__card" href="contact/"><span class="contact-panel__label">Status</span><strong class="contact-panel__value">Selected commissions open</strong></a>
+        </div>
+      </section>
+    </div>
+    <main class="page-main page-main--stack shell-page shell-project-page">
+      <div class="shell-breadcrumbs motion-reveal"><a class="chrome-button chrome-button--ghost" href="./"><span>BACK TO HOME</span></a></div>
+      <section class="shell-project-hero" data-section>
+        <div class="shell-project-hero__meta motion-reveal">04 / 05</div>
+        <div class="shell-project-hero__body">
+          <p class="eyebrow motion-reveal">PLACEHOLDER SYSTEM</p>
+          <h1 class="shell-project-hero__title motion-reveal">Signal Cascade</h1>
+          <p class="shell-copy motion-reveal">A project shell for interface systems, prototypes, or interactive work that needs explanatory text without feeling overdesigned.</p>
+          <div class="meta-chips motion-reveal"><span>Interactive</span><span>Prototype</span><span>System</span></div>
+        </div>
+      </section>
+      <section class="shell-project-layout" data-section>
+        <aside class="shell-project-aside motion-reveal">
+          <div class="shell-aside-block"><span class="shell-aside-block__label">Use later for</span><p class="shell-copy">Logic notes, inputs and outputs, testing observations, and feature lists.</p></div>
+          <div class="shell-aside-block"><span class="shell-aside-block__label">Why this exists</span><p class="shell-copy">To prove a denser explanatory page can still feel calm within the same visual language.</p></div>
+        </aside>
+        <div class="shell-project-gallery">
+          <figure class="shell-project-gallery__item shell-project-gallery__item--wide motion-scale" data-parallax-wrap><img src="assets/site-import/images/0136_IMG_6190.JPG" alt="Signal Cascade frame one" data-parallax="8"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--landscape motion-scale" data-parallax-wrap><img src="assets/site-import/images/0106_p3.jpg" alt="Signal Cascade frame two" data-parallax="7"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--portrait motion-scale" data-parallax-wrap><img src="assets/site-import/images/0117_IMG_6166.JPG" alt="Signal Cascade frame three" data-parallax="10"></figure>
+          <figure class="shell-project-gallery__item shell-project-gallery__item--square motion-scale" data-parallax-wrap><img src="assets/site-import/images/0006_car+copy.png" alt="Signal Cascade frame four" data-parallax="6"></figure>
+        </div>
+      </section>
+      <nav class="project-pagination motion-reveal" aria-label="Project pagination">
+        <span><a class="chrome-button chrome-button--ghost" href="projects/cold-bloom/"><span>PREVIOUS PROJECT</span></a></span>
+        <span><a class="chrome-button chrome-button--ghost" href="projects/soft-noise/"><span>NEXT PROJECT</span></a></span>
+      </nav>
+    </main>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <div class="site-footer__brand"><p class="eyebrow">PORTFOLIO</p><h2 class="site-footer__title">Signal Cascade</h2></div>
+        <nav class="site-footer__nav" aria-label="Footer navigation"><a href="./">HOME</a><a href="research/">RESEARCH</a><a href="studio/">STUDIO</a><a href="contact/">CONTACT</a></nav>
+        <div class="site-footer__social"><a href="mailto:hello@portfolio.local">hello@portfolio.local</a><a href="https://instagram.com/" target="_blank" rel="noreferrer">Instagram</a><a href="contact/">New York / Remote</a></div>
+      </div>
+    </footer>
+  </body>
+</html>

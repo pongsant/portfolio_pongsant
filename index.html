@@ -3,22 +3,22 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pongsant Chintanapakdee | PORTFOLIO</title>
-    <meta name="description" content="A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.">
+    <title>PORTFOLIO</title>
+    <meta name="description" content="A scroll-driven photography index for Pongsant Chintanapakdee, followed by the Filial Project.">
     <script>
       (() => {
-        const projectPath = '/portfolio_pongsant';
-        const pathname = window.location.pathname || '/';
-        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + '/'));
-        const baseHref = useProjectBase ? projectPath + '/' : '/';
-        const baseTag = document.createElement('base');
+        const projectPath = "/portfolio_pongsant";
+        const pathname = window.location.pathname || "/";
+        const useProjectBase = Boolean(projectPath) && (pathname === projectPath || pathname.startsWith(projectPath + "/"));
+        const baseHref = useProjectBase ? projectPath + "/" : "/";
+        const baseTag = document.createElement("base");
         baseTag.href = baseHref;
         document.head.prepend(baseTag);
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
@@ -26,180 +26,367 @@
     <script src="script.js" defer></script>
   </head>
   <body class="page page-home">
+    <div class="page-transition" aria-hidden="true"></div>
+
     <div class="site-wash" aria-hidden="true">
       <div class="site-wash__layer site-wash__layer--base"></div>
       <div class="site-wash__layer site-wash__layer--grain"></div>
       <div class="site-wash__layer site-wash__layer--diagonal"></div>
       <div class="site-wash__orb site-wash__orb--one"></div>
       <div class="site-wash__orb site-wash__orb--two"></div>
-      
-    <div
-      class="torus-field site-wash__torus torus-field--ambient"
-      aria-hidden="true"
-      data-torus-field
-      data-torus-kind="ambient"
-      data-torus-speed="0.42"
-      data-torus-density="0.82"
-      data-torus-scale="1.18"
-      data-torus-depth="0.72"
-      data-torus-interactive="false"
-    >
-      <canvas class="torus-field__canvas"></canvas>
-      <span class="torus-field__glow torus-field__glow--one"></span>
-      <span class="torus-field__glow torus-field__glow--two"></span>
     </div>
-  
-    </div>
-    
+
     <header class="site-chrome">
       <nav class="chrome-nav" aria-label="Primary">
-        
-              <a class="chrome-button is-active" href="./">
-                <span>PORTFOLIO</span>
-              </a>
-            
-              <a class="chrome-button" href="my-works/">
-                <span>MY WORKS</span>
-              </a>
-            
-              <a class="chrome-button" href="about/">
-                <span>ABOUT</span>
-              </a>
-            
-        <button class="chrome-button" type="button" data-contact-open>
-          <span>CONTACT</span>
-        </button>
+        <a class="chrome-button is-active" href="./"><span>PORTFOLIO</span></a>
+        <a class="chrome-button" href="photo/"><span>PHOTO</span></a>
+        <a class="chrome-button" href="./#filial-project"><span>FILIAL PROJECT</span></a>
+        <button class="chrome-button" type="button" data-contact-open><span>CONTACT</span></button>
       </nav>
     </header>
-  
-    
-    
+
+    <div class="site-utility">
+      <div class="site-utility__note">
+        <span>Photo stack / scroll to move through the covers</span>
+        <span>Each frame opens the full photo archive. After the sequence, the page drops into Filial Project.</span>
+      </div>
+      <nav class="site-utility__links" aria-label="Utility">
+        <a class="chrome-button chrome-button--ghost" href="mailto:1pongsant@gmail.com"><span>1pongsant@gmail.com</span></a>
+        <a class="chrome-button chrome-button--ghost" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer"><span>@prum20baht</span></a>
+        <a class="chrome-button chrome-button--ghost" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer"><span>YouTube</span></a>
+      </nav>
+    </div>
+
     <div class="contact-panel" data-contact-panel hidden>
       <button class="contact-panel__scrim" type="button" aria-label="Close contact panel" data-contact-close></button>
       <section class="contact-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="contact-panel-title">
         <div class="contact-panel__head">
           <p class="eyebrow">CONTACT</p>
-          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close>
-            <span>CLOSE</span>
-          </button>
+          <button class="chrome-button chrome-button--ghost" type="button" data-contact-close><span>CLOSE</span></button>
         </div>
         <h2 id="contact-panel-title" class="contact-panel__title">Contacts</h2>
-        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays faithful to what is already public.</p>
+        <p class="contact-panel__intro">Contact details currently match the live portfolio so the rebuild stays anchored to your real information.</p>
         <div class="contact-panel__grid">
-          
-                <a class="contact-panel__card" href="mailto:1pongsant@gmail.com">
-                  <span class="contact-panel__label">Email</span>
-                  <strong class="contact-panel__value">1pongsant@gmail.com</strong>
-                </a>
-              
-                <a class="contact-panel__card" href="tel:+14245993914">
-                  <span class="contact-panel__label">Phone</span>
-                  <strong class="contact-panel__value">(424)599-3914</strong>
-                </a>
-              
-                <a class="contact-panel__card" href="contact">
-                  <span class="contact-panel__label">Location</span>
-                  <strong class="contact-panel__value">New York, NY</strong>
-                </a>
-              
-                <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
-                  <span class="contact-panel__label">Instagram</span>
-                  <strong class="contact-panel__value">@prum20baht</strong>
-                </a>
-              
-                <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
-                  <span class="contact-panel__label">YouTube</span>
-                  <strong class="contact-panel__value">@prum20baht</strong>
-                </a>
-              
+          <a class="contact-panel__card" href="mailto:1pongsant@gmail.com"><span class="contact-panel__label">Email</span><strong class="contact-panel__value">1pongsant@gmail.com</strong></a>
+          <a class="contact-panel__card" href="tel:+14245993914"><span class="contact-panel__label">Phone</span><strong class="contact-panel__value">(424)599-3914</strong></a>
+          <a class="contact-panel__card" href="contact/"><span class="contact-panel__label">Location</span><strong class="contact-panel__value">New York, NY</strong></a>
+          <a class="contact-panel__card" href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer"><span class="contact-panel__label">Instagram</span><strong class="contact-panel__value">@prum20baht</strong></a>
+          <a class="contact-panel__card" href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer"><span class="contact-panel__label">YouTube</span><strong class="contact-panel__value">@prum20baht</strong></a>
         </div>
       </section>
     </div>
-  
-    
-    <main class="page-main page-main--stack page-main--home-flow">
-      <section class="home-section home-signal" data-section>
-        <div class="home-signal__head motion-reveal">
-          <p class="eyebrow">PORTFOLIO CATEGORIES</p>
-          <p class="home-signal__status">
-            <span>NEW YORK, NY</span>
-            <span>1pongsant@gmail.com</span>
-            <span>@prum20baht</span>
-          </p>
-        </div>
 
-        <div class="home-signal__core">
-          <div class="home-signal__copy">
-            <h1 class="home-signal__title">
-              <span data-hero-line>Pongsant Chintanapakdee</span>
-            </h1>
-            <p class="home-signal__summary motion-reveal">
-              A multidisciplinary designer working across graphic design, photography, drawing, coding, and product design.
-            </p>
-            <div class="home-signal__actions motion-reveal">
-              <a class="chrome-button chrome-button--solid" href="my-works/"><span>MY WORKS</span></a>
-              <a class="chrome-button chrome-button--ghost" href="about/"><span>ABOUT</span></a>
-            </div>
+    <main class="page-main page-main--stack page-main--home-flow home-photo-page">
+      <section class="home-section home-portal home-portal--photo" data-section data-home-portal data-portal-mode="scroll">
+        <div class="home-portal__intro">
+          <p class="eyebrow motion-reveal">PHOTO INDEX</p>
+          <div class="home-portal__headline">
+            <h1 class="home-portal__title motion-reveal"><span data-hero-line>PHOTO</span></h1>
+            <p class="home-portal__summary motion-reveal">A layered homepage built from your photography. Scroll to move through the covers, click any active frame, and open the full archive with the rest of the images.</p>
           </div>
-          <aside class="home-signal__panel motion-scale" aria-label="Live category channels">
-            <p class="eyebrow">CATEGORIES</p>
-            <a href="graphic-design/"><strong>01</strong><span>GRAPHIC DESIGN</span></a>
-            <a href="photo/"><strong>02</strong><span>PHOTO</span></a>
-            <a href="drawing/"><strong>03</strong><span>DRAWING</span></a>
-            <a href="coding/"><strong>04</strong><span>CODING</span></a>
-            <a href="product/"><strong>05</strong><span>PRODUCT DESIGN</span></a>
-          </aside>
+          <div class="home-portal__controls">
+            <div class="home-portal__nav motion-reveal" aria-label="Photo stack navigation">
+              <button class="home-portal__nav-button is-active" type="button" data-portal-index="0"><small>01</small><span>CANOPY LIGHT</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="1"><small>02</small><span>WINDOW SKIN</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="2"><small>03</small><span>SOFT ORBIT</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="3"><small>04</small><span>PASSAGE STILL</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="4"><small>05</small><span>SHADE MEMORY</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="5"><small>06</small><span>ECHO FIELD</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="6"><small>07</small><span>NIGHT FRAME</span></button>
+              <button class="home-portal__nav-button" type="button" data-portal-index="7"><small>08</small><span>GRAIN STUDY</span></button>
+            </div>
+            <div class="home-portal__progress motion-reveal" aria-hidden="true"><span data-portal-progress></span></div>
+          </div>
         </div>
-      </section>
 
-      <section class="home-section home-topic-wall" data-section>
-        <a class="home-topic-card motion-scale" href="graphic-design/" data-parallax-wrap>
-          <img src="assets/site-import/images/0097_3.jpg" alt="GRAPHIC DESIGN" data-parallax="10">
-          <span class="home-topic-card__label">GRAPHIC DESIGN</span>
-        </a>
-        <a class="home-topic-card motion-scale" href="photo/" data-parallax-wrap>
-          <img src="assets/site-import/images/0064_IMG_2186.JPG" alt="PHOTO" data-parallax="12">
-          <span class="home-topic-card__label">PHOTO</span>
-        </a>
-        <a class="home-topic-card motion-scale" href="drawing/" data-parallax-wrap>
-          <img src="assets/site-import/images/0188_1.jpg" alt="DRAWING" data-parallax="14">
-          <span class="home-topic-card__label">DRAWING</span>
-        </a>
-        <a class="home-topic-card motion-scale" href="coding/" data-parallax-wrap>
-          <img src="assets/site-import/images/0136_IMG_6190.JPG" alt="CODING" data-parallax="16">
-          <span class="home-topic-card__label">CODING</span>
-        </a>
-        <a class="home-topic-card motion-scale" href="product/" data-parallax-wrap>
-          <img src="assets/site-import/images/0068_1.jpg" alt="PRODUCT DESIGN" data-parallax="18">
-          <span class="home-topic-card__label">PRODUCT DESIGN</span>
-        </a>
+        <div class="home-portal__scene motion-scale" data-portal-scene tabindex="0" aria-label="Photography cover stack">
+          <div class="home-portal__utility motion-reveal">
+            <span>Scroll through the sequence</span>
+            <span>Click a cover to open the photo archive</span>
+            <span>29 images in the full gallery</span>
+          </div>
+          <div class="home-portal__ambient home-portal__ambient--one" aria-hidden="true"></div>
+          <div class="home-portal__ambient home-portal__ambient--two" aria-hidden="true"></div>
+          <div class="home-portal__glow" aria-hidden="true"></div>
+
+          <div class="home-portal__stage" data-portal-stage>
+            <a
+              class="home-portal__layer is-active"
+              href="photo/#photo-01"
+              data-portal-layer="0"
+              aria-label="Open photo archive on Canopy Light"
+              style="
+                --layer-x: 10%;
+                --layer-y: -4%;
+                --layer-z: 50px;
+                --layer-rx: 0deg;
+                --layer-ry: 0deg;
+                --layer-rz: 0deg;
+                --layer-scale: 1;
+                --layer-opacity: 1;
+                --layer-blur: 0px;
+                --layer-saturate: 1;
+                z-index: 50;
+              "
+            >
+              <img src="assets/site-import/images/0064_IMG_2186.JPG" alt="Canopy Light">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Canopy Light</strong><em>Photo 01</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-02"
+              data-portal-layer="1"
+              aria-label="Open photo archive on Window Skin"
+              style="
+                --layer-x: 28%;
+                --layer-y: -16%;
+                --layer-z: 180px;
+                --layer-rx: 2deg;
+                --layer-ry: -11deg;
+                --layer-rz: 5deg;
+                --layer-scale: 1.04;
+                --layer-opacity: 0.9;
+                --layer-blur: 0px;
+                --layer-saturate: 1;
+                z-index: 40;
+              "
+            >
+              <img src="assets/site-import/images/0153_IMG_1094.JPG" alt="Window Skin">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Window Skin</strong><em>Photo 02</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-03"
+              data-portal-layer="2"
+              aria-label="Open photo archive on Soft Orbit"
+              style="
+                --layer-x: 47%;
+                --layer-y: -27%;
+                --layer-z: 320px;
+                --layer-rx: 4deg;
+                --layer-ry: -18deg;
+                --layer-rz: 9deg;
+                --layer-scale: 1.1;
+                --layer-opacity: 0.58;
+                --layer-blur: 1px;
+                --layer-saturate: 0.92;
+                z-index: 20;
+              "
+            >
+              <img src="assets/site-import/images/0042_IMG_2152.JPG" alt="Soft Orbit">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Soft Orbit</strong><em>Photo 03</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-04"
+              data-portal-layer="3"
+              aria-label="Open photo archive on Passage Still"
+              style="
+                --layer-x: 58%;
+                --layer-y: -36%;
+                --layer-z: 470px;
+                --layer-rx: 5deg;
+                --layer-ry: -24deg;
+                --layer-rz: 11deg;
+                --layer-scale: 1.12;
+                --layer-opacity: 0.38;
+                --layer-blur: 3px;
+                --layer-saturate: 0.84;
+                z-index: 10;
+              "
+            >
+              <img src="assets/site-import/images/0122_IMG_1253.JPG" alt="Passage Still">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Passage Still</strong><em>Photo 04</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-05"
+              data-portal-layer="4"
+              aria-label="Open photo archive on Shade Memory"
+              style="
+                --layer-x: -39%;
+                --layer-y: 22%;
+                --layer-z: -340px;
+                --layer-rx: -3deg;
+                --layer-ry: 24deg;
+                --layer-rz: -11deg;
+                --layer-scale: 0.8;
+                --layer-opacity: 0.34;
+                --layer-blur: 5px;
+                --layer-saturate: 0.82;
+                z-index: 5;
+              "
+            >
+              <img src="assets/site-import/images/0172_IMG_2135.JPG" alt="Shade Memory">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Shade Memory</strong><em>Photo 05</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-06"
+              data-portal-layer="5"
+              aria-label="Open photo archive on Echo Field"
+              style="
+                --layer-x: -15%;
+                --layer-y: 10%;
+                --layer-z: -150px;
+                --layer-rx: -1deg;
+                --layer-ry: 12deg;
+                --layer-rz: -5deg;
+                --layer-scale: 0.92;
+                --layer-opacity: 0.66;
+                --layer-blur: 2px;
+                --layer-saturate: 0.9;
+                z-index: 15;
+              "
+            >
+              <img src="assets/site-import/images/0062_IMG_2163.JPG" alt="Echo Field">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Echo Field</strong><em>Photo 06</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-07"
+              data-portal-layer="6"
+              aria-label="Open photo archive on Night Frame"
+              style="
+                --layer-x: -3%;
+                --layer-y: 2%;
+                --layer-z: -20px;
+                --layer-rx: 0deg;
+                --layer-ry: 6deg;
+                --layer-rz: -2deg;
+                --layer-scale: 0.98;
+                --layer-opacity: 0.84;
+                --layer-blur: 1px;
+                --layer-saturate: 0.96;
+                z-index: 25;
+              "
+            >
+              <img src="assets/site-import/images/0187_IMG_2136.JPG" alt="Night Frame">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Night Frame</strong><em>Photo 07</em></span>
+            </a>
+
+            <a
+              class="home-portal__layer"
+              href="photo/#photo-08"
+              data-portal-layer="7"
+              aria-label="Open photo archive on Grain Study"
+              style="
+                --layer-x: 14%;
+                --layer-y: -8%;
+                --layer-z: 96px;
+                --layer-rx: 1deg;
+                --layer-ry: -3deg;
+                --layer-rz: 2deg;
+                --layer-scale: 1.01;
+                --layer-opacity: 0.96;
+                --layer-blur: 0px;
+                --layer-saturate: 1;
+                z-index: 35;
+              "
+            >
+              <img src="assets/site-import/images/0171_IMG_2292.JPG" alt="Grain Study">
+              <span class="home-portal__layer-sheen" aria-hidden="true"></span>
+              <span class="home-portal__layer-copy"><strong>Grain Study</strong><em>Photo 08</em></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="home-portal__status">
+          <div class="home-portal__details">
+            <article class="home-portal__detail is-active" data-portal-detail="0">
+              <p class="eyebrow">01 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Canopy Light</h2>
+              <p class="home-portal__detail-summary">The homepage opens with your photography instead of a generic project grid. This first frame sets the pace for the whole stack.</p>
+              <div class="meta-chips meta-chips--portal"><span>PHOTO</span><span>29 IMAGES</span><span>ARCHIVE</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-01"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="1">
+              <p class="eyebrow">02 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Window Skin</h2>
+              <p class="home-portal__detail-summary">Each scroll step swaps the active cover and updates the information panel, so the homepage behaves like a sequence rather than a static layout.</p>
+              <div class="meta-chips meta-chips--portal"><span>SCROLL</span><span>ACTIVE FRAME</span><span>DETAIL SYNC</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-02"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="2">
+              <p class="eyebrow">03 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Soft Orbit</h2>
+              <p class="home-portal__detail-summary">The stack stays image-first. Titles and labels are there to support the photos, not compete with them.</p>
+              <div class="meta-chips meta-chips--portal"><span>IMAGE FIRST</span><span>LIGHT MOTION</span><span>INDEX COVER</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-03"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="3">
+              <p class="eyebrow">04 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Passage Still</h2>
+              <p class="home-portal__detail-summary">The scrolling motion moves the stage cover by cover, creating the feeling of browsing visual records laid out in space.</p>
+              <div class="meta-chips meta-chips--portal"><span>SEQUENCE</span><span>STAGE</span><span>DEPTH</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-04"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="4">
+              <p class="eyebrow">05 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Shade Memory</h2>
+              <p class="home-portal__detail-summary">Every cover links into the same archive page so you can keep the homepage simple and let the gallery hold the full set of work.</p>
+              <div class="meta-chips meta-chips--portal"><span>SHARED ARCHIVE</span><span>INDEX ENTRY</span><span>CLICK THROUGH</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-05"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="5">
+              <p class="eyebrow">06 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Echo Field</h2>
+              <p class="home-portal__detail-summary">The whole section is built only from your images and real project information, so it can stay flexible while still feeling intentional.</p>
+              <div class="meta-chips meta-chips--portal"><span>REAL CONTENT</span><span>PHOTO WORK</span><span>FLEXIBLE</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-06"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="6">
+              <p class="eyebrow">07 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Night Frame</h2>
+              <p class="home-portal__detail-summary">Hover and pointer movement gently tilt the stack, but the main control stays on scroll so the interaction matches your reference.</p>
+              <div class="meta-chips meta-chips--portal"><span>POINTER TILT</span><span>SCROLL DRIVER</span><span>GALLERY LINK</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-07"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+
+            <article class="home-portal__detail" data-portal-detail="7">
+              <p class="eyebrow">08 · PHOTO</p>
+              <h2 class="home-portal__detail-title">Grain Study</h2>
+              <p class="home-portal__detail-summary">Once the photo sequence ends, the homepage transitions into the Filial Project as the next featured work below.</p>
+              <div class="meta-chips meta-chips--portal"><span>PHOTO END</span><span>FINAL PROJECT</span><span>FILIAL</span></div>
+              <div class="home-portal__actions"><a class="chrome-button chrome-button--solid" href="photo/#photo-08"><span>OPEN PHOTO PAGE</span></a></div>
+            </article>
+          </div>
+
+          <a class="home-portal__cue motion-reveal" href="#filial-project">
+            <span>AFTER THE PHOTO STACK</span>
+            <strong>FILIAL PROJECT</strong>
+          </a>
+        </div>
       </section>
 
       <section class="home-section home-featured-section" id="filial-project" data-section>
-        
-    <div
-      class="torus-field home-featured-section__torus torus-field--bridge"
-      aria-hidden="true"
-      data-torus-field
-      data-torus-kind="bridge"
-      data-torus-speed="0.68"
-      data-torus-density="0.72"
-      data-torus-scale="0.9"
-      data-torus-depth="0.76"
-      data-torus-interactive="false"
-    >
-      <canvas class="torus-field__canvas"></canvas>
-      <span class="torus-field__glow torus-field__glow--one"></span>
-      <span class="torus-field__glow torus-field__glow--two"></span>
-    </div>
-  
         <div class="home-section__header">
           <div>
-            <p class="eyebrow motion-reveal">FILIAL PROJECT</p>
+            <p class="eyebrow motion-reveal">FINAL PROJECT</p>
             <h2 class="home-section__title motion-reveal">Filial Project</h2>
           </div>
-          
+          <p class="shell-copy motion-reveal">After the photo stack, the homepage settles into a featured section for Filial Project so the scroll has a clear second act.</p>
         </div>
+
         <div class="featured-project">
           <figure class="featured-project__media motion-scale" data-parallax-wrap>
             <video class="featured-project__video" src="video/filial%20web%20test%201.mov" muted loop playsinline preload="metadata" data-scroll-video data-parallax="8"></video>
@@ -214,14 +401,13 @@
               <p>Designed and coded independently using HTML, CSS, and JavaScript as a functional brand prototype for digital fashion presentation and interactive storytelling.</p>
             </div>
             <div class="featured-project__actions motion-reveal">
-              <a class="chrome-button chrome-button--solid" href="https://pongsant.github.io/filial-project-web-test/gate.html?next=index.html" target="_blank" rel="noreferrer"><span>GO TO WEB</span></a>
+              <a class="chrome-button chrome-button--solid" href="https://pongsant.github.io/filial-project-web-test/gate.html?next=index.html" target="_blank" rel="noreferrer"><span>OPEN FILIAL PROJECT</span></a>
             </div>
           </div>
         </div>
       </section>
     </main>
-  
-    
+
     <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__brand">
@@ -230,27 +416,16 @@
         </div>
         <nav class="site-footer__nav" aria-label="Footer navigation">
           <a href="./">HOME</a>
-          <a href="my-works/">MY WORKS</a>
-          <a href="about/">ABOUT</a>
+          <a href="photo/">PHOTO</a>
+          <a href="./#filial-project">FILIAL PROJECT</a>
           <a href="contact/">CONTACT</a>
         </nav>
         <div class="site-footer__social">
-          
-                <a href="mailto:1pongsant@gmail.com">
-                  1pongsant@gmail.com
-                </a>
-              
-                <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">
-                  Instagram
-                </a>
-              
-                <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">
-                  YouTube
-                </a>
-              
+          <a href="mailto:1pongsant@gmail.com">1pongsant@gmail.com</a>
+          <a href="https://www.instagram.com/prum20baht/" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://youtube.com/@prum20baht?si=k6HOOQvXn0Ae1lkB" target="_blank" rel="noreferrer">YouTube</a>
         </div>
       </div>
     </footer>
-  
   </body>
 </html>

@@ -1,6 +1,66 @@
 document.addEventListener("DOMContentLoaded", () => {
   const body = document.body;
 
+  const initPageTransitions = () => {
+    const transitionLayer = document.querySelector(".page-transition");
+
+    if (!transitionLayer) {
+      return;
+    }
+
+    const shouldHandleNavigation = (link, event) => {
+      if (!link || event.defaultPrevented) {
+        return false;
+      }
+
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return false;
+      }
+
+      if (link.target === "_blank" || link.hasAttribute("download")) {
+        return false;
+      }
+
+      const href = link.getAttribute("href");
+
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return false;
+      }
+
+      const nextUrl = new URL(link.href, window.location.href);
+      const currentUrl = new URL(window.location.href);
+
+      if (nextUrl.origin !== currentUrl.origin) {
+        return false;
+      }
+
+      if (nextUrl.pathname === currentUrl.pathname && nextUrl.search === currentUrl.search) {
+        return false;
+      }
+
+      return true;
+    };
+
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+
+      if (!shouldHandleNavigation(link, event)) {
+        return;
+      }
+
+      event.preventDefault();
+      body.classList.add("is-leaving");
+
+      window.setTimeout(() => {
+        window.location.assign(link.href);
+      }, 380);
+    });
+
+    window.addEventListener("pageshow", () => {
+      body.classList.remove("is-leaving");
+    });
+  };
+
   const markReady = () => {
     requestAnimationFrame(() => {
       body.classList.add("is-ready");
@@ -468,14 +528,30 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    const scrollMode = portal.dataset.portalMode === "scroll";
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const poses = {
-      "-2": { x: "-42%", y: "20%", z: "-320px", rx: "-3deg", ry: "22deg", rz: "-10deg", scale: 0.82, opacity: 0.42, blur: "4px", saturate: 0.82, zIndex: 5 },
-      "-1": { x: "-16%", y: "8%", z: "-120px", rx: "-1deg", ry: "12deg", rz: "-5deg", scale: 0.92, opacity: 0.68, blur: "2px", saturate: 0.9, zIndex: 15 },
-      "0": { x: "8%", y: "-4%", z: "32px", rx: "0deg", ry: "0deg", rz: "0deg", scale: 1, opacity: 1, blur: "0px", saturate: 1, zIndex: 40 },
-      "1": { x: "30%", y: "-17%", z: "180px", rx: "2deg", ry: "-12deg", rz: "6deg", scale: 1.05, opacity: 0.86, blur: "0px", saturate: 1.02, zIndex: 30 },
-      "2": { x: "50%", y: "-29%", z: "320px", rx: "3deg", ry: "-20deg", rz: "10deg", scale: 1.1, opacity: 0.58, blur: "1px", saturate: 0.92, zIndex: 20 },
-    };
+    const poses = scrollMode
+      ? {
+          "-4": { x: "-58%", y: "30%", z: "-460px", rx: "-5deg", ry: "28deg", rz: "-14deg", scale: 0.72, opacity: 0.18, blur: "7px", saturate: 0.72, zIndex: 1 },
+          "-3": { x: "-43%", y: "22%", z: "-330px", rx: "-3deg", ry: "22deg", rz: "-10deg", scale: 0.82, opacity: 0.36, blur: "5px", saturate: 0.8, zIndex: 6 },
+          "-2": { x: "-20%", y: "10%", z: "-170px", rx: "-1deg", ry: "12deg", rz: "-5deg", scale: 0.92, opacity: 0.62, blur: "2px", saturate: 0.9, zIndex: 14 },
+          "-1": { x: "-2%", y: "1%", z: "-36px", rx: "0deg", ry: "6deg", rz: "-2deg", scale: 0.97, opacity: 0.82, blur: "1px", saturate: 0.96, zIndex: 22 },
+          "0": { x: "10%", y: "-4%", z: "52px", rx: "0deg", ry: "0deg", rz: "0deg", scale: 1, opacity: 1, blur: "0px", saturate: 1, zIndex: 50 },
+          "1": { x: "28%", y: "-16%", z: "180px", rx: "2deg", ry: "-11deg", rz: "5deg", scale: 1.04, opacity: 0.9, blur: "0px", saturate: 1, zIndex: 40 },
+          "2": { x: "47%", y: "-27%", z: "320px", rx: "4deg", ry: "-18deg", rz: "9deg", scale: 1.1, opacity: 0.58, blur: "1px", saturate: 0.92, zIndex: 20 },
+          "3": { x: "58%", y: "-36%", z: "470px", rx: "5deg", ry: "-24deg", rz: "11deg", scale: 1.12, opacity: 0.38, blur: "3px", saturate: 0.84, zIndex: 10 },
+          "4": { x: "68%", y: "-44%", z: "620px", rx: "7deg", ry: "-28deg", rz: "14deg", scale: 1.16, opacity: 0.16, blur: "6px", saturate: 0.74, zIndex: 1 },
+        }
+      : {
+          "-2": { x: "-42%", y: "20%", z: "-320px", rx: "-3deg", ry: "22deg", rz: "-10deg", scale: 0.82, opacity: 0.42, blur: "4px", saturate: 0.82, zIndex: 5 },
+          "-1": { x: "-16%", y: "8%", z: "-120px", rx: "-1deg", ry: "12deg", rz: "-5deg", scale: 0.92, opacity: 0.68, blur: "2px", saturate: 0.9, zIndex: 15 },
+          "0": { x: "8%", y: "-4%", z: "32px", rx: "0deg", ry: "0deg", rz: "0deg", scale: 1, opacity: 1, blur: "0px", saturate: 1, zIndex: 40 },
+          "1": { x: "30%", y: "-17%", z: "180px", rx: "2deg", ry: "-12deg", rz: "6deg", scale: 1.05, opacity: 0.86, blur: "0px", saturate: 1.02, zIndex: 30 },
+          "2": { x: "50%", y: "-29%", z: "320px", rx: "3deg", ry: "-20deg", rz: "10deg", scale: 1.1, opacity: 0.58, blur: "1px", saturate: 0.92, zIndex: 20 },
+        };
+    const maxDepth = scrollMode ? 4 : 2;
 
     let activeIndex = 0;
     let pointerX = 0.12;
@@ -485,6 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let autoAdvance = null;
     let allowAutoAdvance = true;
     let isVisible = true;
+    let scrollDriver = null;
 
     const normalizeDiff = (index) => {
       const count = layers.length;
@@ -499,7 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
         diff += count;
       }
 
-      return Math.max(-2, Math.min(2, diff));
+      return Math.max(-maxDepth, Math.min(maxDepth, diff));
     };
 
     const setStageTilt = (x, y, time = 0) => {
@@ -559,10 +636,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    const scrollToIndex = (index) => {
+      if (!scrollDriver || layers.length < 2) {
+        setActive(index);
+        return;
+      }
+
+      const nextPosition =
+        scrollDriver.start + (scrollDriver.end - scrollDriver.start) * (index / (layers.length - 1));
+
+      window.scrollTo({
+        top: nextPosition,
+      });
+    };
+
     const startAutoAdvance = () => {
       stopAutoAdvance();
 
-      if (reduceMotion) {
+      if (reduceMotion || scrollMode) {
         return;
       }
 
@@ -577,11 +668,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buttons.forEach((button, index) => {
       button.addEventListener("click", () => {
+        if (scrollMode) {
+          scrollToIndex(index);
+          return;
+        }
+
         setActive(index);
         allowAutoAdvance = false;
       });
 
       button.addEventListener("mouseenter", () => {
+        if (scrollMode) {
+          return;
+        }
+
         setActive(index);
         allowAutoAdvance = false;
       });
@@ -589,25 +689,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     layers.forEach((layer, index) => {
       layer.addEventListener("mouseenter", () => {
+        if (scrollMode) {
+          return;
+        }
+
         setActive(index);
         allowAutoAdvance = false;
       });
 
       layer.addEventListener("focus", () => {
+        if (scrollMode) {
+          return;
+        }
+
         setActive(index);
         allowAutoAdvance = false;
       });
     });
 
-    portal.addEventListener("mouseenter", () => {
-      allowAutoAdvance = false;
-    });
+    if (!scrollMode) {
+      portal.addEventListener("mouseenter", () => {
+        allowAutoAdvance = false;
+      });
 
-    portal.addEventListener("mouseleave", () => {
-      allowAutoAdvance = true;
-      targetX = 0.12;
-      targetY = 0;
-    });
+      portal.addEventListener("mouseleave", () => {
+        allowAutoAdvance = true;
+        targetX = 0.12;
+        targetY = 0;
+      });
+    }
 
     scene.addEventListener("mousemove", (event) => {
       const rect = scene.getBoundingClientRect();
@@ -622,11 +732,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     scene.addEventListener("keydown", (event) => {
       if (event.key === "ArrowRight") {
+        if (scrollMode) {
+          scrollToIndex((activeIndex + 1) % layers.length);
+          return;
+        }
+
         setActive((activeIndex + 1) % layers.length);
         allowAutoAdvance = false;
       }
 
       if (event.key === "ArrowLeft") {
+        if (scrollMode) {
+          scrollToIndex((activeIndex - 1 + layers.length) % layers.length);
+          return;
+        }
+
         setActive((activeIndex - 1 + layers.length) % layers.length);
         allowAutoAdvance = false;
       }
@@ -643,6 +763,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     observer.observe(portal);
 
+    const createScrollDriver = () => {
+      if (!scrollMode || !gsap || !ScrollTrigger) {
+        return;
+      }
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      if (scrollDriver) {
+        scrollDriver.kill();
+        scrollDriver = null;
+      }
+
+      if (reduceMotion || window.innerWidth < 900 || layers.length < 2) {
+        setActive(0);
+        return;
+      }
+
+      scrollDriver = ScrollTrigger.create({
+        trigger: portal,
+        start: "top top",
+        end: () => `+=${Math.max(window.innerHeight * layers.length * 0.65, window.innerHeight * 4)}`,
+        pin: true,
+        scrub: 0.35,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          const nextIndex = Math.round(self.progress * (layers.length - 1));
+          setActive(nextIndex);
+        },
+      });
+    };
+
     if (!reduceMotion) {
       const animateStage = (time) => {
         pointerX += (targetX - pointerX) * 0.05;
@@ -656,7 +807,114 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setActive(0);
     setStageTilt(0.12, 0);
-    startAutoAdvance();
+
+    if (scrollMode) {
+      createScrollDriver();
+      window.addEventListener("resize", createScrollDriver, { passive: true });
+    } else {
+      startAutoAdvance();
+    }
+  };
+
+  const initLightboxGallery = (lenis) => {
+    const root = document.querySelector("[data-lightbox-root]");
+    const triggers = Array.from(document.querySelectorAll("[data-lightbox-trigger]"));
+    const image = root?.querySelector("[data-lightbox-image]");
+    const title = root?.querySelector("[data-lightbox-title]");
+    const counter = root?.querySelector("[data-lightbox-counter]");
+    const previous = root?.querySelector("[data-lightbox-prev]");
+    const next = root?.querySelector("[data-lightbox-next]");
+    const closeButtons = root ? Array.from(root.querySelectorAll("[data-lightbox-close]")) : [];
+
+    if (!root || !image || !title || !counter || !triggers.length) {
+      return;
+    }
+
+    let activeIndex = 0;
+    let closeTimer = null;
+
+    const sync = () => {
+      const trigger = triggers[activeIndex];
+      const sourceImage = trigger.querySelector("img");
+
+      if (!sourceImage) {
+        return;
+      }
+
+      image.src = sourceImage.currentSrc || sourceImage.src;
+      image.alt = sourceImage.alt || "";
+      title.textContent = trigger.dataset.lightboxTitle || sourceImage.alt || `Photo ${activeIndex + 1}`;
+      counter.textContent = `${activeIndex + 1} / ${triggers.length}`;
+    };
+
+    const open = (index) => {
+      activeIndex = index;
+      sync();
+
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+
+      root.hidden = false;
+      body.classList.add("lightbox-open");
+      lenis?.stop?.();
+
+      requestAnimationFrame(() => {
+        root.classList.add("is-open");
+      });
+    };
+
+    const close = () => {
+      root.classList.remove("is-open");
+      body.classList.remove("lightbox-open");
+      lenis?.start?.();
+
+      closeTimer = window.setTimeout(() => {
+        root.hidden = true;
+      }, 220);
+    };
+
+    const step = (direction) => {
+      activeIndex = (activeIndex + direction + triggers.length) % triggers.length;
+      sync();
+    };
+
+    triggers.forEach((trigger, index) => {
+      trigger.addEventListener("click", () => {
+        open(index);
+      });
+    });
+
+    previous?.addEventListener("click", () => {
+      step(-1);
+    });
+
+    next?.addEventListener("click", () => {
+      step(1);
+    });
+
+    closeButtons.forEach((button) => {
+      button.addEventListener("click", close);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (root.hidden) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        close();
+      }
+
+      if (event.key === "ArrowRight") {
+        step(1);
+      }
+
+      if (event.key === "ArrowLeft") {
+        step(-1);
+      }
+    });
   };
 
   const revealFallback = () => {
@@ -762,11 +1020,13 @@ document.addEventListener("DOMContentLoaded", () => {
     ScrollTrigger.refresh();
   };
 
+  initPageTransitions();
   markReady();
   const lenis = initSmoothScroll();
   initContactPanel();
   initScrollVideos();
   initTorusFields();
   initHomePortal();
+  initLightboxGallery(lenis);
   initMotionSystem(lenis);
 });
