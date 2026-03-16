@@ -1,5 +1,22 @@
 const hero = document.querySelector(".hero");
 const canvas = document.querySelector("#particle-canvas");
+const body = document.body;
+const header = document.querySelector(".site-header");
+
+if (body && header) {
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function syncHeaderState() {
+    const currentScrollY = window.scrollY;
+    const isScrolled = currentScrollY > 28;
+
+    body.classList.toggle("is-scrolled", isScrolled);
+  }
+
+  syncHeaderState();
+  window.addEventListener("scroll", syncHeaderState, { passive: true });
+  reducedMotionQuery.addEventListener("change", syncHeaderState);
+}
 
 if (hero && canvas) {
   const context = canvas.getContext("2d");
