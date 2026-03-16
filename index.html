@@ -25,13 +25,19 @@
       <section class="hero" id="top" aria-label="Interactive particle background">
         <canvas class="hero__canvas" id="particle-canvas" aria-hidden="true"></canvas>
         <div class="hero__audio-controls" aria-label="Audio reactive controls">
-          <button class="hero__audio-button" id="audio-reactive-toggle" type="button" aria-pressed="false">
-            Mic React
-          </button>
+          <div class="hero__audio-actions">
+            <button class="hero__audio-button" id="portrait-camera-toggle" type="button">
+              Live Face
+            </button>
+            <button class="hero__audio-button" id="audio-reactive-toggle" type="button" aria-pressed="false">
+              Mic React
+            </button>
+          </div>
           <p class="hero__audio-status" id="audio-reactive-status">
-            Enable microphone input for sound-reactive motion.
+            Enable live camera first, then microphone input for sound-reactive motion.
           </p>
         </div>
+        <video class="hero__camera-preview" id="portrait-camera-preview" autoplay muted playsinline></video>
       </section>
 
       <section class="feature-project" aria-label="Filial Project">

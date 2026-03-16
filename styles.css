@@ -230,6 +230,12 @@ main {
   max-width: min(82vw, 320px);
 }
 
+.hero__audio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .hero__audio-button {
   display: inline-flex;
   align-items: center;
@@ -284,6 +290,25 @@ main {
   line-height: 1.45;
   letter-spacing: 0.03em;
   color: rgba(0, 0, 0, 0.62);
+}
+
+.hero__camera-preview {
+  position: absolute;
+  right: var(--page-gutter);
+  bottom: clamp(1rem, 3vw, 1.6rem);
+  z-index: 2;
+  display: none;
+  width: clamp(110px, 14vw, 150px);
+  aspect-ratio: 3 / 4;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: rgba(255, 255, 255, 0.78);
+  object-fit: cover;
+  transform: scaleX(-1);
+  backdrop-filter: blur(18px);
+}
+
+.hero__camera-preview.is-active {
+  display: block;
 }
 
 .work-hub {

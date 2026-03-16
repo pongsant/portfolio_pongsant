@@ -2,6 +2,8 @@ const hero = document.querySelector(".hero");
 const canvas = document.querySelector("#particle-canvas");
 const audioReactiveToggle = document.querySelector("#audio-reactive-toggle");
 const audioReactiveStatus = document.querySelector("#audio-reactive-status");
+const portraitCameraToggle = document.querySelector("#portrait-camera-toggle");
+const portraitCameraPreview = document.querySelector("#portrait-camera-preview");
 const body = document.body;
 const header = document.querySelector(".site-header");
 const workScene = document.querySelector(".work-hub__scene");
@@ -371,12 +373,16 @@ if (hero && canvas) {
   const context = canvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
-  const hasMicrophoneSupport = Boolean(navigator.mediaDevices?.getUserMedia && AudioContextConstructor);
-  const canUseMicrophone = hasMicrophoneSupport && (
+  const hasMediaDeviceSupport = Boolean(navigator.mediaDevices?.getUserMedia);
+  const isMediaSecureContext = (
     window.isSecureContext ||
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
   );
+  const hasMicrophoneSupport = Boolean(hasMediaDeviceSupport && AudioContextConstructor);
+  const canUseMicrophone = hasMicrophoneSupport && isMediaSecureContext;
+  const canUseCamera = hasMediaDeviceSupport && isMediaSecureContext;
+  const FaceDetectorConstructor = window.FaceDetector;
 
   const state = {
     width: 0,
@@ -385,13 +391,22 @@ if (hero && canvas) {
     points: [],
     pointCount: window.innerWidth < 720 ? 1600 : 3000,
     currentShape: 0,
-    shapes: ["portrait", "sphere", "cube", "torus", "wave"],
+    shapes: ["portrait", "sphere", "cube", "torus", "wave", "helix", "cone", "crystal", "ribbon", "bloom", "hourglass", "camera"],
     animationId: 0,
     pointerBoost: 0,
     dispersion: 0,
     flash: 0,
     lastAutoMorphAt: 0,
     autoMorphInterval: 4200,
+    customPortraitTemplate: null,
+    camera: {
+      active: false,
+      starting: false,
+      stream: null,
+      detector: FaceDetectorConstructor ? new FaceDetectorConstructor({ fastMode: true, maxDetectedFaces: 1 }) : null,
+      lastCaptureAt: 0,
+      detecting: false
+    },
     audio: {
       enabled: false,
       isStarting: false,
@@ -457,7 +472,431 @@ if (hero && canvas) {
     };
   }
 
-  function createPortrait(count) {
+  function getPixelLuminance(data, width, x, y) {
+    const safeX = Math.max(0, Math.min(width - 1, x));
+    const safeY = Math.max(0, Math.min((data.length / 4 / width) - 1, y));
+    const offset = (safeY * width + safeX) * 4;
+    const red = data[offset];
+    const green = data[offset + 1];
+    const blue = data[offset + 2];
+
+    return red * 0.2126 + green * 0.7152 + blue * 0.0722;
+  }
+
+  function classifyImagePortraitRegion(normalizedX, normalizedY, darkness) {
+    if (normalizedY < 0.2 && darkness > 0.2) {
+      return "halo";
+    }
+
+    if (normalizedY > 0.68) {
+      return "torso";
+    }
+
+    if (normalizedY > 0.56 && normalizedY < 0.7 && Math.abs(normalizedX - 0.5) < 0.14) {
+      if (normalizedY < 0.61) {
+        return "mouth-upper";
+      }
+
+      if (normalizedY < 0.665) {
+        return "mouth-core";
+      }
+
+      return "mouth-lower";
+    }
+
+    if (normalizedY > 0.58) {
+      return "neck";
+    }
+
+    return "head";
+  }
+
+  function classifyTrackedRegion(normalizedX, normalizedY, score) {
+    if (normalizedY < 0.22) {
+      return "halo";
+    }
+
+    if (normalizedY > 0.74) {
+      return "lower";
+    }
+
+    if (Math.abs(normalizedX - 0.5) < 0.18 && Math.abs(normalizedY - 0.5) < 0.2) {
+      return score > 0.46 ? "focus" : "core";
+    }
+
+    return "body";
+  }
+
+  function buildPortraitTemplateFromSource(source, crop = null) {
+    const offscreen = document.createElement("canvas");
+    const offscreenContext = offscreen.getContext("2d", { willReadFrequently: true });
+    const width = 220;
+    const height = 280;
+    const sourceWidth = crop?.sw || source.videoWidth || source.naturalWidth || source.width;
+    const sourceHeight = crop?.sh || source.videoHeight || source.naturalHeight || source.height;
+    const scale = Math.max(width / sourceWidth, height / sourceHeight);
+    const drawWidth = sourceWidth * scale;
+    const drawHeight = sourceHeight * scale;
+    const offsetX = (width - drawWidth) / 2;
+    const offsetY = (height - drawHeight) / 2;
+    const sampleStep = window.innerWidth < 720 ? 3 : 2;
+    const points = [];
+
+    offscreen.width = width;
+    offscreen.height = height;
+    offscreenContext.fillStyle = "#ffffff";
+    offscreenContext.fillRect(0, 0, width, height);
+
+    if (crop) {
+      offscreenContext.drawImage(
+        source,
+        crop.sx,
+        crop.sy,
+        crop.sw,
+        crop.sh,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      offscreenContext.drawImage(source, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
+    const { data } = offscreenContext.getImageData(0, 0, width, height);
+
+    for (let y = 0; y < height; y += sampleStep) {
+      for (let x = 0; x < width; x += sampleStep) {
+        const luminance = getPixelLuminance(data, width, x, y);
+        const neighborX = getPixelLuminance(data, width, x + sampleStep, y);
+        const neighborY = getPixelLuminance(data, width, x, y + sampleStep);
+        const contrast = (Math.abs(luminance - neighborX) + Math.abs(luminance - neighborY)) / 510;
+        const darkness = 1 - (luminance / 255);
+        const normalizedX = x / (width - 1);
+        const normalizedY = y / (height - 1);
+        const ellipse =
+          ((normalizedX - 0.5) * (normalizedX - 0.5)) / 0.23 +
+          ((normalizedY - 0.49) * (normalizedY - 0.49)) / 0.34;
+        const faceWeight = Math.max(0, 1.22 - ellipse);
+        const keepStrength = darkness * 1.32 + contrast * 1.18 + faceWeight * 0.26;
+
+        if (faceWeight <= 0 || keepStrength < 0.22 || Math.random() > Math.min(0.96, keepStrength)) {
+          continue;
+        }
+
+        points.push({
+          x: (normalizedX - 0.5) * 1.34,
+          y: (normalizedY - 0.53) * 1.72,
+          z: (darkness - 0.34) * 0.52 + contrast * 0.28 + randomBetween(-0.03, 0.03),
+          region: classifyImagePortraitRegion(normalizedX, normalizedY, darkness)
+        });
+      }
+    }
+
+    return points;
+  }
+
+  function detectSubjectCropFromSource(source) {
+    const sampleCanvas = document.createElement("canvas");
+    const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+    const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+    const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+    const sampleWidth = 96;
+    const sampleHeight = Math.round(sampleWidth * (sourceHeight / sourceWidth));
+    let minX = sampleWidth;
+    let minY = sampleHeight;
+    let maxX = 0;
+    let maxY = 0;
+    let hits = 0;
+    let totalScore = 0;
+
+    sampleCanvas.width = sampleWidth;
+    sampleCanvas.height = sampleHeight;
+    sampleContext.drawImage(source, 0, 0, sampleWidth, sampleHeight);
+
+    const { data } = sampleContext.getImageData(0, 0, sampleWidth, sampleHeight);
+
+    for (let y = 1; y < sampleHeight - 1; y += 1) {
+      for (let x = 1; x < sampleWidth - 1; x += 1) {
+        const luminance = getPixelLuminance(data, sampleWidth, x, y);
+        const neighborX = getPixelLuminance(data, sampleWidth, x + 1, y);
+        const neighborY = getPixelLuminance(data, sampleWidth, x, y + 1);
+        const darkness = 1 - (luminance / 255);
+        const contrast = (Math.abs(luminance - neighborX) + Math.abs(luminance - neighborY)) / 255;
+        const centerBias = 1 - Math.min(1, Math.hypot((x / sampleWidth) - 0.5, (y / sampleHeight) - 0.5) * 1.5);
+        const score = darkness * 0.82 + contrast * 0.96 + centerBias * 0.24;
+
+        if (score < 0.34) {
+          continue;
+        }
+
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+        hits += 1;
+        totalScore += score;
+      }
+    }
+
+    if (hits < 80) {
+      return getFallbackFaceCrop(sourceWidth, sourceHeight);
+    }
+
+    const averageScore = totalScore / hits;
+    const paddingX = Math.max(6, (maxX - minX) * (0.22 + averageScore * 0.16));
+    const paddingY = Math.max(8, (maxY - minY) * (0.26 + averageScore * 0.18));
+
+    return clampCropToVideo(
+      {
+        sx: ((minX - paddingX) / sampleWidth) * sourceWidth,
+        sy: ((minY - paddingY) / sampleHeight) * sourceHeight,
+        sw: ((maxX - minX + paddingX * 2) / sampleWidth) * sourceWidth,
+        sh: ((maxY - minY + paddingY * 2) / sampleHeight) * sourceHeight
+      },
+      sourceWidth,
+      sourceHeight
+    );
+  }
+
+  function buildTrackedTemplateFromSource(source, crop = null) {
+    const offscreen = document.createElement("canvas");
+    const offscreenContext = offscreen.getContext("2d", { willReadFrequently: true });
+    const width = 220;
+    const height = 280;
+    const sourceWidth = crop?.sw || source.videoWidth || source.naturalWidth || source.width;
+    const sourceHeight = crop?.sh || source.videoHeight || source.naturalHeight || source.height;
+    const scale = Math.max(width / sourceWidth, height / sourceHeight);
+    const drawWidth = sourceWidth * scale;
+    const drawHeight = sourceHeight * scale;
+    const offsetX = (width - drawWidth) / 2;
+    const offsetY = (height - drawHeight) / 2;
+    const sampleStep = window.innerWidth < 720 ? 3 : 2;
+    const points = [];
+
+    offscreen.width = width;
+    offscreen.height = height;
+    offscreenContext.fillStyle = "#ffffff";
+    offscreenContext.fillRect(0, 0, width, height);
+
+    if (crop) {
+      offscreenContext.drawImage(
+        source,
+        crop.sx,
+        crop.sy,
+        crop.sw,
+        crop.sh,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      offscreenContext.drawImage(source, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
+    const { data } = offscreenContext.getImageData(0, 0, width, height);
+
+    for (let y = 1; y < height - 1; y += sampleStep) {
+      for (let x = 1; x < width - 1; x += sampleStep) {
+        const luminance = getPixelLuminance(data, width, x, y);
+        const neighborX = getPixelLuminance(data, width, x + sampleStep, y);
+        const neighborY = getPixelLuminance(data, width, x, y + sampleStep);
+        const contrast = (Math.abs(luminance - neighborX) + Math.abs(luminance - neighborY)) / 510;
+        const darkness = 1 - (luminance / 255);
+        const normalizedX = x / (width - 1);
+        const normalizedY = y / (height - 1);
+        const centerBias = 1 - Math.min(1, Math.hypot(normalizedX - 0.5, normalizedY - 0.5) * 1.35);
+        const score = darkness * 0.96 + contrast * 1.18 + centerBias * 0.2;
+
+        if (score < 0.24 || Math.random() > Math.min(0.98, score + 0.12)) {
+          continue;
+        }
+
+        points.push({
+          x: (normalizedX - 0.5) * 1.52,
+          y: (normalizedY - 0.52) * 1.88,
+          z: (darkness - 0.28) * 0.54 + contrast * 0.44 + randomBetween(-0.04, 0.04),
+          region: classifyTrackedRegion(normalizedX, normalizedY, score)
+        });
+      }
+    }
+
+    return points;
+  }
+
+  function updatePortraitUi(isActive) {
+    if (portraitCameraToggle) {
+      portraitCameraToggle.textContent = isActive ? "Camera On" : "Live Face";
+      portraitCameraToggle.classList.toggle("is-active", Boolean(isActive));
+      portraitCameraToggle.disabled = !canUseCamera || state.camera.starting;
+    }
+    if (portraitCameraPreview) {
+      portraitCameraPreview.classList.toggle("is-active", Boolean(isActive));
+    }
+  }
+
+  function getFallbackFaceCrop(width, height) {
+    const cropWidth = width * 0.56;
+    const cropHeight = height * 0.74;
+
+    return {
+      sx: (width - cropWidth) / 2,
+      sy: Math.max(0, height * 0.1),
+      sw: cropWidth,
+      sh: Math.min(height * 0.8, cropHeight)
+    };
+  }
+
+  function clampCropToVideo(crop, width, height) {
+    const sw = Math.min(width, Math.max(32, crop.sw));
+    const sh = Math.min(height, Math.max(32, crop.sh));
+    const sx = Math.max(0, Math.min(width - sw, crop.sx));
+    const sy = Math.max(0, Math.min(height - sh, crop.sy));
+
+    return { sx, sy, sw, sh };
+  }
+
+  function expandDetectedFaceCrop(box, width, height) {
+    const paddingX = box.width * 0.42;
+    const paddingTop = box.height * 0.34;
+    const paddingBottom = box.height * 0.46;
+
+    return clampCropToVideo(
+      {
+        sx: box.x - paddingX,
+        sy: box.y - paddingTop,
+        sw: box.width + paddingX * 2,
+        sh: box.height + paddingTop + paddingBottom
+      },
+      width,
+      height
+    );
+  }
+
+  async function refreshPortraitFromCameraFrame() {
+    if (!state.camera.active || !portraitCameraPreview || portraitCameraPreview.readyState < 2 || state.camera.detecting) {
+      return;
+    }
+
+    state.camera.detecting = true;
+
+    try {
+      const width = portraitCameraPreview.videoWidth;
+      const height = portraitCameraPreview.videoHeight;
+      let crop = null;
+
+      if (state.camera.detector) {
+        try {
+          const faces = await state.camera.detector.detect(portraitCameraPreview);
+
+          if (faces.length > 0) {
+            const face = faces
+              .slice()
+              .sort((first, second) => (second.boundingBox.width * second.boundingBox.height) - (first.boundingBox.width * first.boundingBox.height))[0];
+
+            crop = expandDetectedFaceCrop(face.boundingBox, width, height);
+          }
+        } catch (error) {
+          state.camera.detector = null;
+        }
+      }
+
+      if (!crop) {
+        crop = detectSubjectCropFromSource(portraitCameraPreview);
+      }
+
+      const template = buildTrackedTemplateFromSource(portraitCameraPreview, crop);
+
+      if (template.length) {
+        state.customPortraitTemplate = template;
+        applyShapeTargets(state.shapes.indexOf("camera"), false);
+      }
+    } finally {
+      state.camera.detecting = false;
+    }
+  }
+
+  async function startPortraitCamera() {
+    if (!canUseCamera || state.camera.starting || state.camera.active || !portraitCameraPreview) {
+      updateAudioUi(
+        canUseCamera
+          ? "Camera is still starting."
+          : "Live camera needs HTTPS or localhost in a supported browser.",
+        !canUseCamera
+      );
+      return;
+    }
+
+    state.camera.starting = true;
+    updateAudioUi("Requesting front camera access...");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 960 },
+          height: { ideal: 1280 }
+        },
+        audio: false
+      });
+
+      portraitCameraPreview.srcObject = stream;
+      await portraitCameraPreview.play();
+
+      state.camera.stream = stream;
+      state.camera.active = true;
+      state.camera.lastCaptureAt = 0;
+      updatePortraitUi(true);
+      applyShapeTargets(state.shapes.indexOf("camera"), false);
+      updateAudioUi("Camera live. Tracking your face or the main object in frame. Enable microphone input for sound-reactive motion.");
+    } catch (error) {
+      const errorName = error?.name || "";
+      let message = "Camera could not be enabled.";
+
+      if (errorName === "NotAllowedError" || errorName === "SecurityError") {
+        message = "Camera permission was blocked. Allow access to turn your face into particles.";
+      } else if (errorName === "NotFoundError" || errorName === "DevicesNotFoundError") {
+        message = "No camera was found on this device.";
+      }
+
+      updatePortraitUi(false);
+      updateAudioUi(message, true);
+    } finally {
+      state.camera.starting = false;
+      updatePortraitUi(state.camera.active);
+    }
+  }
+
+  function stopPortraitCamera() {
+    if (state.camera.stream) {
+      state.camera.stream.getTracks().forEach((track) => track.stop());
+      state.camera.stream = null;
+    }
+
+    if (portraitCameraPreview) {
+      portraitCameraPreview.pause();
+      portraitCameraPreview.srcObject = null;
+    }
+
+    state.camera.active = false;
+    state.camera.lastCaptureAt = 0;
+    state.camera.detecting = false;
+    state.customPortraitTemplate = null;
+    updatePortraitUi(false);
+    updateAudioUi("Live camera stopped. Enable it again to track your face or an object.");
+
+    if (state.shapes[state.currentShape] === "camera") {
+      morphTo(0);
+    }
+  }
+
+  function cleanupHeroMedia() {
+    stopPortraitCamera();
+    stopAudioReactiveMode();
+  }
+
+  function createProceduralPortrait(count) {
     const points = [];
 
     for (let index = 0; index < count; index += 1) {
@@ -507,6 +946,54 @@ if (hero && canvas) {
       point.y += randomBetween(-0.03, 0.03);
       point.z += randomBetween(-0.03, 0.03);
       points.push(point);
+    }
+
+    return shuffle(points);
+  }
+
+  function createPortraitFromTemplate(count) {
+    if (!state.customPortraitTemplate?.length) {
+      return createProceduralPortrait(count);
+    }
+
+    const template = shuffle([...state.customPortraitTemplate]);
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const source = template[index % template.length];
+
+      points.push({
+        x: source.x + randomBetween(-0.018, 0.018),
+        y: source.y + randomBetween(-0.018, 0.018),
+        z: source.z + randomBetween(-0.03, 0.03),
+        region: source.region
+      });
+    }
+
+    return shuffle(points);
+  }
+
+  function createPortrait(count) {
+    return createPortraitFromTemplate(count);
+  }
+
+  function createCameraTrackedShape(count) {
+    if (!state.customPortraitTemplate?.length) {
+      return createProceduralPortrait(count);
+    }
+
+    const template = shuffle([...state.customPortraitTemplate]);
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const source = template[index % template.length];
+
+      points.push({
+        x: source.x + randomBetween(-0.016, 0.016),
+        y: source.y + randomBetween(-0.016, 0.016),
+        z: source.z + randomBetween(-0.04, 0.04),
+        region: source.region || "body"
+      });
     }
 
     return shuffle(points);
@@ -609,6 +1096,130 @@ if (hero && canvas) {
     return points;
   }
 
+  function createHelix(count) {
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const turns = randomBetween(-Math.PI * 2.3, Math.PI * 2.3);
+      const radius = 0.18 + Math.abs(Math.sin(turns * 1.5)) * 0.24 + randomBetween(-0.04, 0.04);
+
+      points.push({
+        x: Math.cos(turns) * radius,
+        y: (turns / (Math.PI * 2.3)) * 0.95,
+        z: Math.sin(turns) * radius
+      });
+    }
+
+    return points;
+  }
+
+  function createCone(count) {
+    const points = [];
+    const height = 1.48;
+    const baseRadius = 0.78;
+
+    for (let index = 0; index < count; index += 1) {
+      const theta = Math.random() * Math.PI * 2;
+      const chance = Math.random();
+
+      if (chance < 0.84) {
+        const h = Math.random();
+        const radius = baseRadius * (1 - h);
+
+        points.push({
+          x: Math.cos(theta) * radius,
+          y: 0.72 - h * height,
+          z: Math.sin(theta) * radius
+        });
+      } else {
+        const radius = Math.sqrt(Math.random()) * baseRadius;
+
+        points.push({
+          x: Math.cos(theta) * radius,
+          y: 0.72,
+          z: Math.sin(theta) * radius
+        });
+      }
+    }
+
+    return points;
+  }
+
+  function createCrystal(count) {
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const x = randomBetween(-1, 1);
+      const y = randomBetween(-1, 1);
+      const z = randomBetween(-1, 1);
+      const scale = 0.9 / (Math.abs(x) + Math.abs(y) + Math.abs(z) + 0.0001);
+
+      points.push({
+        x: x * scale + randomBetween(-0.025, 0.025),
+        y: y * scale + randomBetween(-0.025, 0.025),
+        z: z * scale + randomBetween(-0.025, 0.025)
+      });
+    }
+
+    return points;
+  }
+
+  function createRibbon(count) {
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const t = randomBetween(-1, 1);
+      const width = randomBetween(-0.18, 0.18);
+      const centerX = t * 0.96;
+      const centerY = Math.sin(t * 5.8) * 0.2;
+      const centerZ = Math.cos(t * 4.2) * 0.28;
+
+      points.push({
+        x: centerX,
+        y: centerY + width * 0.72,
+        z: centerZ + Math.sin(t * 7.2) * width
+      });
+    }
+
+    return points;
+  }
+
+  function createBloom(count) {
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const theta = Math.random() * Math.PI * 2;
+      const petalRadius = 0.22 + Math.abs(Math.sin(theta * 3)) * 0.34;
+      const radius = petalRadius * Math.sqrt(Math.random());
+
+      points.push({
+        x: Math.cos(theta) * radius,
+        y: Math.sin(theta * 3) * 0.2 + randomBetween(-0.08, 0.08),
+        z: Math.sin(theta) * radius
+      });
+    }
+
+    return points;
+  }
+
+  function createHourglass(count) {
+    const points = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const theta = Math.random() * Math.PI * 2;
+      const y = randomBetween(-0.82, 0.82);
+      const radius = 0.08 + Math.abs(y) * 0.64 + randomBetween(-0.025, 0.025);
+
+      points.push({
+        x: Math.cos(theta) * radius,
+        y,
+        z: Math.sin(theta) * radius
+      });
+    }
+
+    return points;
+  }
+
   function createShape(name, count) {
     if (name === "portrait") {
       return createPortrait(count);
@@ -624,6 +1235,34 @@ if (hero && canvas) {
 
     if (name === "torus") {
       return createTorus(count);
+    }
+
+    if (name === "helix") {
+      return createHelix(count);
+    }
+
+    if (name === "cone") {
+      return createCone(count);
+    }
+
+    if (name === "crystal") {
+      return createCrystal(count);
+    }
+
+    if (name === "ribbon") {
+      return createRibbon(count);
+    }
+
+    if (name === "bloom") {
+      return createBloom(count);
+    }
+
+    if (name === "hourglass") {
+      return createHourglass(count);
+    }
+
+    if (name === "camera") {
+      return createCameraTrackedShape(count);
     }
 
     return createWave(count);
@@ -851,7 +1490,7 @@ if (hero && canvas) {
       state.flash = Math.max(state.flash, 1);
       state.audio.beatCooldown = 10;
 
-      if (time - state.audio.lastMorphAt > 1400 && state.shapes[state.currentShape] !== "portrait" && state.audio.bass > 0.14) {
+      if (!state.camera.active && time - state.audio.lastMorphAt > 1400 && state.shapes[state.currentShape] !== "portrait" && state.audio.bass > 0.14) {
         morphTo(0);
         state.audio.lastMorphAt = time;
       }
@@ -888,7 +1527,7 @@ if (hero && canvas) {
     }));
   }
 
-  function morphTo(shapeIndex) {
+  function applyShapeTargets(shapeIndex, shouldSchedule = true) {
     state.currentShape = shapeIndex;
     const nextPoints = createShape(state.shapes[shapeIndex], state.pointCount);
     shuffle(nextPoints);
@@ -902,13 +1541,20 @@ if (hero && canvas) {
     });
 
     state.pointerBoost = 1;
-    scheduleNextMorph();
+
+    if (shouldSchedule) {
+      scheduleNextMorph();
+    }
+  }
+
+  function morphTo(shapeIndex) {
+    applyShapeTargets(shapeIndex, true);
   }
 
   function morphRandom() {
     let nextIndex = state.currentShape;
 
-    while (nextIndex === state.currentShape) {
+    while (nextIndex === state.currentShape || state.shapes[nextIndex] === "camera") {
       nextIndex = Math.floor(Math.random() * state.shapes.length);
     }
 
@@ -965,7 +1611,12 @@ if (hero && canvas) {
   function render(time) {
     updateAudioReactiveState(time);
 
-    if (time - state.lastAutoMorphAt > state.autoMorphInterval) {
+    if (state.camera.active && time - state.camera.lastCaptureAt > 180) {
+      state.camera.lastCaptureAt = time;
+      refreshPortraitFromCameraFrame();
+    }
+
+    if (!state.camera.active && time - state.lastAutoMorphAt > state.autoMorphInterval) {
       morphRandom();
     }
 
@@ -979,11 +1630,12 @@ if (hero && canvas) {
     const audioFlux = state.audio.flux;
     const audioGuitar = state.audio.guitar;
     const audioPercussion = state.audio.percussion;
+    const shapeName = state.shapes[state.currentShape];
+    const isCameraShape = shapeName === "camera";
     const sceneScale = Math.min(state.width, state.height) *
       (state.width < 720 ? 0.26 : 0.31) *
       (1 + audioBass * 0.15 + audioLevel * 0.08 + audioPercussion * 0.03);
     const perspective = sceneScale * 1.9;
-    const shapeName = state.shapes[state.currentShape];
     const idleDispersion = reducedMotion ? 0.02 : 0.05 + Math.sin(time * 0.00062) * 0.018;
     const reactiveDispersion = audioLevel * 0.2 + audioBass * 0.24 + audioTreble * 0.08 + audioFlux * 0.32 + audioPercussion * 0.14;
     const globalDriftX = reducedMotion ? 0 : Math.sin(time * 0.00042) * 0.05;
@@ -1049,6 +1701,27 @@ if (hero && canvas) {
           targetX += Math.sin(time * 0.0011 + point.seed) * (0.012 + audioTreble * 0.02 + audioGuitar * 0.03);
           targetY += Math.cos(time * 0.001 + point.seed * 1.2) * (0.01 + audioTreble * 0.018 + audioAir * 0.02);
         }
+      } else if (isCameraShape) {
+        const trackedRipple = reducedMotion
+          ? 0
+          : Math.sin(time * (0.0016 + audioGuitar * 0.0009) + point.seed * 1.4) * (0.01 + audioFlux * 0.028);
+
+        if (point.region === "focus") {
+          targetX += trackedRipple * 0.9;
+          targetY += Math.cos(time * 0.002 + point.seed) * (audioPresence * 0.03 + audioGuitar * 0.018);
+          targetZ += audioMid * 0.03;
+        } else if (point.region === "core") {
+          targetX += trackedRipple * 0.7;
+          targetY += Math.sin(time * 0.0018 + point.seed) * (audioMid * 0.024 + audioPercussion * 0.016);
+        } else if (point.region === "body") {
+          targetX += trackedRipple * 1.12;
+          targetY += audioBass * 0.035 + audioLowMid * 0.02;
+        } else if (point.region === "lower") {
+          targetY += audioBass * 0.06 + audioPercussion * 0.028;
+        } else if (point.region === "halo") {
+          targetX += Math.sin(time * 0.001 + point.seed) * (0.018 + audioAir * 0.024 + audioGuitar * 0.02);
+          targetY += Math.cos(time * 0.00092 + point.seed * 1.1) * (0.015 + audioTreble * 0.02);
+        }
       }
 
       if (shapeName === "portrait" && point.region === "halo") {
@@ -1063,6 +1736,14 @@ if (hero && canvas) {
         targetX += spreadX * 0.38;
         targetY += spreadY * 0.22;
         targetZ += spreadZ * 0.22;
+      } else if (isCameraShape && point.region === "halo") {
+        targetX += spreadX * 1.8;
+        targetY += spreadY * 1.8;
+        targetZ += spreadZ * 1.4;
+      } else if (isCameraShape && point.region === "focus") {
+        targetX += spreadX * 0.28;
+        targetY += spreadY * 0.2;
+        targetZ += spreadZ * 0.16;
       } else {
         targetX += spreadX;
         targetY += spreadY;
@@ -1136,6 +1817,10 @@ if (hero && canvas) {
       return;
     }
 
+    if (state.camera.active) {
+      return;
+    }
+
     morphRandom();
   }
 
@@ -1150,22 +1835,43 @@ if (hero && canvas) {
     await startAudioReactiveMode();
   }
 
+  async function handlePortraitCameraToggle(event) {
+    event.stopPropagation();
+
+    if (state.camera.active) {
+      stopPortraitCamera();
+      return;
+    }
+
+    await startPortraitCamera();
+  }
+
   function init() {
     resizeCanvas();
     createPoints();
     scheduleNextMorph(0);
     morphTo(0);
     render(0);
+    updatePortraitUi(false);
 
     window.addEventListener("resize", resizeCanvas);
     hero.addEventListener("click", handleHeroClick);
+    window.addEventListener("beforeunload", cleanupHeroMedia);
 
     if (audioReactiveToggle) {
       if (!canUseMicrophone) {
         updateAudioUi("Microphone input needs HTTPS or localhost in a supported browser.", true);
       } else {
-        updateAudioUi("Enable microphone input for sound-reactive motion.");
+        updateAudioUi("Enable live camera first, then microphone input for sound-reactive motion.");
         audioReactiveToggle.addEventListener("click", handleAudioReactiveToggle);
+      }
+    }
+
+    if (portraitCameraToggle) {
+      if (!canUseCamera) {
+        updateAudioUi("Live camera needs HTTPS or localhost in a supported browser.", true);
+      } else {
+        portraitCameraToggle.addEventListener("click", handlePortraitCameraToggle);
       }
     }
   }
