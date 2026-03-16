@@ -490,8 +490,7 @@ main {
 
 .page-back,
 .project-detail__back {
-  --back-arrow-size: clamp(3rem, 3vw, 3.35rem);
-  --back-arrow-color: rgba(5, 5, 5, 0.88);
+  --back-arrow-size: clamp(2.7rem, 2.9vw, 3.05rem);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -502,11 +501,7 @@ main {
   padding: 0;
   margin-bottom: 1.6rem;
   border: 0;
-  background:
-    radial-gradient(circle, rgba(5, 5, 5, 0.22) 0 1.2px, transparent 1.6px) 20% 32% / 0.44rem 0.44rem no-repeat,
-    radial-gradient(circle, rgba(5, 5, 5, 0.16) 0 1.05px, transparent 1.5px) 76% 24% / 0.42rem 0.42rem no-repeat,
-    radial-gradient(circle, rgba(5, 5, 5, 0.14) 0 1.05px, transparent 1.5px) 72% 74% / 0.42rem 0.42rem no-repeat,
-    radial-gradient(circle, rgba(5, 5, 5, 0.18) 0 1.1px, transparent 1.55px) 30% 80% / 0.48rem 0.48rem no-repeat;
+  background: transparent;
   color: transparent;
   font-size: 0;
   line-height: 0;
@@ -519,91 +514,25 @@ main {
 }
 
 .page-back::before,
-.project-detail__back::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 56%;
-  width: clamp(1.2rem, 1.5vw, 1.55rem);
-  height: 0.26rem;
-  transform: translate(-50%, -50%);
-  background:
-    radial-gradient(circle, var(--back-arrow-color) 0 1.25px, transparent 1.7px) center / 0.34rem 100% repeat-x;
-  opacity: 0.94;
-  filter: drop-shadow(0 0 0.22rem rgba(0, 0, 0, 0.08));
-  animation: back-arrow-shaft 4.8s ease-in-out infinite;
-}
-
+.project-detail__back::before,
 .page-back::after,
 .project-detail__back::after {
-  content: "";
+  content: none;
+}
+
+.back-arrow__canvas {
   position: absolute;
-  top: 50%;
-  left: 0.92rem;
-  width: 0.94rem;
-  height: 0.94rem;
-  border-left: 0.17rem dotted var(--back-arrow-color);
-  border-bottom: 0.17rem dotted var(--back-arrow-color);
-  transform: translateY(-50%) rotate(45deg);
-  transform-origin: center;
-  opacity: 0.96;
-  filter: drop-shadow(0 0 0.22rem rgba(0, 0, 0, 0.08));
-  animation: back-arrow-head 4.8s ease-in-out infinite;
+  top: -0.32rem;
+  left: -0.32rem;
+  pointer-events: none;
 }
 
 .page-back:hover,
 .page-back:focus-visible,
 .project-detail__back:hover,
 .project-detail__back:focus-visible {
-  transform: translateX(-2px) scale(1.04);
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.08));
-}
-
-.page-back:hover::before,
-.page-back:focus-visible::before,
-.project-detail__back:hover::before,
-.project-detail__back:focus-visible::before {
-  opacity: 1;
-}
-
-.page-back:hover::after,
-.page-back:focus-visible::after,
-.project-detail__back:hover::after,
-.project-detail__back:focus-visible::after {
-  opacity: 1;
-}
-
-@keyframes back-arrow-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-1px);
-  }
-}
-
-@keyframes back-arrow-shaft {
-  0%,
-  100% {
-    transform: translate(-50%, -50%);
-  }
-
-  50% {
-    transform: translate(calc(-50% - 1.5px), calc(-50% + 0.5px));
-  }
-}
-
-@keyframes back-arrow-head {
-  0%,
-  100% {
-    transform: translateY(-50%) rotate(45deg);
-  }
-
-  50% {
-    transform: translate(-1px, -50%) rotate(45deg) scale(1.03);
-  }
+  transform: translateX(-1px) scale(1.02);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.06));
 }
 
 .page-heading {

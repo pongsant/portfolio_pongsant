@@ -774,3 +774,258 @@ if (photoGallery && photoLightbox) {
     }
   });
 }
+
+const backArrowLinks = Array.from(document.querySelectorAll(".page-back, .project-detail__back"));
+
+if (backArrowLinks.length > 0) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const backArrowInstances = [];
+
+  function randomBetweenBackArrow(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function sampleBackArrowTargets(width, height) {
+    const offscreen = document.createElement("canvas");
+    offscreen.width = width;
+    offscreen.height = height;
+
+    const offscreenContext = offscreen.getContext("2d");
+    const centerY = height / 2;
+    const tailX = width * 0.78;
+    const joinX = width * 0.42;
+    const tipX = width * 0.18;
+    const topY = height * 0.28;
+    const bottomY = height * 0.72;
+    const strokeWidth = Math.max(3, Math.min(width, height) * 0.075);
+    const sampleStep = width < 72 ? 4 : 3;
+    const targets = [];
+
+    offscreenContext.clearRect(0, 0, width, height);
+    offscreenContext.strokeStyle = "#050505";
+    offscreenContext.lineWidth = strokeWidth;
+    offscreenContext.lineCap = "round";
+    offscreenContext.lineJoin = "round";
+    offscreenContext.beginPath();
+    offscreenContext.moveTo(tailX, centerY);
+    offscreenContext.lineTo(joinX, centerY);
+    offscreenContext.moveTo(joinX, topY);
+    offscreenContext.lineTo(tipX, centerY);
+    offscreenContext.lineTo(joinX, bottomY);
+    offscreenContext.stroke();
+
+    const { data } = offscreenContext.getImageData(0, 0, width, height);
+
+    for (let y = 0; y < height; y += sampleStep) {
+      for (let x = 0; x < width; x += sampleStep) {
+        const alpha = data[(y * width + x) * 4 + 3];
+
+        if (alpha > 50 && Math.random() > 0.22) {
+          targets.push({
+            x,
+            y
+          });
+        }
+      }
+    }
+
+    return targets;
+  }
+
+  function createBackArrowParticles(targets, width, height) {
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    return targets.map((target) => ({
+      x: centerX + randomBetweenBackArrow(-width * 0.12, width * 0.12),
+      y: centerY + randomBetweenBackArrow(-height * 0.12, height * 0.12),
+      tx: target.x,
+      ty: target.y,
+      size: randomBetweenBackArrow(0.75, 1.45),
+      seed: Math.random() * Math.PI * 2
+    }));
+  }
+
+  function createBackArrowAura(width, height) {
+    const count = width < 72 ? 4 : 6;
+
+    return Array.from({ length: count }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      radiusX: randomBetweenBackArrow(width * 0.18, width * 0.34),
+      radiusY: randomBetweenBackArrow(height * 0.16, height * 0.3),
+      speed: randomBetweenBackArrow(0.00014, 0.00028) * (Math.random() > 0.5 ? 1 : -1),
+      size: randomBetweenBackArrow(0.7, 1.15),
+      alpha: randomBetweenBackArrow(0.03, 0.09),
+      seed: Math.random() * Math.PI * 2,
+      lastX: width / 2,
+      lastY: height / 2
+    }));
+  }
+
+  function drawBackArrowMesh(context, points, activeBoost) {
+    const maxDistance = 10 + activeBoost * 2;
+    const maxDistanceSquared = maxDistance * maxDistance;
+
+    for (let index = 0; index < points.length; index += 1) {
+      const point = points[index];
+      let links = 0;
+
+      for (let compareIndex = index + 1; compareIndex < points.length; compareIndex += 1) {
+        const comparePoint = points[compareIndex];
+        const dx = comparePoint.x - point.x;
+        const dy = comparePoint.y - point.y;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared > maxDistanceSquared) {
+          continue;
+        }
+
+        const distance = Math.sqrt(distanceSquared);
+        const alpha = (1 - distance / maxDistance) * (0.16 + activeBoost * 0.05);
+
+        context.strokeStyle = `rgba(5, 5, 5, ${alpha})`;
+        context.lineWidth = 0.45;
+        context.beginPath();
+        context.moveTo(point.x, point.y);
+        context.lineTo(comparePoint.x, comparePoint.y);
+        context.stroke();
+
+        links += 1;
+
+        if (links >= 3) {
+          break;
+        }
+      }
+    }
+  }
+
+  function resizeBackArrowInstance(instance) {
+    const rect = instance.link.getBoundingClientRect();
+    const padding = 10;
+
+    instance.width = Math.max(Math.round(rect.width + padding), 42);
+    instance.height = Math.max(Math.round(rect.height + padding), 42);
+    instance.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    instance.canvas.width = Math.round(instance.width * instance.dpr);
+    instance.canvas.height = Math.round(instance.height * instance.dpr);
+    instance.canvas.style.width = `${instance.width}px`;
+    instance.canvas.style.height = `${instance.height}px`;
+    instance.context.setTransform(instance.dpr, 0, 0, instance.dpr, 0, 0);
+    instance.targets = sampleBackArrowTargets(instance.width, instance.height);
+    instance.particles = createBackArrowParticles(instance.targets, instance.width, instance.height);
+    instance.aura = createBackArrowAura(instance.width, instance.height);
+  }
+
+  function renderBackArrowInstance(instance, time) {
+    const context = instance.context;
+    const centerX = instance.width / 2;
+    const centerY = instance.height / 2;
+    const activeBoost = instance.active ? 1 : 0;
+    const floatX = reducedMotion ? 0 : Math.sin(time * 0.0006 + instance.phase) * 1.1;
+    const floatY = reducedMotion ? 0 : Math.cos(time * 0.0008 + instance.phase) * 1.6;
+    const renderPoints = [];
+
+    context.clearRect(0, 0, instance.width, instance.height);
+
+    for (const auraParticle of instance.aura) {
+      const drift = reducedMotion ? 0 : Math.sin(time * 0.0009 + auraParticle.seed) * 1.2;
+      const angle = auraParticle.angle + time * auraParticle.speed;
+      const x = centerX + floatX + Math.cos(angle) * (auraParticle.radiusX + drift * 0.25);
+      const y = centerY + floatY + Math.sin(angle) * (auraParticle.radiusY + drift * 0.22);
+      const size = auraParticle.size + activeBoost * 0.08;
+      const alpha = Math.min(0.12, auraParticle.alpha + activeBoost * 0.02);
+
+      context.strokeStyle = `rgba(5, 5, 5, ${alpha})`;
+      context.lineWidth = 0.38;
+      context.beginPath();
+      context.moveTo(auraParticle.lastX, auraParticle.lastY);
+      context.lineTo(x, y);
+      context.stroke();
+
+      context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
+      context.beginPath();
+      context.arc(x, y, size * 0.48, 0, Math.PI * 2);
+      context.fill();
+
+      auraParticle.lastX = x;
+      auraParticle.lastY = y;
+    }
+
+    for (const particle of instance.particles) {
+      particle.x += (particle.tx - particle.x) * 0.11;
+      particle.y += (particle.ty - particle.y) * 0.11;
+
+      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0017 + particle.seed) * (0.34 + activeBoost * 0.2);
+      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.0015 + particle.seed) * (0.3 + activeBoost * 0.18);
+      const size = particle.size + activeBoost * 0.08;
+      const alpha = 0.58 + activeBoost * 0.1;
+      const x = particle.x + floatX + wobbleX;
+      const y = particle.y + floatY + wobbleY;
+
+      renderPoints.push({ x, y, size, alpha });
+    }
+
+    drawBackArrowMesh(context, renderPoints, activeBoost);
+
+    for (const point of renderPoints) {
+      context.fillStyle = `rgba(5, 5, 5, ${point.alpha})`;
+      context.beginPath();
+      context.arc(point.x, point.y, point.size * 0.42, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+
+  function renderBackArrows(time) {
+    for (const instance of backArrowInstances) {
+      renderBackArrowInstance(instance, time);
+    }
+
+    window.requestAnimationFrame(renderBackArrows);
+  }
+
+  backArrowLinks.forEach((link) => {
+    const canvas = document.createElement("canvas");
+    canvas.className = "back-arrow__canvas";
+    canvas.setAttribute("aria-hidden", "true");
+    link.appendChild(canvas);
+
+    const instance = {
+      link,
+      canvas,
+      context: canvas.getContext("2d"),
+      width: 0,
+      height: 0,
+      dpr: 1,
+      targets: [],
+      particles: [],
+      aura: [],
+      active: false,
+      phase: Math.random() * Math.PI * 2
+    };
+
+    link.addEventListener("pointerenter", () => {
+      instance.active = true;
+    });
+
+    link.addEventListener("pointerleave", () => {
+      instance.active = false;
+    });
+
+    link.addEventListener("focus", () => {
+      instance.active = true;
+    });
+
+    link.addEventListener("blur", () => {
+      instance.active = false;
+    });
+
+    resizeBackArrowInstance(instance);
+    backArrowInstances.push(instance);
+  });
+
+  window.addEventListener("resize", () => {
+    backArrowInstances.forEach(resizeBackArrowInstance);
+  });
+
+  renderBackArrows(0);
+}
