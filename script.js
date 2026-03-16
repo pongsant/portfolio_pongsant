@@ -2,6 +2,10 @@ const hero = document.querySelector(".hero");
 const canvas = document.querySelector("#particle-canvas");
 const body = document.body;
 const header = document.querySelector(".site-header");
+const workScene = document.querySelector(".work-hub__scene");
+const workCanvas = document.querySelector("#my-work-canvas");
+const workTrigger = document.querySelector("#my-work-trigger");
+const workOptions = Array.from(document.querySelectorAll(".work-hub__option"));
 
 if (body && header) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -16,6 +20,240 @@ if (body && header) {
   syncHeaderState();
   window.addEventListener("scroll", syncHeaderState, { passive: true });
   reducedMotionQuery.addEventListener("change", syncHeaderState);
+}
+
+if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
+  const context = workCanvas.getContext("2d");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const state = {
+    width: 0,
+    height: 0,
+    dpr: Math.min(window.devicePixelRatio || 1, 2),
+    pointCount: window.innerWidth < 720 ? 1050 : 1600,
+    points: [],
+    textTargets: [],
+    optionTargets: [],
+    open: false,
+    animationId: 0
+  };
+
+  function randomBetweenWork(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function shuffleWork(array) {
+    for (let index = array.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [array[index], array[swapIndex]] = [array[swapIndex], array[index]];
+    }
+
+    return array;
+  }
+
+  function getOptionOffset(option) {
+    const mobile = window.innerWidth < 720;
+    const x = mobile && option.dataset.offsetXMobile ? option.dataset.offsetXMobile : option.dataset.offsetX || "0";
+    const y = mobile && option.dataset.offsetYMobile ? option.dataset.offsetYMobile : option.dataset.offsetY || "0";
+
+    return {
+      x: Number(x),
+      y: Number(y)
+    };
+  }
+
+  function syncOptionOffsets() {
+    workOptions.forEach((option) => {
+      const { x, y } = getOptionOffset(option);
+      option.style.setProperty("--option-x", `${x}px`);
+      option.style.setProperty("--option-y", `${y}px`);
+    });
+  }
+
+  function createTextTargets() {
+    const offscreen = document.createElement("canvas");
+    offscreen.width = state.width;
+    offscreen.height = state.height;
+
+    const offscreenContext = offscreen.getContext("2d");
+    const fontSize = Math.max(68, Math.min(state.width * 0.18, state.height * 0.2, 230));
+    const sampleStep = state.width < 720 ? 8 : 6;
+    const targets = [];
+
+    offscreenContext.clearRect(0, 0, state.width, state.height);
+    offscreenContext.fillStyle = "#050505";
+    offscreenContext.textAlign = "center";
+    offscreenContext.textBaseline = "middle";
+    offscreenContext.font = `700 ${fontSize}px "Syne", sans-serif`;
+    offscreenContext.fillText("MY WORK", state.width / 2, state.height / 2);
+
+    const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
+
+    for (let y = 0; y < state.height; y += sampleStep) {
+      for (let x = 0; x < state.width; x += sampleStep) {
+        const alpha = data[(y * state.width + x) * 4 + 3];
+
+        if (alpha > 140) {
+          targets.push({ x, y });
+        }
+      }
+    }
+
+    if (targets.length === 0) {
+      return Array.from({ length: state.pointCount }, () => ({
+        x: state.width / 2 + randomBetweenWork(-120, 120),
+        y: state.height / 2 + randomBetweenWork(-60, 60)
+      }));
+    }
+
+    return shuffleWork(targets).slice(0, state.pointCount);
+  }
+
+  function createOptionTargets() {
+    const centerX = state.width / 2;
+    const centerY = state.height / 2;
+    const clusters = workOptions.map((option) => {
+      const offset = getOptionOffset(option);
+
+      return {
+        x: centerX + offset.x,
+        y: centerY + offset.y
+      };
+    });
+
+    const targets = [];
+    const countPerCluster = Math.ceil(state.pointCount / clusters.length);
+
+    clusters.forEach((cluster) => {
+      for (let index = 0; index < countPerCluster; index += 1) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 18 + Math.pow(Math.random(), 0.7) * (window.innerWidth < 720 ? 64 : 92);
+
+        targets.push({
+          x: cluster.x + Math.cos(angle) * radius,
+          y: cluster.y + Math.sin(angle) * radius
+        });
+      }
+    });
+
+    return shuffleWork(targets).slice(0, state.pointCount);
+  }
+
+  function createPoints() {
+    state.points = Array.from({ length: state.pointCount }, () => ({
+      x: state.width / 2 + randomBetweenWork(-80, 80),
+      y: state.height / 2 + randomBetweenWork(-80, 80),
+      tx: state.width / 2,
+      ty: state.height / 2,
+      size: randomBetweenWork(0.9, 2.2),
+      seed: Math.random() * Math.PI * 2
+    }));
+  }
+
+  function applyTargets(targets) {
+    if (!targets.length) {
+      return;
+    }
+
+    state.points.forEach((point, index) => {
+      const target = targets[index % targets.length];
+      point.tx = target.x + randomBetweenWork(-2.5, 2.5);
+      point.ty = target.y + randomBetweenWork(-2.5, 2.5);
+    });
+  }
+
+  function rebuildTargets() {
+    syncOptionOffsets();
+    state.textTargets = createTextTargets();
+    state.optionTargets = createOptionTargets();
+
+    if (!state.points.length || state.points.length !== state.pointCount) {
+      createPoints();
+    }
+
+    applyTargets(state.open ? state.optionTargets : state.textTargets);
+  }
+
+  function resizeWorkCanvas() {
+    const rect = workScene.getBoundingClientRect();
+
+    state.width = Math.round(rect.width);
+    state.height = Math.round(Math.max(rect.height, window.innerHeight));
+    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    state.pointCount = window.innerWidth < 720 ? 1050 : 1600;
+    workCanvas.width = Math.round(state.width * state.dpr);
+    workCanvas.height = Math.round(state.height * state.dpr);
+    workCanvas.style.width = `${state.width}px`;
+    workCanvas.style.height = `${state.height}px`;
+    context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+    createPoints();
+    rebuildTargets();
+  }
+
+  function setWorkMenuState(open) {
+    state.open = open;
+    body.classList.toggle("is-work-menu-open", open);
+    workTrigger.setAttribute("aria-expanded", String(open));
+    applyTargets(open ? state.optionTargets : state.textTargets);
+  }
+
+  function renderWorkHub(time) {
+    context.clearRect(0, 0, state.width, state.height);
+
+    for (const point of state.points) {
+      point.x += (point.tx - point.x) * 0.085;
+      point.y += (point.ty - point.y) * 0.085;
+
+      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0013 + point.seed) * 0.8;
+      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.0011 + point.seed) * 0.8;
+      const alpha = state.open ? 0.44 : 0.62;
+
+      context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
+      context.fillRect(point.x + wobbleX, point.y + wobbleY, point.size, point.size);
+    }
+
+    state.animationId = window.requestAnimationFrame(renderWorkHub);
+  }
+
+  function handleWorkTriggerClick(event) {
+    event.stopPropagation();
+    setWorkMenuState(!state.open);
+  }
+
+  function handleWorkSceneClick(event) {
+    if (event.target.closest(".work-hub__option") || event.target.closest(".work-hub__trigger")) {
+      return;
+    }
+
+    if (state.open) {
+      setWorkMenuState(false);
+    }
+  }
+
+  function handleKeydown(event) {
+    if (event.key === "Escape" && state.open) {
+      setWorkMenuState(false);
+    }
+  }
+
+  function initWorkHub() {
+    resizeWorkCanvas();
+    renderWorkHub(0);
+
+    workTrigger.addEventListener("click", handleWorkTriggerClick);
+    workScene.addEventListener("click", handleWorkSceneClick);
+    document.addEventListener("keydown", handleKeydown);
+    window.addEventListener("resize", resizeWorkCanvas);
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        rebuildTargets();
+      });
+    }
+  }
+
+  initWorkHub();
 }
 
 if (hero && canvas) {

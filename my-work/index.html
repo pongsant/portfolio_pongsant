@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js" defer></script>
   </head>
-  <body>
+  <body class="page-my-work">
     <header class="site-header">
       <a class="site-header__brand" href="../">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
@@ -27,41 +27,75 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="my-work-title">
-        <h1 class="page-heading" id="my-work-title">MY WORK</h1>
-        <p class="page-subtitle">Graphic Design / Photography / Creative Coding / Product</p>
+    <main class="work-hub">
+      <section class="work-hub__scene" aria-label="Interactive work categories">
+        <canvas class="work-hub__canvas" id="my-work-canvas" aria-hidden="true"></canvas>
 
-        <div class="page-list">
-          <article class="page-item">
-            <p class="page-item__index">01</p>
-            <div>
-              <h2 class="page-item__title">Graphic Design</h2>
-              <p class="page-item__meta">Posters, typography, identity systems, and visual experiments.</p>
-            </div>
-          </article>
-          <article class="page-item">
-            <p class="page-item__index">02</p>
-            <div>
-              <h2 class="page-item__title">Photography</h2>
-              <p class="page-item__meta">Mood-driven image making, observation, and still compositions.</p>
-            </div>
-          </article>
-          <article class="page-item">
-            <p class="page-item__index">03</p>
-            <div>
-              <h2 class="page-item__title">Creative Coding</h2>
-              <p class="page-item__meta">Interactive visuals, web experiments, and motion-led prototypes.</p>
-            </div>
-          </article>
-          <article class="page-item">
-            <p class="page-item__index">04</p>
-            <div>
-              <h2 class="page-item__title">Product</h2>
-              <p class="page-item__meta">Objects, material studies, and physical interaction ideas.</p>
-            </div>
-          </article>
+        <div class="work-hub__center">
+          <button
+            class="work-hub__trigger"
+            id="my-work-trigger"
+            type="button"
+            aria-expanded="false"
+            aria-controls="work-options"
+          >
+            MY WORK
+          </button>
+          <p class="work-hub__hint">Click to open categories</p>
         </div>
+
+        <nav class="work-hub__options" id="work-options" aria-label="Work categories">
+          <a
+            class="work-hub__option"
+            href="../graphic-design/"
+            data-offset-x="-320"
+            data-offset-y="-170"
+            data-offset-x-mobile="-108"
+            data-offset-y-mobile="-162"
+          >
+            Graphic Design
+          </a>
+          <a
+            class="work-hub__option"
+            href="../photo/"
+            data-offset-x="320"
+            data-offset-y="-170"
+            data-offset-x-mobile="108"
+            data-offset-y-mobile="-162"
+          >
+            Photo
+          </a>
+          <a
+            class="work-hub__option"
+            href="../interactive-work/"
+            data-offset-x="360"
+            data-offset-y="26"
+            data-offset-x-mobile="116"
+            data-offset-y-mobile="-6"
+          >
+            Interactive Work
+          </a>
+          <a
+            class="work-hub__option"
+            href="../product-design/"
+            data-offset-x="-296"
+            data-offset-y="172"
+            data-offset-x-mobile="-112"
+            data-offset-y-mobile="124"
+          >
+            Product Design
+          </a>
+          <a
+            class="work-hub__option"
+            href="../drawing/"
+            data-offset-x="0"
+            data-offset-y="252"
+            data-offset-x-mobile="0"
+            data-offset-y-mobile="198"
+          >
+            Drawing
+          </a>
+        </nav>
       </section>
     </main>
   </body>
