@@ -219,6 +219,73 @@ main {
   background: #ffffff;
 }
 
+.hero__audio-controls {
+  position: absolute;
+  left: var(--page-gutter);
+  bottom: clamp(1rem, 3vw, 1.6rem);
+  z-index: 2;
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+  max-width: min(82vw, 320px);
+}
+
+.hero__audio-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    opacity 220ms ease;
+}
+
+.hero__audio-button:hover,
+.hero__audio-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+.hero__audio-button.is-active {
+  background: rgba(5, 5, 5, 0.92);
+  border-color: rgba(5, 5, 5, 0.92);
+  color: #ffffff;
+}
+
+.hero__audio-button.is-error {
+  border-color: rgba(160, 18, 18, 0.38);
+}
+
+.hero__audio-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.hero__audio-status {
+  margin: 0;
+  max-width: 29ch;
+  font-size: 0.68rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  color: rgba(0, 0, 0, 0.62);
+}
+
 .work-hub {
   min-height: 100svh;
   background: #ffffff;
@@ -400,7 +467,7 @@ main {
 }
 
 .feature-project__inner {
-  width: min(100%, var(--feature-width));
+  width: min(100%, 1440px);
   margin: 0 auto;
   display: grid;
   gap: clamp(1.4rem, 3vw, 2rem);
@@ -408,7 +475,7 @@ main {
 }
 
 .feature-project__media {
-  width: min(100%, 1020px);
+  width: min(100%, 1280px);
 }
 
 .feature-project__video {
@@ -433,6 +500,8 @@ main {
 .feature-project__text-block {
   display: grid;
   gap: 0.55rem;
+  justify-items: center;
+  margin: 0 auto;
 }
 
 .feature-project__text-block--about {
@@ -460,6 +529,7 @@ main {
   font-size: 0.98rem;
   line-height: 1.65;
   color: var(--text);
+  text-align: center;
 }
 
 .feature-project__button {
