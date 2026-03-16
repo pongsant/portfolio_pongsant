@@ -32,7 +32,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     width: 0,
     height: 0,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
-    pointCount: window.innerWidth < 720 ? 1500 : 2600,
+    pointCount: window.innerWidth < 720 ? 1800 : 3000,
     points: [],
     textTargets: [],
     optionTargets: [],
@@ -47,10 +47,10 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     };
   }
 
-  function getFittedWorkFontSize(text, maxWidth, maxHeight, startSize, weight = 700) {
+  function getFittedWorkFontSize(text, maxWidth, maxHeight, startSize, weight = 700, minSize = 28) {
     let fontSize = startSize;
 
-    while (fontSize > 28) {
+    while (fontSize > minSize) {
       measureContext.font = `${weight} ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
 
       const metrics = measureContext.measureText(text);
@@ -133,7 +133,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       for (let x = 0; x < state.width; x += sampleStep) {
         const alpha = data[(y * state.width + x) * 4 + 3];
 
-        if (alpha > 140) {
+        if (alpha > 140 && Math.random() > 0.12) {
           targets.push({
             x,
             y,
@@ -169,31 +169,54 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function createOptionTargets() {
+    const offscreen = document.createElement("canvas");
+    offscreen.width = state.width;
+    offscreen.height = state.height;
+
+    const offscreenContext = offscreen.getContext("2d");
     const center = getWorkCenter();
-    const clusters = workOptions.map((option) => {
-      const offset = getOptionOffset(option);
-
-      return {
-        x: center.x + offset.x,
-        y: center.y + offset.y
-      };
-    });
-
+    const mobile = window.innerWidth < 720;
+    const sampleStep = mobile ? 4 : 3;
     const targets = [];
-    const countPerCluster = Math.ceil(state.pointCount / clusters.length);
 
-    clusters.forEach((cluster) => {
-      for (let index = 0; index < countPerCluster; index += 1) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 18 + Math.pow(Math.random(), 0.7) * (window.innerWidth < 720 ? 64 : 92);
+    offscreenContext.clearRect(0, 0, state.width, state.height);
+    offscreenContext.fillStyle = "#050505";
+    offscreenContext.textAlign = "center";
+    offscreenContext.textBaseline = "middle";
 
-        targets.push({
-          x: cluster.x + Math.cos(angle) * radius,
-          y: cluster.y + Math.sin(angle) * radius,
-          z: randomBetweenWork(-120, 120)
-        });
-      }
+    workOptions.forEach((option) => {
+      const offset = getOptionOffset(option);
+      const label = option.dataset.label || option.textContent.trim();
+      const maxWidth = mobile ? Math.min(state.width * 0.34, 200) : Math.min(state.width * 0.26, 340);
+      const maxHeight = mobile ? 26 : 38;
+      const fontSize = getFittedWorkFontSize(
+        label,
+        maxWidth,
+        maxHeight,
+        mobile ? 28 : 42,
+        700,
+        10
+      );
+
+      offscreenContext.font = `700 ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
+      offscreenContext.fillText(label, center.x + offset.x, center.y + offset.y);
     });
+
+    const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
+
+    for (let y = 0; y < state.height; y += sampleStep) {
+      for (let x = 0; x < state.width; x += sampleStep) {
+        const alpha = data[(y * state.width + x) * 4 + 3];
+
+        if (alpha > 100 && Math.random() > 0.06) {
+          targets.push({
+            x,
+            y,
+            z: randomBetweenWork(-120, 120)
+          });
+        }
+      }
+    }
 
     return shuffleWork(targets).slice(0, state.pointCount);
   }
@@ -208,7 +231,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       tx: center.x,
       ty: center.y,
       tz: randomBetweenWork(-80, 80),
-      size: randomBetweenWork(0.9, 2.2),
+      size: randomBetweenWork(0.75, 1.55),
       seed: Math.random() * Math.PI * 2,
       depthSeed: Math.random() * Math.PI * 2
     }));
@@ -221,9 +244,10 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     state.points.forEach((point, index) => {
       const target = targets[index % targets.length];
-      point.tx = target.x + randomBetweenWork(-2.5, 2.5);
-      point.ty = target.y + randomBetweenWork(-2.5, 2.5);
-      point.tz = (target.z ?? 0) + randomBetweenWork(-26, 26);
+      const scatter = state.open ? 2.7 : 3.5;
+      point.tx = target.x + randomBetweenWork(-scatter, scatter);
+      point.ty = target.y + randomBetweenWork(-scatter, scatter);
+      point.tz = (target.z ?? 0) + randomBetweenWork(-18, 18);
     });
   }
 
@@ -245,7 +269,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.width = Math.round(rect.width);
     state.height = Math.round(Math.max(rect.height, window.innerHeight));
     state.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    state.pointCount = window.innerWidth < 720 ? 1500 : 2600;
+    state.pointCount = window.innerWidth < 720 ? 1800 : 3000;
     workCanvas.width = Math.round(state.width * state.dpr);
     workCanvas.height = Math.round(state.height * state.dpr);
     workCanvas.style.width = `${state.width}px`;
@@ -278,8 +302,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       point.y += (point.ty - point.y) * 0.085;
       point.z += (point.tz - point.z) * 0.085;
 
-      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0012 + point.seed) * 0.9;
-      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00105 + point.seed) * 0.75;
+      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0012 + point.seed) * 0.3;
+      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00105 + point.seed) * 0.24;
       const localX = point.x - centerX;
       const localY = point.y - centerY;
       const localZ = point.z + (reducedMotion ? 0 : Math.sin(time * 0.0009 + point.depthSeed) * 16);
@@ -291,10 +315,10 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       const scale = perspective / (perspective - finalZ);
       const drawX = centerX + rotatedX * scale + wobbleX;
       const drawY = centerY + rotatedY * scale + wobbleY;
-      const size = point.size * scale;
+      const size = Math.max(0.8, point.size * scale * (state.open ? 0.92 : 0.96));
       const alpha = state.open
-        ? Math.max(0.2, Math.min(0.58, 0.3 + scale * 0.18))
-        : Math.max(0.32, Math.min(0.92, 0.42 + scale * 0.28));
+        ? Math.max(0.16, Math.min(0.58, 0.18 + scale * 0.16))
+        : Math.max(0.18, Math.min(0.72, 0.24 + scale * 0.18));
 
       context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
       context.fillRect(drawX, drawY, size, size);
