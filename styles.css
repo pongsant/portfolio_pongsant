@@ -156,6 +156,7 @@ main {
   overflow: hidden;
   background: #ffffff;
   isolation: isolate;
+  cursor: pointer;
 }
 
 .work-hub__canvas {
@@ -164,32 +165,35 @@ main {
   width: 100%;
   height: 100%;
   background: #ffffff;
+  pointer-events: none;
 }
 
 .work-hub__center {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 1.6rem);
   left: 50%;
   z-index: 2;
   display: grid;
   gap: 0.9rem;
   justify-items: center;
-  width: min(94vw, 980px);
+  width: min(88vw, 900px);
   transform: translate(-50%, -50%);
 }
 
 .work-hub__trigger {
+  width: min(78vw, 9ch);
   padding: 0;
   border: 0;
   background: transparent;
   font-family: "Syne", sans-serif;
-  font-size: clamp(4.2rem, 15vw, 9.5rem);
+  font-size: min(10.8vw, 13.5vh, 7.2rem);
   font-weight: 700;
   line-height: 0.92;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text);
   cursor: pointer;
+  white-space: nowrap;
   transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), letter-spacing 320ms ease, opacity 220ms ease;
 }
 
@@ -205,33 +209,74 @@ main {
 .work-hub__options {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
+  pointer-events: none;
+  cursor: default;
 }
 
 .work-hub__option {
+  --option-font-size: clamp(0.84rem, 1.4vw, 1.06rem);
+  --option-scale: 0.26;
+  --option-shift-x: 0px;
+  --option-shift-y: 0px;
   position: absolute;
   top: 50%;
   left: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.96rem 1.28rem;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(16px);
-  font-size: clamp(0.84rem, 1.4vw, 1.06rem);
+  padding: 1.1rem 1.5rem;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  font-size: var(--option-font-size);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.26);
+  isolation: isolate;
+  transform: translate(calc(-50% + var(--option-shift-x)), calc(-50% + var(--option-shift-y))) scale(var(--option-scale));
   transition:
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 220ms ease,
-    background-color 180ms ease,
-    color 180ms ease;
+    color 180ms ease,
+    text-shadow 180ms ease,
+    letter-spacing 180ms ease,
+    filter 180ms ease,
+    font-size 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.work-hub__option::before,
+.work-hub__option::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 240ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.work-hub__option::before {
+  inset: -0.95rem -1.35rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(0, 0, 0, 0.18) 0 1.3px, transparent 1.9px),
+    radial-gradient(circle at 22% 28%, rgba(0, 0, 0, 0.12) 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 38% 76%, rgba(0, 0, 0, 0.14) 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 52% 18%, rgba(0, 0, 0, 0.12) 0 1.15px, transparent 1.85px),
+    radial-gradient(circle at 67% 82%, rgba(0, 0, 0, 0.13) 0 1.05px, transparent 1.7px),
+    radial-gradient(circle at 84% 36%, rgba(0, 0, 0, 0.17) 0 1.25px, transparent 1.95px);
+  transform: scale(0.82);
+}
+
+.work-hub__option::after {
+  inset: -0.6rem -1rem;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+  transform: scale(0.76) rotate(-5deg);
 }
 
 .work-hub__option:nth-child(1) {
@@ -257,6 +302,7 @@ main {
 .page-my-work.is-work-menu-open .work-hub__trigger {
   transform: scale(0.7);
   letter-spacing: 0.24em;
+  opacity: 0.22;
 }
 
 .page-my-work.is-work-menu-open .work-hub__hint {
@@ -264,16 +310,117 @@ main {
   transform: translateY(10px);
 }
 
+.page-my-work.is-work-menu-open .work-hub__center {
+  pointer-events: none;
+}
+
 .page-my-work.is-work-menu-open .work-hub__option {
+  --option-scale: 1;
+  --option-shift-x: var(--option-x, 0px);
+  --option-shift-y: var(--option-y, 0px);
   opacity: 1;
   pointer-events: auto;
-  transform: translate(calc(-50% + var(--option-x, 0px)), calc(-50% + var(--option-y, 0px))) scale(1);
+}
+
+.page-my-work.is-work-menu-open .work-hub__option::before,
+.page-my-work.is-work-menu-open .work-hub__option::after {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
 }
 
 .work-hub__option:hover,
 .work-hub__option:focus-visible {
-  background: #050505;
-  color: #ffffff;
+  color: #050505;
+  letter-spacing: 0.16em;
+  text-shadow:
+    0 0 18px rgba(0, 0, 0, 0.14),
+    0 0 36px rgba(0, 0, 0, 0.08);
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.1));
+  z-index: 4;
+}
+
+.page-my-work.is-work-menu-open .work-hub__option:hover,
+.page-my-work.is-work-menu-open .work-hub__option:focus-visible {
+  --option-scale: 1.08;
+}
+
+.work-hub__option:hover::before,
+.work-hub__option:focus-visible::before {
+  opacity: 1;
+  transform: scale(1.14);
+  background:
+    radial-gradient(circle at 12% 50%, rgba(0, 0, 0, 0.26) 0 1.5px, transparent 2.2px),
+    radial-gradient(circle at 22% 28%, rgba(0, 0, 0, 0.18) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 38% 76%, rgba(0, 0, 0, 0.22) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 52% 18%, rgba(0, 0, 0, 0.18) 0 1.35px, transparent 2px),
+    radial-gradient(circle at 67% 82%, rgba(0, 0, 0, 0.2) 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 84% 36%, rgba(0, 0, 0, 0.24) 0 1.45px, transparent 2.15px);
+}
+
+.work-hub__option:hover::after,
+.work-hub__option:focus-visible::after {
+  opacity: 1;
+  transform: scale(1.08) rotate(4deg);
+  border-color: rgba(0, 0, 0, 0.34);
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option {
+  opacity: 0.42;
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active {
+  --option-shift-x: 0px;
+  --option-shift-y: 0px;
+  --option-scale: 1.16;
+  --option-font-size: clamp(2.8rem, 10vw, 8.6rem);
+  opacity: 1;
+  letter-spacing: 0.14em;
+  text-shadow:
+    0 0 22px rgba(0, 0, 0, 0.14),
+    0 0 60px rgba(0, 0, 0, 0.08);
+  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.08));
+  z-index: 6;
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active::before {
+  opacity: 1;
+  transform: scale(2.35);
+  background:
+    radial-gradient(circle at 12% 50%, rgba(0, 0, 0, 0.26) 0 1.8px, transparent 2.5px),
+    radial-gradient(circle at 22% 28%, rgba(0, 0, 0, 0.2) 0 1.5px, transparent 2.3px),
+    radial-gradient(circle at 38% 76%, rgba(0, 0, 0, 0.24) 0 1.6px, transparent 2.35px),
+    radial-gradient(circle at 52% 18%, rgba(0, 0, 0, 0.2) 0 1.55px, transparent 2.3px),
+    radial-gradient(circle at 67% 82%, rgba(0, 0, 0, 0.22) 0 1.45px, transparent 2.2px),
+    radial-gradient(circle at 84% 36%, rgba(0, 0, 0, 0.24) 0 1.65px, transparent 2.45px);
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active::after {
+  opacity: 1;
+  transform: scale(2.12) rotate(3deg);
+  border-color: rgba(0, 0, 0, 0.26);
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-side {
+  --option-shift-x: min(31vw, 360px);
+  --option-shift-y: calc(-172px + (var(--stack-index, 0) * 88px));
+  --option-scale: 0.84;
+  --option-font-size: clamp(0.76rem, 1.1vw, 0.96rem);
+  opacity: 0.38;
+  letter-spacing: 0.14em;
+  text-shadow: none;
+  filter: none;
+  z-index: 3;
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-side::before {
+  opacity: 0.56;
+  transform: scale(0.9);
+}
+
+.page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-side::after {
+  opacity: 0.42;
+  transform: scale(0.88) rotate(0deg);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .feature-project {
@@ -580,9 +727,14 @@ main {
     padding-top: 7.75rem;
   }
 
+  .work-hub__center {
+    top: calc(50% + 1.1rem);
+  }
+
   .work-hub__trigger {
-    font-size: clamp(3.4rem, 18vw, 6.4rem);
-    letter-spacing: 0.16em;
+    width: min(78vw, 8.5ch);
+    font-size: min(13.6vw, 10.8vh, 5rem);
+    letter-spacing: 0.12em;
   }
 
   .page-my-work.is-work-menu-open .work-hub__trigger {
@@ -590,8 +742,30 @@ main {
   }
 
   .work-hub__option {
-    padding: 0.84rem 1rem;
+    padding: 0.86rem 1.05rem;
     font-size: 0.74rem;
+  }
+
+  .page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active {
+    --option-scale: 1.02;
+    --option-font-size: clamp(1.5rem, 10vw, 4rem);
+    letter-spacing: 0.12em;
+  }
+
+  .page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active::before {
+    transform: scale(1.64);
+  }
+
+  .page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-active::after {
+    transform: scale(1.52) rotate(2deg);
+  }
+
+  .page-my-work.is-work-menu-open.is-work-option-hovered .work-hub__option.is-option-side {
+    --option-shift-x: min(28vw, 138px);
+    --option-shift-y: calc(-120px + (var(--stack-index, 0) * 56px));
+    --option-scale: 0.78;
+    --option-font-size: 0.68rem;
+    opacity: 0.48;
   }
 
   .feature-project {

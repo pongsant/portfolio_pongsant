@@ -30,13 +30,20 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     width: 0,
     height: 0,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
-    pointCount: window.innerWidth < 720 ? 1050 : 1600,
+    pointCount: window.innerWidth < 720 ? 1500 : 2600,
     points: [],
     textTargets: [],
     optionTargets: [],
     open: false,
     animationId: 0
   };
+
+  function getWorkCenter() {
+    return {
+      x: state.width / 2,
+      y: state.height / 2 + (window.innerWidth < 720 ? 18 : 26)
+    };
+  }
 
   function randomBetweenWork(min, max) {
     return min + Math.random() * (max - min);
@@ -76,16 +83,35 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     offscreen.height = state.height;
 
     const offscreenContext = offscreen.getContext("2d");
-    const fontSize = Math.max(68, Math.min(state.width * 0.18, state.height * 0.2, 230));
-    const sampleStep = state.width < 720 ? 8 : 6;
+    const text = "MY WORK";
+    const center = getWorkCenter();
+    const maxWidth = state.width * (window.innerWidth < 720 ? 0.72 : 0.62);
+    const maxHeight = state.height * (window.innerWidth < 720 ? 0.1 : 0.13);
+    let fontSize = Math.min(state.width * 0.16, state.height * 0.14, 210);
     const targets = [];
+
+    while (fontSize > 56) {
+      offscreenContext.font = `700 ${fontSize}px "Syne", sans-serif`;
+
+      const metrics = offscreenContext.measureText(text);
+      const textHeight = (metrics.actualBoundingBoxAscent || fontSize * 0.72) +
+        (metrics.actualBoundingBoxDescent || fontSize * 0.18);
+
+      if (metrics.width <= maxWidth && textHeight <= maxHeight) {
+        break;
+      }
+
+      fontSize -= 4;
+    }
+
+    const sampleStep = window.innerWidth < 720 ? 5 : 4;
 
     offscreenContext.clearRect(0, 0, state.width, state.height);
     offscreenContext.fillStyle = "#050505";
     offscreenContext.textAlign = "center";
     offscreenContext.textBaseline = "middle";
     offscreenContext.font = `700 ${fontSize}px "Syne", sans-serif`;
-    offscreenContext.fillText("MY WORK", state.width / 2, state.height / 2);
+    offscreenContext.fillText(text, center.x, center.y);
 
     const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
 
@@ -94,7 +120,11 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         const alpha = data[(y * state.width + x) * 4 + 3];
 
         if (alpha > 140) {
-          targets.push({ x, y });
+          targets.push({
+            x,
+            y,
+            z: randomBetweenWork(-90, 90)
+          });
         }
       }
     }
@@ -102,7 +132,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     if (targets.length === 0) {
       return Array.from({ length: state.pointCount }, () => ({
         x: state.width / 2 + randomBetweenWork(-120, 120),
-        y: state.height / 2 + randomBetweenWork(-60, 60)
+        y: state.height / 2 + randomBetweenWork(-60, 60),
+        z: randomBetweenWork(-90, 90)
       }));
     }
 
@@ -110,14 +141,13 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function createOptionTargets() {
-    const centerX = state.width / 2;
-    const centerY = state.height / 2;
+    const center = getWorkCenter();
     const clusters = workOptions.map((option) => {
       const offset = getOptionOffset(option);
 
       return {
-        x: centerX + offset.x,
-        y: centerY + offset.y
+        x: center.x + offset.x,
+        y: center.y + offset.y
       };
     });
 
@@ -131,7 +161,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
         targets.push({
           x: cluster.x + Math.cos(angle) * radius,
-          y: cluster.y + Math.sin(angle) * radius
+          y: cluster.y + Math.sin(angle) * radius,
+          z: randomBetweenWork(-120, 120)
         });
       }
     });
@@ -140,13 +171,18 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function createPoints() {
+    const center = getWorkCenter();
+
     state.points = Array.from({ length: state.pointCount }, () => ({
-      x: state.width / 2 + randomBetweenWork(-80, 80),
-      y: state.height / 2 + randomBetweenWork(-80, 80),
-      tx: state.width / 2,
-      ty: state.height / 2,
+      x: center.x + randomBetweenWork(-80, 80),
+      y: center.y + randomBetweenWork(-80, 80),
+      z: randomBetweenWork(-80, 80),
+      tx: center.x,
+      ty: center.y,
+      tz: randomBetweenWork(-80, 80),
       size: randomBetweenWork(0.9, 2.2),
-      seed: Math.random() * Math.PI * 2
+      seed: Math.random() * Math.PI * 2,
+      depthSeed: Math.random() * Math.PI * 2
     }));
   }
 
@@ -159,6 +195,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       const target = targets[index % targets.length];
       point.tx = target.x + randomBetweenWork(-2.5, 2.5);
       point.ty = target.y + randomBetweenWork(-2.5, 2.5);
+      point.tz = (target.z ?? 0) + randomBetweenWork(-26, 26);
     });
   }
 
@@ -180,7 +217,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.width = Math.round(rect.width);
     state.height = Math.round(Math.max(rect.height, window.innerHeight));
     state.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    state.pointCount = window.innerWidth < 720 ? 1050 : 1600;
+    state.pointCount = window.innerWidth < 720 ? 1500 : 2600;
     workCanvas.width = Math.round(state.width * state.dpr);
     workCanvas.height = Math.round(state.height * state.dpr);
     workCanvas.style.width = `${state.width}px`;
@@ -191,26 +228,86 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     rebuildTargets();
   }
 
+  function clearWorkOptionHover() {
+    body.classList.remove("is-work-option-hovered");
+
+    workOptions.forEach((option) => {
+      option.classList.remove("is-option-active", "is-option-side");
+      option.style.removeProperty("--stack-index");
+    });
+  }
+
+  function setWorkOptionHover(activeOption) {
+    if (!state.open || !activeOption) {
+      clearWorkOptionHover();
+      return;
+    }
+
+    body.classList.add("is-work-option-hovered");
+    let stackIndex = 0;
+
+    workOptions.forEach((option) => {
+      const isActive = option === activeOption;
+
+      option.classList.toggle("is-option-active", isActive);
+      option.classList.toggle("is-option-side", !isActive);
+
+      if (isActive) {
+        option.style.removeProperty("--stack-index");
+        return;
+      }
+
+      option.style.setProperty("--stack-index", String(stackIndex));
+      stackIndex += 1;
+    });
+  }
+
   function setWorkMenuState(open) {
     state.open = open;
     body.classList.toggle("is-work-menu-open", open);
     workTrigger.setAttribute("aria-expanded", String(open));
+
+    if (!open) {
+      clearWorkOptionHover();
+    }
+
     applyTargets(open ? state.optionTargets : state.textTargets);
   }
 
   function renderWorkHub(time) {
     context.clearRect(0, 0, state.width, state.height);
+    const center = getWorkCenter();
+    const centerX = center.x;
+    const centerY = center.y;
+    const angleY = reducedMotion ? 0.06 : Math.sin(time * 0.00034) * 0.28;
+    const angleX = reducedMotion ? -0.04 : Math.cos(time * 0.00026) * 0.16;
+    const perspective = Math.min(state.width, state.height) * 1.15;
 
     for (const point of state.points) {
       point.x += (point.tx - point.x) * 0.085;
       point.y += (point.ty - point.y) * 0.085;
+      point.z += (point.tz - point.z) * 0.085;
 
-      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0013 + point.seed) * 0.8;
-      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.0011 + point.seed) * 0.8;
-      const alpha = state.open ? 0.44 : 0.62;
+      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0012 + point.seed) * 0.9;
+      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00105 + point.seed) * 0.75;
+      const localX = point.x - centerX;
+      const localY = point.y - centerY;
+      const localZ = point.z + (reducedMotion ? 0 : Math.sin(time * 0.0009 + point.depthSeed) * 16);
+
+      const rotatedX = localX * Math.cos(angleY) - localZ * Math.sin(angleY);
+      const rotatedZ = localX * Math.sin(angleY) + localZ * Math.cos(angleY);
+      const rotatedY = localY * Math.cos(angleX) - rotatedZ * Math.sin(angleX);
+      const finalZ = localY * Math.sin(angleX) + rotatedZ * Math.cos(angleX);
+      const scale = perspective / (perspective - finalZ);
+      const drawX = centerX + rotatedX * scale + wobbleX;
+      const drawY = centerY + rotatedY * scale + wobbleY;
+      const size = point.size * scale;
+      const alpha = state.open
+        ? Math.max(0.2, Math.min(0.58, 0.3 + scale * 0.18))
+        : Math.max(0.32, Math.min(0.92, 0.42 + scale * 0.28));
 
       context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
-      context.fillRect(point.x + wobbleX, point.y + wobbleY, point.size, point.size);
+      context.fillRect(drawX, drawY, size, size);
     }
 
     state.animationId = window.requestAnimationFrame(renderWorkHub);
@@ -226,15 +323,41 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       return;
     }
 
-    if (state.open) {
-      setWorkMenuState(false);
-    }
+    setWorkMenuState(!state.open);
   }
 
   function handleKeydown(event) {
     if (event.key === "Escape" && state.open) {
       setWorkMenuState(false);
     }
+  }
+
+  function handleWorkOptionEnter(event) {
+    setWorkOptionHover(event.currentTarget);
+  }
+
+  function handleWorkOptionLeave(event) {
+    const nextOption = event.relatedTarget?.closest?.(".work-hub__option");
+
+    if (nextOption) {
+      return;
+    }
+
+    clearWorkOptionHover();
+  }
+
+  function handleWorkOptionFocus(event) {
+    setWorkOptionHover(event.currentTarget);
+  }
+
+  function handleWorkOptionBlur(event) {
+    const nextOption = event.relatedTarget?.closest?.(".work-hub__option");
+
+    if (nextOption) {
+      return;
+    }
+
+    clearWorkOptionHover();
   }
 
   function initWorkHub() {
@@ -245,6 +368,12 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workScene.addEventListener("click", handleWorkSceneClick);
     document.addEventListener("keydown", handleKeydown);
     window.addEventListener("resize", resizeWorkCanvas);
+    workOptions.forEach((option) => {
+      option.addEventListener("pointerenter", handleWorkOptionEnter);
+      option.addEventListener("pointerleave", handleWorkOptionLeave);
+      option.addEventListener("focus", handleWorkOptionFocus);
+      option.addEventListener("blur", handleWorkOptionBlur);
+    });
 
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
