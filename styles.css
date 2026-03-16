@@ -52,6 +52,8 @@
   --content-width: 960px;
   --feature-width: 1280px;
   --font-sans: "Helvetica 255", Helvetica, Arial, sans-serif;
+  --page-gutter: clamp(0.85rem, 2vw, 1.5rem);
+  --page-gutter-tight: clamp(0.82rem, 1.8vw, 1.3rem);
 }
 
 * {
@@ -69,6 +71,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  overflow-x: clip;
 }
 
 a {
@@ -84,26 +87,25 @@ a {
 .site-header {
   position: fixed;
   top: 0;
-  left: 50%;
-  right: auto;
+  left: 0;
+  right: 0;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(calc(100% - 1.6rem), 1360px);
-  padding: 1rem 1.4rem 0.9rem;
-  border: 1px solid transparent;
-  border-radius: 0 0 1.75rem 1.75rem;
+  gap: clamp(0.65rem, 1.5vw, 1.25rem);
+  width: 100%;
+  padding: 1rem var(--page-gutter) 0.9rem;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
   background: #ffffff;
-  transform: translateX(-50%) translateY(0) scale(1);
+  transform: translateY(0);
   transform-origin: top center;
   transition:
     transform 280ms ease,
     padding 280ms ease,
-    width 320ms ease,
-    top 320ms ease,
-    border-radius 320ms ease,
-    border-color 280ms ease,
+    border-radius 280ms ease,
+    border-bottom-color 280ms ease,
     background-color 280ms ease,
     box-shadow 280ms ease,
     backdrop-filter 280ms ease,
@@ -112,17 +114,23 @@ a {
 
 .site-header__brand {
   display: inline-block;
+  flex: 0 1 auto;
+  min-width: 0;
   font-family: var(--font-sans);
-  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-size: clamp(1.28rem, 2.45vw, 2.15rem);
   font-weight: 700;
-  letter-spacing: 0.26em;
+  letter-spacing: clamp(0.12em, 0.22vw, 0.2em);
   text-transform: uppercase;
+  white-space: nowrap;
   transition: transform 280ms ease, letter-spacing 280ms ease, font-size 280ms ease;
 }
 
 .site-nav {
   display: flex;
-  gap: 1.1rem;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  gap: clamp(0.55rem, 1.2vw, 1rem);
   align-items: center;
   justify-content: flex-end;
   margin-top: 0;
@@ -135,11 +143,12 @@ a {
 .site-nav a {
   padding: 0.15rem 0;
   border-radius: 0;
-  font-size: 0.82rem;
+  font-size: clamp(0.62rem, 0.54rem + 0.22vw, 0.8rem);
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: clamp(0.08em, 0.18vw, 0.13em);
   text-transform: uppercase;
   border-bottom: 0;
+  white-space: nowrap;
   transition: opacity 220ms ease, transform 220ms ease, font-size 220ms ease, letter-spacing 220ms ease;
 }
 
@@ -150,11 +159,9 @@ a {
 }
 
 body.is-scrolled .site-header {
-  top: 0.7rem;
-  width: min(calc(100% - 2rem), 1080px);
-  padding: 0.82rem 1.35rem 0.78rem;
-  border-color: rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
+  padding: 0.82rem var(--page-gutter-tight) 0.78rem;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  border-radius: 0 0 1rem 1rem;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(18px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
@@ -162,19 +169,19 @@ body.is-scrolled .site-header {
 
 body.is-scrolled .site-header__brand {
   transform: translateY(-1px);
-  font-size: clamp(1.34rem, 2.45vw, 1.9rem);
-  letter-spacing: 0.19em;
+  font-size: clamp(1.18rem, 2.05vw, 1.72rem);
+  letter-spacing: clamp(0.1em, 0.18vw, 0.16em);
 }
 
 body.is-scrolled .site-nav {
-  gap: 0.95rem;
+  gap: clamp(0.48rem, 1vw, 0.9rem);
   transform: translateY(-1px);
 }
 
 body.is-scrolled .site-nav a {
   transform: translateY(-1px);
-  font-size: 0.78rem;
-  letter-spacing: 0.15em;
+  font-size: clamp(0.6rem, 0.52rem + 0.18vw, 0.74rem);
+  letter-spacing: clamp(0.08em, 0.15vw, 0.12em);
 }
 
 main {
@@ -186,7 +193,7 @@ main {
   display: grid;
   align-items: center;
   min-height: 100svh;
-  padding: 8rem 1.25rem 2rem;
+  padding: clamp(7rem, 11vw, 8rem) var(--page-gutter) 2rem;
   overflow: clip;
   cursor: pointer;
   background: #ffffff;
@@ -396,7 +403,7 @@ main {
 }
 
 .feature-project {
-  padding: 1.5rem 1.25rem 5.5rem;
+  padding: 1.5rem var(--page-gutter) 5.5rem;
   background: #ffffff;
 }
 
@@ -404,12 +411,12 @@ main {
   width: min(100%, var(--feature-width));
   margin: 0 auto;
   display: grid;
-  gap: 2rem;
+  gap: clamp(1.4rem, 3vw, 2rem);
   justify-items: center;
 }
 
 .feature-project__media {
-  width: min(100%, 980px);
+  width: min(100%, 1020px);
 }
 
 .feature-project__video {
@@ -425,7 +432,8 @@ main {
 
 .feature-project__logo {
   display: block;
-  width: clamp(360px, 46vw, 760px);
+  width: clamp(240px, 46vw, 760px);
+  max-width: 100%;
   height: auto;
   margin: 0 auto;
 }
@@ -456,6 +464,7 @@ main {
 
 .feature-project__copy {
   margin: 0;
+  max-width: 72ch;
   font-size: 0.98rem;
   line-height: 1.65;
   color: var(--text);
@@ -465,6 +474,7 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: min(100%, 290px);
   min-width: 290px;
   min-height: 78px;
   padding: 1rem 1.6rem;
@@ -484,7 +494,7 @@ main {
 
 .page-main {
   min-height: 100svh;
-  padding: 8.75rem 1.5rem 3rem;
+  padding: clamp(7.6rem, 11vw, 8.75rem) var(--page-gutter) clamp(2.4rem, 5vw, 3rem);
   background: #ffffff;
 }
 
@@ -519,9 +529,9 @@ main {
 .page-heading {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: clamp(2.6rem, 8vw, 5.6rem);
+  font-size: clamp(2rem, 7vw, 5.6rem);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: clamp(0.08em, 0.28vw, 0.18em);
   text-align: center;
   text-transform: uppercase;
 }
@@ -529,7 +539,7 @@ main {
 .page-subtitle {
   margin: 1rem auto 0;
   max-width: 540px;
-  font-size: 0.92rem;
+  font-size: clamp(0.78rem, 0.72rem + 0.2vw, 0.92rem);
   line-height: 1.8;
   text-align: center;
   text-transform: uppercase;
@@ -591,15 +601,15 @@ main {
 
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(1rem, 2vw, 1.2rem);
   margin-top: 3rem;
 }
 
 .catalog-card {
   display: grid;
   gap: 0.95rem;
-  min-height: 240px;
+  min-height: clamp(210px, 26vw, 240px);
   padding: 1.35rem;
   border: 1px solid var(--line);
   background: #ffffff;
@@ -654,9 +664,9 @@ main {
 .project-detail__title {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: clamp(2.4rem, 7vw, 5rem);
+  font-size: clamp(1.9rem, 6vw, 5rem);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: clamp(0.06em, 0.24vw, 0.12em);
   text-transform: uppercase;
 }
 
@@ -697,43 +707,41 @@ main {
 
 @media (max-width: 640px) {
   .site-header {
-    width: calc(100% - 1rem);
-    padding: 0.9rem 1rem 0.85rem;
-    border-radius: 0 0 1.2rem 1.2rem;
+    padding: 0.9rem 0.85rem 0.82rem;
+    border-radius: 0;
   }
 
   .site-header__brand {
-    font-size: clamp(1.6rem, 11vw, 2.4rem);
-    letter-spacing: 0.2em;
+    font-size: clamp(1rem, 5.4vw, 1.38rem);
+    letter-spacing: 0.1em;
   }
 
   .site-nav {
-    gap: 0.7rem;
+    gap: 0.45rem;
   }
 
   .site-nav a {
-    font-size: 0.68rem;
+    font-size: 0.54rem;
+    letter-spacing: 0.08em;
   }
 
   body.is-scrolled .site-header {
-    top: 0.55rem;
-    width: calc(100% - 1rem);
-    padding: 0.76rem 0.96rem 0.72rem;
-    border-radius: 999px;
+    padding: 0.74rem 0.82rem 0.68rem;
+    border-radius: 0 0 0.82rem 0.82rem;
   }
 
   body.is-scrolled .site-header__brand {
-    font-size: clamp(1.14rem, 5.8vw, 1.5rem);
-    letter-spacing: 0.15em;
+    font-size: clamp(0.96rem, 5vw, 1.22rem);
+    letter-spacing: 0.09em;
   }
 
   body.is-scrolled .site-nav a {
-    font-size: 0.66rem;
-    letter-spacing: 0.14em;
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
   }
 
   .hero {
-    padding-top: 7.75rem;
+    padding-top: 6.6rem;
   }
 
   .work-hub__center {
@@ -753,7 +761,7 @@ main {
   }
 
   .feature-project {
-    padding: 1rem 1rem 3.25rem;
+    padding: 1rem 0.9rem 3.25rem;
   }
 
   .feature-project__logo {
@@ -770,12 +778,13 @@ main {
   }
 
   .feature-project__button {
-    min-width: min(100%, 280px);
+    width: min(100%, 280px);
+    min-width: 0;
     min-height: 64px;
   }
 
   .page-main {
-    padding: 7.6rem 1rem 2.4rem;
+    padding: 6.8rem 0.95rem 2.4rem;
   }
 
   .page-back {
@@ -795,12 +804,46 @@ main {
     font-size: 0.78rem;
   }
 
-  .catalog-grid {
-    grid-template-columns: 1fr;
-  }
-
   .catalog-card {
     min-height: 210px;
+  }
+}
+
+@media (max-width: 380px) {
+  .site-header {
+    padding: 0.82rem 0.72rem 0.76rem;
+  }
+
+  .site-header__brand {
+    font-size: 0.92rem;
+    letter-spacing: 0.08em;
+  }
+
+  .site-nav {
+    gap: 0.34rem;
+  }
+
+  .site-nav a {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  body.is-scrolled .site-header {
+    padding: 0.68rem 0.7rem 0.64rem;
+  }
+
+  body.is-scrolled .site-header__brand {
+    font-size: 0.88rem;
+    letter-spacing: 0.07em;
+  }
+
+  body.is-scrolled .site-nav a {
+    font-size: 0.48rem;
+    letter-spacing: 0.06em;
+  }
+
+  .page-heading {
+    letter-spacing: 0.06em;
   }
 }
 
