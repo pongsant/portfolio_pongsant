@@ -120,11 +120,6 @@ a {
   transition: transform 280ms ease, letter-spacing 280ms ease, font-size 280ms ease;
 }
 
-.page-home .site-header__brand {
-  font-size: clamp(1.45rem, 2.9vw, 2.15rem);
-  letter-spacing: 0.22em;
-}
-
 .site-nav {
   display: flex;
   gap: 1.1rem;
@@ -156,8 +151,8 @@ a {
 
 body.is-scrolled .site-header {
   top: 0.7rem;
-  width: min(calc(100% - 2.6rem), 920px);
-  padding: 0.72rem 1.2rem 0.68rem;
+  width: min(calc(100% - 2rem), 1080px);
+  padding: 0.82rem 1.35rem 0.78rem;
   border-color: rgba(0, 0, 0, 0.08);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.8);
@@ -167,24 +162,19 @@ body.is-scrolled .site-header {
 
 body.is-scrolled .site-header__brand {
   transform: translateY(-1px);
-  font-size: clamp(1.2rem, 2.2vw, 1.68rem);
-  letter-spacing: 0.18em;
-}
-
-.page-home.is-scrolled .site-header__brand {
-  font-size: clamp(1.05rem, 1.8vw, 1.32rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(1.34rem, 2.45vw, 1.9rem);
+  letter-spacing: 0.19em;
 }
 
 body.is-scrolled .site-nav {
-  gap: 0.82rem;
+  gap: 0.95rem;
   transform: translateY(-1px);
 }
 
 body.is-scrolled .site-nav a {
   transform: translateY(-1px);
-  font-size: 0.74rem;
-  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
 }
 
 main {
@@ -504,6 +494,28 @@ main {
   background: #ffffff;
 }
 
+.page-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.6rem;
+  border: 1px solid var(--line);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+.page-back:hover,
+.page-back:focus-visible {
+  background: #050505;
+  color: #ffffff;
+  border-color: #050505;
+}
+
 .page-heading {
   margin: 0;
   font-family: var(--font-sans);
@@ -695,11 +707,6 @@ main {
     letter-spacing: 0.2em;
   }
 
-  .page-home .site-header__brand {
-    font-size: clamp(1.28rem, 7.8vw, 1.75rem);
-    letter-spacing: 0.18em;
-  }
-
   .site-nav {
     gap: 0.7rem;
   }
@@ -710,18 +717,18 @@ main {
 
   body.is-scrolled .site-header {
     top: 0.55rem;
-    width: calc(100% - 1.2rem);
-    padding: 0.66rem 0.85rem 0.64rem;
+    width: calc(100% - 1rem);
+    padding: 0.76rem 0.96rem 0.72rem;
     border-radius: 999px;
   }
 
   body.is-scrolled .site-header__brand {
-    font-size: clamp(1.02rem, 5.2vw, 1.34rem);
-    letter-spacing: 0.14em;
+    font-size: clamp(1.14rem, 5.8vw, 1.5rem);
+    letter-spacing: 0.15em;
   }
 
   body.is-scrolled .site-nav a {
-    font-size: 0.62rem;
+    font-size: 0.66rem;
     letter-spacing: 0.14em;
   }
 
@@ -769,6 +776,13 @@ main {
 
   .page-main {
     padding: 7.6rem 1rem 2.4rem;
+  }
+
+  .page-back {
+    min-height: 42px;
+    margin-bottom: 1.25rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
   }
 
   .page-item {
