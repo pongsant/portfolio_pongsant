@@ -463,6 +463,7 @@ main {
 
 .work-hub__option {
   --option-font-size: clamp(1rem, 1.75vw, 1.42rem);
+  --option-color: #111111;
   --option-scale: 0.26;
   --option-shift-x: 0px;
   --option-shift-y: 0px;
@@ -480,7 +481,7 @@ main {
   backdrop-filter: none;
   font-family: var(--font-sans);
   font-size: var(--option-font-size);
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -509,6 +510,7 @@ main {
   position: relative;
   z-index: 1;
   user-select: none;
+  transition: color 360ms ease, text-shadow 360ms ease, opacity 260ms ease;
 }
 
 .work-hub__option-effect {
@@ -539,6 +541,10 @@ main {
   transform: scale(0.7);
   letter-spacing: 0.24em;
   opacity: 0.22;
+  color: #050505;
+  text-shadow: none;
+  -webkit-text-stroke: 0 transparent;
+  paint-order: normal;
 }
 
 .page-my-work.is-work-menu-open .work-hub__hint {
@@ -556,6 +562,14 @@ main {
   --option-shift-y: var(--option-y, 0px);
   opacity: 1;
   pointer-events: auto;
+}
+
+.page-my-work.is-work-menu-open .work-hub__option-text {
+  color: #050505;
+  text-shadow: none;
+  -webkit-text-stroke: 0 transparent;
+  paint-order: normal;
+  filter: none;
 }
 
 .feature-project {

@@ -31,12 +31,19 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const measureCanvas = document.createElement("canvas");
   const measureContext = measureCanvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const WORK_HUB_PALETTE = [
+    { hue: 352, css: "#ff4b6e" },
+    { hue: 28, css: "#ff8f2f" },
+    { hue: 142, css: "#1bbc7d" },
+    { hue: 214, css: "#2d73ff" },
+    { hue: 286, css: "#b44dff" }
+  ];
 
   const state = {
     width: 0,
     height: 0,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
-    pointCount: window.innerWidth < 720 ? 1800 : 3000,
+    pointCount: window.innerWidth < 720 ? 2600 : 4600,
     points: [],
     textTargets: [],
     optionTargets: [],
@@ -104,6 +111,17 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     });
   }
 
+  function syncOptionPalette() {
+    workOptions.forEach((option, index) => {
+      const color = WORK_HUB_PALETTE[index % WORK_HUB_PALETTE.length];
+      const contrastHue = (color.hue + 180) % 360;
+      option.style.setProperty("--option-color", color.css);
+      option.style.setProperty("--option-text-color", `hsl(${contrastHue} 82% 22%)`);
+      option.style.setProperty("--option-text-halo", `hsla(${color.hue} 100% 55% / 0.24)`);
+      option.style.setProperty("--option-text-outline", `hsla(${contrastHue} 88% 16% / 0.2)`);
+    });
+  }
+
   function createTextTargets() {
     const offscreen = document.createElement("canvas");
     offscreen.width = state.width;
@@ -119,18 +137,20 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       text,
       maxWidth,
       maxHeight,
-      Math.min(state.width * 0.16, state.height * 0.14, 210)
+      Math.min(state.width * 0.168, state.height * 0.15, 224),
+      760
     );
-    const sampleStep = mobile ? 4 : 3;
-    const shadowOffsetX = mobile ? 4 : 8;
-    const shadowOffsetY = mobile ? 5 : 9;
+    const sampleStep = mobile ? 2 : 2;
+    const shadowOffsetX = mobile ? 2 : 3;
+    const shadowOffsetY = mobile ? 2 : 3;
     const targets = [];
 
     offscreenContext.clearRect(0, 0, state.width, state.height);
     offscreenContext.fillStyle = "#050505";
     offscreenContext.textAlign = "center";
     offscreenContext.textBaseline = "middle";
-    offscreenContext.font = `700 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+    offscreenContext.font = `760 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+    offscreenContext.fillText(text, center.x, center.y);
     offscreenContext.fillText(text, center.x + shadowOffsetX, center.y + shadowOffsetY);
 
     const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
@@ -139,11 +159,13 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       for (let x = 0; x < state.width; x += sampleStep) {
         const alpha = data[(y * state.width + x) * 4 + 3];
 
-        if (alpha > 100 && Math.random() > 0.08) {
+        if (alpha > 70) {
           targets.push({
             x,
             y,
-            z: randomBetweenWork(-90, 90)
+            z: randomBetweenWork(-64, 64),
+            hue: 0,
+            tint: 0
           });
         }
       }
@@ -174,53 +196,57 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const offscreenContext = offscreen.getContext("2d");
     const center = getWorkCenter();
     const mobile = window.innerWidth < 720;
-    const sampleStep = mobile ? 4 : 3;
-    const shadowOffsetX = mobile ? 3 : 6;
-    const shadowOffsetY = mobile ? 4 : 8;
+    const sampleStep = mobile ? 2 : 2;
+    const shadowOffsetX = mobile ? 2 : 4;
+    const shadowOffsetY = mobile ? 2 : 4;
     const targets = [];
 
-    offscreenContext.clearRect(0, 0, state.width, state.height);
-    offscreenContext.fillStyle = "#050505";
     offscreenContext.textAlign = "center";
     offscreenContext.textBaseline = "middle";
 
-    workOptions.forEach((option) => {
+    workOptions.forEach((option, index) => {
+      const color = WORK_HUB_PALETTE[index % WORK_HUB_PALETTE.length];
       const offset = getOptionOffset(option);
       const label = option.dataset.label || option.textContent.trim();
       const maxWidth = mobile ? Math.min(state.width * 0.4, 230) : Math.min(state.width * 0.3, 420);
-      const maxHeight = mobile ? 32 : 48;
+      const maxHeight = mobile ? 42 : 62;
       const fontSize = getFittedWorkFontSize(
         label,
         maxWidth,
         maxHeight,
-        mobile ? 34 : 56,
-        300,
+        mobile ? 46 : 72,
+        540,
         12
       );
 
-      offscreenContext.font = `300 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+      offscreenContext.clearRect(0, 0, state.width, state.height);
+      offscreenContext.fillStyle = "#050505";
+      offscreenContext.font = `540 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
+      offscreenContext.fillText(label, center.x + offset.x, center.y + offset.y);
       offscreenContext.fillText(
         label,
         center.x + offset.x + shadowOffsetX,
         center.y + offset.y + shadowOffsetY
       );
-    });
 
-    const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
+      const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
 
-    for (let y = 0; y < state.height; y += sampleStep) {
-      for (let x = 0; x < state.width; x += sampleStep) {
-        const alpha = data[(y * state.width + x) * 4 + 3];
+      for (let y = 0; y < state.height; y += sampleStep) {
+        for (let x = 0; x < state.width; x += sampleStep) {
+          const alpha = data[(y * state.width + x) * 4 + 3];
 
-        if (alpha > 90 && Math.random() > 0.09) {
-          targets.push({
-            x,
-            y,
-            z: randomBetweenWork(-120, 120)
-          });
+          if (alpha > 54) {
+            targets.push({
+              x,
+              y,
+              z: randomBetweenWork(-88, 88),
+              hue: color.hue,
+              tint: 1
+            });
+          }
         }
       }
-    }
+    });
 
     return shuffleWork(targets).slice(0, state.pointCount);
   }
@@ -235,9 +261,13 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       tx: center.x,
       ty: center.y,
       tz: randomBetweenWork(-80, 80),
-      size: randomBetweenWork(0.75, 1.55),
+      size: randomBetweenWork(1.18, 2.5),
       seed: Math.random() * Math.PI * 2,
-      depthSeed: Math.random() * Math.PI * 2
+      depthSeed: Math.random() * Math.PI * 2,
+      hue: 0,
+      targetHue: 0,
+      tint: 0,
+      targetTint: 0
     }));
   }
 
@@ -248,10 +278,12 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     state.points.forEach((point, index) => {
       const target = targets[index % targets.length];
-      const scatter = state.open ? 2.7 : 3.5;
+      const scatter = state.open ? 1.1 : 1.8;
       point.tx = target.x + randomBetweenWork(-scatter, scatter);
       point.ty = target.y + randomBetweenWork(-scatter, scatter);
-      point.tz = (target.z ?? 0) + randomBetweenWork(-18, 18);
+      point.tz = (target.z ?? 0) + randomBetweenWork(state.open ? -12 : -16, state.open ? 12 : 16);
+      point.targetHue = target.hue ?? 0;
+      point.targetTint = target.tint ?? 0;
     });
   }
 
@@ -273,7 +305,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.width = Math.round(rect.width);
     state.height = Math.round(Math.max(rect.height, window.innerHeight));
     state.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    state.pointCount = window.innerWidth < 720 ? 1800 : 3000;
+    state.pointCount = window.innerWidth < 720 ? 2600 : 4600;
     workCanvas.width = Math.round(state.width * state.dpr);
     workCanvas.height = Math.round(state.height * state.dpr);
     workCanvas.style.width = `${state.width}px`;
@@ -297,20 +329,48 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const center = getWorkCenter();
     const centerX = center.x;
     const centerY = center.y;
-    const angleY = reducedMotion ? 0.06 : Math.sin(time * 0.00034) * 0.28;
-    const angleX = reducedMotion ? -0.04 : Math.cos(time * 0.00026) * 0.16;
+    const angleY = reducedMotion ? 0.015 : Math.sin(time * 0.00024) * (state.open ? 0.08 : 0.05);
+    const angleX = reducedMotion ? -0.01 : Math.cos(time * 0.00018) * (state.open ? 0.05 : 0.03);
     const perspective = Math.min(state.width, state.height) * 1.15;
 
     for (const point of state.points) {
-      point.x += (point.tx - point.x) * 0.085;
-      point.y += (point.ty - point.y) * 0.085;
-      point.z += (point.tz - point.z) * 0.085;
+      let targetX = point.tx;
+      let targetY = point.ty;
+      let targetZ = point.tz;
 
-      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.0012 + point.seed) * 0.3;
-      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00105 + point.seed) * 0.24;
+      if (state.open && point.targetTint > 0.04) {
+        const groupPhase = point.targetHue * 0.021 + point.depthSeed;
+        const groupDriftX = reducedMotion ? 0 : Math.sin(time * 0.00046 + groupPhase) * 8.5;
+        const groupDriftY = reducedMotion ? 0 : Math.cos(time * 0.00036 + groupPhase * 0.92) * 5.4;
+        const localDriftX = reducedMotion ? 0 : Math.sin(time * 0.00118 + point.seed + groupPhase) * 1.7;
+        const localDriftY = reducedMotion ? 0 : Math.cos(time * 0.00102 + point.depthSeed + groupPhase * 0.7) * 1.35;
+        const localDriftZ = reducedMotion ? 0 : Math.sin(time * 0.00084 + point.seed * 0.7 + groupPhase) * 8;
+
+        targetX += groupDriftX + localDriftX;
+        targetY += groupDriftY + localDriftY;
+        targetZ += localDriftZ;
+      } else if (!state.open) {
+        const titlePhase = point.depthSeed * 0.9 + point.seed * 0.4;
+        const titleDriftX = reducedMotion ? 0 : Math.sin(time * 0.00034 + titlePhase) * 4.8;
+        const titleDriftY = reducedMotion ? 0 : Math.cos(time * 0.00026 + titlePhase * 0.82) * 2.4;
+        const titleDriftZ = reducedMotion ? 0 : Math.sin(time * 0.00022 + titlePhase * 0.66) * 4.2;
+
+        targetX += titleDriftX;
+        targetY += titleDriftY;
+        targetZ += titleDriftZ;
+      }
+
+      point.x += (targetX - point.x) * 0.094;
+      point.y += (targetY - point.y) * 0.094;
+      point.z += (targetZ - point.z) * 0.094;
+      point.tint += (point.targetTint - point.tint) * 0.082;
+      point.hue += (point.targetHue - point.hue) * 0.082;
+
+      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.00082 + point.seed) * (state.open ? 0.14 : 0.08);
+      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00074 + point.seed) * (state.open ? 0.12 : 0.06);
       const localX = point.x - centerX;
       const localY = point.y - centerY;
-      const localZ = point.z + (reducedMotion ? 0 : Math.sin(time * 0.0009 + point.depthSeed) * 16);
+      const localZ = point.z + (reducedMotion ? 0 : Math.sin(time * 0.00054 + point.depthSeed) * (state.open ? 9 : 6));
 
       const rotatedX = localX * Math.cos(angleY) - localZ * Math.sin(angleY);
       const rotatedZ = localX * Math.sin(angleY) + localZ * Math.cos(angleY);
@@ -319,12 +379,23 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       const scale = perspective / (perspective - finalZ);
       const drawX = centerX + rotatedX * scale + wobbleX;
       const drawY = centerY + rotatedY * scale + wobbleY;
-      const size = Math.max(0.8, point.size * scale * (state.open ? 0.96 : 0.88));
+      const size = Math.max(state.open ? 1.48 : 1.3, point.size * scale * (state.open ? 1.32 : 1.26));
       const alpha = state.open
-        ? Math.max(0.11, Math.min(0.42, 0.13 + scale * 0.12))
-        : Math.max(0.1, Math.min(0.38, 0.12 + scale * 0.1));
+        ? Math.max(0.28, Math.min(0.86, 0.3 + scale * 0.23))
+        : Math.max(0.24, Math.min(0.84, 0.26 + scale * 0.24));
+      const rainbowHue = (point.hue + time * 0.026 + point.depthSeed * 18) % 360;
+      const glowAlpha = alpha * (state.open ? 0.16 : 0.08);
 
-      context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
+      if (state.open && point.tint > 0.04) {
+        context.fillStyle = `hsla(${rainbowHue}, 96%, 56%, ${glowAlpha})`;
+        context.fillRect(drawX - size * 0.28, drawY - size * 0.28, size * 1.34, size * 1.34);
+        context.fillStyle = `hsla(${rainbowHue}, 92%, 44%, ${alpha})`;
+      } else {
+        context.fillStyle = `rgba(5, 5, 5, ${glowAlpha})`;
+        context.fillRect(drawX - size * 0.16, drawY - size * 0.16, size * 1.16, size * 1.16);
+        context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
+      }
+
       context.fillRect(drawX, drawY, size, size);
     }
 
@@ -351,6 +422,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function initWorkHub() {
+    syncOptionPalette();
     resizeWorkCanvas();
     renderWorkHub(0);
 
@@ -406,6 +478,9 @@ if (hero && canvas) {
       active: false,
       starting: false,
       stream: null,
+      audioLinked: false,
+      trackedProfile: null,
+      abstractShapeKind: null,
       detector: FaceDetectorConstructor ? new FaceDetectorConstructor({ fastMode: true, maxDetectedFaces: 1 }) : null,
       lastCaptureAt: 0,
       detecting: false,
@@ -727,6 +802,267 @@ if (hero && canvas) {
     );
   }
 
+  function analyzeTrackedShapeFromSource(source, crop = null) {
+    const sampleCanvas = document.createElement("canvas");
+    const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+    const width = 120;
+    const height = 160;
+    const sourceWidth = crop?.sw || source.videoWidth || source.naturalWidth || source.width;
+    const sourceHeight = crop?.sh || source.videoHeight || source.naturalHeight || source.height;
+    const scale = Math.max(width / sourceWidth, height / sourceHeight);
+    const drawWidth = sourceWidth * scale;
+    const drawHeight = sourceHeight * scale;
+    const offsetX = (width - drawWidth) / 2;
+    const offsetY = (height - drawHeight) / 2;
+    let minX = width;
+    let minY = height;
+    let maxX = 0;
+    let maxY = 0;
+    let hits = 0;
+    let sumX = 0;
+    let sumY = 0;
+    let totalContrast = 0;
+    let totalDarkness = 0;
+
+    sampleCanvas.width = width;
+    sampleCanvas.height = height;
+    sampleContext.fillStyle = "#ffffff";
+    sampleContext.fillRect(0, 0, width, height);
+
+    if (crop) {
+      sampleContext.drawImage(
+        source,
+        crop.sx,
+        crop.sy,
+        crop.sw,
+        crop.sh,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      sampleContext.drawImage(source, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
+    const { data } = sampleContext.getImageData(0, 0, width, height);
+
+    for (let y = 1; y < height - 1; y += 1) {
+      for (let x = 1; x < width - 1; x += 1) {
+        const luminance = getPixelLuminance(data, width, x, y);
+        const neighborX = getPixelLuminance(data, width, x + 1, y);
+        const neighborY = getPixelLuminance(data, width, x, y + 1);
+        const darkness = 1 - (luminance / 255);
+        const contrast = (Math.abs(luminance - neighborX) + Math.abs(luminance - neighborY)) / 255;
+        const centerBias = 1 - Math.min(1, Math.hypot((x / width) - 0.5, (y / height) - 0.5) * 1.45);
+        const score = darkness * 0.82 + contrast * 1.04 + centerBias * 0.24;
+
+        if (score < 0.34) {
+          continue;
+        }
+
+        hits += 1;
+        sumX += x;
+        sumY += y;
+        totalContrast += contrast;
+        totalDarkness += darkness;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+
+    if (hits < 48) {
+      return {
+        centerX: 0.5,
+        centerY: 0.5,
+        width: 0.52,
+        height: 0.72,
+        aspect: 0.72,
+        fill: 0.46,
+        contrast: 0.16,
+        darkness: 0.32
+      };
+    }
+
+    const boxWidth = Math.max(6, maxX - minX + 1);
+    const boxHeight = Math.max(6, maxY - minY + 1);
+    const boxArea = boxWidth * boxHeight;
+
+    return {
+      centerX: (sumX / hits) / width,
+      centerY: (sumY / hits) / height,
+      width: boxWidth / width,
+      height: boxHeight / height,
+      aspect: boxWidth / boxHeight,
+      fill: hits / boxArea,
+      contrast: totalContrast / hits,
+      darkness: totalDarkness / hits
+    };
+  }
+
+  function smoothTrackedProfile(profile) {
+    if (!state.camera.trackedProfile) {
+      state.camera.trackedProfile = { ...profile };
+      return state.camera.trackedProfile;
+    }
+
+    const previous = state.camera.trackedProfile;
+    const easing = 0.22;
+    state.camera.trackedProfile = {
+      centerX: previous.centerX + (profile.centerX - previous.centerX) * easing,
+      centerY: previous.centerY + (profile.centerY - previous.centerY) * easing,
+      width: previous.width + (profile.width - previous.width) * easing,
+      height: previous.height + (profile.height - previous.height) * easing,
+      aspect: previous.aspect + (profile.aspect - previous.aspect) * easing,
+      fill: previous.fill + (profile.fill - previous.fill) * easing,
+      contrast: previous.contrast + (profile.contrast - previous.contrast) * easing,
+      darkness: previous.darkness + (profile.darkness - previous.darkness) * easing
+    };
+
+    return state.camera.trackedProfile;
+  }
+
+  function getAbstractTrackedShapeKind(profile, preferredKind = "object") {
+    if (preferredKind === "face") {
+      if (profile.aspect < 0.78) {
+        return profile.fill > 0.5 ? "capsule-vertical" : "orb";
+      }
+
+      if (profile.fill < 0.4 && profile.contrast > 0.16) {
+        return "diamond";
+      }
+
+      return profile.darkness > 0.38 ? "blob" : "orb";
+    }
+
+    if (profile.aspect > 1.34) {
+      return "capsule-horizontal";
+    }
+
+    if (profile.aspect < 0.72) {
+      return "capsule-vertical";
+    }
+
+    if (profile.contrast > 0.18 && profile.fill > 0.54) {
+      return "square";
+    }
+
+    if (profile.contrast > 0.16 && profile.fill < 0.42) {
+      return "diamond";
+    }
+
+    if (profile.darkness > 0.42) {
+      return "blob";
+    }
+
+    return "orb";
+  }
+
+  function getStableAbstractTrackedShapeKind(profile, preferredKind = "object") {
+    const nextKind = getAbstractTrackedShapeKind(profile, preferredKind);
+
+    if (!state.camera.abstractShapeKind) {
+      state.camera.abstractShapeKind = nextKind;
+      return nextKind;
+    }
+
+    if (state.camera.abstractShapeKind === nextKind) {
+      return nextKind;
+    }
+
+    const current = state.camera.abstractShapeKind;
+    const strongHorizontal = profile.aspect > 1.42;
+    const strongVertical = profile.aspect < 0.68;
+    const strongContrast = profile.contrast > 0.2;
+    const strongFill = profile.fill > 0.58 || profile.fill < 0.38;
+
+    if (
+      (nextKind === "capsule-horizontal" && strongHorizontal) ||
+      (nextKind === "capsule-vertical" && strongVertical) ||
+      ((nextKind === "square" || nextKind === "diamond") && strongContrast) ||
+      (nextKind === "blob" && (profile.darkness > 0.44 || strongFill))
+    ) {
+      state.camera.abstractShapeKind = nextKind;
+    }
+
+    return state.camera.abstractShapeKind || current;
+  }
+
+  function buildAbstractTrackedTemplateFromSource(source, crop = null, preferredKind = "object") {
+    const rawProfile = analyzeTrackedShapeFromSource(source, crop);
+    const profile = smoothTrackedProfile(rawProfile);
+    const shapeKind = getStableAbstractTrackedShapeKind(profile, preferredKind);
+    const pointBudget = window.innerWidth < 720 ? 720 : 1080;
+    const points = [];
+    const centerOffsetX = (profile.centerX - 0.5) * 0.42;
+    const centerOffsetY = (profile.centerY - 0.5) * 0.54;
+    const shapeScaleX = Math.max(0.56, Math.min(1.18, profile.width * 1.28));
+    const shapeScaleY = Math.max(0.62, Math.min(1.26, profile.height * 1.16));
+
+    for (let index = 0; index < pointBudget; index += 1) {
+      const radialSeed = Math.sqrt((index + 0.5) / pointBudget);
+      const theta = index * 2.399963229728653;
+      let shapeX = Math.cos(theta) * radialSeed;
+      let shapeY = Math.sin(theta) * radialSeed;
+
+      if (shapeKind === "square") {
+        const maxAbs = Math.max(Math.abs(shapeX), Math.abs(shapeY)) || 1;
+        const squareFactor = radialSeed / maxAbs;
+        shapeX *= squareFactor;
+        shapeY *= squareFactor;
+      } else if (shapeKind === "diamond") {
+        const manhattan = Math.abs(shapeX) + Math.abs(shapeY) || 1;
+        const diamondFactor = radialSeed / manhattan;
+        shapeX *= diamondFactor * 1.14;
+        shapeY *= diamondFactor * 1.14;
+      } else if (shapeKind === "capsule-vertical") {
+        shapeX *= 0.68;
+        shapeY *= 1.12;
+      } else if (shapeKind === "capsule-horizontal") {
+        shapeX *= 1.12;
+        shapeY *= 0.68;
+      } else if (shapeKind === "blob") {
+        const blobRadius =
+          1 +
+          Math.sin(theta * 3 + profile.contrast * 8) * 0.14 +
+          Math.cos(theta * 5 - profile.darkness * 7) * 0.08;
+        shapeX *= blobRadius;
+        shapeY *= blobRadius;
+      } else {
+        shapeX *= 0.88;
+        shapeY *= 1.02;
+      }
+
+      const normalizedX = 0.5 + centerOffsetX + shapeX * 0.42 * shapeScaleX;
+      const normalizedY = 0.52 + centerOffsetY + shapeY * 0.56 * shapeScaleY;
+      const edgeSoftness = 1 - Math.min(1, radialSeed);
+
+      points.push({
+        x: (normalizedX - 0.5) * 2.18,
+        y: (normalizedY - 0.52) * 2.76,
+        z: edgeSoftness * (0.22 + profile.darkness * 0.18) + Math.sin(theta * 2.2) * 0.03,
+        region: classifyTrackedRegion(normalizedX, normalizedY, edgeSoftness)
+      });
+    }
+
+    const haloCount = Math.min(180, Math.max(80, Math.round(pointBudget * 0.1)));
+
+    for (let index = 0; index < haloCount; index += 1) {
+      const theta = Math.random() * Math.PI * 2;
+      const haloRadius = 1.08 + Math.random() * 0.34;
+      points.push({
+        x: Math.cos(theta) * 0.78 * shapeScaleX * haloRadius,
+        y: Math.sin(theta) * 0.92 * shapeScaleY * haloRadius,
+        z: randomBetween(-0.08, 0.12),
+        region: "halo"
+      });
+    }
+
+    return shuffle(points);
+  }
+
   function buildTrackedTemplateFromLandmarks(landmarks, contourTemplate = []) {
     const bounds = getLandmarkBounds(landmarks);
     const scale = Math.max(bounds.width, bounds.height);
@@ -844,6 +1180,20 @@ if (hero && canvas) {
     }
   }
 
+  function getCameraStatusMessage() {
+    const trackingMessage = state.camera.mode === "face"
+      ? "Tracking your face as an abstract live shape."
+      : state.camera.mode === "object"
+        ? "Tracking the main object or silhouette as an abstract live shape."
+        : "Initializing face tracking...";
+
+    if (state.audio.enabled) {
+      return `Camera live. ${trackingMessage} Microphone input is shaping the tracked particles in real time.`;
+    }
+
+    return `Camera live. ${trackingMessage} Enable microphone input for sound-reactive motion.`;
+  }
+
   function setCameraMode(mode) {
     if (state.camera.mode === mode) {
       return;
@@ -851,10 +1201,8 @@ if (hero && canvas) {
 
     state.camera.mode = mode;
 
-    if (mode === "face") {
-      updateAudioUi("Camera live. Tracking your face in real time. Enable microphone input for sound-reactive motion.");
-    } else if (mode === "object") {
-      updateAudioUi("Camera live. Tracking the main object or silhouette in frame. Enable microphone input for sound-reactive motion.");
+    if (state.camera.active) {
+      updateAudioUi(getCameraStatusMessage());
     }
   }
 
@@ -949,8 +1297,7 @@ if (hero && canvas) {
 
           if (landmarks?.length) {
             const crop = getCropFromLandmarks(landmarks, width, height);
-            const contourTemplate = buildTrackedTemplateFromSource(portraitCameraPreview, crop);
-            template = buildTrackedTemplateFromLandmarks(landmarks, contourTemplate);
+            template = buildAbstractTrackedTemplateFromSource(portraitCameraPreview, crop, "face");
             setCameraMode("face");
           }
         } catch (error) {
@@ -968,9 +1315,10 @@ if (hero && canvas) {
               .slice()
               .sort((first, second) => (second.boundingBox.width * second.boundingBox.height) - (first.boundingBox.width * first.boundingBox.height))[0];
 
-            template = buildTrackedTemplateFromSource(
+            template = buildAbstractTrackedTemplateFromSource(
               portraitCameraPreview,
-              expandDetectedFaceCrop(face.boundingBox, width, height)
+              expandDetectedFaceCrop(face.boundingBox, width, height),
+              "face"
             );
             setCameraMode("face");
           }
@@ -980,9 +1328,10 @@ if (hero && canvas) {
       }
 
       if (!template) {
-        template = buildTrackedTemplateFromSource(
+        template = buildAbstractTrackedTemplateFromSource(
           portraitCameraPreview,
-          detectSubjectCropFromSource(portraitCameraPreview)
+          detectSubjectCropFromSource(portraitCameraPreview),
+          "object"
         );
         setCameraMode("object");
       }
@@ -1027,6 +1376,9 @@ if (hero && canvas) {
       state.camera.active = true;
       state.camera.lastCaptureAt = 0;
       state.camera.mode = "idle";
+      state.camera.audioLinked = false;
+      state.camera.trackedProfile = null;
+      state.camera.abstractShapeKind = null;
       state.pointerBoost = 0;
       state.dispersion = 0;
       state.flash = 0;
@@ -1034,6 +1386,12 @@ if (hero && canvas) {
       updateAudioUi("Camera live. Initializing face tracking...");
       await ensureFaceLandmarker();
       await refreshPortraitFromCameraFrame();
+
+      if (!state.audio.enabled && canUseMicrophone) {
+        await startAudioReactiveMode({ fromCamera: true, silentError: true });
+      } else {
+        updateAudioUi(getCameraStatusMessage());
+      }
     } catch (error) {
       const errorName = error?.name || "";
       let message = "Camera could not be enabled.";
@@ -1052,7 +1410,9 @@ if (hero && canvas) {
     }
   }
 
-  function stopPortraitCamera() {
+  async function stopPortraitCamera() {
+    const shouldStopLinkedAudio = state.camera.audioLinked && state.audio.enabled;
+
     if (state.camera.stream) {
       state.camera.stream.getTracks().forEach((track) => track.stop());
       state.camera.stream = null;
@@ -1068,17 +1428,29 @@ if (hero && canvas) {
     state.camera.detecting = false;
     state.camera.mode = "idle";
     state.customPortraitTemplate = null;
+    state.camera.audioLinked = false;
+    state.camera.trackedProfile = null;
+    state.camera.abstractShapeKind = null;
     updatePortraitUi(false);
-    updateAudioUi("Live camera stopped. Enable it again to track your face or an object.");
 
-    if (state.shapes[state.currentShape] === "camera") {
+    if (shouldStopLinkedAudio) {
+      await stopAudioReactiveMode();
+    } else if (state.audio.enabled) {
+      updateAudioUi("Mic mode is on. The particles now switch into an abstract audio field.");
+    } else {
+      updateAudioUi("Live camera stopped. Enable it again to track your face or an object.");
+    }
+
+    if (state.shapes[state.currentShape] === "camera" && !state.audio.enabled) {
       morphTo(0);
     }
   }
 
   function cleanupHeroMedia() {
-    stopPortraitCamera();
-    stopAudioReactiveMode();
+    void stopPortraitCamera();
+    if (!state.camera.audioLinked) {
+      void stopAudioReactiveMode();
+    }
   }
 
   function createProceduralPortrait(count) {
@@ -1167,16 +1539,17 @@ if (hero && canvas) {
       return createProceduralPortrait(count);
     }
 
-    const template = shuffle([...state.customPortraitTemplate]);
+    const template = state.customPortraitTemplate;
     const points = [];
 
     for (let index = 0; index < count; index += 1) {
       const source = template[index % template.length];
+      const phase = index * 0.61803398875;
 
       points.push({
-        x: source.x + randomBetween(-0.016, 0.016),
-        y: source.y + randomBetween(-0.016, 0.016),
-        z: source.z + randomBetween(-0.04, 0.04),
+        x: source.x + Math.sin(phase * 3.1) * 0.004,
+        y: source.y + Math.cos(phase * 2.7) * 0.004,
+        z: source.z + Math.sin(phase * 1.9) * 0.012,
         region: source.region || "body"
       });
     }
@@ -1496,7 +1869,9 @@ if (hero && canvas) {
     state.audio.beatCooldown = 0;
   }
 
-  async function stopAudioReactiveMode() {
+  async function stopAudioReactiveMode(options = {}) {
+    const { preserveCameraMessage = false } = options;
+
     if (state.audio.source) {
       state.audio.source.disconnect();
       state.audio.source = null;
@@ -1523,13 +1898,37 @@ if (hero && canvas) {
     state.audio.context = null;
     state.audio.frequencyData = null;
     state.audio.previousFrequencyData = null;
-      state.audio.timeDomainData = null;
-      state.audio.enabled = false;
-      resetAudioMetrics();
-    updateAudioUi("Enable microphone input for sound-reactive motion.");
+    state.audio.timeDomainData = null;
+    state.audio.enabled = false;
+    state.camera.audioLinked = false;
+    resetAudioMetrics();
+    resizeCanvas();
+
+    if (preserveCameraMessage && state.camera.active) {
+      updateAudioUi(getCameraStatusMessage());
+    } else {
+      updateAudioUi("Enable microphone input for sound-reactive motion.");
+    }
   }
 
-  async function startAudioReactiveMode() {
+  async function startAudioReactiveMode(options = {}) {
+    const {
+      fromCamera = false,
+      silentError = false
+    } = options;
+
+    if (state.audio.enabled) {
+      if (fromCamera) {
+        state.camera.audioLinked = true;
+      }
+
+      if (state.camera.active) {
+        updateAudioUi(getCameraStatusMessage());
+      }
+
+      return true;
+    }
+
     if (!canUseMicrophone || state.audio.isStarting) {
       updateAudioUi(
         canUseMicrophone
@@ -1537,7 +1936,7 @@ if (hero && canvas) {
           : "Microphone input needs HTTPS or localhost in a supported browser.",
         !canUseMicrophone
       );
-      return;
+      return false;
     }
 
     state.audio.isStarting = true;
@@ -1558,7 +1957,7 @@ if (hero && canvas) {
       const source = audioContext.createMediaStreamSource(stream);
 
       analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.91;
+      analyser.smoothingTimeConstant = 0.94;
       source.connect(analyser);
 
       if (audioContext.state === "suspended") {
@@ -1578,8 +1977,16 @@ if (hero && canvas) {
       state.audio.visualBlend = Math.max(state.audio.visualBlend, 0.2);
       state.dispersion = Math.max(state.dispersion, 0.5);
       state.flash = Math.max(state.flash, 0.18);
+      state.camera.audioLinked = fromCamera;
+      resizeCanvas();
 
-      updateAudioUi("Mic mode is on. The particles now switch into an abstract audio field.");
+      if (state.camera.active) {
+        updateAudioUi(getCameraStatusMessage());
+      } else {
+        updateAudioUi("Mic mode is on. The particles now switch into an abstract audio field.");
+      }
+
+      return true;
     } catch (error) {
       const errorName = error?.name || "";
       let message = "Microphone input could not be enabled.";
@@ -1590,9 +1997,18 @@ if (hero && canvas) {
         message = "No microphone input was found on this device.";
       }
 
-      updateAudioUi(message, true);
-      await stopAudioReactiveMode();
-      updateAudioUi(message, true);
+      state.camera.audioLinked = false;
+
+      if (silentError && state.camera.active) {
+        await stopAudioReactiveMode({ preserveCameraMessage: true });
+        updateAudioUi(`${getCameraStatusMessage()} Microphone input was not enabled.`, true);
+      } else {
+        updateAudioUi(message, true);
+        await stopAudioReactiveMode();
+        updateAudioUi(message, true);
+      }
+
+      return false;
     } finally {
       state.audio.isStarting = false;
 
@@ -1824,71 +2240,55 @@ if (hero && canvas) {
 
   function getAudioFieldTarget(point, time) {
     const tempoFactor = Math.min(1.2, Math.max(0.5, state.audio.tempo / 120));
-    const drumPulse = Math.min(1.5, state.audio.bass * 1.04 + state.audio.percussion * 1.02 + state.audio.surge * 0.68 + state.audio.transient * 0.24);
-    const guitarLift = Math.min(1.45, state.audio.guitar * 1.02 + state.audio.presence * 0.38 + state.audio.noteDrift * 0.32 + state.audio.brightness * 0.12);
-    const shimmer = Math.min(1.35, state.audio.air * 0.84 + state.audio.treble * 0.46 + state.audio.brightness * 0.4 + state.audio.flux * 0.26);
-    const waveformPulse = Math.min(1.3, state.audio.waveform * 0.9 + state.audio.level * 0.4);
-    const schoolCount = 1;
-    const schoolIndex = point.audioGroup % schoolCount;
-    const schoolPhase = (schoolIndex / schoolCount) * Math.PI * 2;
-    const lanePosition = schoolCount <= 1 ? 0 : (schoolIndex / (schoolCount - 1)) * 2 - 1;
-    const swimSpeed = 0.0001 + tempoFactor * 0.00006 + state.audio.melody * 0.00004 + state.audio.hat * 0.00002;
-    const routeTime = time * swimSpeed;
-    const schoolXRange = 0.34 + state.audio.noteDrift * 0.04 + state.audio.melody * 0.03 + state.audio.surge * 0.012;
-    const schoolYRange = 0.08 + shimmer * 0.014 + state.audio.snare * 0.012;
-    const schoolX =
-      Math.sin(routeTime + schoolPhase) * schoolXRange +
-      Math.sin(routeTime * 0.47 + schoolPhase * 1.6 + point.audioLane * 0.5) * (0.055 + state.audio.beatPulse * 0.014) +
-      Math.cos(routeTime * 0.21 + schoolPhase * 0.8) * (0.026 + state.audio.melody * 0.01);
-    const schoolY =
-      lanePosition * 0.03 +
-      Math.cos(routeTime * 0.76 + schoolPhase * 1.12 + point.audioLane * 0.8) * schoolYRange +
-      Math.sin(routeTime * 0.34 + schoolPhase * 1.7) * (0.022 + shimmer * 0.008 + state.audio.kick * 0.006) +
-      point.audioLane * 0.006;
-    const nextSchoolX =
-      Math.sin((time + 24) * swimSpeed + schoolPhase) * schoolXRange +
-      Math.sin((time + 24) * swimSpeed * 0.47 + schoolPhase * 1.6 + point.audioLane * 0.5) * (0.055 + state.audio.beatPulse * 0.014) +
-      Math.cos((time + 24) * swimSpeed * 0.21 + schoolPhase * 0.8) * (0.026 + state.audio.melody * 0.01);
-    const nextSchoolY =
-      lanePosition * 0.03 +
-      Math.cos((time + 24) * swimSpeed * 0.76 + schoolPhase * 1.12 + point.audioLane * 0.8) * schoolYRange +
-      Math.sin((time + 24) * swimSpeed * 0.34 + schoolPhase * 1.7) * (0.022 + shimmer * 0.008 + state.audio.kick * 0.006) +
-      point.audioLane * 0.006;
-    const dirX = nextSchoolX - schoolX;
-    const dirY = nextSchoolY - schoolY;
-    const dirLength = Math.hypot(dirX, dirY) || 1;
-    const forwardX = dirX / dirLength;
-    const forwardY = dirY / dirLength;
-    const sideX = -forwardY;
-    const sideY = forwardX;
-    const bodyT = point.audioBias * 2 - 1;
-    const bodyLength = 0.14 + waveformPulse * 0.01 + state.audio.kick * 0.012 + state.audio.beatPulse * 0.02 + state.audio.melody * 0.006;
-    const bodyWidth = (1 - Math.abs(bodyT) * 0.8) * (0.032 + shimmer * 0.008 + point.motionBias * 0.008 + state.audio.melody * 0.006);
-    const swimWave = Math.sin(time * (0.00072 + tempoFactor * 0.00038 + state.audio.melody * 0.00018 + state.audio.hat * 0.00018) - bodyT * 6.8 + point.motionPhase);
-    const tailWave = swimWave * (0.008 + state.audio.noteDrift * 0.01 + state.audio.melody * 0.009 + state.audio.hat * 0.007 + Math.max(0, -bodyT) * 0.012 + state.audio.beatPulse * 0.014);
-    const noseBulge = Math.max(0, bodyT) * (0.012 + waveformPulse * 0.008 + state.audio.beatPulse * 0.014);
-    const finSpread = bodyWidth * (0.6 + point.motionBias * 0.4);
-    let lateral = (point.motionMode === 0 ? 0 : point.motionMode === 1 ? finSpread : point.motionMode === 2 ? -finSpread : finSpread * 0.4);
-    let vertical = 0;
-    let depth = 0;
+    const bassPulse = Math.min(1.45, state.audio.bass * 1.02 + state.audio.kick * 0.88 + state.audio.surge * 0.5 + state.audio.transient * 0.2);
+    const melodyLift = Math.min(1.45, state.audio.melody * 1.08 + state.audio.presence * 0.48 + state.audio.noteDrift * 0.36 + state.audio.note * 0.22 + state.audio.guitar * 0.28);
+    const shimmer = Math.min(1.35, state.audio.air * 0.8 + state.audio.treble * 0.46 + state.audio.brightness * 0.4 + state.audio.flux * 0.2);
+    const waveformPulse = Math.min(1.25, state.audio.waveform * 0.92 + state.audio.level * 0.4);
+    const layerCount = state.width < 720 ? 2 : 3;
+    const layerIndex = point.audioGroup % layerCount;
+    const layerDepth = layerCount <= 1 ? 0 : (layerIndex / (layerCount - 1)) * 2 - 1;
+    const laneSpacing = 0.17 + waveformPulse * 0.035 + state.audio.snare * 0.02;
+    const baseY = layerDepth * laneSpacing;
+    const progress = point.audioBias * 2 - 1;
+    const sweepTime = time * (0.00005 + tempoFactor * 0.000032 + state.audio.noteDrift * 0.000015);
+    const ribbonTime = time * (0.00012 + tempoFactor * 0.00008 + state.audio.melody * 0.00005 + state.audio.guitar * 0.00003);
+    const sweepX =
+      Math.sin(sweepTime + point.audioSpiral * 0.45) * (0.38 + melodyLift * 0.12 + state.audio.beatPulse * 0.08) +
+      Math.sin(sweepTime * 0.46 + layerIndex * 0.7) * (0.08 + state.audio.noteDrift * 0.04);
+    const ribbonWidth = 1.18 + bassPulse * 0.14 + waveformPulse * 0.1 + state.audio.melody * 0.08;
+    const xSpread = progress * ribbonWidth;
+    const lineCurve = Math.sin(
+      progress * Math.PI * (1.05 + point.motionMode * 0.14) +
+      ribbonTime * (1.22 + state.audio.note * 0.32) +
+      point.motionPhase
+    ) * (0.052 + melodyLift * 0.034 + state.audio.guitar * 0.018);
+    const lineDrift = Math.cos(
+      ribbonTime * 0.82 +
+      progress * (2.8 + point.motionBias * 1.8) +
+      layerIndex * 0.68
+    ) * (0.024 + shimmer * 0.016 + state.audio.noteDrift * 0.012);
+    const verticalWave = Math.sin(
+      ribbonTime * (1.06 + state.audio.note * 0.24) +
+      progress * (4.6 + state.audio.melody * 1.2) +
+      point.seed
+    ) * (0.05 + melodyLift * 0.038 + state.audio.waveform * 0.02);
+    const secondaryWave = Math.cos(
+      ribbonTime * 0.64 +
+      progress * 2.6 +
+      point.motionPhase * 0.7
+    ) * (0.016 + state.audio.presence * 0.015 + state.audio.snare * 0.01);
+    const depthFlow = Math.sin(
+      ribbonTime * 0.74 +
+      progress * 3.4 +
+      point.audioDepthBias * 2.6
+    ) * (0.072 + shimmer * 0.024 + melodyLift * 0.018);
+    const depthPulse =
+      Math.cos(sweepTime * 1.18 + point.audioBias * 5.4) * (0.018 + bassPulse * 0.014 + state.audio.kick * 0.01) +
+      point.audioDepthBias * (0.03 + state.audio.noteDrift * 0.01);
 
-    if (point.motionMode === 1) {
-      vertical = Math.sin(bodyT * Math.PI) * (0.008 + shimmer * 0.004 + state.audio.snare * 0.004);
-    } else if (point.motionMode === 2) {
-      vertical = -Math.sin(bodyT * Math.PI) * (0.007 + shimmer * 0.004 + state.audio.snare * 0.004);
-    } else if (point.motionMode === 3) {
-      lateral *= 0.46;
-      depth = tailWave * (0.22 + state.audio.kick * 0.08);
-    }
-
-    const x = schoolX + forwardX * bodyT * bodyLength + sideX * (lateral + tailWave) + noseBulge * forwardX;
-    const y = schoolY + forwardY * bodyT * bodyLength + sideY * (lateral * 0.72 + tailWave * 0.9) + vertical;
-    const z =
-      Math.sin(time * (0.00024 + state.audio.hat * 0.00012 + tempoFactor * 0.00004) + schoolPhase + point.motionPhase) * (0.06 + shimmer * 0.024 + state.audio.hat * 0.014) +
-      depth +
-      Math.cos(bodyT * Math.PI) * (0.024 + state.audio.kick * 0.014) +
-      point.audioDepthBias * (0.014 + state.audio.melody * 0.006) +
-      Math.sin(point.seed + time * 0.00024) * 0.008;
+    const x = xSpread + sweepX + lineCurve + lineDrift;
+    const y = baseY + verticalWave + secondaryWave;
+    const z = depthFlow + depthPulse;
 
     return { x, y, z };
   }
@@ -1943,12 +2343,12 @@ if (hero && canvas) {
       ty: 0,
       tz: 0,
       region: "default",
-      size: randomBetween(0.7, 1.8),
+      size: randomBetween(0.72, 1.58),
       seed: Math.random() * Math.PI * 2,
       orbitSeed: Math.random() * Math.PI * 2,
       driftRadius: randomBetween(0.01, 0.08),
       scatterScale: randomBetween(0.75, 1.25),
-      audioGroup: Math.floor(Math.random() * 7),
+      audioGroup: Math.floor(Math.random() * 10),
       audioBias: Math.random(),
       audioSpiral: Math.random() > 0.5 ? 1 : -1,
       audioLane: randomBetween(-1, 1),
@@ -2003,11 +2403,11 @@ if (hero && canvas) {
     const sorted = projectedPoints
       .slice()
       .sort((first, second) => first.x - second.x);
-    const maxDistance = Math.min(state.width, state.height) * (isAudioMode ? 0.082 : shapeName === "portrait" ? 0.08 : 0.1);
-    const lookahead = isAudioMode ? 4 : shapeName === "portrait" ? 6 : 5;
+    const maxDistance = Math.min(state.width, state.height) * (isAudioMode ? 0.12 : shapeName === "portrait" ? 0.08 : 0.1);
+    const lookahead = isAudioMode ? 6 : shapeName === "portrait" ? 6 : 5;
 
     context.lineWidth = isAudioMode
-      ? 0.1 + audioTreble * 0.08 + guitar * 0.08 + flash * 0.02
+      ? 0.14 + audioTreble * 0.12 + guitar * 0.11 + flash * 0.04
       : isCameraShape
       ? 0.35 + audioTreble * 0.4 + guitar * 0.45 + flash * 0.18
       : 0.2 + audioTreble * 0.12 + guitar * 0.1 + flash * 0.06;
@@ -2033,13 +2433,13 @@ if (hero && canvas) {
 
         const alpha = (1 - distance / maxDistance) * (
           isAudioMode
-            ? (0.012 + audioLevel * 0.018 + guitar * 0.016 + flash * 0.008)
+            ? (0.018 + audioLevel * 0.03 + guitar * 0.024 + flash * 0.012)
             : isCameraShape
             ? (0.04 + audioLevel * 0.06 + guitar * 0.08 + flash * 0.06)
             : (0.02 + audioLevel * 0.02 + guitar * 0.018 + flash * 0.014)
         );
 
-        if (alpha < 0.015) {
+        if (alpha < (isAudioMode ? 0.01 : 0.015)) {
           continue;
         }
 
@@ -2091,12 +2491,12 @@ if (hero && canvas) {
     const isAudioMode = state.audio.visualBlend > 0.025 && !state.camera.active;
     const isCameraShape = shapeName === "camera" && !isAudioMode;
     const isPortraitShape = shapeName === "portrait";
-    const baseScaleBoost = isAudioMode ? 0.96 : isCameraShape ? 1 : isPortraitShape ? 0.96 : 0.92;
+    const baseScaleBoost = isAudioMode ? 1.06 : isCameraShape ? 1 : isPortraitShape ? 0.93 : 0.9;
     const sceneScale = Math.min(state.width, state.height) *
       (
         state.width < 720
-          ? (isAudioMode ? 0.24 : isCameraShape ? 0.34 : 0.25)
-          : (isAudioMode ? 0.29 : isCameraShape ? 0.39 : 0.3)
+          ? (isAudioMode ? 0.33 : isCameraShape ? 0.34 : 0.235)
+          : (isAudioMode ? 0.4 : isCameraShape ? 0.39 : 0.275)
       ) * baseScaleBoost *
       (1 + (
         isAudioMode
@@ -2109,39 +2509,39 @@ if (hero && canvas) {
     const idleDispersion = reducedMotion
       ? 0.02
       : isAudioMode
-        ? 0.11 + Math.sin(time * 0.00022) * 0.022
+        ? 0.05 + Math.sin(time * 0.00016) * 0.006
         : isCameraShape
         ? 0.006 + Math.sin(time * 0.00034) * 0.004
-        : 0.05 + Math.sin(time * 0.00062) * 0.018;
+        : 0.034 + Math.sin(time * 0.00062) * 0.012;
     const reactiveDispersion = isAudioMode
-      ? audioLevel * 0.1 + audioBass * 0.08 + audioTreble * 0.03 + audioFlux * 0.08 + audioPercussion * 0.06 + audioGuitar * 0.04 + audioSurge * 0.04 + audioTransient * 0.05 + audioNoteDrift * 0.03
+      ? audioLevel * 0.04 + audioBass * 0.03 + audioTreble * 0.014 + audioFlux * 0.02 + audioPercussion * 0.018 + audioGuitar * 0.016 + audioSurge * 0.016 + audioTransient * 0.018 + audioNoteDrift * 0.012
       : isCameraShape
       ? audioLevel * 0.04 + audioBass * 0.06 + audioFlux * 0.04
-      : audioLevel * 0.24 + audioBass * 0.34 + audioTreble * 0.11 + audioFlux * 0.42 + audioPercussion * 0.22 + audioSurge * 0.24;
+      : audioLevel * 0.17 + audioBass * 0.24 + audioTreble * 0.08 + audioFlux * 0.28 + audioPercussion * 0.15 + audioSurge * 0.16;
     const globalDriftX = reducedMotion ? 0 : (
       isAudioMode
-        ? Math.sin(time * (0.00008 + audioTempo * 0.0000005 + audioNote * 0.000012)) * (0.035 + audioSurge * 0.008 + audioMelody * 0.012 + audioNoteDrift * 0.004 + audioBeatPulse * 0.01)
+        ? Math.sin(time * (0.000042 + audioTempo * 0.00000035 + audioNote * 0.000004)) * (0.01 + audioMelody * 0.008 + audioBeatPulse * 0.005 + audioNoteDrift * 0.003)
         : isCameraShape
           ? Math.sin(time * 0.0002) * 0.008
           : Math.sin(time * 0.00042) * (0.06 + audioSurge * 0.02)
     );
     const globalDriftY = reducedMotion ? 0 : (
       isAudioMode
-        ? Math.cos(time * (0.00008 + audioBrightness * 0.000012 + audioTempo * 0.0000004)) * (0.026 + audioSurge * 0.006 + audioSnare * 0.01 + audioWaveform * 0.004 + audioBeatPulse * 0.008)
+        ? Math.cos(time * (0.000038 + audioBrightness * 0.000006 + audioTempo * 0.00000028)) * (0.006 + audioSnare * 0.004 + audioWaveform * 0.003 + audioBeatPulse * 0.003)
         : isCameraShape
           ? Math.cos(time * 0.00018) * 0.007
           : Math.cos(time * 0.00036) * (0.048 + audioSurge * 0.016)
     );
     const globalBreathe = reducedMotion ? 0 : (
       isAudioMode
-        ? Math.sin(time * (0.00018 + audioBass * 0.00004 + audioWaveform * 0.00004 + audioTempo * 0.0000004)) * (0.014 + audioLevel * 0.009 + audioKick * 0.007 + audioTransient * 0.003 + audioBeatPulse * 0.006)
+        ? Math.sin(time * (0.0001 + audioBass * 0.000014 + audioWaveform * 0.000018 + audioTempo * 0.00000022)) * (0.006 + audioLevel * 0.004 + audioKick * 0.004 + audioBeatPulse * 0.004)
         : isCameraShape
           ? Math.sin(time * 0.00036) * (0.006 + audioLevel * 0.01)
           : Math.sin(time * (0.00052 + audioBass * 0.00018)) * (0.03 + audioLevel * 0.035)
     );
     const globalSway = reducedMotion ? 0 : (
       isAudioMode
-        ? Math.sin(time * (0.00011 + audioMid * 0.00003 + audioMelody * 0.00005 + audioFlux * 0.000025 + audioNoteDrift * 0.00002)) * (0.022 + audioPresence * 0.01 + audioMelody * 0.014 + audioSurge * 0.006 + audioBeatPulse * 0.006)
+        ? Math.sin(time * (0.000052 + audioMid * 0.00001 + audioMelody * 0.000018 + audioFlux * 0.000008 + audioNoteDrift * 0.000008)) * (0.012 + audioPresence * 0.006 + audioMelody * 0.008 + audioBeatPulse * 0.004)
         : isCameraShape
           ? Math.sin(time * 0.00028) * (0.01 + audioPresence * 0.012)
           : Math.sin(time * (0.00048 + audioMid * 0.00016 + audioGuitar * 0.00022)) * (0.062 + audioPresence * 0.065 + audioGuitar * 0.08 + audioSurge * 0.03)
@@ -2149,18 +2549,20 @@ if (hero && canvas) {
     const clearAlpha = reducedMotion
       ? 1
       : isAudioMode
-        ? Math.max(0.18, 0.28 - audioLevel * 0.025 - state.flash * 0.012)
+        ? Math.max(0.11, 0.18 - audioLevel * 0.02 - state.flash * 0.012)
         : isCameraShape
           ? 1
           : Math.max(0.16, 0.34 - audioLevel * 0.12 - state.flash * 0.08);
     const projectedPoints = [];
+    const audioRenderModulo = state.width < 720 ? 4 : 5;
+    const audioVisibleGroups = state.width < 720 ? 2 : 3;
 
     context.fillStyle = `rgba(255, 255, 255, ${clearAlpha})`;
     context.fillRect(0, 0, state.width, state.height);
 
     state.pointerBoost *= 0.96;
-    state.dispersion += ((idleDispersion + reactiveDispersion) - state.dispersion) * (isAudioMode ? 0.02 : 0.06);
-    state.flash *= isAudioMode ? 0.88 : 0.92;
+    state.dispersion += ((idleDispersion + reactiveDispersion) - state.dispersion) * (isAudioMode ? 0.028 : 0.06);
+    state.flash *= isAudioMode ? 0.9 : 0.92;
 
     for (const point of state.points) {
       let targetX = point.tx;
@@ -2178,21 +2580,21 @@ if (hero && canvas) {
       const normalizedX = targetX / distance;
       const normalizedY = targetY / distance;
       const normalizedZ = targetZ / distance;
-      const orbitRadius = point.driftRadius * (0.45 + state.dispersion * (isAudioMode ? 0.22 : 0.9)) * point.scatterScale;
-      const orbitX = reducedMotion ? 0 : Math.sin(time * (isAudioMode ? 0.00042 : isCameraShape ? 0.00024 : 0.0009) + point.orbitSeed) * orbitRadius;
-      const orbitY = reducedMotion ? 0 : Math.cos(time * (isAudioMode ? 0.00039 : isCameraShape ? 0.00022 : 0.00082) + point.orbitSeed * 1.1) * orbitRadius;
-      const orbitZ = reducedMotion ? 0 : Math.sin(time * (isAudioMode ? 0.00034 : isCameraShape ? 0.0002 : 0.00074) + point.orbitSeed * 0.8) * orbitRadius * (isCameraShape ? 0.28 : isAudioMode ? 0.52 : 0.85);
+      const orbitRadius = point.driftRadius * (isAudioMode ? (0.16 + state.dispersion * 0.12) : (0.45 + state.dispersion * 0.9)) * point.scatterScale;
+      const orbitX = reducedMotion ? 0 : Math.sin(time * (isAudioMode ? 0.00026 : isCameraShape ? 0.00024 : 0.0009) + point.orbitSeed) * orbitRadius;
+      const orbitY = reducedMotion ? 0 : Math.cos(time * (isAudioMode ? 0.00022 : isCameraShape ? 0.00022 : 0.00082) + point.orbitSeed * 1.1) * orbitRadius;
+      const orbitZ = reducedMotion ? 0 : Math.sin(time * (isAudioMode ? 0.0002 : isCameraShape ? 0.0002 : 0.00074) + point.orbitSeed * 0.8) * orbitRadius * (isCameraShape ? 0.28 : isAudioMode ? 0.26 : 0.85);
       const spreadAmount = state.dispersion * point.scatterScale;
-      const spreadMultiplier = isAudioMode ? 0.009 : isCameraShape ? 0.016 : shapeName === "portrait" ? 0.076 : 0.116;
+      const spreadMultiplier = isAudioMode ? 0.015 : isCameraShape ? 0.016 : shapeName === "portrait" ? 0.076 : 0.116;
       const spreadX = normalizedX * spreadAmount * spreadMultiplier + orbitX;
       const spreadY = normalizedY * spreadAmount * spreadMultiplier + orbitY;
       const spreadZ = normalizedZ * spreadAmount * spreadMultiplier + orbitZ;
       const ornamentStrength = isAudioMode
-        ? 0.008 + point.motionBias * 0.004 + audioGuitar * 0.004 + audioNoteDrift * 0.004
+        ? 0.005 + point.motionBias * 0.002 + audioGuitar * 0.003 + audioNoteDrift * 0.002 + audioBrightness * 0.002
         : isCameraShape
           ? 0
           : 0.012 + point.motionBias * 0.012 + (isPortraitShape ? audioLevel * 0.01 : audioGuitar * 0.016 + audioTreble * 0.006);
-      const ornamentPhase = time * (isAudioMode ? 0.00068 : 0.00046 + point.motionMode * 0.00004) + point.motionPhase;
+      const ornamentPhase = time * (isAudioMode ? 0.00034 : 0.00046 + point.motionMode * 0.00004) + point.motionPhase;
       let ornamentX = 0;
       let ornamentY = 0;
       let ornamentZ = 0;
@@ -2220,9 +2622,9 @@ if (hero && canvas) {
       }
 
       if (isAudioMode) {
-        targetX += spreadX * (0.32 + audioGuitar * 0.026 + audioNoteDrift * 0.016);
-        targetY += spreadY * (0.28 + audioPercussion * 0.018 + audioWaveform * 0.014);
-        targetZ += spreadZ * (0.24 + audioSurge * 0.016 + audioTransient * 0.016);
+        targetX += spreadX * (0.18 + audioGuitar * 0.02 + audioMelody * 0.018);
+        targetY += spreadY * (0.14 + audioPercussion * 0.018 + audioWaveform * 0.014);
+        targetZ += spreadZ * (0.12 + audioSurge * 0.02 + audioBrightness * 0.016);
       } else if (shapeName === "portrait") {
         const mouthOpen = Math.min(1, audioMid * 1.35 + audioLowMid * 0.42 + audioLevel * 0.88 + audioPresence * 0.28);
         const mouthPulse = reducedMotion ? 0 : Math.sin(time * (0.0042 + audioPresence * 0.0024 + audioGuitar * 0.0022) + point.seed) * 0.01;
@@ -2255,25 +2657,27 @@ if (hero && canvas) {
           targetY += Math.cos(time * 0.001 + point.seed * 1.2) * (0.01 + audioTreble * 0.018 + audioAir * 0.02);
         }
       } else if (isCameraShape) {
+        const trackedPulse = audioLevel * 0.024 + audioBass * 0.03 + audioMelody * 0.018 + audioBeatPulse * 0.02;
         const trackedRipple = reducedMotion
           ? 0
-          : Math.sin(time * (0.0016 + audioGuitar * 0.0009) + point.seed * 1.4) * (0.01 + audioFlux * 0.028);
+          : Math.sin(time * (0.0016 + audioGuitar * 0.0009 + audioNote * 0.00032) + point.seed * 1.4) * (0.016 + audioFlux * 0.04 + audioWaveform * 0.02);
 
         if (point.region === "focus") {
-          targetX += trackedRipple * 0.9;
-          targetY += Math.cos(time * 0.002 + point.seed) * (audioPresence * 0.03 + audioGuitar * 0.018);
-          targetZ += audioMid * 0.03;
-        } else if (point.region === "core") {
-          targetX += trackedRipple * 0.7;
-          targetY += Math.sin(time * 0.0018 + point.seed) * (audioMid * 0.024 + audioPercussion * 0.016);
-        } else if (point.region === "body") {
           targetX += trackedRipple * 1.12;
-          targetY += audioBass * 0.035 + audioLowMid * 0.02;
+          targetY += Math.cos(time * 0.002 + point.seed) * (audioPresence * 0.04 + audioGuitar * 0.024 + trackedPulse * 0.32);
+          targetZ += audioMid * 0.05 + trackedPulse * 0.05;
+        } else if (point.region === "core") {
+          targetX += trackedRipple * 0.92;
+          targetY += Math.sin(time * 0.0018 + point.seed) * (audioMid * 0.032 + audioPercussion * 0.022 + trackedPulse * 0.26);
+          targetZ += trackedPulse * 0.035;
+        } else if (point.region === "body") {
+          targetX += trackedRipple * 1.28;
+          targetY += audioBass * 0.05 + audioLowMid * 0.03 + trackedPulse * 0.2;
         } else if (point.region === "lower") {
-          targetY += audioBass * 0.06 + audioPercussion * 0.028;
+          targetY += audioBass * 0.082 + audioPercussion * 0.04 + trackedPulse * 0.18;
         } else if (point.region === "halo") {
-          targetX += Math.sin(time * 0.001 + point.seed) * (0.018 + audioAir * 0.024 + audioGuitar * 0.02);
-          targetY += Math.cos(time * 0.00092 + point.seed * 1.1) * (0.015 + audioTreble * 0.02);
+          targetX += Math.sin(time * 0.001 + point.seed) * (0.022 + audioAir * 0.036 + audioGuitar * 0.028 + trackedPulse * 0.18);
+          targetY += Math.cos(time * 0.00092 + point.seed * 1.1) * (0.02 + audioTreble * 0.028 + trackedPulse * 0.14);
         }
       }
 
@@ -2325,11 +2729,10 @@ if (hero && canvas) {
 
       if (!isCameraShape) {
         if (isAudioMode) {
-          const swimPhase = time * (0.0004 + audioNote * 0.00008 + audioFlux * 0.00003);
-          const sharedDrift = Math.sin(swimPhase + point.audioBias * 1.8);
-          ornamentX = sharedDrift * ornamentStrength * 0.3;
-          ornamentY = Math.cos(swimPhase * 0.84 + point.audioBias) * ornamentStrength * 0.12;
-          ornamentZ = Math.sin(swimPhase * 0.72 + point.audioBias * 1.4) * ornamentStrength * 0.16;
+          const ribbonPhase = time * (0.00012 + audioNote * 0.00003 + audioFlux * 0.00001);
+          ornamentX = Math.sin(ribbonPhase + point.audioBias * 3.2) * ornamentStrength;
+          ornamentY = Math.cos(ribbonPhase * 0.72 + point.motionBias * 2.6) * ornamentStrength * 0.34;
+          ornamentZ = Math.sin(ribbonPhase * 0.86 + point.audioSpiral * 2.1) * ornamentStrength * 0.42;
         }
 
         targetX += ornamentX;
@@ -2342,62 +2745,68 @@ if (hero && canvas) {
       point.y += (targetY - point.y) * cameraLerp;
       point.z += (targetZ - point.z) * cameraLerp;
 
+      if (isAudioMode && point.audioGroup % audioRenderModulo >= audioVisibleGroups) {
+        continue;
+      }
+
       const reactiveBoost = state.pointerBoost + audioLevel * 1.35 + audioBass * 0.8;
       const wobble = reducedMotion
         ? 0
         : Math.sin(time * (isAudioMode ? 0.00158 + audioTreble * 0.0005 + audioGuitar * 0.00072 : isCameraShape ? 0.00026 : 0.0012 + audioTreble * 0.0003 + audioGuitar * 0.0005) + point.seed) *
-          (isAudioMode ? 0.0014 + reactiveBoost * 0.0008 + audioFlux * 0.001 + audioHat * 0.0012 + audioNoteDrift * 0.0006 : isCameraShape ? 0.0016 + audioFlux * 0.0012 : 0.0048 + reactiveBoost * 0.0056 + audioFlux * 0.005 + audioSurge * 0.0022);
+          (isAudioMode ? 0.00012 + reactiveBoost * 0.00005 + audioFlux * 0.00008 + audioHat * 0.00006 + audioNoteDrift * 0.00005 : isCameraShape ? 0.0016 + audioFlux * 0.0012 : 0.0048 + reactiveBoost * 0.0056 + audioFlux * 0.005 + audioSurge * 0.0022);
       const audioLift = reducedMotion
         ? 0
         : Math.cos(time * (isAudioMode ? 0.00134 + audioMid * 0.00042 + audioLowMid * 0.00022 : isCameraShape ? 0.00024 : 0.00105 + audioMid * 0.0002 + audioLowMid * 0.00016) + point.seed * 1.2) *
-          (isAudioMode ? audioKick * 0.012 + audioSnare * 0.004 + audioSurge * 0.002 + audioWaveform * 0.003 + audioBeatPulse * 0.004 : isCameraShape ? audioBass * 0.012 : audioBass * 0.075 + audioPercussion * 0.018);
+          (isAudioMode ? audioKick * 0.007 + audioSnare * 0.003 + audioSurge * 0.002 + audioWaveform * 0.002 + audioBeatPulse * 0.003 : isCameraShape ? audioBass * 0.012 : audioBass * 0.075 + audioPercussion * 0.018);
       const flowX = reducedMotion
         ? 0
-        : Math.sin(time * (isAudioMode ? 0.00116 : isCameraShape ? 0.00026 : 0.0009) + point.seed + point.orbitSeed) *
-          (isAudioMode ? 0.008 + audioPresence * 0.006 + audioMelody * 0.008 + audioSurge * 0.003 + audioNote * 0.003 + audioBeatPulse * 0.003 : isCameraShape ? 0.002 + audioPresence * 0.004 : 0.01 + audioPresence * 0.016 + audioGuitar * 0.032 + audioSurge * 0.01);
+        : Math.sin(time * (isAudioMode ? 0.00042 : isCameraShape ? 0.00026 : 0.0009) + point.audioBias * 3.2 + point.audioGroup * 0.24 + point.orbitSeed) *
+          (isAudioMode ? 0.022 + audioPresence * 0.012 + audioMelody * 0.014 + audioSurge * 0.008 + audioNote * 0.008 + audioBeatPulse * 0.01 : isCameraShape ? 0.002 + audioPresence * 0.004 : 0.01 + audioPresence * 0.016 + audioGuitar * 0.032 + audioSurge * 0.01);
       const flowY = reducedMotion
         ? 0
-        : Math.cos(time * (isAudioMode ? 0.00102 : isCameraShape ? 0.00022 : 0.00082) + point.seed * 1.1) *
-          (isAudioMode ? 0.006 + audioMid * 0.006 + audioSnare * 0.006 + audioSurge * 0.002 + audioWaveform * 0.003 + audioBeatPulse * 0.003 : isCameraShape ? 0.002 + audioMid * 0.004 : 0.008 + audioMid * 0.02 + audioPercussion * 0.018 + audioSurge * 0.006);
+        : Math.cos(time * (isAudioMode ? 0.00034 : isCameraShape ? 0.00022 : 0.00082) + point.audioBias * 2.1 + point.seed * 0.2) *
+          (isAudioMode ? 0.003 + audioMid * 0.003 + audioSnare * 0.002 + audioWaveform * 0.002 + audioBeatPulse * 0.002 : isCameraShape ? 0.002 + audioMid * 0.004 : 0.008 + audioMid * 0.02 + audioPercussion * 0.018 + audioSurge * 0.006);
       const flowZ = reducedMotion
         ? 0
-        : Math.sin(time * (isAudioMode ? 0.00096 : isCameraShape ? 0.0002 : 0.00076) + point.seed * 0.9) *
-          (isAudioMode ? 0.007 + audioKick * 0.007 + audioHat * 0.004 + audioFlux * 0.004 + state.dispersion * 0.003 + audioBrightness * 0.002 : isCameraShape ? 0.004 + audioBass * 0.008 : 0.03 + audioBass * 0.06 + audioFlux * 0.065 + state.dispersion * 0.028 + audioSurge * 0.012);
-      const deformedX = point.x + wobble + flowX + globalDriftX + point.y * globalSway * (isAudioMode ? 0.14 : 0.14);
-      const deformedY = point.y * (1 + globalBreathe * (isAudioMode ? 0.16 : 0.18)) + wobble * 0.6 + audioLift + flowY + globalDriftY;
+        : Math.sin(time * (isAudioMode ? 0.00028 : isCameraShape ? 0.0002 : 0.00076) + point.audioBias * 1.8 + point.seed * 0.14) *
+          (isAudioMode ? 0.003 + audioKick * 0.003 + audioHat * 0.002 + audioFlux * 0.002 + audioBrightness * 0.002 : isCameraShape ? 0.004 + audioBass * 0.008 : 0.03 + audioBass * 0.06 + audioFlux * 0.065 + state.dispersion * 0.028 + audioSurge * 0.012);
+      const deformedX = point.x + wobble + flowX + globalDriftX + point.y * globalSway * (isAudioMode ? 0.05 : 0.14);
+      const deformedY = point.y * (1 + globalBreathe * (isAudioMode ? 0.07 : 0.18)) + wobble * 0.3 + audioLift + flowY + globalDriftY;
       const deformedZ = point.z + audioLift * 0.65 + flowZ;
       const depth = perspective / (perspective - deformedZ * sceneScale * 0.6);
       const x = deformedX * sceneScale * depth + state.width / 2;
       const y = deformedY * sceneScale * depth + state.height / 2;
 
-      if (isAudioMode && point.audioGroup > 0) {
-        continue;
-      }
-
       const size = point.size * depth * (
         isAudioMode
-          ? (0.82 + audioLevel * 0.1 + audioTreble * 0.03 + audioSurge * 0.02 + audioTransient * 0.018 + audioBeatPulse * 0.04 + audioKick * 0.03)
+          ? (1.02 + audioLevel * 0.12 + audioTreble * 0.04 + audioSurge * 0.03 + audioTransient * 0.022 + audioBeatPulse * 0.04 + audioKick * 0.03)
           : isCameraShape
           ? (1 + audioLevel * 0.72 + audioBass * 0.34)
           : isPortraitShape
-            ? (0.72 + audioLevel * 0.34 + audioBass * 0.11 + audioSurge * 0.06)
-            : (0.74 + audioLevel * 0.34 + audioBass * 0.11 + audioSurge * 0.06)
+            ? (1.14 + audioLevel * 0.42 + audioBass * 0.14 + audioSurge * 0.07)
+            : (1.18 + audioLevel * 0.42 + audioBass * 0.14 + audioSurge * 0.07)
       );
       const alpha = Math.max(
         0.14,
         Math.min(
-          0.88,
+          0.92,
           isAudioMode
-            ? 0.22 + depth * 0.18 + audioLevel * 0.03 + audioTreble * 0.02 + state.flash * 0.01 + audioBrightness * 0.01
+            ? 0.18 + depth * 0.26 + audioLevel * 0.08 + audioTreble * 0.04 + state.flash * 0.02 + audioBrightness * 0.03
             : isCameraShape
             ? 0.22 + depth * 0.42 + audioLevel * 0.19 + audioBass * 0.14 + state.flash * 0.08
-            : 0.18 + depth * 0.34 + audioLevel * 0.12 + audioBass * 0.08 + state.flash * 0.04
+            : 0.24 + depth * 0.42 + audioLevel * 0.16 + audioBass * 0.11 + state.flash * 0.05
         )
       );
 
       if (x < -12 || x > state.width + 12 || y < -12 || y > state.height + 12) {
         continue;
       }
+
+      const drawSize = isAudioMode
+        ? Math.max(1.35, size * 1.38)
+        : isCameraShape
+          ? Math.max(0.9, size * 0.9)
+          : Math.max(isPortraitShape ? 0.92 : 0.82, size * (isPortraitShape ? 0.74 : 0.68));
 
       const ghostShiftX = isCameraShape
         ? 0
@@ -2407,25 +2816,25 @@ if (hero && canvas) {
         : (Math.cos(time * 0.0004 + point.seed * 1.2 + audioCentroid * 2.2) * ((isAudioMode ? 0.7 : 1.2) + audioMid * (isAudioMode ? 1.2 : 2.2) + audioPercussion * (isAudioMode ? 1.2 : 2.4)) + globalDriftY * sceneScale * (isAudioMode ? 0.06 : 0.12));
 
       if (!isCameraShape) {
-        context.fillStyle = `rgba(17, 17, 17, ${alpha * (isAudioMode ? 0.05 : 0.24)})`;
-        context.fillRect(x - ghostShiftX, y - ghostShiftY, Math.max(0.75, size * 0.82), Math.max(0.75, size * 0.82));
+        context.fillStyle = `rgba(17, 17, 17, ${alpha * (isAudioMode ? 0.12 : 0.1)})`;
+        context.fillRect(x - ghostShiftX, y - ghostShiftY, Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)), Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)));
       }
 
       context.fillStyle = `rgba(17, 17, 17, ${alpha})`;
-      context.fillRect(x, y, size, size);
+      context.fillRect(x, y, drawSize, drawSize);
 
-      if (!isCameraShape && size > 1.05) {
-        context.fillStyle = `rgba(17, 17, 17, ${Math.min(isAudioMode ? 0.08 : 0.42, alpha * (isAudioMode ? 0.05 : 0.32))})`;
-        context.fillRect(x - size * 0.38, y - size * 0.38, size * 0.36, size * 0.36);
+      if (!isCameraShape && drawSize > 1.05) {
+        context.fillStyle = `rgba(17, 17, 17, ${Math.min(isAudioMode ? 0.18 : 0.18, alpha * (isAudioMode ? 0.16 : 0.14))})`;
+        context.fillRect(x - drawSize * 0.24, y - drawSize * 0.24, drawSize * (isAudioMode ? 0.22 : 0.18), drawSize * (isAudioMode ? 0.22 : 0.18));
       }
 
       const meshStep = isAudioMode
-        ? (state.width < 720 ? 24 : 28)
+        ? (state.width < 720 ? 18 : 24)
         : isCameraShape
           ? (state.width < 720 ? 9 : 12)
           : (state.width < 720 ? 16 : 21);
 
-      if (projectedPoints.length < (isAudioMode ? 56 : isCameraShape ? 240 : 150) && Math.floor(point.seed * 1000) % meshStep === 0) {
+      if (projectedPoints.length < (isAudioMode ? 64 : isCameraShape ? 240 : 150) && Math.floor(point.seed * 1000) % meshStep === 0) {
         projectedPoints.push({
           x,
           y
@@ -2454,18 +2863,18 @@ if (hero && canvas) {
     event.stopPropagation();
 
     if (state.audio.enabled) {
-      await stopAudioReactiveMode();
+      await stopAudioReactiveMode({ preserveCameraMessage: state.camera.active });
       return;
     }
 
-    await startAudioReactiveMode();
+    await startAudioReactiveMode({ fromCamera: false, silentError: state.camera.active });
   }
 
   async function handlePortraitCameraToggle(event) {
     event.stopPropagation();
 
     if (state.camera.active) {
-      stopPortraitCamera();
+      await stopPortraitCamera();
       return;
     }
 
