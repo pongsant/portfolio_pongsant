@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../../styles.css">
     <script src="../../script.js" defer></script>
   </head>
-  <body>
+  <body class="page-photo-archive">
     <header class="site-header">
       <a class="site-header__brand" href="../../">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
@@ -18,13 +18,20 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell page-shell--wide" aria-labelledby="film-photos-title">
-        <a class="page-back" href="../">Back to Photo</a>
-        <h1 class="page-heading" id="film-photos-title">FILM PHOTOS</h1>
-        <p class="page-subtitle">Click any image to expand it full size.</p>
+    <main class="photo-archive">
+      <section class="photo-archive__shell page-shell--wide" aria-labelledby="film-photos-title">
+        <div class="photo-archive__masthead">
+          <a class="page-back" href="../">Back to Photo</a>
+          <div class="photo-archive__chips" aria-hidden="true">
+            <span class="photo-archive__chip photo-archive__chip--active">Film Photos</span>
+            <span class="photo-archive__chip">85 Frames</span>
+            
+          </div>
+        </div>
+        <h1 class="sr-only" id="film-photos-title">FILM PHOTOS</h1>
+        <p class="sr-only">Click any image to expand it full size.</p>
 
-        <div class="photo-gallery" data-photo-gallery>
+        <div class="photo-gallery photo-gallery--research" data-photo-gallery>
           <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2039.JPG" data-photo-title="Film Photo 01">
             <img class="photo-gallery__image" src="./IMG_2039.JPG" alt="Film Photo 01" loading="lazy">
           </button>
