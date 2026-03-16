@@ -106,26 +106,28 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     offscreen.height = state.height;
 
     const offscreenContext = offscreen.getContext("2d");
+    const mobile = window.innerWidth < 720;
     const text = "MY WORK";
     const center = getWorkCenter();
-    const maxWidth = state.width * (window.innerWidth < 720 ? 0.72 : 0.58);
-    const maxHeight = state.height * (window.innerWidth < 720 ? 0.1 : 0.11);
+    const maxWidth = state.width * (mobile ? 0.72 : 0.58);
+    const maxHeight = state.height * (mobile ? 0.1 : 0.11);
     const fontSize = getFittedWorkFontSize(
       text,
       maxWidth,
       maxHeight,
       Math.min(state.width * 0.16, state.height * 0.14, 210)
     );
+    const sampleStep = mobile ? 4 : 3;
+    const shadowOffsetX = mobile ? 4 : 8;
+    const shadowOffsetY = mobile ? 5 : 9;
     const targets = [];
-
-    const sampleStep = window.innerWidth < 720 ? 5 : 4;
 
     offscreenContext.clearRect(0, 0, state.width, state.height);
     offscreenContext.fillStyle = "#050505";
     offscreenContext.textAlign = "center";
     offscreenContext.textBaseline = "middle";
     offscreenContext.font = `700 ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
-    offscreenContext.fillText(text, center.x, center.y);
+    offscreenContext.fillText(text, center.x + shadowOffsetX, center.y + shadowOffsetY);
 
     const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
 
@@ -133,7 +135,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       for (let x = 0; x < state.width; x += sampleStep) {
         const alpha = data[(y * state.width + x) * 4 + 3];
 
-        if (alpha > 140 && Math.random() > 0.12) {
+        if (alpha > 100 && Math.random() > 0.08) {
           targets.push({
             x,
             y,
@@ -143,25 +145,17 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       }
     }
 
-    if (targets.length === 0) {
-      return Array.from({ length: state.pointCount }, () => ({
-        x: state.width / 2 + randomBetweenWork(-120, 120),
-        y: state.height / 2 + randomBetweenWork(-60, 60),
-        z: randomBetweenWork(-90, 90)
-      }));
-    }
-
     return shuffleWork(targets).slice(0, state.pointCount);
   }
 
   function syncWorkLayoutVars() {
     const isMobile = window.innerWidth < 720;
-    const centerWidth = Math.min(window.innerWidth * 0.9, isMobile ? 520 : 820);
+    const centerWidth = Math.min(window.innerWidth * 0.92, isMobile ? 560 : 920);
     const triggerFontSize = getFittedWorkFontSize(
       "MY WORK",
-      centerWidth * (isMobile ? 0.94 : 0.88),
-      window.innerHeight * (isMobile ? 0.1 : 0.12),
-      isMobile ? Math.min(window.innerWidth * 0.14, 72) : Math.min(window.innerWidth * 0.09, 108)
+      centerWidth * (isMobile ? 0.96 : 0.92),
+      window.innerHeight * (isMobile ? 0.11 : 0.14),
+      isMobile ? Math.min(window.innerWidth * 0.16, 82) : Math.min(window.innerWidth * 0.108, 132)
     );
 
     workScene.style.setProperty("--work-center-width", `${centerWidth}px`);
@@ -177,6 +171,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const center = getWorkCenter();
     const mobile = window.innerWidth < 720;
     const sampleStep = mobile ? 4 : 3;
+    const shadowOffsetX = mobile ? 3 : 6;
+    const shadowOffsetY = mobile ? 4 : 8;
     const targets = [];
 
     offscreenContext.clearRect(0, 0, state.width, state.height);
@@ -187,19 +183,23 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workOptions.forEach((option) => {
       const offset = getOptionOffset(option);
       const label = option.dataset.label || option.textContent.trim();
-      const maxWidth = mobile ? Math.min(state.width * 0.34, 200) : Math.min(state.width * 0.26, 340);
-      const maxHeight = mobile ? 26 : 38;
+      const maxWidth = mobile ? Math.min(state.width * 0.4, 230) : Math.min(state.width * 0.3, 420);
+      const maxHeight = mobile ? 32 : 48;
       const fontSize = getFittedWorkFontSize(
         label,
         maxWidth,
         maxHeight,
-        mobile ? 28 : 42,
-        700,
-        10
+        mobile ? 34 : 56,
+        300,
+        12
       );
 
-      offscreenContext.font = `700 ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
-      offscreenContext.fillText(label, center.x + offset.x, center.y + offset.y);
+      offscreenContext.font = `300 ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
+      offscreenContext.fillText(
+        label,
+        center.x + offset.x + shadowOffsetX,
+        center.y + offset.y + shadowOffsetY
+      );
     });
 
     const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
@@ -208,7 +208,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       for (let x = 0; x < state.width; x += sampleStep) {
         const alpha = data[(y * state.width + x) * 4 + 3];
 
-        if (alpha > 100 && Math.random() > 0.06) {
+        if (alpha > 90 && Math.random() > 0.09) {
           targets.push({
             x,
             y,
@@ -315,10 +315,10 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       const scale = perspective / (perspective - finalZ);
       const drawX = centerX + rotatedX * scale + wobbleX;
       const drawY = centerY + rotatedY * scale + wobbleY;
-      const size = Math.max(0.8, point.size * scale * (state.open ? 0.92 : 0.96));
+      const size = Math.max(0.8, point.size * scale * (state.open ? 0.96 : 0.88));
       const alpha = state.open
-        ? Math.max(0.16, Math.min(0.58, 0.18 + scale * 0.16))
-        : Math.max(0.18, Math.min(0.72, 0.24 + scale * 0.18));
+        ? Math.max(0.11, Math.min(0.42, 0.13 + scale * 0.12))
+        : Math.max(0.1, Math.min(0.38, 0.12 + scale * 0.1));
 
       context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
       context.fillRect(drawX, drawY, size, size);
@@ -688,4 +688,89 @@ if (hero && canvas) {
   }
 
   init();
+}
+
+const photoGallery = document.querySelector("[data-photo-gallery]");
+const photoLightbox = document.querySelector("[data-photo-lightbox]");
+
+if (photoGallery && photoLightbox) {
+  const photoLightboxImage = photoLightbox.querySelector("[data-photo-lightbox-image]");
+  const photoLightboxCaption = photoLightbox.querySelector("[data-photo-lightbox-caption]");
+  const photoLightboxClose = photoLightbox.querySelector("[data-photo-lightbox-close]");
+  let lastPhotoTrigger = null;
+
+  function resetPhotoLightbox() {
+    if (photoLightboxImage) {
+      photoLightboxImage.removeAttribute("src");
+      photoLightboxImage.alt = "";
+    }
+
+    if (photoLightboxCaption) {
+      photoLightboxCaption.textContent = "";
+    }
+  }
+
+  function closePhotoLightbox() {
+    if (photoLightbox.open) {
+      photoLightbox.close();
+    } else {
+      body.classList.remove("is-lightbox-open");
+      resetPhotoLightbox();
+    }
+  }
+
+  photoGallery.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-photo-trigger]");
+
+    if (!trigger) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const image = trigger.querySelector("img");
+    const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src;
+
+    if (!fullSrc) {
+      return;
+    }
+
+    if (typeof photoLightbox.showModal !== "function") {
+      window.open(fullSrc, "_blank", "noopener");
+      return;
+    }
+
+    lastPhotoTrigger = trigger;
+
+    if (photoLightboxImage) {
+      photoLightboxImage.src = fullSrc;
+      photoLightboxImage.alt = image?.alt || trigger.dataset.photoTitle || "Expanded photo";
+    }
+
+    if (photoLightboxCaption) {
+      photoLightboxCaption.textContent = trigger.dataset.photoTitle || image?.alt || "";
+    }
+
+    photoLightbox.showModal();
+    body.classList.add("is-lightbox-open");
+  });
+
+  if (photoLightboxClose) {
+    photoLightboxClose.addEventListener("click", closePhotoLightbox);
+  }
+
+  photoLightbox.addEventListener("click", (event) => {
+    if (event.target === photoLightbox) {
+      closePhotoLightbox();
+    }
+  });
+
+  photoLightbox.addEventListener("close", () => {
+    body.classList.remove("is-lightbox-open");
+    resetPhotoLightbox();
+
+    if (lastPhotoTrigger) {
+      lastPhotoTrigger.focus();
+    }
+  });
 }

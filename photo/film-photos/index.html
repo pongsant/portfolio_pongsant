@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Film Photos</title>
+    <meta name="description" content="Film photo gallery.">
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-header__brand" href="../../">PORTFOLIO</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="../../">HOME</a>
+        <a href="../../my-work/" aria-current="page">MY WORK</a>
+        <a href="../../about/">ABOUT</a>
+      </nav>
+    </header>
+
+    <main class="page-main">
+      <section class="page-shell" aria-labelledby="film-photos-title">
+        <a class="page-back" href="../">Back to Photo</a>
+        <h1 class="page-heading" id="film-photos-title">FILM PHOTOS</h1>
+        <p class="page-subtitle">Click any image to expand it full size.</p>
+
+        <div class="photo-gallery" data-photo-gallery>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_1253.JPG" data-photo-title="Film Photo 01">
+            <img class="photo-gallery__image" src="./IMG_1253.JPG" alt="Film Photo 01" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2046.JPG" data-photo-title="Film Photo 02">
+            <img class="photo-gallery__image" src="./IMG_2046.JPG" alt="Film Photo 02" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2056.JPG" data-photo-title="Film Photo 03">
+            <img class="photo-gallery__image" src="./IMG_2056.JPG" alt="Film Photo 03" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2123.JPG" data-photo-title="Film Photo 04">
+            <img class="photo-gallery__image" src="./IMG_2123.JPG" alt="Film Photo 04" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2135.JPG" data-photo-title="Film Photo 05">
+            <img class="photo-gallery__image" src="./IMG_2135.JPG" alt="Film Photo 05" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2150.JPG" data-photo-title="Film Photo 06">
+            <img class="photo-gallery__image" src="./IMG_2150.JPG" alt="Film Photo 06" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2275.JPG" data-photo-title="Film Photo 07">
+            <img class="photo-gallery__image" src="./IMG_2275.JPG" alt="Film Photo 07" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2284.JPG" data-photo-title="Film Photo 08">
+            <img class="photo-gallery__image" src="./IMG_2284.JPG" alt="Film Photo 08" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2287.JPG" data-photo-title="Film Photo 09">
+            <img class="photo-gallery__image" src="./IMG_2287.JPG" alt="Film Photo 09" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./IMG_2291.JPG" data-photo-title="Film Photo 10">
+            <img class="photo-gallery__image" src="./IMG_2291.JPG" alt="Film Photo 10" loading="lazy">
+          </button>
+          <button class="photo-gallery__item" type="button" data-photo-trigger data-photo-full="./L1000341.jpeg" data-photo-title="Film Photo 11">
+            <img class="photo-gallery__image" src="./L1000341.jpeg" alt="Film Photo 11" loading="lazy">
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="photo-lightbox" data-photo-lightbox aria-label="Expanded photo">
+      <div class="photo-lightbox__surface">
+        <button class="photo-lightbox__close" type="button" data-photo-lightbox-close aria-label="Close expanded photo">
+          Close
+        </button>
+        <img class="photo-lightbox__image" data-photo-lightbox-image alt="">
+        <p class="photo-lightbox__caption" data-photo-lightbox-caption></p>
+      </div>
+    </dialog>
+  </body>
+</html>

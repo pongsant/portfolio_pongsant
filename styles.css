@@ -256,7 +256,7 @@ main {
   line-height: 0.92;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: transparent;
+  color: var(--text);
   cursor: pointer;
   white-space: nowrap;
   text-align: center;
@@ -286,7 +286,7 @@ main {
 }
 
 .work-hub__option {
-  --option-font-size: clamp(0.84rem, 1.4vw, 1.06rem);
+  --option-font-size: clamp(1rem, 1.75vw, 1.42rem);
   --option-scale: 0.26;
   --option-shift-x: 0px;
   --option-shift-y: 0px;
@@ -296,16 +296,17 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 3.7rem;
+  min-height: 4.2rem;
   min-width: max-content;
-  padding: 1.2rem 1.85rem;
+  padding: 1.35rem 2rem;
   border: 0;
   background: transparent;
   backdrop-filter: none;
+  font-family: var(--font-sans);
   font-size: var(--option-font-size);
-  font-weight: 500;
+  font-weight: 300;
   line-height: 1;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
@@ -325,7 +326,12 @@ main {
 
 .work-hub__option-text {
   display: inline-block;
-  opacity: 0;
+  opacity: 1;
+  font-family: inherit;
+  font-weight: inherit;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
   user-select: none;
 }
 
@@ -621,6 +627,138 @@ main {
   color: var(--muted);
 }
 
+.photo-series {
+  margin-top: 3rem;
+}
+
+.photo-series-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: clamp(1rem, 2vw, 1.4rem);
+  align-items: center;
+  padding: clamp(1rem, 2.2vw, 1.35rem);
+  border: 1px solid var(--line);
+  background: #ffffff;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.photo-series-card:hover,
+.photo-series-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.05);
+}
+
+.photo-series-card__media {
+  overflow: hidden;
+  background: #f4f4f4;
+  aspect-ratio: 4 / 3;
+}
+
+.photo-series-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 320ms ease;
+}
+
+.photo-series-card:hover .photo-series-card__media img,
+.photo-series-card:focus-visible .photo-series-card__media img {
+  transform: scale(1.02);
+}
+
+.photo-series-card__body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: clamp(0.9rem, 1.8vw, 1.2rem);
+  margin-top: 3rem;
+}
+
+.photo-gallery__item {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.photo-gallery__item:hover .photo-gallery__image,
+.photo-gallery__item:focus-visible .photo-gallery__image {
+  transform: scale(1.02);
+}
+
+.photo-gallery__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #f4f4f4;
+  transition: transform 260ms ease;
+}
+
+.photo-lightbox {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.photo-lightbox::backdrop {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.photo-lightbox__surface {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 100vh;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.photo-lightbox__close {
+  position: absolute;
+  top: clamp(0.9rem, 2vw, 1.2rem);
+  right: clamp(0.9rem, 2vw, 1.2rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.photo-lightbox__image {
+  display: block;
+  max-width: min(94vw, 1600px);
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.photo-lightbox__caption {
+  margin: 0.85rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.is-lightbox-open {
+  overflow: hidden;
+}
+
 .project-detail {
   width: min(100%, var(--content-width));
   margin: 0 auto;
@@ -780,6 +918,15 @@ main {
 
   .catalog-card {
     min-height: 210px;
+  }
+
+  .photo-series-card {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-lightbox__image {
+    max-width: 92vw;
+    max-height: 78vh;
   }
 }
 
