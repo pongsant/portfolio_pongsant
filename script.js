@@ -1,6 +1,5 @@
 const hero = document.querySelector(".hero");
 const canvas = document.querySelector("#particle-canvas");
-const trigger = document.querySelector("#shape-trigger");
 
 if (hero && canvas) {
   const context = canvas.getContext("2d");
@@ -322,13 +321,6 @@ if (hero && canvas) {
 
     window.addEventListener("resize", resizeCanvas);
     hero.addEventListener("click", handleHeroClick);
-
-    if (trigger) {
-      trigger.addEventListener("click", (event) => {
-        event.stopPropagation();
-        morphRandom();
-      });
-    }
   }
 
   init();

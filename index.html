@@ -19,9 +19,9 @@
   </head>
   <body>
     <header class="site-header">
-      <p class="site-header__label">Interactive Portfolio</p>
       <a class="site-header__brand" href="#top">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
+        <a href="#top">HOME</a>
         <a href="#my-work">MY WORK</a>
         <a href="#about">ABOUT</a>
       </nav>
@@ -32,60 +32,19 @@
         <canvas class="hero__canvas" id="particle-canvas" aria-hidden="true"></canvas>
 
         <div class="hero__content">
-          <p class="hero__eyebrow">Point cloud background</p>
-          <h1 class="hero__title" id="hero-title">PORTFOLIO</h1>
-          <p class="hero__summary">
-            The first section uses a particle morph effect on a white background. Click anywhere in this area to
-            shuffle into a new form.
-          </p>
-          <div class="hero__actions">
-            <a href="#my-work">View My Work</a>
-            <a href="#about">About</a>
-          </div>
+          <h1 class="hero__title" id="hero-title"></h1>
         </div>
-
-        <button class="hero__hint" id="shape-trigger" type="button">
-          Click to randomize shape
-        </button>
       </section>
 
       <section class="content-section content-section--work" id="my-work" aria-labelledby="my-work-title">
         <div class="section-heading">
-          <p class="section-heading__eyebrow">Selected areas</p>
           <h2 id="my-work-title">MY WORK</h2>
-        </div>
-
-        <div class="work-grid">
-          <article class="work-card">
-            <p class="work-card__index">01</p>
-            <h3>Graphic Design</h3>
-            <p>Posters, identities, and editorial systems with a strong visual voice.</p>
-          </article>
-          <article class="work-card">
-            <p class="work-card__index">02</p>
-            <h3>Photography</h3>
-            <p>Image-making focused on mood, contrast, and observation.</p>
-          </article>
-          <article class="work-card">
-            <p class="work-card__index">03</p>
-            <h3>Creative Coding</h3>
-            <p>Interactive visuals, experiments, and motion-led web experiences.</p>
-          </article>
         </div>
       </section>
 
       <section class="content-section content-section--about" id="about" aria-labelledby="about-title">
         <div class="section-heading">
-          <p class="section-heading__eyebrow">Introduction</p>
           <h2 id="about-title">ABOUT</h2>
-        </div>
-
-        <div class="about-layout">
-          <p class="about-copy">
-            This version starts from a clean reset: a minimal white canvas, a centered Portfolio title, and a dynamic
-            particle background that can keep changing shape as the page evolves. The next step can be replacing these
-            placeholders with your real project content and image selections.
-          </p>
         </div>
       </section>
     </main>
