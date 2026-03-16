@@ -1,39 +1,111 @@
 @font-face {
-  font-family: "Helvetica 255";
-  src: url("font/helvetica-255/helvetica-light-587ebe5a59211.ttf") format("truetype");
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueUltraLight.otf") format("opentype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueUltraLightItalic.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueLight.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Helvetica 255";
-  src: url("font/helvetica-255/Helvetica.ttf") format("truetype");
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueLightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueRoman.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Helvetica 255";
-  src: url("font/helvetica-255/Helvetica-Oblique.ttf") format("truetype");
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueItalic.ttf") format("truetype");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Helvetica 255";
-  src: url("font/helvetica-255/Helvetica-Bold.ttf") format("truetype");
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueMedium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueMediumItalic.otf") format("opentype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueBold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Helvetica 255";
-  src: url("font/helvetica-255/Helvetica-BoldOblique.ttf") format("truetype");
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueBoldItalic.otf") format("opentype");
   font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueHeavy.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueHeavyItalic.otf") format("opentype");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueBlack.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue 5";
+  src: url("font/helvetica-neue-5/HelveticaNeueBlackItalic.otf") format("opentype");
+  font-weight: 900;
   font-style: italic;
   font-display: swap;
 }
@@ -51,7 +123,7 @@
   --max-width: 1200px;
   --content-width: 960px;
   --feature-width: 1280px;
-  --font-sans: "Helvetica 255", Helvetica, Arial, sans-serif;
+  --font-sans: "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --page-gutter: clamp(0.85rem, 2vw, 1.5rem);
   --page-gutter-tight: clamp(0.82rem, 1.8vw, 1.3rem);
 }
