@@ -24,6 +24,8 @@ if (body && header) {
 
 if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const context = workCanvas.getContext("2d");
+  const measureCanvas = document.createElement("canvas");
+  const measureContext = measureCanvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const state = {
@@ -41,8 +43,29 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   function getWorkCenter() {
     return {
       x: state.width / 2,
-      y: state.height / 2 + (window.innerWidth < 720 ? 18 : 26)
+      y: state.height / 2
     };
+  }
+
+  function getFittedWorkFontSize(text, maxWidth, maxHeight, startSize, weight = 700) {
+    let fontSize = startSize;
+
+    while (fontSize > 28) {
+      measureContext.font = `${weight} ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
+
+      const metrics = measureContext.measureText(text);
+      const textWidth = metrics.width;
+      const textHeight = (metrics.actualBoundingBoxAscent || fontSize * 0.72) +
+        (metrics.actualBoundingBoxDescent || fontSize * 0.18);
+
+      if (textWidth <= maxWidth && textHeight <= maxHeight) {
+        break;
+      }
+
+      fontSize -= 2;
+    }
+
+    return fontSize;
   }
 
   function randomBetweenWork(min, max) {
@@ -85,24 +108,15 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const offscreenContext = offscreen.getContext("2d");
     const text = "MY WORK";
     const center = getWorkCenter();
-    const maxWidth = state.width * (window.innerWidth < 720 ? 0.72 : 0.62);
-    const maxHeight = state.height * (window.innerWidth < 720 ? 0.1 : 0.13);
-    let fontSize = Math.min(state.width * 0.16, state.height * 0.14, 210);
+    const maxWidth = state.width * (window.innerWidth < 720 ? 0.72 : 0.58);
+    const maxHeight = state.height * (window.innerWidth < 720 ? 0.1 : 0.11);
+    const fontSize = getFittedWorkFontSize(
+      text,
+      maxWidth,
+      maxHeight,
+      Math.min(state.width * 0.16, state.height * 0.14, 210)
+    );
     const targets = [];
-
-    while (fontSize > 56) {
-      offscreenContext.font = `700 ${fontSize}px "Syne", sans-serif`;
-
-      const metrics = offscreenContext.measureText(text);
-      const textHeight = (metrics.actualBoundingBoxAscent || fontSize * 0.72) +
-        (metrics.actualBoundingBoxDescent || fontSize * 0.18);
-
-      if (metrics.width <= maxWidth && textHeight <= maxHeight) {
-        break;
-      }
-
-      fontSize -= 4;
-    }
 
     const sampleStep = window.innerWidth < 720 ? 5 : 4;
 
@@ -110,7 +124,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     offscreenContext.fillStyle = "#050505";
     offscreenContext.textAlign = "center";
     offscreenContext.textBaseline = "middle";
-    offscreenContext.font = `700 ${fontSize}px "Syne", sans-serif`;
+    offscreenContext.font = `700 ${fontSize}px "Helvetica 255", Helvetica, Arial, sans-serif`;
     offscreenContext.fillText(text, center.x, center.y);
 
     const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
@@ -138,6 +152,20 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     }
 
     return shuffleWork(targets).slice(0, state.pointCount);
+  }
+
+  function syncWorkLayoutVars() {
+    const isMobile = window.innerWidth < 720;
+    const centerWidth = Math.min(window.innerWidth * 0.9, isMobile ? 520 : 820);
+    const triggerFontSize = getFittedWorkFontSize(
+      "MY WORK",
+      centerWidth * (isMobile ? 0.94 : 0.88),
+      window.innerHeight * (isMobile ? 0.1 : 0.12),
+      isMobile ? Math.min(window.innerWidth * 0.14, 72) : Math.min(window.innerWidth * 0.09, 108)
+    );
+
+    workScene.style.setProperty("--work-center-width", `${centerWidth}px`);
+    workScene.style.setProperty("--work-trigger-font-size", `${triggerFontSize}px`);
   }
 
   function createOptionTargets() {
@@ -223,54 +251,16 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workCanvas.style.width = `${state.width}px`;
     workCanvas.style.height = `${state.height}px`;
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    syncWorkLayoutVars();
 
     createPoints();
     rebuildTargets();
-  }
-
-  function clearWorkOptionHover() {
-    body.classList.remove("is-work-option-hovered");
-
-    workOptions.forEach((option) => {
-      option.classList.remove("is-option-active", "is-option-side");
-      option.style.removeProperty("--stack-index");
-    });
-  }
-
-  function setWorkOptionHover(activeOption) {
-    if (!state.open || !activeOption) {
-      clearWorkOptionHover();
-      return;
-    }
-
-    body.classList.add("is-work-option-hovered");
-    let stackIndex = 0;
-
-    workOptions.forEach((option) => {
-      const isActive = option === activeOption;
-
-      option.classList.toggle("is-option-active", isActive);
-      option.classList.toggle("is-option-side", !isActive);
-
-      if (isActive) {
-        option.style.removeProperty("--stack-index");
-        return;
-      }
-
-      option.style.setProperty("--stack-index", String(stackIndex));
-      stackIndex += 1;
-    });
   }
 
   function setWorkMenuState(open) {
     state.open = open;
     body.classList.toggle("is-work-menu-open", open);
     workTrigger.setAttribute("aria-expanded", String(open));
-
-    if (!open) {
-      clearWorkOptionHover();
-    }
-
     applyTargets(open ? state.optionTargets : state.textTargets);
   }
 
@@ -332,34 +322,6 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     }
   }
 
-  function handleWorkOptionEnter(event) {
-    setWorkOptionHover(event.currentTarget);
-  }
-
-  function handleWorkOptionLeave(event) {
-    const nextOption = event.relatedTarget?.closest?.(".work-hub__option");
-
-    if (nextOption) {
-      return;
-    }
-
-    clearWorkOptionHover();
-  }
-
-  function handleWorkOptionFocus(event) {
-    setWorkOptionHover(event.currentTarget);
-  }
-
-  function handleWorkOptionBlur(event) {
-    const nextOption = event.relatedTarget?.closest?.(".work-hub__option");
-
-    if (nextOption) {
-      return;
-    }
-
-    clearWorkOptionHover();
-  }
-
   function initWorkHub() {
     resizeWorkCanvas();
     renderWorkHub(0);
@@ -368,12 +330,6 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workScene.addEventListener("click", handleWorkSceneClick);
     document.addEventListener("keydown", handleKeydown);
     window.addEventListener("resize", resizeWorkCanvas);
-    workOptions.forEach((option) => {
-      option.addEventListener("pointerenter", handleWorkOptionEnter);
-      option.addEventListener("pointerleave", handleWorkOptionLeave);
-      option.addEventListener("focus", handleWorkOptionFocus);
-      option.addEventListener("blur", handleWorkOptionBlur);
-    });
 
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
