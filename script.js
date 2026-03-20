@@ -466,7 +466,7 @@ if (hero && canvas) {
     points: [],
     pointCount: window.innerWidth < 720 ? 1450 : 2600,
     currentShape: 0,
-    shapes: ["portrait", "sphere", "cube", "torus", "wave", "helix", "cone", "crystal", "ribbon", "bloom", "hourglass", "camera"],
+    shapes: ["sphere", "cube", "torus", "wave", "helix", "cone", "crystal", "ribbon", "bloom", "hourglass"],
     animationId: 0,
     pointerBoost: 0,
     dispersion: 0,
@@ -547,6 +547,18 @@ if (hero && canvas) {
   function scheduleNextMorph(time = performance.now()) {
     state.lastAutoMorphAt = time;
     state.autoMorphInterval = randomBetween(3200, 5600);
+  }
+
+  function getRandomMorphIndex(excludeIndex = null) {
+    const availableIndexes = state.shapes
+      .map((shape, index) => index)
+      .filter((index) => index !== excludeIndex);
+
+    if (!availableIndexes.length) {
+      return 0;
+    }
+
+    return availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
   }
 
   function getHeroPointCount() {
@@ -2249,8 +2261,8 @@ if (hero && canvas) {
       state.audio.surge = Math.max(state.audio.surge, 0.78 + state.audio.percussion * 0.22 + state.audio.noteDrift * 0.12 + state.audio.snare * 0.08);
       state.audio.beatCooldown = state.audio.snare > state.audio.bass ? 5 : 6;
 
-      if (!state.camera.active && time - state.audio.lastMorphAt > 900 && state.shapes[state.currentShape] !== "portrait" && state.audio.bass > 0.12) {
-        morphTo(0);
+      if (!state.camera.active && time - state.audio.lastMorphAt > 900 && state.audio.bass > 0.12) {
+        morphRandom();
         state.audio.lastMorphAt = time;
       }
     }
@@ -2433,13 +2445,7 @@ if (hero && canvas) {
   }
 
   function morphRandom() {
-    let nextIndex = state.currentShape;
-
-    while (nextIndex === state.currentShape || state.shapes[nextIndex] === "camera") {
-      nextIndex = Math.floor(Math.random() * state.shapes.length);
-    }
-
-    morphTo(nextIndex);
+    morphTo(getRandomMorphIndex(state.currentShape));
   }
 
   function drawPointMesh(projectedPoints, audioLevel, audioTreble, guitar, flash, shapeName, isAudioMode = false) {
@@ -2978,8 +2984,8 @@ if (hero && canvas) {
   function init() {
     resizeCanvas();
     createPoints();
+    applyShapeTargets(getRandomMorphIndex(), false);
     scheduleNextMorph(0);
-    morphTo(0);
     render(0);
     updatePortraitUi(false);
 
