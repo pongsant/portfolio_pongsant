@@ -6,12 +6,12 @@
     <title>About</title>
     <meta
       name="description"
-      content="About this portfolio and practice."
+      content="Editorial about page built from a recent portrait archive."
     >
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js" defer></script>
   </head>
-  <body>
+  <body class="page-about">
     <header class="site-header">
       <a class="site-header__brand" href="../">PORTFOLIO</a>
       <nav class="site-nav" aria-label="Primary">
@@ -21,18 +21,260 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="about-title">
-        <h1 class="page-heading" id="about-title">ABOUT</h1>
-        <p class="page-subtitle">Minimal portfolio structure for a multi-disciplinary practice</p>
+    <main class="about-spread">
+      <section class="about-spread__stage" aria-labelledby="about-title" data-photo-gallery>
+        <div class="about-spread__rail about-spread__rail--top">
+          <button
+            class="about-spread__card about-spread__card--top"
+            type="button"
+            data-about-drift-card
+            data-lane="top"
+            data-drift-speed="18"
+            data-drift-amplitude="11"
+            data-drift-offset="12"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%201649004937AAA7A36F.jpg"
+            data-photo-title="About Frame 01"
+            aria-label="Expand about frame 01"
+            style="--card-width: clamp(132px, 10.2vw, 188px);"
+          >
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 01</span>
+              <span class="about-spread__meta-secondary">Visual Archive</span>
+            </span>
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%201649004937AAA7A36F.jpg" alt="About frame 01" loading="lazy">
+            </span>
+          </button>
 
-        <div class="page-copy">
-          <p>
-            This is now a separate page from the home screen, so the site structure works as a real portfolio with
-            `HOME`, `MY WORK`, and `ABOUT` living on their own routes.
-          </p>
+          <button
+            class="about-spread__card about-spread__card--top"
+            type="button"
+            data-about-drift-card
+            data-lane="top"
+            data-drift-speed="16"
+            data-drift-amplitude="9"
+            data-drift-offset="26"
+            data-photo-trigger
+            data-photo-full="photo/IMG_0850.JPG"
+            data-photo-title="About Frame 02"
+            aria-label="Expand about frame 02"
+            style="--card-width: clamp(168px, 13.8vw, 264px);"
+          >
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 02</span>
+              <span class="about-spread__meta-secondary">Portrait Session</span>
+            </span>
+            <span class="about-spread__media">
+              <img src="photo/IMG_0850.JPG" alt="About frame 02" loading="lazy">
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--top"
+            type="button"
+            data-about-drift-card
+            data-lane="top"
+            data-drift-speed="17"
+            data-drift-amplitude="12"
+            data-drift-offset="0"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%20164908BBAC188CF360.jpg"
+            data-photo-title="About Frame 03"
+            aria-label="Expand about frame 03"
+            style="--card-width: clamp(170px, 14vw, 270px);"
+          >
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 03</span>
+              <span class="about-spread__meta-secondary">Studio Moment</span>
+            </span>
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%20164908BBAC188CF360.jpg" alt="About frame 03" loading="lazy">
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--top"
+            type="button"
+            data-about-drift-card
+            data-lane="top"
+            data-drift-speed="19"
+            data-drift-amplitude="10"
+            data-drift-offset="34"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%20164902C6064BE380E3.jpg"
+            data-photo-title="About Frame 04"
+            aria-label="Expand about frame 04"
+            style="--card-width: clamp(132px, 10.4vw, 190px);"
+          >
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 04</span>
+              <span class="about-spread__meta-secondary">Photo Study</span>
+            </span>
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%20164902C6064BE380E3.jpg" alt="About frame 04" loading="lazy">
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--top"
+            type="button"
+            data-about-drift-card
+            data-lane="top"
+            data-drift-speed="15"
+            data-drift-amplitude="8"
+            data-drift-offset="8"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%201702091EFAFED51412.jpg"
+            data-photo-title="About Frame 05"
+            aria-label="Expand about frame 05"
+            style="--card-width: clamp(130px, 10vw, 182px);"
+          >
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 05</span>
+              <span class="about-spread__meta-secondary">Recent Archive</span>
+            </span>
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%201702091EFAFED51412.jpg" alt="About frame 05" loading="lazy">
+            </span>
+          </button>
+        </div>
+
+        <div class="about-spread__center">
+          <div class="about-spread__headline">
+            <span class="about-spread__axis">Archive</span>
+            <h1 class="about-spread__title" id="about-title">For Your Consideration</h1>
+            <span class="about-spread__axis">About</span>
+          </div>
+        </div>
+
+        <div class="about-spread__rail about-spread__rail--bottom">
+          <button
+            class="about-spread__card about-spread__card--bottom"
+            type="button"
+            data-about-drift-card
+            data-lane="bottom"
+            data-drift-speed="17"
+            data-drift-amplitude="10"
+            data-drift-offset="-20"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%20162624CA52B1662B9F.jpg"
+            data-photo-title="About Frame 06"
+            aria-label="Expand about frame 06"
+            style="--card-width: clamp(168px, 13.8vw, 262px);"
+          >
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%20162624CA52B1662B9F.jpg" alt="About frame 06" loading="lazy">
+            </span>
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 06</span>
+              <span class="about-spread__meta-secondary">Contact Sheet</span>
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--bottom"
+            type="button"
+            data-about-drift-card
+            data-lane="bottom"
+            data-drift-speed="15"
+            data-drift-amplitude="8"
+            data-drift-offset="-34"
+            data-photo-trigger
+            data-photo-full="photo/IMG_0851.JPG"
+            data-photo-title="About Frame 07"
+            aria-label="Expand about frame 07"
+            style="--card-width: clamp(166px, 13.6vw, 256px);"
+          >
+            <span class="about-spread__media">
+              <img src="photo/IMG_0851.JPG" alt="About frame 07" loading="lazy">
+            </span>
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 07</span>
+              <span class="about-spread__meta-secondary">Editorial Crop</span>
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--bottom"
+            type="button"
+            data-about-drift-card
+            data-lane="bottom"
+            data-drift-speed="18"
+            data-drift-amplitude="11"
+            data-drift-offset="-4"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%20170250B433019F6BFF.jpg"
+            data-photo-title="About Frame 08"
+            aria-label="Expand about frame 08"
+            style="--card-width: clamp(132px, 10.2vw, 186px);"
+          >
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%20170250B433019F6BFF.jpg" alt="About frame 08" loading="lazy">
+            </span>
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 08</span>
+              <span class="about-spread__meta-secondary">Portrait Archive</span>
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--bottom"
+            type="button"
+            data-about-drift-card
+            data-lane="bottom"
+            data-drift-speed="16"
+            data-drift-amplitude="9"
+            data-drift-offset="-18"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%2017025420391B9AE500.jpg"
+            data-photo-title="About Frame 09"
+            aria-label="Expand about frame 09"
+            style="--card-width: clamp(130px, 10vw, 182px);"
+          >
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%2017025420391B9AE500.jpg" alt="About frame 09" loading="lazy">
+            </span>
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 09</span>
+              <span class="about-spread__meta-secondary">New Selection</span>
+            </span>
+          </button>
+
+          <button
+            class="about-spread__card about-spread__card--bottom"
+            type="button"
+            data-about-drift-card
+            data-lane="bottom"
+            data-drift-speed="17"
+            data-drift-amplitude="12"
+            data-drift-offset="-10"
+            data-photo-trigger
+            data-photo-full="photo/fqs%202026-03-18%2017313331C62985EFD6.jpg"
+            data-photo-title="About Frame 10"
+            aria-label="Expand about frame 10"
+            style="--card-width: clamp(174px, 14.2vw, 274px);"
+          >
+            <span class="about-spread__media">
+              <img src="photo/fqs%202026-03-18%2017313331C62985EFD6.jpg" alt="About frame 10" loading="lazy">
+            </span>
+            <span class="about-spread__meta">
+              <span class="about-spread__meta-primary">About Frame 10</span>
+              <span class="about-spread__meta-secondary">Studio Fragment</span>
+            </span>
+          </button>
         </div>
       </section>
+
+      <dialog class="photo-lightbox" data-photo-lightbox aria-label="Expanded about photo">
+        <div class="photo-lightbox__surface">
+          <button class="photo-lightbox__close" type="button" data-photo-lightbox-close aria-label="Close expanded photo">
+            x
+          </button>
+          <img class="photo-lightbox__image" data-photo-lightbox-image alt="">
+          <p class="photo-lightbox__caption" data-photo-lightbox-caption></p>
+        </div>
+      </dialog>
     </main>
   </body>
 </html>
