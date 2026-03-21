@@ -646,7 +646,7 @@ main {
 }
 
 .photography-feature__sheet {
-  width: min(100%, 1520px);
+  width: 100%;
   margin: 0 auto;
   display: grid;
   justify-items: center;
@@ -672,20 +672,20 @@ main {
 
 .photography-feature__scene {
   position: relative;
-  width: min(100%, 1460px);
-  min-height: clamp(620px, 78vw, 980px);
-  perspective: 1800px;
-  perspective-origin: 50% 48%;
+  width: 100%;
+  min-height: clamp(520px, 54vw, 1080px);
+  perspective: 1760px;
+  perspective-origin: 50% 44%;
   overflow: hidden;
 }
 
 .photography-feature__scene::before {
   content: "";
   position: absolute;
-  inset: clamp(2.6rem, 7vw, 5rem) clamp(1rem, 7vw, 4rem) clamp(4.6rem, 8vw, 6.8rem);
-  border-radius: 50%;
+  inset: clamp(2.3rem, 6vw, 4.8rem) clamp(0.25rem, 2.8vw, 1.75rem) clamp(3.3rem, 6vw, 5.1rem);
+  border-radius: 50% / 38%;
   background:
-    radial-gradient(circle at center, rgba(244, 244, 244, 0.88) 0%, rgba(255, 255, 255, 0.96) 48%, rgba(255, 255, 255, 0) 74%);
+    radial-gradient(ellipse at center, rgba(244, 244, 244, 0.9) 0%, rgba(255, 255, 255, 0.97) 50%, rgba(255, 255, 255, 0) 76%);
   pointer-events: none;
 }
 
@@ -693,18 +693,19 @@ main {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 9%;
-  width: min(70%, 760px);
-  height: clamp(40px, 6vw, 84px);
+  bottom: 8%;
+  width: 88%;
+  height: clamp(44px, 7vw, 140px);
   transform: translateX(-50%);
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0) 72%);
-  filter: blur(18px);
-  opacity: 0.15;
+  filter: blur(22px);
+  opacity: 0.18;
   pointer-events: none;
 }
 
 .photography-feature__item {
-  --item-width: clamp(36px, 2.55vw, 58px);
+  --item-width: clamp(36px, 2.8vw, 88px);
+  --item-size-level: 1;
   --card-ratio: 2 / 3;
   --item-hover-scale: 1;
   position: absolute;
@@ -725,7 +726,7 @@ main {
     translate(-50%, -50%)
     rotateY(calc(var(--sphere-rotate-y, 0) * 1deg))
     rotateX(calc(var(--sphere-rotate-x, 0) * 1deg))
-    scale(calc(var(--sphere-scale, 1) * var(--item-hover-scale, 1)));
+    scale(calc(var(--sphere-scale, 1) * var(--item-size-level, 1) * var(--item-hover-scale, 1)));
   transition: filter 220ms ease, opacity 220ms ease;
 }
 
@@ -740,23 +741,39 @@ main {
 }
 
 .photography-feature__item[data-sphere-size="narrow"] {
-  --item-width: clamp(22px, 1.55vw, 30px);
+  --item-width: clamp(22px, 1.6vw, 38px);
   --card-ratio: 5 / 13;
 }
 
 .photography-feature__item[data-sphere-size="tall"] {
-  --item-width: clamp(32px, 2.2vw, 50px);
+  --item-width: clamp(34px, 2.4vw, 70px);
   --card-ratio: 2 / 3;
 }
 
 .photography-feature__item[data-sphere-size="square"] {
-  --item-width: clamp(28px, 1.95vw, 42px);
+  --item-width: clamp(34px, 2.8vw, 74px);
   --card-ratio: 1;
 }
 
 .photography-feature__item[data-sphere-size="wide"] {
-  --item-width: clamp(44px, 3vw, 74px);
+  --item-width: clamp(52px, 4vw, 124px);
   --card-ratio: 5 / 4;
+}
+
+.photography-feature__item[data-sphere-level="xs"] {
+  --item-size-level: 0.72;
+}
+
+.photography-feature__item[data-sphere-level="sm"] {
+  --item-size-level: 0.9;
+}
+
+.photography-feature__item[data-sphere-level="md"] {
+  --item-size-level: 1.04;
+}
+
+.photography-feature__item[data-sphere-level="lg"] {
+  --item-size-level: 1.22;
 }
 
 .photography-feature__card {
@@ -1520,12 +1537,17 @@ body.is-lightbox-open {
   }
 
   .photography-feature__scene {
-    min-height: clamp(520px, 84vw, 780px);
-    perspective: 1450px;
+    min-height: clamp(500px, 66vw, 860px);
+    perspective: 1440px;
   }
 
   .photography-feature__scene::before {
-    inset: 2rem 0.6rem 4rem;
+    inset: 1.8rem 0 3.6rem;
+  }
+
+  .photography-feature__scene::after {
+    width: 90%;
+    bottom: 8%;
   }
 
   .photography-feature__button {
@@ -1701,17 +1723,17 @@ body.is-lightbox-open {
   }
 
   .photography-feature__scene {
-    min-height: clamp(430px, 110vw, 620px);
+    min-height: clamp(440px, 100vw, 680px);
     perspective: 1040px;
   }
 
   .photography-feature__scene::before {
-    inset: 1.4rem 0 2.8rem;
+    inset: 1.2rem 0 2.4rem;
   }
 
   .photography-feature__scene::after {
-    width: min(86%, 420px);
-    bottom: 10%;
+    width: 94%;
+    bottom: 9%;
   }
 
   .photography-feature__actions {

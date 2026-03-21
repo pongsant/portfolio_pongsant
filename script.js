@@ -3165,7 +3165,7 @@ if (photoGallery && photoLightbox) {
     });
   }
 
-  // Position thumbnails on a rotating 3D-like sphere for the home page feature.
+  // Position thumbnails on a rotating 3D-like ellipsoid for the home page feature.
   function initPhotoSphere() {
     if (!photoGallery.hasAttribute("data-photo-sphere")) {
       return;
@@ -3179,8 +3179,11 @@ if (photoGallery && photoLightbox) {
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const points = createSpherePoints(items.length);
+    const sizePattern = ["lg", "sm", "md", "xs", "md", "lg", "sm", "xs"];
     const state = {
-      radius: 0,
+      radiusX: 0,
+      radiusY: 0,
+      radiusZ: 0,
       rotationY: 0,
       pointerX: 0,
       pointerY: 0,
@@ -3190,11 +3193,19 @@ if (photoGallery && photoLightbox) {
       lastTime: 0
     };
 
+    items.forEach((item, index) => {
+      if (!item.dataset.sphereLevel) {
+        item.dataset.sphereLevel = sizePattern[index % sizePattern.length];
+      }
+    });
+
     function updateSphereBounds() {
       const width = photoGallery.clientWidth;
       const height = photoGallery.clientHeight;
 
-      state.radius = Math.min(width * 0.35, height * 0.4, 390);
+      state.radiusX = width * 0.47;
+      state.radiusY = height * 0.26;
+      state.radiusZ = width * 0.18;
     }
 
     function setPointerTargets(event) {
@@ -3223,7 +3234,7 @@ if (photoGallery && photoLightbox) {
       state.pointerY += (state.targetPointerY - state.pointerY) * 0.035;
 
       if (!prefersReducedMotion && !body.classList.contains("is-lightbox-open")) {
-        state.rotationY += delta * 0.00016;
+        state.rotationY += delta * 0.00013;
       }
 
       const rotationX = Math.sin(time * 0.00022) * 0.16 + state.pointerY * -0.18;
@@ -3240,11 +3251,11 @@ if (photoGallery && photoLightbox) {
         const rotatedY = point.y * cosX - rotatedZ * sinX;
         const finalZ = point.y * sinX + rotatedZ * cosX;
         const depth = (finalZ + 1) / 2;
-        const x = rotatedX * state.radius;
-        const y = rotatedY * state.radius * 0.9;
-        const z = finalZ * state.radius;
-        const scale = 0.56 + depth * 0.82;
-        const opacity = 0.2 + depth * 0.88;
+        const x = rotatedX * state.radiusX;
+        const y = rotatedY * state.radiusY;
+        const z = finalZ * state.radiusZ;
+        const scale = 0.62 + depth * 0.78;
+        const opacity = 0.28 + depth * 0.72;
         const blur = Math.max(0, (0.48 - depth) * 2.2);
         const tiltY = rotatedX * -28;
         const tiltX = rotatedY * 18;
