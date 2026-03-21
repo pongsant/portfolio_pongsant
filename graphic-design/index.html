@@ -18,23 +18,36 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="graphic-design-title">
-        <a class="page-back" href="../my-work/">Back to My Work</a>
-        <h1 class="page-heading" id="graphic-design-title">GRAPHIC DESIGN</h1>
-        <p class="page-subtitle">A selection of editorial, poster, and visual communication projects.</p>
+    <main class="page-main page-main--photo-poster">
+      <section class="photo-poster photo-poster--graphic" aria-labelledby="graphic-design-title">
+        <div class="photo-poster__top">
+          <a class="page-back" href="../my-work/">Back to My Work</a>
 
-        <div class="catalog-grid">
-          <a class="catalog-card" href="./POTRAIT-OF-THE-SELFLESS-SELF/">
-            <p class="catalog-card__index">01</p>
-            <h2 class="catalog-card__title">POTRAIT OF THE SELFLESS SELF</h2>
-            <p class="catalog-card__meta">Editorial and poster sequence presented through 15 composed pages and spreads.</p>
-          </a>
-          <a class="catalog-card" href="./poster-system/">
-            <p class="catalog-card__index">02</p>
-            <h2 class="catalog-card__title">Poster System</h2>
-            <p class="catalog-card__meta">Poster and layout-based experiments focused on typography, pacing, and graphic structure.</p>
-          </a>
+          <div class="photo-poster__strip" id="projects" aria-label="Graphic design projects">
+            <a class="photo-poster__item" href="./POTRAIT-OF-THE-SELFLESS-SELF/">
+              <div class="photo-poster__item-media">
+                <img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy">
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">01</p>
+                <p class="photo-poster__item-label">Potrait</p>
+              </div>
+            </a>
+
+            <a class="photo-poster__item" href="./poster-system/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Poster System</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">02</p>
+                <p class="photo-poster__item-label">Poster</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="photo-poster__hero">
+          <h1 class="photo-poster__title photo-poster__title--graphic" id="graphic-design-title">GRAPHIC DESIGN</h1>
         </div>
       </section>
     </main>

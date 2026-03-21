@@ -18,23 +18,36 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="drawing-title">
-        <a class="page-back" href="../my-work/">Back to My Work</a>
-        <h1 class="page-heading" id="drawing-title">DRAWING</h1>
-        <p class="page-subtitle">Use this category page for drawing, sketchbooks, studies, and image sequences.</p>
+    <main class="page-main page-main--photo-poster">
+      <section class="photo-poster photo-poster--drawing" aria-labelledby="drawing-title">
+        <div class="photo-poster__top">
+          <a class="page-back" href="../my-work/">Back to My Work</a>
 
-        <div class="catalog-grid">
-          <a class="catalog-card" href="./figure-study/">
-            <p class="catalog-card__index">01</p>
-            <h2 class="catalog-card__title">Figure Study</h2>
-            <p class="catalog-card__meta">Placeholder project page for observational work and drawing studies.</p>
-          </a>
-          <a class="catalog-card" href="./ink-motion/">
-            <p class="catalog-card__index">02</p>
-            <h2 class="catalog-card__title">Ink Motion</h2>
-            <p class="catalog-card__meta">Placeholder project page for a drawing series or experimental sequence.</p>
-          </a>
+          <div class="photo-poster__strip" id="projects" aria-label="Drawing projects">
+            <a class="photo-poster__item" href="./figure-study/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Figure Study</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">01</p>
+                <p class="photo-poster__item-label">Figure</p>
+              </div>
+            </a>
+
+            <a class="photo-poster__item" href="./ink-motion/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Ink Motion</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">02</p>
+                <p class="photo-poster__item-label">Ink</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="photo-poster__hero">
+          <h1 class="photo-poster__title photo-poster__title--drawing" id="drawing-title">DRAWING</h1>
         </div>
       </section>
     </main>

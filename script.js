@@ -10,6 +10,9 @@ const workScene = document.querySelector(".work-hub__scene");
 const workCanvas = document.querySelector("#my-work-canvas");
 const workTrigger = document.querySelector("#my-work-trigger");
 const workOptions = Array.from(document.querySelectorAll(".work-hub__option"));
+const homeWorkNetwork = document.querySelector("[data-home-work-network]");
+const homeWorkNetworkCanvas = homeWorkNetwork?.querySelector("[data-home-work-network-canvas]");
+const homeWorkNetworkLinks = Array.from(homeWorkNetwork?.querySelectorAll("[data-home-work-network-link]") ?? []);
 
 if (body && header) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -3463,4 +3466,452 @@ if (photoGallery && photoLightbox) {
   });
 
   syncPhotoLightboxNav();
+}
+
+const horizontalRails = Array.from(document.querySelectorAll("[data-horizontal-rail]"));
+
+horizontalRails.forEach((rail) => {
+  function canRailScroll() {
+    return rail.scrollWidth > rail.clientWidth + 4;
+  }
+
+  rail.addEventListener("wheel", (event) => {
+    if (body.classList.contains("is-lightbox-open") || !canRailScroll()) {
+      return;
+    }
+
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+      return;
+    }
+
+    rail.scrollLeft += event.deltaY;
+    event.preventDefault();
+  }, { passive: false });
+
+  rail.addEventListener("keydown", (event) => {
+    if (!canRailScroll()) {
+      return;
+    }
+
+    const step = Math.max(rail.clientWidth * 0.55, 180);
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      rail.scrollBy({ left: step, behavior: "smooth" });
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      rail.scrollBy({ left: -step, behavior: "smooth" });
+    }
+  });
+});
+
+if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0) {
+  const context = homeWorkNetworkCanvas.getContext("2d");
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  if (context) {
+    const state = {
+      dpr: Math.min(window.devicePixelRatio || 1, 2),
+      width: 0,
+      height: 0,
+      centerX: 0,
+      centerY: 0,
+      ringRadius: 0,
+      labelRadius: 0,
+      hoveredIndex: -1,
+      animationId: 0,
+      visible: true,
+      isMobile: window.innerWidth < 720,
+      groups: [],
+      connections: []
+    };
+
+    function networkRandomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function networkDegreesToRadians(degrees) {
+      return degrees * (Math.PI / 180);
+    }
+
+    function networkColor(alpha) {
+      return `rgba(233, 46, 148, ${alpha})`;
+    }
+
+    function getIdleMotionBoost() {
+      return state.hoveredIndex === -1 ? 2.1 : 0.82;
+    }
+
+    function getAnimatedNode(node, time) {
+      if (reducedMotionQuery.matches) {
+        return {
+          x: node.x,
+          y: node.y,
+          rayX: node.rayX,
+          rayY: node.rayY
+        };
+      }
+
+      const motionBoost = getIdleMotionBoost();
+      const angle = node.angle +
+        Math.sin(time * node.swaySpeed * motionBoost + node.phase) * node.angleDrift * motionBoost;
+      const ringRadius = node.ringRadius +
+        Math.sin(time * node.pulseSpeed * motionBoost + node.phase) * node.ringDrift * motionBoost;
+      const rayRadius = node.rayRadius +
+        Math.sin(time * node.raySpeed * motionBoost + node.phase + 0.8) * node.rayDrift * motionBoost;
+
+      return {
+        x: state.centerX + Math.cos(angle) * ringRadius,
+        y: state.centerY + Math.sin(angle) * ringRadius,
+        rayX: state.centerX + Math.cos(angle) * rayRadius,
+        rayY: state.centerY + Math.sin(angle) * rayRadius
+      };
+    }
+
+    function getAnimatedStem(group, time) {
+      if (reducedMotionQuery.matches) {
+        return {
+          x: group.stemX,
+          y: group.stemY
+        };
+      }
+
+      const motionBoost = getIdleMotionBoost();
+      const angle = group.baseAngle +
+        Math.sin(time * group.stemAngleSpeed * motionBoost + group.stemPhase) * group.stemAngleDrift * motionBoost;
+      const radius = group.stemRadius +
+        Math.sin(time * group.stemPulseSpeed * motionBoost + group.stemPhase) * group.stemRadiusDrift * motionBoost;
+
+      return {
+        x: state.centerX + Math.cos(angle) * radius,
+        y: state.centerY + Math.sin(angle) * radius
+      };
+    }
+
+    function syncNetworkLinkStates() {
+      homeWorkNetworkLinks.forEach((link, index) => {
+        link.classList.toggle("is-active", state.hoveredIndex === index);
+      });
+    }
+
+    function drawNetwork(time = 0) {
+      if (!state.groups.length) {
+        return;
+      }
+
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, homeWorkNetworkCanvas.width, homeWorkNetworkCanvas.height);
+      context.save();
+      context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+      context.globalCompositeOperation = "multiply";
+
+      const halo = context.createRadialGradient(
+        state.centerX,
+        state.centerY,
+        state.ringRadius * 0.06,
+        state.centerX,
+        state.centerY,
+        state.ringRadius * 0.94
+      );
+      halo.addColorStop(0, networkColor(0.08));
+      halo.addColorStop(0.5, networkColor(0.03));
+      halo.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+      context.fillStyle = halo;
+      context.beginPath();
+      context.arc(state.centerX, state.centerY, state.ringRadius * 0.86, 0, Math.PI * 2);
+      context.fill();
+
+      context.lineCap = "round";
+      context.lineJoin = "round";
+
+      state.connections.forEach((connection) => {
+        const isHighlighted =
+          state.hoveredIndex !== -1 &&
+          (connection.groupA === state.hoveredIndex || connection.groupB === state.hoveredIndex);
+        const isDimmed = state.hoveredIndex !== -1 && !isHighlighted;
+        const idleBoost = state.hoveredIndex === -1 ? 1.9 : 1;
+        const start = getAnimatedNode(connection.start, time);
+        const end = getAnimatedNode(connection.end, time);
+        const animatedAngle = connection.controlAngle +
+          (reducedMotionQuery.matches
+            ? 0
+            : time * connection.spinSpeed * idleBoost +
+              Math.sin(time * connection.swingSpeed * idleBoost + connection.phase) * connection.angleDrift * idleBoost);
+        const animatedRadius = connection.controlRadius +
+          (reducedMotionQuery.matches
+            ? 0
+            : Math.sin(time * connection.pulseSpeed * idleBoost + connection.phase) * connection.amplitude * idleBoost);
+        const controlX = state.centerX + Math.cos(animatedAngle) * animatedRadius;
+        const controlY = state.centerY + Math.sin(animatedAngle) * animatedRadius;
+        const alpha = isHighlighted
+          ? 0.52
+          : isDimmed
+            ? 0.028
+            : 0.12 + (reducedMotionQuery.matches ? 0 : (Math.sin(time * connection.alphaSpeed * idleBoost + connection.phase) + 1) * 0.05);
+
+        context.strokeStyle = networkColor(alpha);
+        context.lineWidth = connection.lineWidth * (isHighlighted ? 1.46 : isDimmed ? 0.78 : idleBoost * 0.84);
+        context.beginPath();
+        context.moveTo(start.x, start.y);
+        context.quadraticCurveTo(controlX, controlY, end.x, end.y);
+        context.stroke();
+      });
+
+      state.groups.forEach((group, index) => {
+        const isFocused = state.hoveredIndex === index;
+        const isMuted = state.hoveredIndex !== -1 && !isFocused;
+        const isIdle = state.hoveredIndex === -1;
+        const stem = getAnimatedStem(group, time);
+
+        group.nodes.forEach((node) => {
+          const animatedNode = getAnimatedNode(node, time);
+
+          context.strokeStyle = networkColor(isFocused ? 0.34 : isMuted ? 0.07 : isIdle ? 0.24 : 0.15);
+          context.lineWidth = isFocused ? 1.3 : isMuted ? 0.84 : isIdle ? 1.22 : 0.84;
+          context.beginPath();
+          context.moveTo(animatedNode.x, animatedNode.y);
+          context.lineTo(animatedNode.rayX, animatedNode.rayY);
+          context.stroke();
+        });
+
+        context.strokeStyle = networkColor(isFocused ? 0.54 : isMuted ? 0.12 : isIdle ? 0.34 : 0.22);
+        context.lineWidth = isFocused ? 2 : isIdle ? 1.6 : 1.06;
+        context.beginPath();
+        context.moveTo(stem.x, stem.y);
+        context.lineTo(group.labelX, group.labelY);
+        context.stroke();
+      });
+
+      context.restore();
+    }
+
+    function positionNetworkLinks() {
+      homeWorkNetworkLinks.forEach((link, index) => {
+        const group = state.groups[index];
+
+        if (!group) {
+          return;
+        }
+
+        let rotation = 0;
+
+        if (!state.isMobile) {
+          rotation = group.baseAngleDegrees + 90;
+
+          if (rotation > 90 && rotation < 270) {
+            rotation += 180;
+          }
+        }
+
+        link.style.setProperty("--network-link-x", `${group.labelX.toFixed(2)}px`);
+        link.style.setProperty("--network-link-y", `${group.labelY.toFixed(2)}px`);
+        link.style.setProperty("--network-link-rotate", `${rotation.toFixed(2)}deg`);
+      });
+    }
+
+    function buildNetwork() {
+      const rect = homeWorkNetwork.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height);
+
+      state.width = rect.width;
+      state.height = rect.height;
+      state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+      state.centerX = state.width / 2;
+      state.centerY = state.height / 2;
+      state.isMobile = window.innerWidth < 720;
+      state.ringRadius = size * (state.isMobile ? 0.33 : 0.36);
+      state.labelRadius = state.ringRadius + (state.isMobile ? 54 : 104);
+
+      homeWorkNetworkCanvas.width = Math.max(1, Math.round(state.width * state.dpr));
+      homeWorkNetworkCanvas.height = Math.max(1, Math.round(state.height * state.dpr));
+
+      const spread = networkDegreesToRadians(state.isMobile ? 24 : 30);
+      const nodeCount = state.isMobile ? 16 : 24;
+
+      state.groups = homeWorkNetworkLinks.map((link) => {
+        const baseAngleDegrees = Number(link.dataset.networkAngle || 0);
+        const baseAngle = networkDegreesToRadians(baseAngleDegrees);
+        const nodes = Array.from({ length: nodeCount }, (_, nodeIndex) => {
+          const ratio = nodeCount === 1 ? 0.5 : nodeIndex / (nodeCount - 1);
+          const normalized = ratio - 0.5;
+          const angle = baseAngle + normalized * spread + networkRandomBetween(-0.014, 0.014);
+          const ringRadius = state.ringRadius + networkRandomBetween(-state.ringRadius * 0.03, state.ringRadius * 0.02);
+          const rayRadius = state.ringRadius + networkRandomBetween(state.isMobile ? 16 : 22, state.isMobile ? 46 : 76);
+
+          return {
+            angle,
+            ringRadius,
+            rayRadius,
+            x: state.centerX + Math.cos(angle) * ringRadius,
+            y: state.centerY + Math.sin(angle) * ringRadius,
+            rayX: state.centerX + Math.cos(angle) * rayRadius,
+            rayY: state.centerY + Math.sin(angle) * rayRadius,
+            ringDrift: networkRandomBetween(state.isMobile ? 2 : 3, state.isMobile ? 6 : 12),
+            rayDrift: networkRandomBetween(state.isMobile ? 5 : 8, state.isMobile ? 15 : 28),
+            angleDrift: networkRandomBetween(0.006, 0.022),
+            phase: networkRandomBetween(0, Math.PI * 2),
+            swaySpeed: networkRandomBetween(0.00018, 0.00042),
+            pulseSpeed: networkRandomBetween(0.0004, 0.0009),
+            raySpeed: networkRandomBetween(0.00048, 0.0011)
+          };
+        });
+
+        const labelX = state.centerX + Math.cos(baseAngle) * state.labelRadius;
+        const labelY = state.centerY + Math.sin(baseAngle) * state.labelRadius;
+        const stemRadius = state.labelRadius - (state.isMobile ? 18 : 28);
+
+        return {
+          baseAngle,
+          baseAngleDegrees,
+          labelX,
+          labelY,
+          stemRadius,
+          stemX: state.centerX + Math.cos(baseAngle) * stemRadius,
+          stemY: state.centerY + Math.sin(baseAngle) * stemRadius,
+          stemPhase: networkRandomBetween(0, Math.PI * 2),
+          stemRadiusDrift: networkRandomBetween(state.isMobile ? 2 : 4, state.isMobile ? 6 : 12),
+          stemAngleDrift: networkRandomBetween(0.01, 0.032),
+          stemPulseSpeed: networkRandomBetween(0.00026, 0.00052),
+          stemAngleSpeed: networkRandomBetween(0.00014, 0.00028),
+          nodes
+        };
+      });
+
+      const connections = [];
+
+      for (let sourceIndex = 0; sourceIndex < state.groups.length; sourceIndex += 1) {
+        for (let targetIndex = sourceIndex + 1; targetIndex < state.groups.length; targetIndex += 1) {
+          const sourceGroup = state.groups[sourceIndex];
+          const targetGroup = state.groups[targetIndex];
+          const connectionCount = state.isMobile ? 22 : 34;
+
+          for (let connectionIndex = 0; connectionIndex < connectionCount; connectionIndex += 1) {
+            const start = sourceGroup.nodes[Math.floor(Math.random() * sourceGroup.nodes.length)];
+            const end = targetGroup.nodes[Math.floor(Math.random() * targetGroup.nodes.length)];
+
+            connections.push({
+              groupA: sourceIndex,
+              groupB: targetIndex,
+              start,
+              end,
+              controlAngle: networkRandomBetween(0, Math.PI * 2),
+              controlRadius: networkRandomBetween(state.ringRadius * 0.05, state.ringRadius * 0.22),
+              amplitude: networkRandomBetween(state.isMobile ? 2 : 3, state.isMobile ? 8 : 14),
+              phase: networkRandomBetween(0, Math.PI * 2),
+              lineWidth: networkRandomBetween(0.54, 1.28),
+              swingSpeed: networkRandomBetween(0.00018, 0.00042),
+              pulseSpeed: networkRandomBetween(0.00036, 0.00076),
+              alphaSpeed: networkRandomBetween(0.00032, 0.00086),
+              spinSpeed: networkRandomBetween(-0.00005, 0.00005),
+              angleDrift: networkRandomBetween(0.08, 0.28)
+            });
+          }
+        }
+      }
+
+      state.connections = connections;
+      positionNetworkLinks();
+    }
+
+    function stopNetworkAnimation() {
+      if (!state.animationId) {
+        return;
+      }
+
+      window.cancelAnimationFrame(state.animationId);
+      state.animationId = 0;
+    }
+
+    function queueNetworkAnimation() {
+      if (state.animationId || reducedMotionQuery.matches || !state.visible) {
+        return;
+      }
+
+      state.animationId = window.requestAnimationFrame(renderNetwork);
+    }
+
+    function renderNetwork(time) {
+      state.animationId = 0;
+      drawNetwork(time);
+
+      if (!reducedMotionQuery.matches && state.visible) {
+        queueNetworkAnimation();
+      }
+    }
+
+    function refreshNetworkLayout() {
+      buildNetwork();
+      drawNetwork(performance.now());
+      queueNetworkAnimation();
+    }
+
+    function setHoveredNetworkIndex(index) {
+      if (state.hoveredIndex === index) {
+        return;
+      }
+
+      state.hoveredIndex = index;
+      syncNetworkLinkStates();
+      drawNetwork(performance.now());
+      queueNetworkAnimation();
+    }
+
+    function resetHoveredNetworkIndex() {
+      if (state.hoveredIndex === -1) {
+        return;
+      }
+
+      state.hoveredIndex = -1;
+      syncNetworkLinkStates();
+      drawNetwork(performance.now());
+    }
+
+    homeWorkNetworkLinks.forEach((link, index) => {
+      link.addEventListener("pointerenter", () => {
+        setHoveredNetworkIndex(index);
+      });
+
+      link.addEventListener("focus", () => {
+        setHoveredNetworkIndex(index);
+      });
+
+      link.addEventListener("pointerleave", resetHoveredNetworkIndex);
+      link.addEventListener("blur", resetHoveredNetworkIndex);
+    });
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+
+        state.visible = Boolean(entry?.isIntersecting);
+
+        if (state.visible) {
+          drawNetwork(performance.now());
+          queueNetworkAnimation();
+          return;
+        }
+
+        stopNetworkAnimation();
+      }, {
+        threshold: 0.08
+      });
+
+      observer.observe(homeWorkNetwork);
+    }
+
+    reducedMotionQuery.addEventListener("change", () => {
+      if (reducedMotionQuery.matches) {
+        stopNetworkAnimation();
+      }
+
+      drawNetwork(performance.now());
+      queueNetworkAnimation();
+    });
+
+    window.addEventListener("resize", refreshNetworkLayout);
+    refreshNetworkLayout();
+  }
 }

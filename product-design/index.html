@@ -18,23 +18,36 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="product-design-title">
-        <a class="page-back" href="../my-work/">Back to My Work</a>
-        <h1 class="page-heading" id="product-design-title">PRODUCT DESIGN</h1>
-        <p class="page-subtitle">Use this category page for physical objects, material studies, and design process work.</p>
+    <main class="page-main page-main--photo-poster">
+      <section class="photo-poster photo-poster--product" aria-labelledby="product-design-title">
+        <div class="photo-poster__top">
+          <a class="page-back" href="../my-work/">Back to My Work</a>
 
-        <div class="catalog-grid">
-          <a class="catalog-card" href="./material-form/">
-            <p class="catalog-card__index">01</p>
-            <h2 class="catalog-card__title">Material Form</h2>
-            <p class="catalog-card__meta">Placeholder project page for object design and fabrication work.</p>
-          </a>
-          <a class="catalog-card" href="./spatial-object/">
-            <p class="catalog-card__index">02</p>
-            <h2 class="catalog-card__title">Spatial Object</h2>
-            <p class="catalog-card__meta">Placeholder project page for a prototype, model, or constructed piece.</p>
-          </a>
+          <div class="photo-poster__strip" id="projects" aria-label="Product design projects">
+            <a class="photo-poster__item" href="./material-form/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Material Form</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">01</p>
+                <p class="photo-poster__item-label">Material</p>
+              </div>
+            </a>
+
+            <a class="photo-poster__item" href="./spatial-object/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Spatial Object</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">02</p>
+                <p class="photo-poster__item-label">Spatial</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="photo-poster__hero">
+          <h1 class="photo-poster__title photo-poster__title--product" id="product-design-title">PRODUCT DESIGN</h1>
         </div>
       </section>
     </main>

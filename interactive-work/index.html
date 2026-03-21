@@ -18,23 +18,36 @@
       </nav>
     </header>
 
-    <main class="page-main">
-      <section class="page-shell" aria-labelledby="interactive-work-title">
-        <a class="page-back" href="../my-work/">Back to My Work</a>
-        <h1 class="page-heading" id="interactive-work-title">INTERACTIVE WORK</h1>
-        <p class="page-subtitle">Use this category page for coded work, interfaces, motion, and experiments.</p>
+    <main class="page-main page-main--photo-poster">
+      <section class="photo-poster photo-poster--interactive" aria-labelledby="interactive-work-title">
+        <div class="photo-poster__top">
+          <a class="page-back" href="../my-work/">Back to My Work</a>
 
-        <div class="catalog-grid">
-          <a class="catalog-card" href="./particle-interface/">
-            <p class="catalog-card__index">01</p>
-            <h2 class="catalog-card__title">Particle Interface</h2>
-            <p class="catalog-card__meta">Placeholder project page for generative visuals and interactive systems.</p>
-          </a>
-          <a class="catalog-card" href="./motion-prototype/">
-            <p class="catalog-card__index">02</p>
-            <h2 class="catalog-card__title">Motion Prototype</h2>
-            <p class="catalog-card__meta">Placeholder project page for web prototypes and interaction design.</p>
-          </a>
+          <div class="photo-poster__strip" id="projects" aria-label="Interactive work projects">
+            <a class="photo-poster__item" href="./particle-interface/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Particle Interface</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">01</p>
+                <p class="photo-poster__item-label">Particle</p>
+              </div>
+            </a>
+
+            <a class="photo-poster__item" href="./motion-prototype/">
+              <div class="photo-poster__item-media photo-poster__item-media--placeholder">
+                <span>Motion Prototype</span>
+              </div>
+              <div class="photo-poster__item-meta">
+                <p class="photo-poster__item-index">02</p>
+                <p class="photo-poster__item-label">Motion</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="photo-poster__hero">
+          <h1 class="photo-poster__title photo-poster__title--interactive" id="interactive-work-title">INTERACTIVE WORK</h1>
         </div>
       </section>
     </main>
