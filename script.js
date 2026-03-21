@@ -31,28 +31,68 @@ if (body && header) {
 
 if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const context = workCanvas.getContext("2d");
-  const measureCanvas = document.createElement("canvas");
-  const measureContext = measureCanvas.getContext("2d");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const WORK_HUB_PALETTE = [
-    { hue: 352, css: "#ff4b6e" },
-    { hue: 28, css: "#ff8f2f" },
-    { hue: 142, css: "#1bbc7d" },
-    { hue: 214, css: "#2d73ff" },
-    { hue: 286, css: "#b44dff" }
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const TWO_PI = Math.PI * 2;
+  const WORK_HUB_RAINBOW_HUES = [4, 46, 124, 208, 286];
+  const WORK_HUB_CONNECTIONS = [
+    [0, 2],
+    [2, 4],
+    [4, 1],
+    [1, 3],
+    [3, 0],
+    [0, 1],
+    [2, 3]
+  ];
+  const WORK_HUB_SCRIBBLES = [
+    { indices: [0, 4, 1, 3], width: 4.4, alpha: 0.74, sway: 28 },
+    { indices: [1, 2, 0, 4], width: 2.3, alpha: 0.42, sway: 20 },
+    { indices: [3, 0, 2, 1, 4], width: 1.12, alpha: 0.24, sway: 14 }
   ];
 
   const state = {
     width: 0,
     height: 0,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
-    pointCount: window.innerWidth < 720 ? 2600 : 4600,
-    points: [],
-    textTargets: [],
-    optionTargets: [],
     open: false,
-    animationId: 0
+    targetProgress: 0,
+    openProgress: 0,
+    hoverIndex: -1,
+    animationId: 0,
+    flareAt: 0,
+    anchors: [],
+    groups: [],
+    connections: [],
+    guideLines: [],
+    macroOrbits: [],
+    crossSquares: [],
+    latticePatches: [],
+    dustClusters: [],
+    blobs: []
   };
+
+  function prefersReducedMotion() {
+    return reducedMotionQuery.matches;
+  }
+
+  function clampWork(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function workHubDegreesToRadians(degrees) {
+    return degrees * (Math.PI / 180);
+  }
+
+  function lerpWork(start, end, amount) {
+    return start + (end - start) * amount;
+  }
+
+  function easeOutWork(value) {
+    return 1 - ((1 - value) ** 3);
+  }
+
+  function easeInOutWork(value) {
+    return 0.5 - (Math.cos(value * Math.PI) / 2);
+  }
 
   function getWorkCenter() {
     return {
@@ -61,38 +101,22 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     };
   }
 
-  function getFittedWorkFontSize(text, maxWidth, maxHeight, startSize, weight = 700, minSize = 28) {
-    let fontSize = startSize;
-
-    while (fontSize > minSize) {
-      measureContext.font = `${weight} ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
-
-      const metrics = measureContext.measureText(text);
-      const textWidth = metrics.width;
-      const textHeight = (metrics.actualBoundingBoxAscent || fontSize * 0.72) +
-        (metrics.actualBoundingBoxDescent || fontSize * 0.18);
-
-      if (textWidth <= maxWidth && textHeight <= maxHeight) {
-        break;
-      }
-
-      fontSize -= 2;
-    }
-
-    return fontSize;
-  }
-
   function randomBetweenWork(min, max) {
     return min + Math.random() * (max - min);
   }
 
-  function shuffleWork(array) {
-    for (let index = array.length - 1; index > 0; index -= 1) {
-      const swapIndex = Math.floor(Math.random() * (index + 1));
-      [array[index], array[swapIndex]] = [array[swapIndex], array[index]];
-    }
+  function workHubColor(hue, alpha, saturation = 84, lightness = 56) {
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+  }
 
-    return array;
+  function mixWorkHubHues(hueA, hueB) {
+    const hueAX = Math.cos(workHubDegreesToRadians(hueA));
+    const hueAY = Math.sin(workHubDegreesToRadians(hueA));
+    const hueBX = Math.cos(workHubDegreesToRadians(hueB));
+    const hueBY = Math.sin(workHubDegreesToRadians(hueB));
+    const angle = Math.atan2((hueAY + hueBY) / 2, (hueAX + hueBX) / 2);
+
+    return (angle * 180 / Math.PI + 360) % 360;
   }
 
   function getOptionOffset(option) {
@@ -107,199 +131,313 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function syncOptionOffsets() {
-    workOptions.forEach((option) => {
+    const isMobile = window.innerWidth < 720;
+    const ringTilts = [0.78, 0.72, 0.84, 0.76, 0.68];
+    const ringRotations = [-18, 12, -9, 16, 2];
+    const ringRotationsSecondary = [24, -21, 18, -30, 34];
+
+    workOptions.forEach((option, index) => {
       const { x, y } = getOptionOffset(option);
+      const label = option.dataset.label || option.textContent.trim();
+      const hue = WORK_HUB_RAINBOW_HUES[index % WORK_HUB_RAINBOW_HUES.length];
+      const ringSize = clampWork(
+        (isMobile ? 118 : 156) + label.length * (isMobile ? 2.2 : 3.1) + index * 4,
+        isMobile ? 124 : 160,
+        isMobile ? 172 : 252
+      );
       option.style.setProperty("--option-x", `${x}px`);
       option.style.setProperty("--option-y", `${y}px`);
+      option.style.setProperty("--option-ring-size", `${ringSize}px`);
+      option.style.setProperty("--option-ring-tilt", ringTilts[index % ringTilts.length]);
+      option.style.setProperty("--option-ring-rotation", `${ringRotations[index % ringRotations.length]}deg`);
+      option.style.setProperty(
+        "--option-ring-rotation-secondary",
+        `${ringRotationsSecondary[index % ringRotationsSecondary.length]}deg`
+      );
+      option.style.setProperty("--option-hue", String(hue));
+      option.style.setProperty("--option-accent", workHubColor(hue, 0.56, 88, 48));
+      option.style.setProperty("--option-accent-soft", workHubColor(hue, 0.34, 84, 64));
+      option.style.setProperty("--option-accent-glow", workHubColor(hue, 0.18, 90, 58));
     });
-  }
-
-  function syncOptionPalette() {
-    workOptions.forEach((option, index) => {
-      const color = WORK_HUB_PALETTE[index % WORK_HUB_PALETTE.length];
-      const contrastHue = (color.hue + 180) % 360;
-      option.style.setProperty("--option-color", color.css);
-      option.style.setProperty("--option-text-color", `hsl(${contrastHue} 82% 22%)`);
-      option.style.setProperty("--option-text-halo", `hsla(${color.hue} 100% 55% / 0.24)`);
-      option.style.setProperty("--option-text-outline", `hsla(${contrastHue} 88% 16% / 0.2)`);
-    });
-  }
-
-  function createTextTargets() {
-    const offscreen = document.createElement("canvas");
-    offscreen.width = state.width;
-    offscreen.height = state.height;
-
-    const offscreenContext = offscreen.getContext("2d");
-    const mobile = window.innerWidth < 720;
-    const text = "MY WORK";
-    const center = getWorkCenter();
-    const maxWidth = state.width * (mobile ? 0.72 : 0.58);
-    const maxHeight = state.height * (mobile ? 0.1 : 0.11);
-    const fontSize = getFittedWorkFontSize(
-      text,
-      maxWidth,
-      maxHeight,
-      Math.min(state.width * 0.168, state.height * 0.15, 224),
-      760
-    );
-    const sampleStep = mobile ? 2 : 2;
-    const shadowOffsetX = mobile ? 2 : 3;
-    const shadowOffsetY = mobile ? 2 : 3;
-    const targets = [];
-
-    offscreenContext.clearRect(0, 0, state.width, state.height);
-    offscreenContext.fillStyle = "#050505";
-    offscreenContext.textAlign = "center";
-    offscreenContext.textBaseline = "middle";
-    offscreenContext.font = `760 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
-    offscreenContext.fillText(text, center.x, center.y);
-    offscreenContext.fillText(text, center.x + shadowOffsetX, center.y + shadowOffsetY);
-
-    const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
-
-    for (let y = 0; y < state.height; y += sampleStep) {
-      for (let x = 0; x < state.width; x += sampleStep) {
-        const alpha = data[(y * state.width + x) * 4 + 3];
-
-        if (alpha > 70) {
-          targets.push({
-            x,
-            y,
-            z: randomBetweenWork(-64, 64),
-            hue: 0,
-            tint: 0
-          });
-        }
-      }
-    }
-
-    return shuffleWork(targets).slice(0, state.pointCount);
   }
 
   function syncWorkLayoutVars() {
     const isMobile = window.innerWidth < 720;
     const centerWidth = Math.min(window.innerWidth * 0.92, isMobile ? 560 : 920);
-    const triggerFontSize = getFittedWorkFontSize(
-      "MY WORK",
-      centerWidth * (isMobile ? 0.96 : 0.92),
-      window.innerHeight * (isMobile ? 0.11 : 0.14),
-      isMobile ? Math.min(window.innerWidth * 0.16, 82) : Math.min(window.innerWidth * 0.108, 132)
+    const triggerFontSize = clampWork(
+      Math.min(
+        window.innerWidth * (isMobile ? 0.165 : 0.112),
+        window.innerHeight * (isMobile ? 0.11 : 0.14)
+      ),
+      isMobile ? 52 : 74,
+      isMobile ? 92 : 152
     );
 
     workScene.style.setProperty("--work-center-width", `${centerWidth}px`);
     workScene.style.setProperty("--work-trigger-font-size", `${triggerFontSize}px`);
   }
 
-  function createOptionTargets() {
-    const offscreen = document.createElement("canvas");
-    offscreen.width = state.width;
-    offscreen.height = state.height;
+  function setHoveredIndex(index) {
+    state.hoverIndex = index;
+    workOptions.forEach((option, optionIndex) => {
+      option.classList.toggle("is-hovered", optionIndex === index);
+    });
+  }
 
-    const offscreenContext = offscreen.getContext("2d");
-    const center = getWorkCenter();
-    const mobile = window.innerWidth < 720;
-    const sampleStep = mobile ? 2 : 2;
-    const shadowOffsetX = mobile ? 2 : 4;
-    const shadowOffsetY = mobile ? 2 : 4;
-    const targets = [];
+  function createDustPoints(radius, count) {
+    return Array.from({ length: count }, () => {
+      const angle = Math.random() * TWO_PI;
+      const distance = (Math.random() ** 0.64) * radius;
 
-    offscreenContext.textAlign = "center";
-    offscreenContext.textBaseline = "middle";
+      return {
+        angle,
+        distance,
+        size: randomBetweenWork(0.48, 2.6),
+        phase: Math.random() * TWO_PI
+      };
+    });
+  }
 
-    workOptions.forEach((option, index) => {
-      const color = WORK_HUB_PALETTE[index % WORK_HUB_PALETTE.length];
+  function buildStructures() {
+    syncOptionOffsets();
+    syncWorkLayoutVars();
+    state.anchors = workOptions.map((option, index) => {
       const offset = getOptionOffset(option);
       const label = option.dataset.label || option.textContent.trim();
-      const maxWidth = mobile ? Math.min(state.width * 0.4, 230) : Math.min(state.width * 0.3, 420);
-      const maxHeight = mobile ? 42 : 62;
-      const fontSize = getFittedWorkFontSize(
-        label,
-        maxWidth,
-        maxHeight,
-        mobile ? 46 : 72,
-        540,
-        12
+      const isMobile = window.innerWidth < 720;
+      const ringBase = clampWork(
+        (isMobile ? 56 : 76) + label.length * (isMobile ? 1.2 : 1.8),
+        isMobile ? 60 : 82,
+        isMobile ? 92 : 132
       );
 
-      offscreenContext.clearRect(0, 0, state.width, state.height);
-      offscreenContext.fillStyle = "#050505";
-      offscreenContext.font = `540 ${fontSize}px "Helvetica Neue 5", "Helvetica Neue", Helvetica, Arial, sans-serif`;
-      offscreenContext.fillText(label, center.x + offset.x, center.y + offset.y);
-      offscreenContext.fillText(
+      return {
+        index,
         label,
-        center.x + offset.x + shadowOffsetX,
-        center.y + offset.y + shadowOffsetY
-      );
+        offset,
+        hue: WORK_HUB_RAINBOW_HUES[index % WORK_HUB_RAINBOW_HUES.length],
+        seed: Math.random() * TWO_PI,
+        drift: randomBetweenWork(0.74, 1.36),
+        ringBase,
+        haloBase: ringBase * randomBetweenWork(1.26, 1.7),
+        orbitBase: ringBase * randomBetweenWork(1.54, 2.18),
+        blobScale: randomBetweenWork(0.88, 1.34)
+      };
+    });
 
-      const { data } = offscreenContext.getImageData(0, 0, state.width, state.height);
+    const isMobile = window.innerWidth < 720;
+    const nodeCount = isMobile ? 10 : 16;
+    const spread = isMobile ? 0.18 : 0.24;
+    const coreRingRadius = Math.min(state.width, state.height) * (isMobile ? 0.16 : 0.19);
+    const rayBand = Math.min(state.width, state.height) * (isMobile ? 0.042 : 0.06);
 
-      for (let y = 0; y < state.height; y += sampleStep) {
-        for (let x = 0; x < state.width; x += sampleStep) {
-          const alpha = data[(y * state.width + x) * 4 + 3];
+    state.groups = state.anchors.map((anchor) => {
+      const labelRadius = Math.hypot(anchor.offset.x, anchor.offset.y);
+      const baseAngle = Math.atan2(anchor.offset.y, anchor.offset.x);
+      const ringBaseRadius = coreRingRadius + randomBetweenWork(-coreRingRadius * 0.018, coreRingRadius * 0.018);
+      const rayBaseRadius = coreRingRadius + rayBand + randomBetweenWork(-rayBand * 0.12, rayBand * 0.18);
+      const stemRadius = coreRingRadius + rayBand * (isMobile ? 1.5 : 1.65);
 
-          if (alpha > 54) {
-            targets.push({
-              x,
-              y,
-              z: randomBetweenWork(-88, 88),
-              hue: color.hue,
-              tint: 1
-            });
-          }
-        }
+      return {
+        anchorIndex: anchor.index,
+        baseAngle,
+        hue: anchor.hue,
+        labelRadius,
+        segmentSpread: spread,
+        coreRingRadius,
+        stemRadius,
+        stemPhase: randomBetweenWork(0, TWO_PI),
+        stemRadiusDrift: randomBetweenWork(isMobile ? 2 : 4, isMobile ? 7 : 12),
+        stemAngleDrift: randomBetweenWork(0.01, 0.03),
+        stemPulseSpeed: randomBetweenWork(0.00024, 0.00056),
+        stemAngleSpeed: randomBetweenWork(0.00014, 0.00028),
+        nodes: Array.from({ length: nodeCount }, (_, nodeIndex) => {
+          const ratio = nodeCount === 1 ? 0.5 : nodeIndex / (nodeCount - 1);
+          const normalized = ratio - 0.5;
+
+          return {
+            angle: baseAngle + normalized * spread + randomBetweenWork(-0.018, 0.018),
+            ringRadius: ringBaseRadius + randomBetweenWork(-ringBaseRadius * 0.05, ringBaseRadius * 0.04),
+            rayRadius: rayBaseRadius + randomBetweenWork(-rayBaseRadius * 0.04, rayBaseRadius * 0.1),
+            ringDrift: randomBetweenWork(isMobile ? 2 : 3, isMobile ? 6 : 11),
+            rayDrift: randomBetweenWork(isMobile ? 4 : 6, isMobile ? 14 : 22),
+            angleDrift: randomBetweenWork(0.006, 0.022),
+            phase: randomBetweenWork(0, TWO_PI),
+            swaySpeed: randomBetweenWork(0.00018, 0.00042),
+            pulseSpeed: randomBetweenWork(0.00038, 0.0009),
+            raySpeed: randomBetweenWork(0.00042, 0.00102)
+          };
+        })
+      };
+    });
+
+    const builtConnections = [];
+
+    for (let groupIndex = 0; groupIndex < state.groups.length; groupIndex += 1) {
+      const currentGroup = state.groups[groupIndex];
+      const nextGroup = state.groups[(groupIndex + 1) % state.groups.length];
+      const innerOffset = currentGroup.segmentSpread * 0.84;
+      const outerOffset = nextGroup.segmentSpread * 0.84;
+      let startAngle = currentGroup.baseAngle + innerOffset;
+      let endAngle = nextGroup.baseAngle - outerOffset;
+
+      if (endAngle <= startAngle) {
+        endAngle += TWO_PI;
+      }
+
+      builtConnections.push({
+        groupA: groupIndex,
+        groupB: (groupIndex + 1) % state.groups.length,
+        startAngle,
+        endAngle,
+        radius: coreRingRadius + randomBetweenWork(-coreRingRadius * 0.02, coreRingRadius * 0.02),
+        radiusDrift: randomBetweenWork(isMobile ? 2 : 3, isMobile ? 5 : 9),
+        lineWidth: randomBetweenWork(1.4, 2.5),
+        pulseSpeed: randomBetweenWork(0.00028, 0.00062),
+        alphaSpeed: randomBetweenWork(0.00024, 0.00056),
+        phase: randomBetweenWork(0, TWO_PI),
+        hue: mixWorkHubHues(currentGroup.hue, nextGroup.hue)
+      });
+    }
+
+    state.connections = builtConnections;
+
+    state.guideLines = Array.from({ length: 18 }, () => ({
+      ax: randomBetweenWork(-0.08, 1.08),
+      ay: randomBetweenWork(-0.1, 1.1),
+      bx: randomBetweenWork(-0.08, 1.08),
+      by: randomBetweenWork(-0.1, 1.1),
+      width: randomBetweenWork(0.45, 1.4),
+      alpha: randomBetweenWork(0.08, 0.18),
+      drift: randomBetweenWork(10, 32),
+      seed: Math.random() * TWO_PI
+    }));
+
+    state.macroOrbits = [
+      {
+        anchorIndices: [0, 2, 4],
+        biasX: -state.width * 0.04,
+        biasY: -state.height * 0.08,
+        radiusX: state.width * 0.18,
+        radiusY: state.height * 0.16,
+        rotation: -0.42,
+        width: 3.4,
+        alpha: 0.68
+      },
+      {
+        anchorIndices: [1, 2, 4],
+        biasX: state.width * 0.06,
+        biasY: -state.height * 0.02,
+        radiusX: state.width * 0.16,
+        radiusY: state.height * 0.14,
+        rotation: 0.36,
+        width: 2.8,
+        alpha: 0.58
+      },
+      {
+        anchorIndices: [0, 3, 4],
+        biasX: -state.width * 0.02,
+        biasY: state.height * 0.08,
+        radiusX: state.width * 0.14,
+        radiusY: state.height * 0.19,
+        rotation: -0.88,
+        width: 1.6,
+        alpha: 0.26
+      },
+      {
+        anchorIndices: [0, 1, 3, 4],
+        biasX: 0,
+        biasY: state.height * 0.02,
+        radiusX: state.width * 0.21,
+        radiusY: state.height * 0.22,
+        rotation: 0.12,
+        width: 1.1,
+        alpha: 0.18
+      }
+    ];
+
+    state.crossSquares = [];
+    state.latticePatches = [];
+    state.dustClusters = [];
+    state.blobs = [];
+
+    state.anchors.forEach((anchor, index) => {
+      const dustClusterCount = index === 4 ? 3 : 2;
+      const latticeCount = index % 2 === 0 ? 2 : 1;
+      const squareCount = index === 4 ? 3 : 2;
+
+      for (let clusterIndex = 0; clusterIndex < dustClusterCount; clusterIndex += 1) {
+        const radius = anchor.ringBase * randomBetweenWork(0.44, 0.92);
+        const count = Math.round(randomBetweenWork(18, index === 4 ? 34 : 28));
+
+        state.dustClusters.push({
+          anchorIndex: index,
+          dx: randomBetweenWork(-anchor.haloBase * 0.9, anchor.haloBase * 0.9),
+          dy: randomBetweenWork(-anchor.haloBase * 0.9, anchor.haloBase * 0.9),
+          alpha: randomBetweenWork(0.18, 0.52),
+          spin: randomBetweenWork(-0.55, 0.55),
+          sway: randomBetweenWork(2, 9),
+          seed: Math.random() * TWO_PI,
+          points: createDustPoints(radius, count)
+        });
+      }
+
+      for (let latticeIndex = 0; latticeIndex < latticeCount; latticeIndex += 1) {
+        state.latticePatches.push({
+          anchorIndex: index,
+          dx: randomBetweenWork(-anchor.haloBase * 0.7, anchor.haloBase * 0.7),
+          dy: randomBetweenWork(-anchor.haloBase * 0.7, anchor.haloBase * 0.7),
+          size: anchor.ringBase * randomBetweenWork(0.92, 1.46),
+          cols: Math.round(randomBetweenWork(6, 10)),
+          rows: Math.round(randomBetweenWork(5, 9)),
+          rotation: randomBetweenWork(-1.1, 1.1),
+          alpha: randomBetweenWork(0.18, 0.34),
+          seed: Math.random() * TWO_PI
+        });
+      }
+
+      for (let squareIndex = 0; squareIndex < squareCount; squareIndex += 1) {
+        state.crossSquares.push({
+          anchorIndex: index,
+          dx: randomBetweenWork(-anchor.orbitBase, anchor.orbitBase),
+          dy: randomBetweenWork(-anchor.orbitBase, anchor.orbitBase),
+          size: anchor.ringBase * randomBetweenWork(0.48, 0.96),
+          rotation: randomBetweenWork(-0.9, 0.9),
+          alpha: randomBetweenWork(0.22, 0.48),
+          seed: Math.random() * TWO_PI
+        });
+      }
+
+      if (index !== 3) {
+        state.blobs.push({
+          anchorIndex: index,
+          dx: randomBetweenWork(-anchor.haloBase * 0.5, anchor.haloBase * 0.5),
+          dy: randomBetweenWork(-anchor.haloBase * 0.65, anchor.haloBase * 0.65),
+          size: anchor.ringBase * randomBetweenWork(0.32, 0.68) * anchor.blobScale,
+          stretchX: randomBetweenWork(0.72, 1.1),
+          stretchY: randomBetweenWork(0.92, 1.48),
+          rotation: randomBetweenWork(-1.2, 1.2),
+          alpha: randomBetweenWork(0.58, 0.92),
+          roughness: randomBetweenWork(0.1, 0.22),
+          seed: Math.random() * TWO_PI,
+          lobes: Math.round(randomBetweenWork(3, 5))
+        });
       }
     });
 
-    return shuffleWork(targets).slice(0, state.pointCount);
-  }
-
-  function createPoints() {
-    const center = getWorkCenter();
-
-    state.points = Array.from({ length: state.pointCount }, () => ({
-      x: center.x + randomBetweenWork(-80, 80),
-      y: center.y + randomBetweenWork(-80, 80),
-      z: randomBetweenWork(-80, 80),
-      tx: center.x,
-      ty: center.y,
-      tz: randomBetweenWork(-80, 80),
-      size: randomBetweenWork(1.18, 2.5),
-      seed: Math.random() * Math.PI * 2,
-      depthSeed: Math.random() * Math.PI * 2,
-      hue: 0,
-      targetHue: 0,
-      tint: 0,
-      targetTint: 0
-    }));
-  }
-
-  function applyTargets(targets) {
-    if (!targets.length) {
-      return;
-    }
-
-    state.points.forEach((point, index) => {
-      const target = targets[index % targets.length];
-      const scatter = state.open ? 1.1 : 1.8;
-      point.tx = target.x + randomBetweenWork(-scatter, scatter);
-      point.ty = target.y + randomBetweenWork(-scatter, scatter);
-      point.tz = (target.z ?? 0) + randomBetweenWork(state.open ? -12 : -16, state.open ? 12 : 16);
-      point.targetHue = target.hue ?? 0;
-      point.targetTint = target.tint ?? 0;
+    state.blobs.push({
+      anchorIndex: 4,
+      dx: 0,
+      dy: 0,
+      size: clampWork(Math.min(state.width, state.height) * 0.045, 28, 56),
+      stretchX: 0.72,
+      stretchY: 1.36,
+      rotation: -0.12,
+      alpha: 0.92,
+      roughness: 0.16,
+      seed: Math.random() * TWO_PI,
+      lobes: 3
     });
-  }
-
-  function rebuildTargets() {
-    syncOptionOffsets();
-    state.textTargets = createTextTargets();
-    state.optionTargets = createOptionTargets();
-
-    if (!state.points.length || state.points.length !== state.pointCount) {
-      createPoints();
-    }
-
-    applyTargets(state.open ? state.optionTargets : state.textTargets);
   }
 
   function resizeWorkCanvas() {
@@ -308,99 +446,635 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.width = Math.round(rect.width);
     state.height = Math.round(Math.max(rect.height, window.innerHeight));
     state.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    state.pointCount = window.innerWidth < 720 ? 2600 : 4600;
     workCanvas.width = Math.round(state.width * state.dpr);
     workCanvas.height = Math.round(state.height * state.dpr);
     workCanvas.style.width = `${state.width}px`;
     workCanvas.style.height = `${state.height}px`;
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
-    syncWorkLayoutVars();
+    buildStructures();
+  }
 
-    createPoints();
-    rebuildTargets();
+  function getOpeningBurst(time) {
+    if (!state.open) {
+      return 0;
+    }
+
+    const elapsed = time - state.flareAt;
+
+    if (elapsed <= 0 || elapsed >= 1600) {
+      return 0;
+    }
+
+    const progress = elapsed / 1600;
+    return Math.sin(progress * Math.PI) * (1 - progress * 0.22);
+  }
+
+  function getAnimatedAnchors(time) {
+    const center = getWorkCenter();
+    const progress = easeOutWork(state.openProgress);
+
+    return state.anchors.map((anchor) => {
+      const driftScale = prefersReducedMotion() ? 0 : progress;
+      const driftX = Math.sin(time * 0.00056 * anchor.drift + anchor.seed) * anchor.ringBase * 0.09 * driftScale;
+      const driftY = Math.cos(time * 0.00048 * anchor.drift + anchor.seed * 0.8) * anchor.ringBase * 0.07 * driftScale;
+      const pulse = prefersReducedMotion() ? 1 : 1 + Math.sin(time * 0.0018 + anchor.seed) * 0.045 * progress;
+
+      return {
+        ...anchor,
+        x: center.x + anchor.offset.x * progress + driftX,
+        y: center.y + anchor.offset.y * progress + driftY,
+        ringRadius: anchor.ringBase * (0.42 + progress * 0.72) * pulse,
+        orbitRadius: anchor.orbitBase * (0.16 + progress * 0.84),
+        haloRadius: anchor.haloBase * (0.2 + progress * 0.8),
+        progress,
+        highlight: state.hoverIndex === anchor.index
+      };
+    });
+  }
+
+  function getWorkNetworkIdleBoost() {
+    return state.hoverIndex === -1 ? 1.72 : 0.92;
+  }
+
+  function getAnimatedWorkNetworkNode(group, node, time, progress) {
+    const center = getWorkCenter();
+
+    if (prefersReducedMotion()) {
+      return {
+        x: center.x + Math.cos(node.angle) * node.ringRadius * progress,
+        y: center.y + Math.sin(node.angle) * node.ringRadius * progress,
+        rayX: center.x + Math.cos(node.angle) * node.rayRadius * progress,
+        rayY: center.y + Math.sin(node.angle) * node.rayRadius * progress
+      };
+    }
+
+    const motionBoost = getWorkNetworkIdleBoost();
+    const animatedAngle = node.angle +
+      Math.sin(time * node.swaySpeed * motionBoost + node.phase) * node.angleDrift * progress * motionBoost;
+    const animatedRingRadius = node.ringRadius * progress +
+      Math.sin(time * node.pulseSpeed * motionBoost + node.phase) * node.ringDrift * progress * motionBoost;
+    const animatedRayRadius = node.rayRadius * progress +
+      Math.sin(time * node.raySpeed * motionBoost + node.phase + 0.8) * node.rayDrift * progress * motionBoost;
+
+    return {
+      x: center.x + Math.cos(animatedAngle) * animatedRingRadius,
+      y: center.y + Math.sin(animatedAngle) * animatedRingRadius,
+      rayX: center.x + Math.cos(animatedAngle) * animatedRayRadius,
+      rayY: center.y + Math.sin(animatedAngle) * animatedRayRadius
+    };
+  }
+
+  function getAnimatedWorkStem(group, time, progress) {
+    const center = getWorkCenter();
+
+    if (prefersReducedMotion()) {
+      return {
+        x: center.x + Math.cos(group.baseAngle) * group.stemRadius * progress,
+        y: center.y + Math.sin(group.baseAngle) * group.stemRadius * progress
+      };
+    }
+
+    const motionBoost = getWorkNetworkIdleBoost();
+    const angle = group.baseAngle +
+      Math.sin(time * group.stemAngleSpeed * motionBoost + group.stemPhase) *
+        group.stemAngleDrift * progress * motionBoost;
+    const radius = group.stemRadius * progress +
+      Math.sin(time * group.stemPulseSpeed * motionBoost + group.stemPhase) *
+        group.stemRadiusDrift * progress * motionBoost;
+
+    return {
+      x: center.x + Math.cos(angle) * radius,
+      y: center.y + Math.sin(angle) * radius
+    };
+  }
+
+  function drawWorkHubNetwork(anchors, progress, time) {
+    if (!state.groups.length || progress <= 0.001) {
+      return;
+    }
+
+    const center = getWorkCenter();
+
+    context.save();
+    context.globalCompositeOperation = "multiply";
+
+    const maxRadius = Math.max(...anchors.map((anchor) => Math.hypot(anchor.x - center.x, anchor.y - center.y)));
+    const coreRadius = state.groups[0]?.coreRingRadius ?? maxRadius * 0.36;
+    const halo = context.createRadialGradient(
+      center.x,
+      center.y,
+      coreRadius * 0.42,
+      center.x,
+      center.y,
+      maxRadius * 0.98
+    );
+    halo.addColorStop(0, workHubColor(WORK_HUB_RAINBOW_HUES[0], 0.08 * progress, 84, 74));
+    halo.addColorStop(0.2, workHubColor(WORK_HUB_RAINBOW_HUES[1], 0.06 * progress, 88, 72));
+    halo.addColorStop(0.42, workHubColor(WORK_HUB_RAINBOW_HUES[2], 0.05 * progress, 84, 68));
+    halo.addColorStop(0.66, workHubColor(WORK_HUB_RAINBOW_HUES[3], 0.04 * progress, 84, 70));
+    halo.addColorStop(0.84, workHubColor(WORK_HUB_RAINBOW_HUES[4], 0.035 * progress, 86, 70));
+    halo.addColorStop(1, "rgba(255, 255, 255, 0)");
+    context.fillStyle = halo;
+    context.beginPath();
+    context.arc(center.x, center.y, maxRadius * 0.9, 0, TWO_PI);
+    context.fill();
+
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    state.connections.forEach((connection) => {
+      const highlighted =
+        state.hoverIndex !== -1 &&
+        (connection.groupA === state.hoverIndex || connection.groupB === state.hoverIndex);
+      const isDimmed = state.hoverIndex !== -1 && !highlighted;
+      const alpha = highlighted
+        ? 0.56 * progress
+        : isDimmed
+          ? 0.07 * progress
+          : (0.28 + (prefersReducedMotion() ? 0 : (Math.sin(time * connection.alphaSpeed + connection.phase) + 1) * 0.06)) * progress;
+      const radius = connection.radius +
+        (prefersReducedMotion() ? 0 : Math.sin(time * connection.pulseSpeed + connection.phase) * connection.radiusDrift * progress);
+
+      if (Number.isNaN(connection.startAngle) || Number.isNaN(connection.endAngle)) {
+        return;
+      }
+
+      if (highlighted) {
+        context.strokeStyle = workHubColor(connection.hue, 0.18 * progress, 96, 64);
+        context.lineWidth = connection.lineWidth * 2.6;
+        context.beginPath();
+        context.arc(center.x, center.y, radius, connection.startAngle, connection.endAngle);
+        context.stroke();
+      }
+
+      context.strokeStyle = workHubColor(connection.hue, alpha, isDimmed ? 50 : 86, highlighted ? 50 : 56);
+      context.lineWidth = connection.lineWidth * (highlighted ? 1.5 : isDimmed ? 0.62 : 1);
+      context.beginPath();
+      context.arc(center.x, center.y, radius, connection.startAngle, connection.endAngle);
+      context.stroke();
+    });
+
+    state.groups.forEach((group, index) => {
+      const anchor = anchors[group.anchorIndex];
+
+      if (!anchor) {
+        return;
+      }
+
+      const isFocused = state.hoverIndex === index;
+      const isMuted = state.hoverIndex !== -1 && !isFocused;
+      const isIdle = state.hoverIndex === -1;
+      const stem = getAnimatedWorkStem(group, time, progress);
+
+      group.nodes.forEach((node) => {
+        const animatedNode = getAnimatedWorkNetworkNode(group, node, time, progress);
+
+        if (isFocused) {
+          context.strokeStyle = workHubColor(group.hue, 0.18 * progress, 96, 66);
+          context.lineWidth = 3.2;
+          context.beginPath();
+          context.moveTo(animatedNode.x, animatedNode.y);
+          context.lineTo(animatedNode.rayX, animatedNode.rayY);
+          context.stroke();
+        }
+
+        context.strokeStyle = workHubColor(
+          group.hue,
+          (isFocused ? 0.52 : isMuted ? 0.045 : isIdle ? 0.24 : 0.15) * progress,
+          isMuted ? 42 : 84,
+          isFocused ? 48 : 56
+        );
+        context.lineWidth = isFocused ? 1.72 : isMuted ? 0.68 : isIdle ? 1.22 : 0.84;
+        context.beginPath();
+        context.moveTo(animatedNode.x, animatedNode.y);
+        context.lineTo(animatedNode.rayX, animatedNode.rayY);
+        context.stroke();
+      });
+
+      if (isFocused) {
+        context.strokeStyle = workHubColor(group.hue, 0.22 * progress, 96, 64);
+        context.lineWidth = 4.2;
+        context.beginPath();
+        context.moveTo(stem.x, stem.y);
+        context.lineTo(anchor.x, anchor.y);
+        context.stroke();
+      }
+
+      context.strokeStyle = workHubColor(
+        group.hue,
+        (isFocused ? 0.7 : isMuted ? 0.08 : isIdle ? 0.34 : 0.22) * progress,
+        isMuted ? 46 : 88,
+        isFocused ? 46 : 56
+      );
+      context.lineWidth = isFocused ? 2.6 : isIdle ? 1.6 : 1.06;
+      context.beginPath();
+      context.moveTo(stem.x, stem.y);
+      context.lineTo(anchor.x, anchor.y);
+      context.stroke();
+    });
+
+    context.restore();
+  }
+
+  function drawSketchSquare(x, y, size, rotation, alpha) {
+    if (size <= 1 || alpha <= 0.001) {
+      return;
+    }
+
+    context.save();
+    context.translate(x, y);
+    context.rotate(rotation);
+    context.strokeStyle = `rgba(36, 52, 107, ${alpha})`;
+    context.lineWidth = Math.max(0.8, size * 0.028);
+    context.beginPath();
+    context.rect(-size / 2, -size / 2, size, size);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(-size / 2, -size / 2);
+    context.lineTo(size / 2, size / 2);
+    context.moveTo(size / 2, -size / 2);
+    context.lineTo(-size / 2, size / 2);
+    context.stroke();
+    context.restore();
+  }
+
+  function drawGuideLines(progress, time) {
+    context.save();
+    context.lineCap = "round";
+
+    state.guideLines.forEach((line) => {
+      const driftX = prefersReducedMotion() ? 0 : Math.sin(time * 0.00022 + line.seed) * line.drift;
+      const driftY = prefersReducedMotion() ? 0 : Math.cos(time * 0.00026 + line.seed * 1.2) * line.drift;
+      const lineAlpha = line.alpha * (0.32 + progress * 0.9);
+
+      context.beginPath();
+      context.moveTo(
+        line.ax * state.width + driftX * (0.25 + progress * 0.75),
+        line.ay * state.height + driftY * (0.25 + progress * 0.75)
+      );
+      context.lineTo(
+        line.bx * state.width - driftX * (0.16 + progress * 0.38),
+        line.by * state.height - driftY * (0.16 + progress * 0.38)
+      );
+      context.lineWidth = line.width;
+      context.strokeStyle = `rgba(128, 149, 196, ${lineAlpha})`;
+      context.stroke();
+    });
+
+    context.restore();
+  }
+
+  function drawClosedStateCore(progress, time) {
+    const closedAmount = 1 - progress;
+
+    if (closedAmount <= 0.001) {
+      return;
+    }
+
+    const center = getWorkCenter();
+    const pulse = prefersReducedMotion() ? 1 : 1 + Math.sin(time * 0.0014) * 0.06;
+    const radiusX = (state.width * 0.05 + 36) * closedAmount * pulse;
+    const radiusY = (state.height * 0.034 + 22) * closedAmount * pulse;
+
+    context.save();
+    context.strokeStyle = `rgba(5, 5, 5, ${0.18 * closedAmount})`;
+    context.lineWidth = 1.2;
+    context.beginPath();
+    context.ellipse(center.x, center.y, radiusX, radiusY, -0.16, 0, TWO_PI);
+    context.stroke();
+
+    context.strokeStyle = workHubColor(WORK_HUB_RAINBOW_HUES[0], 0.14 * closedAmount, 86, 62);
+    context.beginPath();
+    context.ellipse(center.x, center.y, radiusX * 1.42, radiusY * 1.36, 0.36, 0, TWO_PI);
+    context.stroke();
+    context.restore();
+  }
+
+  function drawMacroOrbits(anchors, progress, time) {
+    const center = getWorkCenter();
+    const burst = getOpeningBurst(time);
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    state.macroOrbits.forEach((orbit, orbitIndex) => {
+      const relatedAnchors = orbit.anchorIndices.map((anchorIndex) => anchors[anchorIndex]);
+      const averageX = relatedAnchors.reduce((total, anchor) => total + anchor.x, 0) / relatedAnchors.length;
+      const averageY = relatedAnchors.reduce((total, anchor) => total + anchor.y, 0) / relatedAnchors.length;
+      const swing = prefersReducedMotion() ? 0 : Math.sin(time * 0.00048 + orbitIndex) * 0.06 * progress;
+      const ellipseX = lerpWork(center.x, averageX + orbit.biasX, progress);
+      const ellipseY = lerpWork(center.y, averageY + orbit.biasY, progress);
+      const radiusX = orbit.radiusX * (0.12 + progress * 0.88) * (1 + burst * 0.05);
+      const radiusY = orbit.radiusY * (0.12 + progress * 0.88) * (1 + burst * 0.04);
+
+      context.beginPath();
+      context.ellipse(
+        ellipseX,
+        ellipseY,
+        radiusX,
+        radiusY,
+        orbit.rotation + swing,
+        0,
+        TWO_PI
+      );
+      context.lineWidth = orbit.width * (0.4 + progress * 0.6);
+      context.strokeStyle = `rgba(28, 39, 95, ${orbit.alpha * (0.2 + progress * 0.8)})`;
+      context.stroke();
+    });
+
+    context.restore();
+  }
+
+  function drawConnectionRibbons(anchors, progress, time) {
+    const center = getWorkCenter();
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    WORK_HUB_CONNECTIONS.forEach(([startIndex, endIndex], connectionIndex) => {
+      const start = anchors[startIndex];
+      const end = anchors[endIndex];
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const distance = Math.hypot(dx, dy) || 1;
+      const normalX = -dy / distance;
+      const normalY = dx / distance;
+      const bendDirection = connectionIndex % 2 === 0 ? 1 : -1;
+      const bendAmount = (20 + distance * 0.12) * (0.18 + progress * 0.82);
+      const liveSway = prefersReducedMotion() ? 0 : Math.sin(time * 0.00072 + connectionIndex) * 12 * progress;
+      const controlX = (start.x + end.x) / 2 + normalX * bendAmount * bendDirection + liveSway;
+      const controlY = (start.y + end.y) / 2 + normalY * bendAmount * bendDirection + liveSway * 0.42;
+      const highlighted = state.hoverIndex === -1 || state.hoverIndex === startIndex || state.hoverIndex === endIndex;
+      const alpha = highlighted ? 0.44 : 0.14;
+      const width = highlighted ? 2.2 : 1.1;
+
+      context.beginPath();
+      context.moveTo(lerpWork(center.x, start.x, 0.18 + progress * 0.82), lerpWork(center.y, start.y, 0.18 + progress * 0.82));
+      context.quadraticCurveTo(controlX, controlY, end.x, end.y);
+      context.lineWidth = width * (0.32 + progress * 0.68);
+      context.strokeStyle = `rgba(31, 43, 100, ${alpha * progress})`;
+      context.stroke();
+    });
+
+    context.restore();
+  }
+
+  function drawScribblePaths(anchors, progress, time) {
+    const burst = getOpeningBurst(time);
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    WORK_HUB_SCRIBBLES.forEach((scribble, scribbleIndex) => {
+      const points = scribble.indices.map((anchorIndex, pointIndex) => {
+        const anchor = anchors[anchorIndex];
+        const driftX = prefersReducedMotion()
+          ? 0
+          : Math.sin(time * 0.00082 + anchor.seed + pointIndex) * scribble.sway * progress;
+        const driftY = prefersReducedMotion()
+          ? 0
+          : Math.cos(time * 0.00068 + anchor.seed * 0.7 + pointIndex) * scribble.sway * 0.6 * progress;
+
+        return {
+          x: anchor.x + driftX,
+          y: anchor.y + driftY
+        };
+      });
+
+      const highlighted = state.hoverIndex === -1 || scribble.indices.includes(state.hoverIndex);
+      const alpha = highlighted ? scribble.alpha : scribble.alpha * 0.34;
+
+      context.beginPath();
+      context.moveTo(points[0].x, points[0].y);
+
+      for (let index = 1; index < points.length; index += 1) {
+        const previousPoint = points[index - 1];
+        const currentPoint = points[index];
+        const midpointX = (previousPoint.x + currentPoint.x) / 2;
+        const midpointY = (previousPoint.y + currentPoint.y) / 2;
+
+        context.quadraticCurveTo(previousPoint.x, previousPoint.y, midpointX, midpointY);
+      }
+
+      const lastPoint = points[points.length - 1];
+      context.lineTo(lastPoint.x, lastPoint.y);
+      context.lineWidth = (scribble.width + burst * 1.4) * (0.16 + progress * 0.84);
+      context.strokeStyle = `rgba(23, 34, 89, ${alpha * progress})`;
+      context.stroke();
+
+      if (scribbleIndex === 0) {
+        context.lineWidth = Math.max(0.8, context.lineWidth * 0.3);
+        context.strokeStyle = `rgba(104, 128, 189, ${0.2 * progress})`;
+        context.stroke();
+      }
+    });
+
+    context.restore();
+  }
+
+  function drawLatticePatches(anchors, progress, time) {
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    state.latticePatches.forEach((patch, patchIndex) => {
+      const anchor = anchors[patch.anchorIndex];
+      const patchX = anchor.x + patch.dx * progress;
+      const patchY = anchor.y + patch.dy * progress;
+      const size = patch.size * (0.18 + progress * 0.82);
+      const cellWidth = size / patch.cols;
+      const cellHeight = size / patch.rows;
+      const rotation = patch.rotation + (prefersReducedMotion() ? 0 : Math.sin(time * 0.00044 + patch.seed) * 0.08 * progress);
+
+      context.save();
+      context.translate(patchX, patchY);
+      context.rotate(rotation);
+      context.strokeStyle = `rgba(58, 79, 142, ${patch.alpha * progress})`;
+      context.lineWidth = 0.6;
+
+      for (let column = 0; column <= patch.cols; column += 1) {
+        const x = -size / 2 + cellWidth * column;
+        context.beginPath();
+        context.moveTo(x, -size / 2);
+        context.lineTo(x, size / 2);
+        context.stroke();
+      }
+
+      for (let row = 0; row <= patch.rows; row += 1) {
+        const y = -size / 2 + cellHeight * row;
+        context.beginPath();
+        context.moveTo(-size / 2, y);
+        context.lineTo(size / 2, y);
+        context.stroke();
+      }
+
+      if (patchIndex % 2 === 0) {
+        context.strokeStyle = `rgba(100, 125, 188, ${patch.alpha * progress * 0.56})`;
+        context.beginPath();
+        context.moveTo(-size / 2, -size / 2);
+        context.lineTo(size / 2, size / 2);
+        context.moveTo(size / 2, -size / 2);
+        context.lineTo(-size / 2, size / 2);
+        context.stroke();
+      }
+
+      context.restore();
+    });
+
+    context.restore();
+  }
+
+  function drawDustClusters(anchors, progress, time) {
+    context.save();
+
+    state.dustClusters.forEach((cluster) => {
+      const anchor = anchors[cluster.anchorIndex];
+      const baseX = anchor.x + cluster.dx * progress;
+      const baseY = anchor.y + cluster.dy * progress;
+
+      cluster.points.forEach((point, pointIndex) => {
+        const angle = point.angle + (prefersReducedMotion() ? 0 : time * 0.00018 * cluster.spin);
+        const wobble = prefersReducedMotion()
+          ? 0
+          : Math.sin(time * 0.0012 + cluster.seed + point.phase + pointIndex * 0.07) * cluster.sway * 0.22 * progress;
+        const drawX = baseX + Math.cos(angle) * point.distance + wobble;
+        const drawY = baseY + Math.sin(angle) * point.distance + wobble * 0.8;
+        const size = point.size * (0.26 + progress * 0.74);
+
+        context.beginPath();
+        context.arc(drawX, drawY, size, 0, TWO_PI);
+        context.fillStyle = `rgba(24, 34, 90, ${cluster.alpha * progress})`;
+        context.fill();
+      });
+    });
+
+    context.restore();
+  }
+
+  function drawBlobs(anchors, progress, time) {
+    const burst = getOpeningBurst(time);
+
+    context.save();
+
+    state.blobs.forEach((blob) => {
+      const anchor = anchors[blob.anchorIndex];
+      const blobX = anchor.x + blob.dx * progress;
+      const blobY = anchor.y + blob.dy * progress;
+      const size = blob.size * (0.18 + progress * 0.82) * (1 + burst * 0.08);
+      const rotation = blob.rotation + (prefersReducedMotion() ? 0 : Math.sin(time * 0.00052 + blob.seed) * 0.08 * progress);
+      const steps = 14;
+
+      context.save();
+      context.translate(blobX, blobY);
+      context.rotate(rotation);
+      context.beginPath();
+
+      for (let step = 0; step <= steps; step += 1) {
+        const angle = (step / steps) * TWO_PI;
+        const modulation = 1
+          + Math.sin(angle * blob.lobes + blob.seed) * blob.roughness
+          + Math.cos(angle * 2 + blob.seed * 0.7) * 0.08;
+        const pointX = Math.cos(angle) * size * blob.stretchX * modulation;
+        const pointY = Math.sin(angle) * size * blob.stretchY * modulation;
+
+        if (step === 0) {
+          context.moveTo(pointX, pointY);
+        } else {
+          context.lineTo(pointX, pointY);
+        }
+      }
+
+      context.closePath();
+      context.fillStyle = `rgba(19, 26, 70, ${blob.alpha * progress})`;
+      context.fill();
+      context.restore();
+    });
+
+    context.restore();
+  }
+
+  function drawCrossSquares(anchors, progress, time) {
+    state.crossSquares.forEach((square) => {
+      const anchor = anchors[square.anchorIndex];
+      const squareX = anchor.x + square.dx * progress;
+      const squareY = anchor.y + square.dy * progress;
+      const size = square.size * (0.18 + progress * 0.82);
+      const rotation = square.rotation + (prefersReducedMotion() ? 0 : Math.sin(time * 0.00038 + square.seed) * 0.08 * progress);
+      drawSketchSquare(squareX, squareY, size, rotation, square.alpha * progress);
+    });
+  }
+
+  function drawAnchorRings(anchors, progress, time) {
+    const burst = getOpeningBurst(time);
+
+    context.save();
+
+    anchors.forEach((anchor, index) => {
+      const focusLevel = state.hoverIndex === -1 ? 1 : anchor.highlight ? 1.3 : 0.34;
+      const ringAlpha = (0.2 + progress * 0.48) * focusLevel;
+      const outerAlpha = (0.12 + progress * 0.24) * focusLevel;
+      const rotation = (index % 2 === 0 ? -0.32 : 0.28) + (prefersReducedMotion() ? 0 : Math.sin(time * 0.00064 + anchor.seed) * 0.06);
+      const baseRadiusX = anchor.ringRadius * (1 + burst * 0.05);
+      const baseRadiusY = anchor.ringRadius * (0.74 + (index % 3) * 0.05) * (1 + burst * 0.05);
+
+      context.beginPath();
+      context.ellipse(anchor.x, anchor.y, baseRadiusX, baseRadiusY, rotation, 0, TWO_PI);
+      context.lineWidth = (anchor.highlight ? 1.8 : 1.35);
+      context.strokeStyle = workHubColor(anchor.hue, ringAlpha, 88, 50);
+      context.stroke();
+
+      context.beginPath();
+      context.ellipse(anchor.x + 3, anchor.y - 2, anchor.haloRadius * 0.74, anchor.haloRadius * 0.58, rotation + 0.42, 0, TWO_PI);
+      context.lineWidth = 0.95;
+      context.strokeStyle = workHubColor(anchor.hue, outerAlpha, 82, 68);
+      context.stroke();
+
+      context.beginPath();
+      context.arc(anchor.x, anchor.y, 2.2 + progress * 1.4, 0, TWO_PI);
+      context.fillStyle = workHubColor(anchor.hue, 0.46 * focusLevel * progress, 88, 46);
+      context.fill();
+    });
+
+    context.restore();
   }
 
   function setWorkMenuState(open) {
     state.open = open;
+    state.targetProgress = open ? 1 : 0;
+    if (prefersReducedMotion()) {
+      state.openProgress = state.targetProgress;
+    }
     body.classList.toggle("is-work-menu-open", open);
     workTrigger.setAttribute("aria-expanded", String(open));
-    applyTargets(open ? state.optionTargets : state.textTargets);
+
+    if (open) {
+      state.flareAt = performance.now();
+    } else {
+      setHoveredIndex(-1);
+    }
   }
 
   function renderWorkHub(time) {
     context.clearRect(0, 0, state.width, state.height);
-    const center = getWorkCenter();
-    const centerX = center.x;
-    const centerY = center.y;
-    const angleY = reducedMotion ? 0.015 : Math.sin(time * 0.00024) * (state.open ? 0.08 : 0.05);
-    const angleX = reducedMotion ? -0.01 : Math.cos(time * 0.00018) * (state.open ? 0.05 : 0.03);
-    const perspective = Math.min(state.width, state.height) * 1.15;
-
-    for (const point of state.points) {
-      let targetX = point.tx;
-      let targetY = point.ty;
-      let targetZ = point.tz;
-
-      if (state.open && point.targetTint > 0.04) {
-        const groupPhase = point.targetHue * 0.021 + point.depthSeed;
-        const groupDriftX = reducedMotion ? 0 : Math.sin(time * 0.00046 + groupPhase) * 8.5;
-        const groupDriftY = reducedMotion ? 0 : Math.cos(time * 0.00036 + groupPhase * 0.92) * 5.4;
-        const localDriftX = reducedMotion ? 0 : Math.sin(time * 0.00118 + point.seed + groupPhase) * 1.7;
-        const localDriftY = reducedMotion ? 0 : Math.cos(time * 0.00102 + point.depthSeed + groupPhase * 0.7) * 1.35;
-        const localDriftZ = reducedMotion ? 0 : Math.sin(time * 0.00084 + point.seed * 0.7 + groupPhase) * 8;
-
-        targetX += groupDriftX + localDriftX;
-        targetY += groupDriftY + localDriftY;
-        targetZ += localDriftZ;
-      } else if (!state.open) {
-        const titlePhase = point.depthSeed * 0.9 + point.seed * 0.4;
-        const titleDriftX = reducedMotion ? 0 : Math.sin(time * 0.00034 + titlePhase) * 4.8;
-        const titleDriftY = reducedMotion ? 0 : Math.cos(time * 0.00026 + titlePhase * 0.82) * 2.4;
-        const titleDriftZ = reducedMotion ? 0 : Math.sin(time * 0.00022 + titlePhase * 0.66) * 4.2;
-
-        targetX += titleDriftX;
-        targetY += titleDriftY;
-        targetZ += titleDriftZ;
-      }
-
-      point.x += (targetX - point.x) * 0.094;
-      point.y += (targetY - point.y) * 0.094;
-      point.z += (targetZ - point.z) * 0.094;
-      point.tint += (point.targetTint - point.tint) * 0.082;
-      point.hue += (point.targetHue - point.hue) * 0.082;
-
-      const wobbleX = reducedMotion ? 0 : Math.sin(time * 0.00082 + point.seed) * (state.open ? 0.14 : 0.08);
-      const wobbleY = reducedMotion ? 0 : Math.cos(time * 0.00074 + point.seed) * (state.open ? 0.12 : 0.06);
-      const localX = point.x - centerX;
-      const localY = point.y - centerY;
-      const localZ = point.z + (reducedMotion ? 0 : Math.sin(time * 0.00054 + point.depthSeed) * (state.open ? 9 : 6));
-
-      const rotatedX = localX * Math.cos(angleY) - localZ * Math.sin(angleY);
-      const rotatedZ = localX * Math.sin(angleY) + localZ * Math.cos(angleY);
-      const rotatedY = localY * Math.cos(angleX) - rotatedZ * Math.sin(angleX);
-      const finalZ = localY * Math.sin(angleX) + rotatedZ * Math.cos(angleX);
-      const scale = perspective / (perspective - finalZ);
-      const drawX = centerX + rotatedX * scale + wobbleX;
-      const drawY = centerY + rotatedY * scale + wobbleY;
-      const size = Math.max(state.open ? 1.48 : 1.3, point.size * scale * (state.open ? 1.32 : 1.26));
-      const alpha = state.open
-        ? Math.max(0.28, Math.min(0.86, 0.3 + scale * 0.23))
-        : Math.max(0.24, Math.min(0.84, 0.26 + scale * 0.24));
-      const rainbowHue = (point.hue + time * 0.026 + point.depthSeed * 18) % 360;
-      const glowAlpha = alpha * (state.open ? 0.16 : 0.08);
-
-      if (state.open && point.tint > 0.04) {
-        context.fillStyle = `hsla(${rainbowHue}, 96%, 56%, ${glowAlpha})`;
-        context.fillRect(drawX - size * 0.28, drawY - size * 0.28, size * 1.34, size * 1.34);
-        context.fillStyle = `hsla(${rainbowHue}, 92%, 44%, ${alpha})`;
-      } else {
-        context.fillStyle = `rgba(5, 5, 5, ${glowAlpha})`;
-        context.fillRect(drawX - size * 0.16, drawY - size * 0.16, size * 1.16, size * 1.16);
-        context.fillStyle = `rgba(5, 5, 5, ${alpha})`;
-      }
-
-      context.fillRect(drawX, drawY, size, size);
+    if (prefersReducedMotion()) {
+      state.openProgress = state.targetProgress;
+    } else {
+      state.openProgress += (state.targetProgress - state.openProgress) * 0.085;
     }
+
+    if (Math.abs(state.targetProgress - state.openProgress) < 0.0015) {
+      state.openProgress = state.targetProgress;
+    }
+
+    const progress = easeInOutWork(state.openProgress);
+    const anchors = getAnimatedAnchors(time);
+
+    drawClosedStateCore(progress, time);
+    drawWorkHubNetwork(anchors, progress, time);
+    drawAnchorRings(anchors, progress, time);
 
     state.animationId = window.requestAnimationFrame(renderWorkHub);
   }
@@ -425,7 +1099,6 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function initWorkHub() {
-    syncOptionPalette();
     resizeWorkCanvas();
     renderWorkHub(0);
 
@@ -433,12 +1106,14 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workScene.addEventListener("click", handleWorkSceneClick);
     document.addEventListener("keydown", handleKeydown);
     window.addEventListener("resize", resizeWorkCanvas);
+    reducedMotionQuery.addEventListener("change", resizeWorkCanvas);
 
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        rebuildTargets();
-      });
-    }
+    workOptions.forEach((option, index) => {
+      option.addEventListener("pointerenter", () => setHoveredIndex(index));
+      option.addEventListener("pointerleave", () => setHoveredIndex(-1));
+      option.addEventListener("focus", () => setHoveredIndex(index));
+      option.addEventListener("blur", () => setHoveredIndex(-1));
+    });
   }
 
   initWorkHub();
