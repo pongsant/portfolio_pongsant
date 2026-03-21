@@ -3018,11 +3018,105 @@ const photoGallery = document.querySelector("[data-photo-gallery]");
 const photoLightbox = document.querySelector("[data-photo-lightbox]");
 
 if (photoGallery && photoLightbox) {
+  const photoLightboxSurface = photoLightbox.querySelector(".photo-lightbox__surface");
   const photoLightboxImage = photoLightbox.querySelector("[data-photo-lightbox-image]");
   const photoLightboxCaption = photoLightbox.querySelector("[data-photo-lightbox-caption]");
   const photoLightboxClose = photoLightbox.querySelector("[data-photo-lightbox-close]");
+  let photoLightboxPrev = photoLightbox.querySelector("[data-photo-lightbox-prev]");
+  let photoLightboxNext = photoLightbox.querySelector("[data-photo-lightbox-next]");
   const isResearchGallery = photoGallery.classList.contains("photo-gallery--research");
   let lastPhotoTrigger = null;
+  let activePhotoIndex = -1;
+
+  if (photoLightboxSurface) {
+    if (!photoLightboxPrev) {
+      photoLightboxPrev = document.createElement("button");
+      photoLightboxPrev.type = "button";
+      photoLightboxPrev.className = "photo-lightbox__nav photo-lightbox__nav--prev";
+      photoLightboxPrev.setAttribute("data-photo-lightbox-prev", "");
+      photoLightboxPrev.setAttribute("aria-label", "View previous image");
+      photoLightboxPrev.textContent = "<";
+      photoLightboxSurface.appendChild(photoLightboxPrev);
+    }
+
+    if (!photoLightboxNext) {
+      photoLightboxNext = document.createElement("button");
+      photoLightboxNext.type = "button";
+      photoLightboxNext.className = "photo-lightbox__nav photo-lightbox__nav--next";
+      photoLightboxNext.setAttribute("data-photo-lightbox-next", "");
+      photoLightboxNext.setAttribute("aria-label", "View next image");
+      photoLightboxNext.textContent = ">";
+      photoLightboxSurface.appendChild(photoLightboxNext);
+    }
+  }
+
+  function getPhotoTriggers() {
+    return Array.from(photoGallery.querySelectorAll("[data-photo-trigger]"));
+  }
+
+  function syncPhotoLightboxNav() {
+    const hasMultiplePhotos = getPhotoTriggers().length > 1;
+
+    [photoLightboxPrev, photoLightboxNext].forEach((button) => {
+      if (!button) {
+        return;
+      }
+
+      button.hidden = !hasMultiplePhotos;
+      button.disabled = !hasMultiplePhotos;
+    });
+  }
+
+  function setPhotoLightboxContent(trigger) {
+    if (!trigger) {
+      return false;
+    }
+
+    const image = trigger.querySelector("img");
+    const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src;
+
+    if (!fullSrc) {
+      return false;
+    }
+
+    if (photoLightboxImage) {
+      photoLightboxImage.src = fullSrc;
+      photoLightboxImage.alt = image?.alt || trigger.dataset.photoTitle || "Expanded photo";
+    }
+
+    if (photoLightboxCaption) {
+      photoLightboxCaption.textContent = trigger.dataset.photoTitle || image?.alt || "";
+    }
+
+    return true;
+  }
+
+  function showPhotoByIndex(index) {
+    const triggers = getPhotoTriggers();
+
+    if (triggers.length === 0) {
+      return;
+    }
+
+    const normalizedIndex = ((index % triggers.length) + triggers.length) % triggers.length;
+    const trigger = triggers[normalizedIndex];
+
+    if (!setPhotoLightboxContent(trigger)) {
+      return;
+    }
+
+    activePhotoIndex = normalizedIndex;
+    lastPhotoTrigger = trigger;
+    syncPhotoLightboxNav();
+  }
+
+  function stepPhotoLightbox(direction) {
+    if (!photoLightbox.open) {
+      return;
+    }
+
+    showPhotoByIndex(activePhotoIndex + direction);
+  }
 
   function resetPhotoLightbox() {
     if (photoLightboxImage) {
@@ -3033,6 +3127,8 @@ if (photoGallery && photoLightbox) {
     if (photoLightboxCaption) {
       photoLightboxCaption.textContent = "";
     }
+
+    activePhotoIndex = -1;
   }
 
   function closePhotoLightbox() {
@@ -3293,28 +3389,26 @@ if (photoGallery && photoLightbox) {
 
     event.preventDefault();
 
-    const image = trigger.querySelector("img");
-    const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src;
-
-    if (!fullSrc) {
-      return;
-    }
-
     if (typeof photoLightbox.showModal !== "function") {
+      const image = trigger.querySelector("img");
+      const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src;
+
+      if (!fullSrc) {
+        return;
+      }
+
       window.open(fullSrc, "_blank", "noopener");
       return;
     }
 
-    lastPhotoTrigger = trigger;
+    const triggers = getPhotoTriggers();
+    const triggerIndex = triggers.indexOf(trigger);
 
-    if (photoLightboxImage) {
-      photoLightboxImage.src = fullSrc;
-      photoLightboxImage.alt = image?.alt || trigger.dataset.photoTitle || "Expanded photo";
+    if (triggerIndex === -1) {
+      return;
     }
 
-    if (photoLightboxCaption) {
-      photoLightboxCaption.textContent = trigger.dataset.photoTitle || image?.alt || "";
-    }
+    showPhotoByIndex(triggerIndex);
 
     photoLightbox.showModal();
     body.classList.add("is-lightbox-open");
@@ -3324,18 +3418,49 @@ if (photoGallery && photoLightbox) {
     photoLightboxClose.addEventListener("click", closePhotoLightbox);
   }
 
+  if (photoLightboxPrev) {
+    photoLightboxPrev.addEventListener("click", () => {
+      stepPhotoLightbox(-1);
+    });
+  }
+
+  if (photoLightboxNext) {
+    photoLightboxNext.addEventListener("click", () => {
+      stepPhotoLightbox(1);
+    });
+  }
+
   photoLightbox.addEventListener("click", (event) => {
     if (event.target === photoLightbox) {
       closePhotoLightbox();
     }
   });
 
+  window.addEventListener("keydown", (event) => {
+    if (!photoLightbox.open) {
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      stepPhotoLightbox(-1);
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      stepPhotoLightbox(1);
+    }
+  });
+
   photoLightbox.addEventListener("close", () => {
     body.classList.remove("is-lightbox-open");
     resetPhotoLightbox();
+    syncPhotoLightboxNav();
 
     if (lastPhotoTrigger) {
       lastPhotoTrigger.focus();
     }
   });
+
+  syncPhotoLightboxNav();
 }
