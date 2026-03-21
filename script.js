@@ -3510,6 +3510,7 @@ horizontalRails.forEach((rail) => {
 if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0) {
   const context = homeWorkNetworkCanvas.getContext("2d");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const NETWORK_RAINBOW_HUES = [4, 46, 124, 208, 286];
 
   if (context) {
     const state = {
@@ -3536,8 +3537,18 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
       return degrees * (Math.PI / 180);
     }
 
-    function networkColor(alpha) {
-      return `rgba(233, 46, 148, ${alpha})`;
+    function networkColor(hue, alpha, saturation = 84, lightness = 56) {
+      return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+    }
+
+    function mixNetworkHues(hueA, hueB) {
+      const hueAX = Math.cos(networkDegreesToRadians(hueA));
+      const hueAY = Math.sin(networkDegreesToRadians(hueA));
+      const hueBX = Math.cos(networkDegreesToRadians(hueB));
+      const hueBY = Math.sin(networkDegreesToRadians(hueB));
+      const angle = Math.atan2((hueAY + hueBY) / 2, (hueAX + hueBX) / 2);
+
+      return (angle * 180 / Math.PI + 360) % 360;
     }
 
     function getIdleMotionBoost() {
@@ -3615,14 +3626,39 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         state.centerY,
         state.ringRadius * 0.94
       );
-      halo.addColorStop(0, networkColor(0.08));
-      halo.addColorStop(0.5, networkColor(0.03));
+      halo.addColorStop(0, "hsla(330, 80%, 72%, 0.08)");
+      halo.addColorStop(0.18, "hsla(18, 88%, 70%, 0.06)");
+      halo.addColorStop(0.38, "hsla(62, 82%, 68%, 0.05)");
+      halo.addColorStop(0.58, "hsla(148, 70%, 62%, 0.04)");
+      halo.addColorStop(0.78, "hsla(218, 82%, 66%, 0.035)");
       halo.addColorStop(1, "rgba(255, 255, 255, 0)");
 
       context.fillStyle = halo;
       context.beginPath();
       context.arc(state.centerX, state.centerY, state.ringRadius * 0.86, 0, Math.PI * 2);
       context.fill();
+
+      if (state.hoveredIndex !== -1) {
+        const focusedGroup = state.groups[state.hoveredIndex];
+
+        if (focusedGroup) {
+          const focusedGlow = context.createRadialGradient(
+            focusedGroup.labelX,
+            focusedGroup.labelY,
+            0,
+            focusedGroup.labelX,
+            focusedGroup.labelY,
+            state.ringRadius * 0.26
+          );
+          focusedGlow.addColorStop(0, networkColor(focusedGroup.hue, 0.18, 88, 60));
+          focusedGlow.addColorStop(0.46, networkColor(focusedGroup.hue, 0.07, 84, 62));
+          focusedGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
+          context.fillStyle = focusedGlow;
+          context.beginPath();
+          context.arc(focusedGroup.labelX, focusedGroup.labelY, state.ringRadius * 0.24, 0, Math.PI * 2);
+          context.fill();
+        }
+      }
 
       context.lineCap = "round";
       context.lineJoin = "round";
@@ -3633,6 +3669,8 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
           (connection.groupA === state.hoveredIndex || connection.groupB === state.hoveredIndex);
         const isDimmed = state.hoveredIndex !== -1 && !isHighlighted;
         const idleBoost = state.hoveredIndex === -1 ? 1.9 : 1;
+        const hoveredHue = state.hoveredIndex !== -1 ? state.groups[state.hoveredIndex]?.hue : null;
+        const connectionHue = isHighlighted && hoveredHue !== null ? hoveredHue : connection.hue;
         const start = getAnimatedNode(connection.start, time);
         const end = getAnimatedNode(connection.end, time);
         const animatedAngle = connection.controlAngle +
@@ -3649,11 +3687,20 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         const alpha = isHighlighted
           ? 0.52
           : isDimmed
-            ? 0.028
+            ? 0.012
             : 0.12 + (reducedMotionQuery.matches ? 0 : (Math.sin(time * connection.alphaSpeed * idleBoost + connection.phase) + 1) * 0.05);
 
-        context.strokeStyle = networkColor(alpha);
-        context.lineWidth = connection.lineWidth * (isHighlighted ? 1.46 : isDimmed ? 0.78 : idleBoost * 0.84);
+        if (isHighlighted) {
+          context.strokeStyle = networkColor(connectionHue, 0.18, 96, 64);
+          context.lineWidth = connection.lineWidth * 3.8;
+          context.beginPath();
+          context.moveTo(start.x, start.y);
+          context.quadraticCurveTo(controlX, controlY, end.x, end.y);
+          context.stroke();
+        }
+
+        context.strokeStyle = networkColor(connectionHue, alpha, isDimmed ? 50 : 86, isHighlighted ? 50 : 56);
+        context.lineWidth = connection.lineWidth * (isHighlighted ? 2.15 : isDimmed ? 0.52 : idleBoost * 0.84);
         context.beginPath();
         context.moveTo(start.x, start.y);
         context.quadraticCurveTo(controlX, controlY, end.x, end.y);
@@ -3669,16 +3716,34 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         group.nodes.forEach((node) => {
           const animatedNode = getAnimatedNode(node, time);
 
-          context.strokeStyle = networkColor(isFocused ? 0.34 : isMuted ? 0.07 : isIdle ? 0.24 : 0.15);
-          context.lineWidth = isFocused ? 1.3 : isMuted ? 0.84 : isIdle ? 1.22 : 0.84;
+          if (isFocused) {
+            context.strokeStyle = networkColor(group.hue, 0.18, 96, 66);
+            context.lineWidth = 3.2;
+            context.beginPath();
+            context.moveTo(animatedNode.x, animatedNode.y);
+            context.lineTo(animatedNode.rayX, animatedNode.rayY);
+            context.stroke();
+          }
+
+          context.strokeStyle = networkColor(group.hue, isFocused ? 0.52 : isMuted ? 0.045 : isIdle ? 0.24 : 0.15, isMuted ? 42 : 84, isFocused ? 48 : 56);
+          context.lineWidth = isFocused ? 1.72 : isMuted ? 0.68 : isIdle ? 1.22 : 0.84;
           context.beginPath();
           context.moveTo(animatedNode.x, animatedNode.y);
           context.lineTo(animatedNode.rayX, animatedNode.rayY);
           context.stroke();
         });
 
-        context.strokeStyle = networkColor(isFocused ? 0.54 : isMuted ? 0.12 : isIdle ? 0.34 : 0.22);
-        context.lineWidth = isFocused ? 2 : isIdle ? 1.6 : 1.06;
+        if (isFocused) {
+          context.strokeStyle = networkColor(group.hue, 0.22, 96, 64);
+          context.lineWidth = 4.2;
+          context.beginPath();
+          context.moveTo(stem.x, stem.y);
+          context.lineTo(group.labelX, group.labelY);
+          context.stroke();
+        }
+
+        context.strokeStyle = networkColor(group.hue, isFocused ? 0.7 : isMuted ? 0.08 : isIdle ? 0.34 : 0.22, isMuted ? 46 : 88, isFocused ? 46 : 56);
+        context.lineWidth = isFocused ? 2.6 : isIdle ? 1.6 : 1.06;
         context.beginPath();
         context.moveTo(stem.x, stem.y);
         context.lineTo(group.labelX, group.labelY);
@@ -3709,6 +3774,7 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         link.style.setProperty("--network-link-x", `${group.labelX.toFixed(2)}px`);
         link.style.setProperty("--network-link-y", `${group.labelY.toFixed(2)}px`);
         link.style.setProperty("--network-link-rotate", `${rotation.toFixed(2)}deg`);
+        link.style.setProperty("--network-hue", String(group.hue));
       });
     }
 
@@ -3722,24 +3788,28 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
       state.centerX = state.width / 2;
       state.centerY = state.height / 2;
       state.isMobile = window.innerWidth < 720;
-      state.ringRadius = size * (state.isMobile ? 0.33 : 0.36);
-      state.labelRadius = state.ringRadius + (state.isMobile ? 54 : 104);
+      state.ringRadius = size * (state.isMobile ? 0.318 : 0.35);
+      state.labelRadius = state.ringRadius + size * (state.isMobile ? 0.13 : 0.15);
 
       homeWorkNetworkCanvas.width = Math.max(1, Math.round(state.width * state.dpr));
       homeWorkNetworkCanvas.height = Math.max(1, Math.round(state.height * state.dpr));
 
       const spread = networkDegreesToRadians(state.isMobile ? 24 : 30);
-      const nodeCount = state.isMobile ? 16 : 24;
+      const nodeCount = state.isMobile ? 16 : size > 920 ? 28 : 24;
 
-      state.groups = homeWorkNetworkLinks.map((link) => {
+      state.groups = homeWorkNetworkLinks.map((link, groupIndex) => {
         const baseAngleDegrees = Number(link.dataset.networkAngle || 0);
         const baseAngle = networkDegreesToRadians(baseAngleDegrees);
+        const hue = NETWORK_RAINBOW_HUES[groupIndex % NETWORK_RAINBOW_HUES.length];
         const nodes = Array.from({ length: nodeCount }, (_, nodeIndex) => {
           const ratio = nodeCount === 1 ? 0.5 : nodeIndex / (nodeCount - 1);
           const normalized = ratio - 0.5;
           const angle = baseAngle + normalized * spread + networkRandomBetween(-0.014, 0.014);
           const ringRadius = state.ringRadius + networkRandomBetween(-state.ringRadius * 0.03, state.ringRadius * 0.02);
-          const rayRadius = state.ringRadius + networkRandomBetween(state.isMobile ? 16 : 22, state.isMobile ? 46 : 76);
+          const rayRadius = state.ringRadius + networkRandomBetween(
+            size * (state.isMobile ? 0.05 : 0.038),
+            size * (state.isMobile ? 0.14 : 0.09)
+          );
 
           return {
             angle,
@@ -3761,11 +3831,12 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
 
         const labelX = state.centerX + Math.cos(baseAngle) * state.labelRadius;
         const labelY = state.centerY + Math.sin(baseAngle) * state.labelRadius;
-        const stemRadius = state.labelRadius - (state.isMobile ? 18 : 28);
+        const stemRadius = state.labelRadius - size * (state.isMobile ? 0.05 : 0.055);
 
         return {
           baseAngle,
           baseAngleDegrees,
+          hue,
           labelX,
           labelY,
           stemRadius,
@@ -3799,7 +3870,11 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
               end,
               controlAngle: networkRandomBetween(0, Math.PI * 2),
               controlRadius: networkRandomBetween(state.ringRadius * 0.05, state.ringRadius * 0.22),
-              amplitude: networkRandomBetween(state.isMobile ? 2 : 3, state.isMobile ? 8 : 14),
+              amplitude: networkRandomBetween(
+                size * (state.isMobile ? 0.01 : 0.008),
+                size * (state.isMobile ? 0.03 : 0.02)
+              ),
+              hue: mixNetworkHues(sourceGroup.hue, targetGroup.hue),
               phase: networkRandomBetween(0, Math.PI * 2),
               lineWidth: networkRandomBetween(0.54, 1.28),
               swingSpeed: networkRandomBetween(0.00018, 0.00042),
