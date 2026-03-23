@@ -3959,10 +3959,13 @@ if (photoGallery && photoLightbox) {
       radiusY: 0,
       radiusZ: 0,
       rotationY: 0,
+      rotationWaveTime: 0,
       pointerX: 0,
       pointerY: 0,
       targetPointerX: 0,
       targetPointerY: 0,
+      isItemHovered: false,
+      isRightSideHold: false,
       frame: 0,
       lastTime: 0
     };
@@ -3989,11 +3992,24 @@ if (photoGallery && photoLightbox) {
 
       state.targetPointerX = Math.max(-1, Math.min(1, relativeX));
       state.targetPointerY = Math.max(-1, Math.min(1, relativeY));
+      state.isRightSideHold = relativeX > 0.35;
+    }
+
+    function setItemHoverState(event) {
+      const target = event.target instanceof Element ? event.target : null;
+      state.isItemHovered = Boolean(target?.closest("[data-photo-trigger]"));
+    }
+
+    function clearItemHoverState(event) {
+      const nextTarget = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+      state.isItemHovered = Boolean(nextTarget?.closest("[data-photo-trigger]"));
     }
 
     function resetPointerTargets() {
       state.targetPointerX = 0;
       state.targetPointerY = 0;
+      state.isItemHovered = false;
+      state.isRightSideHold = false;
     }
 
     function renderSphere(time) {
@@ -4004,14 +4020,18 @@ if (photoGallery && photoLightbox) {
       const delta = time - state.lastTime;
       state.lastTime = time;
 
-      state.pointerX += (state.targetPointerX - state.pointerX) * 0.035;
-      state.pointerY += (state.targetPointerY - state.pointerY) * 0.035;
-
-      if (!prefersReducedMotion && !body.classList.contains("is-lightbox-open")) {
-        state.rotationY += delta * 0.00013;
+      if (!state.isItemHovered) {
+        state.pointerX += (state.targetPointerX - state.pointerX) * 0.035;
+        state.pointerY += (state.targetPointerY - state.pointerY) * 0.035;
       }
 
-      const rotationX = Math.sin(time * 0.00022) * 0.16 + state.pointerY * -0.18;
+      if (!prefersReducedMotion && !body.classList.contains("is-lightbox-open") && !state.isItemHovered) {
+        const speedBoost = state.isRightSideHold ? 2.8 : 1;
+        state.rotationY += delta * 0.00013 * speedBoost;
+        state.rotationWaveTime += delta * speedBoost;
+      }
+
+      const rotationX = Math.sin(state.rotationWaveTime * 0.00022) * 0.16 + state.pointerY * -0.18;
       const rotationY = state.rotationY + state.pointerX * 0.34;
       const cosX = Math.cos(rotationX);
       const sinX = Math.sin(rotationX);
@@ -4050,6 +4070,8 @@ if (photoGallery && photoLightbox) {
 
     updateSphereBounds();
     photoGallery.addEventListener("pointermove", setPointerTargets);
+    photoGallery.addEventListener("pointerover", setItemHoverState);
+    photoGallery.addEventListener("pointerout", clearItemHoverState);
     photoGallery.addEventListener("pointerleave", resetPointerTargets);
     window.addEventListener("resize", updateSphereBounds);
     renderSphere(0);
