@@ -4217,7 +4217,13 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
       centerX: 0,
       centerY: 0,
       ringRadius: 0,
+      ringAxisX: 1,
+      ringAxisY: 1,
       labelRadius: 0,
+      labelAxisX: 1,
+      labelAxisY: 1,
+      connectionAxisX: 1,
+      connectionAxisY: 1,
       hoveredIndex: -1,
       animationId: 0,
       visible: true,
@@ -4271,10 +4277,10 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         Math.sin(time * node.raySpeed * motionBoost + node.phase + 0.8) * node.rayDrift * motionBoost;
 
       return {
-        x: state.centerX + Math.cos(angle) * ringRadius,
-        y: state.centerY + Math.sin(angle) * ringRadius,
-        rayX: state.centerX + Math.cos(angle) * rayRadius,
-        rayY: state.centerY + Math.sin(angle) * rayRadius
+        x: state.centerX + Math.cos(angle) * ringRadius * state.ringAxisX,
+        y: state.centerY + Math.sin(angle) * ringRadius * state.ringAxisY,
+        rayX: state.centerX + Math.cos(angle) * rayRadius * state.ringAxisX,
+        rayY: state.centerY + Math.sin(angle) * rayRadius * state.ringAxisY
       };
     }
 
@@ -4293,8 +4299,8 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         Math.sin(time * group.stemPulseSpeed * motionBoost + group.stemPhase) * group.stemRadiusDrift * motionBoost;
 
       return {
-        x: state.centerX + Math.cos(angle) * radius,
-        y: state.centerY + Math.sin(angle) * radius
+        x: state.centerX + Math.cos(angle) * radius * state.labelAxisX,
+        y: state.centerY + Math.sin(angle) * radius * state.labelAxisY
       };
     }
 
@@ -4321,7 +4327,7 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
         state.ringRadius * 0.06,
         state.centerX,
         state.centerY,
-        state.ringRadius * 0.94
+        Math.max(state.ringRadius * state.ringAxisX, state.ringRadius * state.ringAxisY) * 0.94
       );
       halo.addColorStop(0, "hsla(330, 80%, 72%, 0.08)");
       halo.addColorStop(0.18, "hsla(18, 88%, 70%, 0.06)");
@@ -4332,7 +4338,15 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
 
       context.fillStyle = halo;
       context.beginPath();
-      context.arc(state.centerX, state.centerY, state.ringRadius * 0.86, 0, Math.PI * 2);
+      context.ellipse(
+        state.centerX,
+        state.centerY,
+        state.ringRadius * state.ringAxisX * 0.86,
+        state.ringRadius * state.ringAxisY * 0.86,
+        0,
+        0,
+        Math.PI * 2
+      );
       context.fill();
 
       if (state.hoveredIndex !== -1) {
@@ -4379,8 +4393,8 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
           (reducedMotionQuery.matches
             ? 0
             : Math.sin(time * connection.pulseSpeed * idleBoost + connection.phase) * connection.amplitude * idleBoost);
-        const controlX = state.centerX + Math.cos(animatedAngle) * animatedRadius;
-        const controlY = state.centerY + Math.sin(animatedAngle) * animatedRadius;
+        const controlX = state.centerX + Math.cos(animatedAngle) * animatedRadius * state.connectionAxisX;
+        const controlY = state.centerY + Math.sin(animatedAngle) * animatedRadius * state.connectionAxisY;
         const alpha = isHighlighted
           ? 0.52
           : isDimmed
@@ -4485,8 +4499,14 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
       state.centerX = state.width / 2;
       state.centerY = state.height / 2;
       state.isMobile = window.innerWidth < 720;
-      state.ringRadius = size * (state.isMobile ? 0.318 : 0.35);
-      state.labelRadius = state.ringRadius + size * (state.isMobile ? 0.13 : 0.15);
+      state.ringRadius = size * (state.isMobile ? 0.312 : 0.34);
+      state.ringAxisX = state.isMobile ? 1.34 : 1.58;
+      state.ringAxisY = state.isMobile ? 0.84 : 0.68;
+      state.labelRadius = state.ringRadius + size * (state.isMobile ? 0.12 : 0.14);
+      state.labelAxisX = state.ringAxisX * (state.isMobile ? 1.06 : 1.1);
+      state.labelAxisY = state.ringAxisY * (state.isMobile ? 0.96 : 0.94);
+      state.connectionAxisX = (state.ringAxisX + state.labelAxisX) / 2;
+      state.connectionAxisY = (state.ringAxisY + state.labelAxisY) / 2;
 
       homeWorkNetworkCanvas.width = Math.max(1, Math.round(state.width * state.dpr));
       homeWorkNetworkCanvas.height = Math.max(1, Math.round(state.height * state.dpr));
@@ -4512,10 +4532,10 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
             angle,
             ringRadius,
             rayRadius,
-            x: state.centerX + Math.cos(angle) * ringRadius,
-            y: state.centerY + Math.sin(angle) * ringRadius,
-            rayX: state.centerX + Math.cos(angle) * rayRadius,
-            rayY: state.centerY + Math.sin(angle) * rayRadius,
+            x: state.centerX + Math.cos(angle) * ringRadius * state.ringAxisX,
+            y: state.centerY + Math.sin(angle) * ringRadius * state.ringAxisY,
+            rayX: state.centerX + Math.cos(angle) * rayRadius * state.ringAxisX,
+            rayY: state.centerY + Math.sin(angle) * rayRadius * state.ringAxisY,
             ringDrift: networkRandomBetween(state.isMobile ? 2 : 3, state.isMobile ? 6 : 12),
             rayDrift: networkRandomBetween(state.isMobile ? 5 : 8, state.isMobile ? 15 : 28),
             angleDrift: networkRandomBetween(0.006, 0.022),
@@ -4526,8 +4546,8 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
           };
         });
 
-        const labelX = state.centerX + Math.cos(baseAngle) * state.labelRadius;
-        const labelY = state.centerY + Math.sin(baseAngle) * state.labelRadius;
+        const labelX = state.centerX + Math.cos(baseAngle) * state.labelRadius * state.labelAxisX;
+        const labelY = state.centerY + Math.sin(baseAngle) * state.labelRadius * state.labelAxisY;
         const stemRadius = state.labelRadius - size * (state.isMobile ? 0.05 : 0.055);
 
         return {
@@ -4537,8 +4557,8 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
           labelX,
           labelY,
           stemRadius,
-          stemX: state.centerX + Math.cos(baseAngle) * stemRadius,
-          stemY: state.centerY + Math.sin(baseAngle) * stemRadius,
+          stemX: state.centerX + Math.cos(baseAngle) * stemRadius * state.labelAxisX,
+          stemY: state.centerY + Math.sin(baseAngle) * stemRadius * state.labelAxisY,
           stemPhase: networkRandomBetween(0, Math.PI * 2),
           stemRadiusDrift: networkRandomBetween(state.isMobile ? 2 : 4, state.isMobile ? 6 : 12),
           stemAngleDrift: networkRandomBetween(0.01, 0.032),
@@ -4686,4 +4706,505 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
     window.addEventListener("resize", refreshNetworkLayout);
     refreshNetworkLayout();
   }
+}
+
+const homeWorkShowcaseTopics = document.querySelector("[data-home-work-showcase]");
+
+if (homeWorkShowcaseTopics) {
+  const showcaseSection = homeWorkShowcaseTopics.closest(".home-work-showcase");
+  const showcaseCanvas = showcaseSection?.querySelector("[data-home-work-showcase-canvas]");
+  const showcaseContext = showcaseCanvas?.getContext("2d");
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const topicLinks = Array.from(homeWorkShowcaseTopics.querySelectorAll("[data-home-work-topic]"));
+  const defaultTopicIndex = Math.max(0, topicLinks.findIndex((topic) => topic.classList.contains("is-active")));
+  const lineState = {
+    dpr: Math.min(window.devicePixelRatio || 1, 2),
+    width: 0,
+    height: 0,
+    anchors: [],
+    wordAnchorCount: 0,
+    hoveredWordIndex: -1,
+    focusProgress: 0,
+    focusTarget: 0,
+    lines: [],
+    targetHue: 356,
+    currentHue: 356,
+    frame: 0,
+    visible: true
+  };
+
+  function showcaseRandomBetween(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function clampShowcaseCoordinate(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function clampShowcasePoint(x, y, margin = 20) {
+    const xSafe = clampShowcaseCoordinate(x, margin, lineState.width - margin);
+    const ySafe = clampShowcaseCoordinate(y, margin, lineState.height - margin);
+
+    return { x: xSafe, y: ySafe };
+  }
+
+  function getShowcaseTopicAnchors(sectionRect) {
+    const topicCount = Math.max(1, topicLinks.length);
+    const edgeMarginX = clampShowcaseCoordinate(lineState.width * 0.022, 18, 34);
+    const edgeMarginY = clampShowcaseCoordinate(lineState.height * 0.04, 18, 32);
+
+    return topicLinks
+      .map((topic, index) => {
+        const label = topic.querySelector(".home-work-showcase__label");
+        const measuredNode = label || topic;
+        const topicRect = measuredNode.getBoundingClientRect();
+
+        if (!topicRect.width || !topicRect.height) {
+          return null;
+        }
+
+        const anchorX = clampShowcaseCoordinate(topicRect.right - sectionRect.left + 8, edgeMarginX, lineState.width - edgeMarginX);
+        const anchorY = clampShowcaseCoordinate(topicRect.top - sectionRect.top + topicRect.height * 0.56, edgeMarginY, lineState.height - edgeMarginY);
+
+        return {
+          x: anchorX,
+          y: anchorY,
+          hueShift: (index * 360) / topicCount
+        };
+      })
+      .filter((anchor) => anchor !== null);
+  }
+
+  function buildShowcaseLines() {
+    if (!showcaseSection || !showcaseCanvas || !showcaseContext) {
+      return;
+    }
+
+    const rect = showcaseSection.getBoundingClientRect();
+
+    lineState.width = Math.max(1, Math.round(rect.width));
+    lineState.height = Math.max(1, Math.round(rect.height));
+    lineState.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    showcaseCanvas.width = Math.max(1, Math.round(lineState.width * lineState.dpr));
+    showcaseCanvas.height = Math.max(1, Math.round(lineState.height * lineState.dpr));
+    showcaseCanvas.style.width = `${lineState.width}px`;
+    showcaseCanvas.style.height = `${lineState.height}px`;
+
+    const isMobile = window.innerWidth < 720;
+    const fallbackCenterX = lineState.width / 2;
+    const fallbackCenterY = lineState.height / 2;
+    const fallbackRadiusX = lineState.width * (isMobile ? 0.36 : 0.34);
+    const fallbackRadiusY = lineState.height * (isMobile ? 0.24 : 0.2);
+    const fallbackAnchors = [
+      { x: fallbackCenterX - fallbackRadiusX, y: fallbackCenterY - fallbackRadiusY * 0.6, hueShift: 0 },
+      { x: fallbackCenterX - fallbackRadiusX * 0.54, y: fallbackCenterY + fallbackRadiusY * 0.9, hueShift: 72 },
+      { x: fallbackCenterX, y: fallbackCenterY - fallbackRadiusY * 0.1, hueShift: 144 },
+      { x: fallbackCenterX + fallbackRadiusX * 0.54, y: fallbackCenterY + fallbackRadiusY * 0.9, hueShift: 216 },
+      { x: fallbackCenterX + fallbackRadiusX, y: fallbackCenterY - fallbackRadiusY * 0.6, hueShift: 288 }
+    ];
+    const wordAnchors = getShowcaseTopicAnchors(rect);
+    const baseWordAnchors = wordAnchors.length >= 3 ? wordAnchors : fallbackAnchors;
+    const wordAnchorCount = baseWordAnchors.length;
+    const rightAnchorBaseX = lineState.width * (isMobile ? 0.88 : 0.9);
+    const rightAnchorWaveX = lineState.width * (isMobile ? 0.05 : 0.07);
+    const rightAnchors = baseWordAnchors.map((anchor, index) => {
+      const progress = wordAnchorCount === 1 ? 0.5 : index / (wordAnchorCount - 1);
+      const liftedX = rightAnchorBaseX - Math.cos(progress * Math.PI) * rightAnchorWaveX;
+      const minimumX = anchor.x + lineState.width * (isMobile ? 0.16 : 0.18);
+      const ySpread = (progress - 0.5) * lineState.height * (isMobile ? 0.08 : 0.1);
+      const safePoint = clampShowcasePoint(
+        Math.max(minimumX, liftedX),
+        anchor.y + ySpread,
+        isMobile ? 16 : 20
+      );
+
+      return {
+        x: safePoint.x,
+        y: safePoint.y,
+        hueShift: anchor.hueShift + 24
+      };
+    });
+    const anchorDefinitions = [...baseWordAnchors, ...rightAnchors];
+
+    lineState.anchors = anchorDefinitions;
+    lineState.wordAnchorCount = wordAnchorCount;
+    const linesPerWord = isMobile ? 14 : 24;
+    const builtLines = [];
+
+    for (let wordIndex = 0; wordIndex < wordAnchorCount; wordIndex += 1) {
+      const sourceAnchor = anchorDefinitions[wordIndex];
+      const rightMatchIndex = wordIndex + wordAnchorCount;
+      const nextWordIndex = (wordIndex + 1) % wordAnchorCount;
+      const nextRightIndex = ((wordIndex + 1) % wordAnchorCount) + wordAnchorCount;
+      const crossRightIndex = ((wordIndex + 2) % wordAnchorCount) + wordAnchorCount;
+      const targetPool = [rightMatchIndex, nextWordIndex, nextRightIndex, crossRightIndex];
+      const srcSpreadX = lineState.width * (isMobile ? 0.004 : 0.0035);
+      const srcSpreadY = lineState.height * (isMobile ? 0.013 : 0.011);
+      const dstSpreadX = lineState.width * (isMobile ? 0.018 : 0.022);
+      const dstSpreadY = lineState.height * (isMobile ? 0.04 : 0.05);
+
+      for (let lineIndex = 0; lineIndex < linesPerWord; lineIndex += 1) {
+        const targetIndex = targetPool[lineIndex % targetPool.length];
+
+        builtLines.push({
+          sourceIndex: wordIndex,
+          targetIndex,
+          sourceJitterX: showcaseRandomBetween(-srcSpreadX, srcSpreadX),
+          sourceJitterY: showcaseRandomBetween(-srcSpreadY, srcSpreadY),
+          targetJitterX: showcaseRandomBetween(-dstSpreadX, dstSpreadX),
+          targetJitterY: showcaseRandomBetween(-dstSpreadY, dstSpreadY),
+          pinchOffsetX: showcaseRandomBetween(-lineState.width * 0.04, lineState.width * 0.08),
+          pinchOffsetY: showcaseRandomBetween(-lineState.height * 0.12, lineState.height * 0.12),
+          width: showcaseRandomBetween(0.58, isMobile ? 1.22 : 1.54),
+          alpha: showcaseRandomBetween(0.18, 0.44),
+          glowAlpha: showcaseRandomBetween(0.08, 0.18),
+          sway: showcaseRandomBetween(isMobile ? 6 : 7, isMobile ? 18 : 28),
+          speed: showcaseRandomBetween(0.65, 1.6),
+          phase: showcaseRandomBetween(0, Math.PI * 2),
+          hueShift: sourceAnchor.hueShift + showcaseRandomBetween(-16, 16),
+          bend: showcaseRandomBetween(-1, 1),
+          tension: showcaseRandomBetween(0.34, 0.56)
+        });
+      }
+    }
+
+    lineState.lines = builtLines;
+  }
+
+  function drawShowcaseLines(time = 0) {
+    if (!showcaseContext || !showcaseCanvas || !showcaseSection) {
+      return;
+    }
+
+    lineState.currentHue += (lineState.targetHue - lineState.currentHue) * 0.06;
+
+    showcaseContext.setTransform(1, 0, 0, 1, 0, 0);
+    showcaseContext.clearRect(0, 0, showcaseCanvas.width, showcaseCanvas.height);
+    showcaseContext.setTransform(lineState.dpr, 0, 0, lineState.dpr, 0, 0);
+
+    const centerX = lineState.width / 2;
+    const centerY = lineState.height / 2;
+    const isReducedMotion = reducedMotionQuery.matches;
+    const drift = isReducedMotion ? 0 : time * 0.00058;
+    const focusLerp = isReducedMotion ? 1 : 0.12;
+    lineState.focusProgress += (lineState.focusTarget - lineState.focusProgress) * focusLerp;
+    if (Math.abs(lineState.focusTarget - lineState.focusProgress) < 0.002) {
+      lineState.focusProgress = lineState.focusTarget;
+    }
+
+    showcaseContext.globalCompositeOperation = "source-over";
+
+    const baseBridgeCount = Math.min(lineState.wordAnchorCount, Math.floor(lineState.anchors.length / 2));
+
+    for (let anchorIndex = 0; anchorIndex < baseBridgeCount; anchorIndex += 1) {
+      const source = lineState.anchors[anchorIndex];
+      const paired = lineState.anchors[anchorIndex + lineState.wordAnchorCount];
+
+      if (!source || !paired) {
+        continue;
+      }
+
+      const safeSource = clampShowcasePoint(source.x, source.y, 18);
+      const safePaired = clampShowcasePoint(paired.x, paired.y, 18);
+      const bridgeHue = (lineState.currentHue + source.hueShift) % 360;
+      const driftPhase = isReducedMotion ? 0 : Math.sin(drift * 2.2 + anchorIndex * 0.8) * lineState.height * 0.018;
+      const bridgeControl = clampShowcasePoint(
+        safeSource.x + (safePaired.x - safeSource.x) * 0.48,
+        ((safeSource.y + safePaired.y) / 2) + driftPhase,
+        18
+      );
+      showcaseContext.strokeStyle = `hsla(${bridgeHue}, 56%, 72%, 0.34)`;
+      showcaseContext.lineWidth = 1.2;
+      showcaseContext.beginPath();
+      showcaseContext.moveTo(safeSource.x, safeSource.y);
+      showcaseContext.quadraticCurveTo(bridgeControl.x, bridgeControl.y, safePaired.x, safePaired.y);
+      showcaseContext.stroke();
+    }
+
+    lineState.lines.forEach((line, index) => {
+      const source = lineState.anchors[line.sourceIndex];
+      const target = lineState.anchors[line.targetIndex];
+
+      if (!source || !target) {
+        return;
+      }
+
+      const flow = isReducedMotion ? 0 : Math.sin(drift * line.speed * 3.2 + line.phase);
+      const wobble = isReducedMotion ? 0 : Math.cos(drift * line.speed * 2.4 + line.phase * 1.3);
+      const sourceX = source.x + line.sourceJitterX + flow * line.sway * 0.22;
+      const sourceY = source.y + line.sourceJitterY + wobble * line.sway * 0.18;
+      const targetX = target.x + line.targetJitterX - flow * line.sway * 0.24;
+      const targetY = target.y + line.targetJitterY - wobble * line.sway * 0.16;
+      const pinchX = centerX + line.pinchOffsetX + flow * line.sway * 0.94;
+      const pinchY = centerY + line.pinchOffsetY + wobble * line.sway * 0.76;
+      const deltaX = targetX - sourceX;
+      const deltaY = targetY - sourceY;
+      const distance = Math.max(1, Math.hypot(deltaX, deltaY));
+      const normalX = -deltaY / distance;
+      const normalY = deltaX / distance;
+      const bend = line.bend * line.sway * (isReducedMotion ? 0.5 : 1.2);
+      const controlBlend = line.tension;
+      const control1X = sourceX + (pinchX - sourceX) * controlBlend + normalX * bend;
+      const control1Y = sourceY + (pinchY - sourceY) * controlBlend + normalY * bend;
+      const control2X = targetX + (pinchX - targetX) * controlBlend - normalX * bend * 0.86;
+      const control2Y = targetY + (pinchY - targetY) * controlBlend - normalY * bend * 0.86;
+      const safeSource = clampShowcasePoint(sourceX, sourceY, 16);
+      const safeTarget = clampShowcasePoint(targetX, targetY, 16);
+      const safeControl1 = clampShowcasePoint(control1X, control1Y, 14);
+      const safeControl2 = clampShowcasePoint(control2X, control2Y, 14);
+      const hue = (lineState.currentHue + line.hueShift + index * 0.5) % 360;
+
+      showcaseContext.strokeStyle = `hsla(${hue}, 70%, 84%, ${line.glowAlpha * 1.16})`;
+      showcaseContext.lineWidth = line.width * 2.9;
+      showcaseContext.beginPath();
+      showcaseContext.moveTo(safeSource.x, safeSource.y);
+      showcaseContext.bezierCurveTo(safeControl1.x, safeControl1.y, safeControl2.x, safeControl2.y, safeTarget.x, safeTarget.y);
+      showcaseContext.stroke();
+
+      showcaseContext.strokeStyle = `hsla(${hue}, 58%, 68%, ${line.alpha})`;
+      showcaseContext.lineWidth = line.width;
+      showcaseContext.beginPath();
+      showcaseContext.moveTo(safeSource.x, safeSource.y);
+      showcaseContext.bezierCurveTo(safeControl1.x, safeControl1.y, safeControl2.x, safeControl2.y, safeTarget.x, safeTarget.y);
+      showcaseContext.stroke();
+
+      if (index % 9 === 0) {
+        showcaseContext.fillStyle = `hsla(${hue}, 64%, 72%, 0.38)`;
+        showcaseContext.beginPath();
+        showcaseContext.arc(safeSource.x, safeSource.y, Math.max(1.2, line.width * 1.2), 0, Math.PI * 2);
+        showcaseContext.fill();
+      }
+    });
+
+    if (lineState.hoveredWordIndex >= 0 && lineState.hoveredWordIndex < lineState.wordAnchorCount && lineState.focusProgress > 0.01) {
+      const sourceAnchor = lineState.anchors[lineState.hoveredWordIndex];
+      const sourcePoint = sourceAnchor ? clampShowcasePoint(sourceAnchor.x, sourceAnchor.y, 18) : null;
+
+      if (sourceAnchor && sourcePoint) {
+        const revealProgress = clampShowcaseCoordinate(lineState.focusProgress, 0.04, 1);
+        const sourceHue = (lineState.currentHue + sourceAnchor.hueShift) % 360;
+
+        for (let targetWordIndex = 0; targetWordIndex < lineState.wordAnchorCount; targetWordIndex += 1) {
+          if (targetWordIndex === lineState.hoveredWordIndex) {
+            continue;
+          }
+
+          const targetAnchor = lineState.anchors[targetWordIndex];
+
+          if (!targetAnchor) {
+            continue;
+          }
+
+          const targetPoint = clampShowcasePoint(targetAnchor.x, targetAnchor.y, 18);
+          const spreadFactor = lineState.wordAnchorCount === 1
+            ? 0
+            : (targetWordIndex - lineState.hoveredWordIndex) / (lineState.wordAnchorCount - 1);
+          const focusControl = clampShowcasePoint(
+            sourcePoint.x + (targetPoint.x - sourcePoint.x) * 0.52 + lineState.width * 0.055,
+            (sourcePoint.y + targetPoint.y) / 2
+              + Math.sin(drift * 2.8 + targetWordIndex * 0.86) * lineState.height * 0.03
+              + spreadFactor * lineState.height * 0.045,
+            16
+          );
+          const approximateLength = Math.max(60, Math.hypot(targetPoint.x - sourcePoint.x, targetPoint.y - sourcePoint.y) * 1.45);
+          const hue = (sourceHue + targetWordIndex * 8) % 360;
+
+          showcaseContext.setLineDash([approximateLength, approximateLength + 24]);
+          showcaseContext.lineDashOffset = approximateLength * (1 - revealProgress);
+
+          showcaseContext.strokeStyle = `hsla(${hue}, 74%, 80%, ${0.34 + revealProgress * 0.2})`;
+          showcaseContext.lineWidth = 2.6;
+          showcaseContext.beginPath();
+          showcaseContext.moveTo(sourcePoint.x, sourcePoint.y);
+          showcaseContext.quadraticCurveTo(focusControl.x, focusControl.y, targetPoint.x, targetPoint.y);
+          showcaseContext.stroke();
+
+          showcaseContext.strokeStyle = `hsla(${hue}, 64%, 66%, ${0.5 + revealProgress * 0.26})`;
+          showcaseContext.lineWidth = 1.5;
+          showcaseContext.beginPath();
+          showcaseContext.moveTo(sourcePoint.x, sourcePoint.y);
+          showcaseContext.quadraticCurveTo(focusControl.x, focusControl.y, targetPoint.x, targetPoint.y);
+          showcaseContext.stroke();
+
+          if (revealProgress > 0.92) {
+            showcaseContext.fillStyle = `hsla(${hue}, 66%, 62%, ${0.35 + revealProgress * 0.32})`;
+            showcaseContext.beginPath();
+            showcaseContext.arc(targetPoint.x, targetPoint.y, 2.6, 0, Math.PI * 2);
+            showcaseContext.fill();
+          }
+        }
+
+        showcaseContext.setLineDash([]);
+        showcaseContext.lineDashOffset = 0;
+      }
+    }
+
+    for (let anchorIndex = 0; anchorIndex < lineState.wordAnchorCount; anchorIndex += 1) {
+      const anchor = lineState.anchors[anchorIndex];
+
+      if (!anchor) {
+        continue;
+      }
+
+      const safeAnchor = clampShowcasePoint(anchor.x, anchor.y, 16);
+      const dotHue = (lineState.currentHue + anchor.hueShift) % 360;
+      showcaseContext.fillStyle = `hsla(${dotHue}, 66%, 64%, 0.72)`;
+      showcaseContext.beginPath();
+      showcaseContext.arc(safeAnchor.x, safeAnchor.y, 2.2, 0, Math.PI * 2);
+      showcaseContext.fill();
+    }
+
+    if (reducedMotionQuery.matches || !lineState.visible) {
+      lineState.frame = 0;
+      return;
+    }
+
+    lineState.frame = window.requestAnimationFrame(drawShowcaseLines);
+  }
+
+  function stopShowcaseLines() {
+    if (!lineState.frame) {
+      return;
+    }
+
+    window.cancelAnimationFrame(lineState.frame);
+    lineState.frame = 0;
+  }
+
+  function queueShowcaseLines() {
+    if (!showcaseContext || !showcaseCanvas || lineState.frame || reducedMotionQuery.matches || !lineState.visible) {
+      return;
+    }
+
+    lineState.frame = window.requestAnimationFrame(drawShowcaseLines);
+  }
+
+  function setHoveredShowcaseTopic(index) {
+    const nextIndex = Number.isFinite(index) ? index : -1;
+
+    if (lineState.hoveredWordIndex === nextIndex && lineState.focusTarget === (nextIndex >= 0 ? 1 : 0)) {
+      return;
+    }
+
+    lineState.hoveredWordIndex = nextIndex;
+    lineState.focusTarget = nextIndex >= 0 ? 1 : 0;
+
+    if (reducedMotionQuery.matches) {
+      lineState.focusProgress = lineState.focusTarget;
+      drawShowcaseLines(performance.now());
+      return;
+    }
+
+    queueShowcaseLines();
+  }
+
+  function clearHoveredShowcaseTopic() {
+    setHoveredShowcaseTopic(-1);
+  }
+
+  function setActiveShowcaseTopic(index) {
+    const topic = topicLinks[index];
+
+    if (!topic || !showcaseSection) {
+      return;
+    }
+
+    topicLinks.forEach((item, itemIndex) => {
+      item.classList.toggle("is-active", itemIndex === index);
+    });
+
+    const hue = topic.dataset.topicHue || "356";
+    showcaseSection.style.setProperty("--showcase-hue", hue);
+    lineState.targetHue = Number(hue) || 356;
+
+    if (!reducedMotionQuery.matches) {
+      return;
+    }
+
+    drawShowcaseLines(performance.now());
+  }
+
+  topicLinks.forEach((topic, index) => {
+    const hue = topic.dataset.topicHue || "356";
+    topic.style.setProperty("--topic-hue", hue);
+
+    topic.addEventListener("pointerenter", () => {
+      setHoveredShowcaseTopic(index);
+      setActiveShowcaseTopic(index);
+    });
+
+    topic.addEventListener("focus", () => {
+      setHoveredShowcaseTopic(index);
+      setActiveShowcaseTopic(index);
+    });
+  });
+
+  homeWorkShowcaseTopics.addEventListener("pointerleave", () => {
+    clearHoveredShowcaseTopic();
+    setActiveShowcaseTopic(defaultTopicIndex);
+  });
+
+  homeWorkShowcaseTopics.addEventListener("focusout", (event) => {
+    if (event.relatedTarget instanceof Element && homeWorkShowcaseTopics.contains(event.relatedTarget)) {
+      return;
+    }
+
+    clearHoveredShowcaseTopic();
+    setActiveShowcaseTopic(defaultTopicIndex);
+  });
+
+  function refreshShowcaseLines() {
+    if (!showcaseContext || !showcaseCanvas) {
+      return;
+    }
+
+    buildShowcaseLines();
+
+    if (lineState.hoveredWordIndex >= lineState.wordAnchorCount) {
+      lineState.hoveredWordIndex = -1;
+      lineState.focusTarget = 0;
+      lineState.focusProgress = 0;
+    }
+
+    stopShowcaseLines();
+    drawShowcaseLines(performance.now());
+    queueShowcaseLines();
+  }
+
+  if (showcaseContext && showcaseCanvas) {
+    if ("IntersectionObserver" in window && showcaseSection) {
+      const observer = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+
+        lineState.visible = Boolean(entry?.isIntersecting);
+
+        if (lineState.visible) {
+          drawShowcaseLines(performance.now());
+          queueShowcaseLines();
+          return;
+        }
+
+        stopShowcaseLines();
+      }, {
+        threshold: 0.08
+      });
+
+      observer.observe(showcaseSection);
+    }
+
+    reducedMotionQuery.addEventListener("change", () => {
+      if (reducedMotionQuery.matches) {
+        stopShowcaseLines();
+        lineState.focusProgress = lineState.focusTarget;
+      }
+
+      drawShowcaseLines(performance.now());
+      queueShowcaseLines();
+    });
+
+    window.addEventListener("resize", refreshShowcaseLines);
+    refreshShowcaseLines();
+  }
+
+  setActiveShowcaseTopic(defaultTopicIndex);
 }

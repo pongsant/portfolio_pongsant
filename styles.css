@@ -886,8 +886,8 @@ main {
 
 .home-work-network__stage {
   position: relative;
-  width: min(100%, clamp(260px, 58vw, 780px));
-  aspect-ratio: 1;
+  width: min(100%, clamp(300px, 66vw, 980px));
+  aspect-ratio: 20 / 10;
   isolation: isolate;
 }
 
@@ -979,6 +979,152 @@ main {
 .home-work-network__link-label {
   display: block;
   text-wrap: balance;
+}
+
+.home-work-showcase {
+  --showcase-hue: 356;
+  --showcase-side-pad: clamp(1rem, 2.6vw, 2.3rem);
+  position: relative;
+  min-height: clamp(23rem, 66svh, 37rem);
+  padding: clamp(2.1rem, 4.8svh, 3.9rem) var(--showcase-side-pad);
+  display: grid;
+  align-items: center;
+  background: transparent;
+  color: #24212b;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.home-work-showcase__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-work-showcase__backdrop::before,
+.home-work-showcase__backdrop::after {
+  content: none;
+}
+
+.home-work-showcase__line-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+}
+
+.home-work-showcase__inner {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1400px);
+  min-height: min(56svh, 31rem);
+  margin: 0 auto;
+  display: grid;
+  align-content: center;
+  gap: clamp(0.55rem, 1.35vw, 1rem);
+}
+
+.home-work-showcase__title {
+  margin: 0;
+  font-size: clamp(1.15rem, 0.8rem + 1.8vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 0.96;
+  text-transform: uppercase;
+  color: rgba(54, 45, 72, 0.74);
+}
+
+.home-work-showcase__title-link {
+  display: inline-block;
+  color: inherit;
+  font-family: var(--font-sans);
+  text-decoration: none;
+}
+
+.home-work-showcase__topics {
+  display: grid;
+  gap: clamp(0.12rem, 0.28vw, 0.38rem);
+}
+
+.home-work-showcase__topic {
+  --topic-hue: 356;
+  display: block;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  color: inherit;
+  transition: color 220ms ease;
+}
+
+.home-work-showcase__topic:hover,
+.home-work-showcase__topic:focus-visible,
+.home-work-showcase__topic.is-active {
+  transform: none;
+}
+
+.home-work-showcase__topic:focus-visible {
+  outline: none;
+}
+
+.home-work-showcase__label {
+  display: block;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.68rem, 5.9vw, 4.95rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(44, 35, 60, 0.92);
+  text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transition:
+    color 220ms ease,
+    text-shadow 280ms ease,
+    transform 220ms ease;
+}
+
+.home-work-showcase__topic:hover .home-work-showcase__label,
+.home-work-showcase__topic:focus-visible .home-work-showcase__label,
+.home-work-showcase__topic.is-active .home-work-showcase__label {
+  color: hsl(var(--topic-hue) 60% 62%);
+  text-shadow: 0 0 18px hsla(var(--topic-hue) 66% 74% / 0.3);
+  transform: none;
+}
+
+@keyframes home-work-showcase-aura {
+  0% {
+    transform: translate3d(-2.5%, -1%, 0) scale(1);
+  }
+
+  100% {
+    transform: translate3d(2.5%, 1%, 0) scale(1.08);
+  }
+}
+
+@media (max-width: 960px) {
+  .home-work-showcase {
+    min-height: clamp(20rem, 58svh, 30rem);
+    padding: clamp(1.7rem, 5.5vw, 2.6rem) 0.95rem;
+  }
+
+  .home-work-showcase__inner {
+    min-height: min(52svh, 24rem);
+    gap: clamp(0.5rem, 2vw, 0.88rem);
+  }
+
+  .home-work-showcase__title {
+    font-size: clamp(1rem, 4.4vw, 1.55rem);
+    line-height: 0.94;
+  }
+
+  .home-work-showcase__label {
+    font-size: clamp(1.34rem, 8.1vw, 3.1rem);
+    line-height: 0.9;
+    white-space: normal;
+  }
 }
 
 .photography-feature {
@@ -3212,7 +3358,8 @@ body.is-lightbox-open {
   }
 
   .home-work-network__stage {
-    width: min(100%, clamp(260px, 66vw, 640px));
+    width: min(100%, clamp(280px, 74vw, 760px));
+    aspect-ratio: 18 / 10;
   }
 
   .home-work-network__title {
@@ -3354,7 +3501,8 @@ body.is-lightbox-open {
   }
 
   .home-work-network__stage {
-    width: min(100%, clamp(240px, 72vw, 360px));
+    width: min(100%, clamp(250px, 86vw, 420px));
+    aspect-ratio: 16 / 10;
   }
 
   .home-work-network__link {
