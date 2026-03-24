@@ -5585,3 +5585,59 @@ if (homeWorkShowcaseTopics) {
 
   setActiveShowcaseTopic(defaultTopicIndex);
 }
+
+function ensureGlobalSiteFootnote() {
+  if (!document.body || document.querySelector("[data-site-footnote]")) {
+    return;
+  }
+
+  const footer = document.createElement("footer");
+  footer.className = "site-footnote";
+  footer.setAttribute("data-site-footnote", "");
+  footer.setAttribute("aria-label", "Site footnote");
+  footer.innerHTML = `
+    <div class="site-footnote__inner">
+      <span class="site-footnote__brand">By PONGSANT CHINTANAPAKDEE</span>
+      <nav class="site-footnote__nav" aria-label="Footer social links">
+        <a
+          class="site-footnote__link"
+          href="https://www.instagram.com/prum20baht/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+        >
+          <svg class="site-footnote__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+            <circle cx="12" cy="12" r="4.2"></circle>
+            <circle cx="17.3" cy="6.7" r="1.15"></circle>
+          </svg>
+          <span class="sr-only">Instagram</span>
+        </a>
+        <a
+          class="site-footnote__link"
+          href="https://youtube.com/@prum20baht?si=_BRkFq7F7cHqmzJN"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="YouTube"
+        >
+          <svg class="site-footnote__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M21.6 8.3a3 3 0 0 0-2.1-2.1C17.6 5.7 12 5.7 12 5.7s-5.6 0-7.5.5a3 3 0 0 0-2.1 2.1c-.5 1.9-.5 3.7-.5 3.7s0 1.8.5 3.7a3 3 0 0 0 2.1 2.1c1.9.5 7.5.5 7.5.5s5.6 0 7.5-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-3.7.5-3.7s0-1.8-.5-3.7z"></path>
+            <path d="M10 15.3l5.2-3.3L10 8.7z"></path>
+          </svg>
+          <span class="sr-only">YouTube</span>
+        </a>
+      </nav>
+    </div>
+  `;
+
+  const main = document.querySelector("main");
+
+  if (main && main.parentElement) {
+    main.insertAdjacentElement("afterend", footer);
+    return;
+  }
+
+  document.body.append(footer);
+}
+
+ensureGlobalSiteFootnote();
