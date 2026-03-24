@@ -33,7 +33,9 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const context = workCanvas.getContext("2d");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const TWO_PI = Math.PI * 2;
-  const WORK_HUB_RAINBOW_HUES = [4, 46, 124, 208, 286];
+  const WORK_HUB_RAINBOW_HUES = [214, 198, 176, 44, 22];
+  const WORK_HUB_DOODLE_HUES = [216, 224, 204, 188, 172, 46, 34, 20, 242, 256];
+  const WORK_HUB_CHILD_HUES = [212, 220, 228, 198, 186, 168, 48, 36, 24, 248, 258, 206, 176];
   const WORK_HUB_CONNECTIONS = [
     [0, 2],
     [2, 4],
@@ -64,6 +66,9 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     connections: [],
     guideLines: [],
     ambientGlows: [],
+    frameDoodles: [],
+    paintPatches: [],
+    frameStrokes: [],
     macroOrbits: [],
     crossSquares: [],
     latticePatches: [],
@@ -318,19 +323,100 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.connections = builtConnections;
 
     state.ambientGlows = Array.from({ length: isMobile ? 7 : 11 }, (_, glowIndex) => ({
-      xRatio: randomBetweenWork(-0.08, 1.08),
-      yRatio: randomBetweenWork(-0.1, 1.1),
+      xRatio: randomBetweenWork(0.08, 0.92),
+      yRatio: randomBetweenWork(0.08, 0.92),
       radius: randomBetweenWork(
-        Math.min(state.width, state.height) * (isMobile ? 0.16 : 0.14),
-        Math.min(state.width, state.height) * (isMobile ? 0.36 : 0.32)
+        Math.min(state.width, state.height) * (isMobile ? 0.12 : 0.1),
+        Math.min(state.width, state.height) * (isMobile ? 0.26 : 0.22)
       ),
-      driftX: randomBetweenWork(isMobile ? 8 : 12, isMobile ? 26 : 40),
-      driftY: randomBetweenWork(isMobile ? 7 : 10, isMobile ? 22 : 34),
+      driftX: randomBetweenWork(isMobile ? 4 : 7, isMobile ? 14 : 24),
+      driftY: randomBetweenWork(isMobile ? 4 : 7, isMobile ? 12 : 20),
       speedX: randomBetweenWork(0.00008, 0.00022),
       speedY: randomBetweenWork(0.00006, 0.00018),
       phase: randomBetweenWork(0, TWO_PI),
       alpha: randomBetweenWork(0.05, 0.13),
       hue: WORK_HUB_RAINBOW_HUES[glowIndex % WORK_HUB_RAINBOW_HUES.length]
+    }));
+
+    state.frameDoodles = Array.from({ length: isMobile ? 18 : 26 }, (_, doodleIndex) => {
+      const edge = ["top", "right", "bottom", "left"][doodleIndex % 4];
+      const band = randomBetweenWork(isMobile ? 0.11 : 0.09, isMobile ? 0.2 : 0.17);
+      let xRatio = randomBetweenWork(0.12, 0.88);
+      let yRatio = randomBetweenWork(0.12, 0.88);
+
+      if (edge === "top") {
+        yRatio = band;
+      } else if (edge === "right") {
+        xRatio = 1 - band;
+      } else if (edge === "bottom") {
+        yRatio = 1 - band;
+      } else {
+        xRatio = band;
+      }
+
+      return {
+        shape: ["loop", "rainbow", "flower", "zigzag", "spiral", "sun"][doodleIndex % 6],
+        xRatio,
+        yRatio,
+        size: randomBetweenWork(isMobile ? 14 : 18, isMobile ? 34 : 52),
+        lineWidth: randomBetweenWork(1.2, 2.4),
+        hue: WORK_HUB_DOODLE_HUES[doodleIndex % WORK_HUB_DOODLE_HUES.length],
+        alpha: randomBetweenWork(0.2, 0.48),
+        rotation: randomBetweenWork(-Math.PI, Math.PI),
+        driftX: randomBetweenWork(isMobile ? 1 : 2, isMobile ? 5 : 8),
+        driftY: randomBetweenWork(isMobile ? 1 : 2, isMobile ? 5 : 8),
+        speedX: randomBetweenWork(0.00016, 0.00036),
+        speedY: randomBetweenWork(0.00014, 0.00032),
+        phase: randomBetweenWork(0, TWO_PI),
+        pulse: randomBetweenWork(0.05, 0.18)
+      };
+    });
+
+    const minDimension = Math.min(state.width, state.height);
+    state.paintPatches = Array.from({ length: isMobile ? 18 : 30 }, (_, patchIndex) => {
+      const edge = ["top", "right", "bottom", "left"][patchIndex % 4];
+      const edgeBand = randomBetweenWork(isMobile ? 0.12 : 0.1, isMobile ? 0.24 : 0.2);
+      let xRatio = randomBetweenWork(0.12, 0.88);
+      let yRatio = randomBetweenWork(0.12, 0.88);
+
+      if (edge === "top") {
+        yRatio = edgeBand;
+      } else if (edge === "right") {
+        xRatio = 1 - edgeBand;
+      } else if (edge === "bottom") {
+        yRatio = 1 - edgeBand;
+      } else {
+        xRatio = edgeBand;
+      }
+
+      return {
+        xRatio,
+        yRatio,
+        width: randomBetweenWork(minDimension * (isMobile ? 0.08 : 0.07), minDimension * (isMobile ? 0.2 : 0.17)),
+        height: randomBetweenWork(minDimension * (isMobile ? 0.06 : 0.05), minDimension * (isMobile ? 0.15 : 0.12)),
+        rotation: randomBetweenWork(-1.1, 1.1),
+        innerOffsetX: randomBetweenWork(-0.1, 0.1),
+        innerOffsetY: randomBetweenWork(-0.08, 0.08),
+        innerRotation: randomBetweenWork(-0.5, 0.5),
+        hue: WORK_HUB_CHILD_HUES[patchIndex % WORK_HUB_CHILD_HUES.length],
+        alpha: randomBetweenWork(0.1, 0.24),
+        driftX: randomBetweenWork(isMobile ? 1 : 2, isMobile ? 6 : 12),
+        driftY: randomBetweenWork(isMobile ? 1 : 2, isMobile ? 6 : 10),
+        speedX: randomBetweenWork(0.00012, 0.00028),
+        speedY: randomBetweenWork(0.0001, 0.00024),
+        phase: randomBetweenWork(0, TWO_PI)
+      };
+    });
+
+    state.frameStrokes = Array.from({ length: isMobile ? 5 : 7 }, (_, strokeIndex) => ({
+      inset: randomBetweenWork(isMobile ? 16 : 18, isMobile ? 36 : 52),
+      hue: WORK_HUB_CHILD_HUES[(strokeIndex * 2) % WORK_HUB_CHILD_HUES.length],
+      alpha: randomBetweenWork(0.26, 0.48),
+      lineWidth: randomBetweenWork(1.6, 3.4),
+      amplitude: randomBetweenWork(1.4, 5.2),
+      frequency: randomBetweenWork(1.2, 3.2),
+      speed: randomBetweenWork(0.00028, 0.00054),
+      phase: randomBetweenWork(0, TWO_PI)
     }));
 
     state.guideLines = Array.from({ length: 18 }, () => ({
@@ -786,7 +872,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const burst = getOpeningBurst(time);
     const reducedMotion = prefersReducedMotion();
     const fieldStrength = 0.62 + progress * 0.58;
-    const baseRadius = Math.max(state.width, state.height) * (0.64 + progress * 0.15);
+    const baseRadius = Math.max(state.width, state.height) * (0.52 + progress * 0.12);
 
     context.save();
     context.globalCompositeOperation = "multiply";
@@ -809,10 +895,11 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     state.ambientGlows.forEach((glow, glowIndex) => {
       const driftX = reducedMotion ? 0 : Math.sin(time * glow.speedX + glow.phase) * glow.driftX;
       const driftY = reducedMotion ? 0 : Math.cos(time * glow.speedY + glow.phase * 1.22) * glow.driftY;
-      const x = state.width * glow.xRatio + driftX;
-      const y = state.height * glow.yRatio + driftY;
       const radiusPulse = reducedMotion ? 1 : 1 + Math.sin(time * 0.00042 + glow.phase) * 0.06;
       const radius = glow.radius * radiusPulse * (0.85 + progress * 0.22);
+      const edgeMargin = radius * 0.54;
+      const x = clampWork(state.width * glow.xRatio + driftX, edgeMargin, state.width - edgeMargin);
+      const y = clampWork(state.height * glow.yRatio + driftY, edgeMargin, state.height - edgeMargin);
       const alpha = glow.alpha * fieldStrength;
       const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
 
@@ -835,6 +922,233 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         context.quadraticCurveTo(center.x, controlY, state.width * 1.08, waveY + (glowIndex % 3 - 1) * state.height * 0.02);
         context.stroke();
       }
+    });
+
+    context.restore();
+  }
+
+  function drawWobblyFrameLine(x1, y1, x2, y2, amplitude, frequency, phase, time, speed) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const distance = Math.hypot(dx, dy) || 1;
+    const normalX = -dy / distance;
+    const normalY = dx / distance;
+    const steps = Math.max(10, Math.round(distance / 32));
+
+    context.beginPath();
+
+    for (let step = 0; step <= steps; step += 1) {
+      const t = step / steps;
+      const wave = Math.sin((t * frequency * TWO_PI) + phase + (time * speed)) * amplitude;
+      const drift = Math.cos((t * frequency * 0.6 * TWO_PI) + phase * 0.8 + (time * speed * 0.58)) * amplitude * 0.34;
+      const x = x1 + dx * t + normalX * (wave + drift);
+      const y = y1 + dy * t + normalY * (wave + drift);
+
+      if (step === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+    }
+
+    context.stroke();
+  }
+
+  function drawWorkKindergartenFrame(progress, time) {
+    if (!state.paintPatches.length && !state.frameStrokes.length) {
+      return;
+    }
+
+    const reducedMotion = prefersReducedMotion();
+
+    context.save();
+    context.globalCompositeOperation = "multiply";
+
+    state.paintPatches.forEach((patch, patchIndex) => {
+      const driftX = reducedMotion ? 0 : Math.sin(time * patch.speedX + patch.phase) * patch.driftX;
+      const driftY = reducedMotion ? 0 : Math.cos(time * patch.speedY + patch.phase * 1.18) * patch.driftY;
+      const marginX = patch.width * 0.36 + 10;
+      const marginY = patch.height * 0.36 + 10;
+      const x = clampWork(state.width * patch.xRatio + driftX, marginX, state.width - marginX);
+      const y = clampWork(state.height * patch.yRatio + driftY, marginY, state.height - marginY);
+      const alpha = patch.alpha * (0.48 + progress * 0.82);
+
+      context.save();
+      context.translate(x, y);
+      context.rotate(patch.rotation + (reducedMotion ? 0 : Math.sin(time * 0.00022 + patch.phase) * 0.06));
+      context.fillStyle = workHubColor(patch.hue, alpha, 70, 58);
+      context.beginPath();
+      context.ellipse(0, 0, patch.width * 0.58, patch.height * 0.52, 0, 0, TWO_PI);
+      context.fill();
+
+      context.fillStyle = workHubColor(
+        WORK_HUB_CHILD_HUES[(patchIndex + 4) % WORK_HUB_CHILD_HUES.length],
+        alpha * 0.46,
+        64,
+        62
+      );
+      context.beginPath();
+      context.ellipse(
+        patch.width * patch.innerOffsetX,
+        patch.height * patch.innerOffsetY,
+        patch.width * 0.38,
+        patch.height * 0.32,
+        patch.innerRotation,
+        0,
+        TWO_PI
+      );
+      context.fill();
+      context.restore();
+    });
+
+    state.frameStrokes.forEach((stroke, strokeIndex) => {
+      const inset = stroke.inset;
+      const left = inset;
+      const top = inset;
+      const right = state.width - inset;
+      const bottom = state.height - inset;
+      const alpha = stroke.alpha * (0.52 + progress * 0.78);
+      const phase = stroke.phase + strokeIndex * 0.7;
+
+      context.strokeStyle = workHubColor(stroke.hue, alpha, 68, 34);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.lineWidth = stroke.lineWidth;
+
+      drawWobblyFrameLine(left, top, right, top, stroke.amplitude, stroke.frequency, phase, time, stroke.speed);
+      drawWobblyFrameLine(right, top, right, bottom, stroke.amplitude, stroke.frequency, phase + 1.2, time, stroke.speed);
+      drawWobblyFrameLine(right, bottom, left, bottom, stroke.amplitude, stroke.frequency, phase + 2.4, time, stroke.speed);
+      drawWobblyFrameLine(left, bottom, left, top, stroke.amplitude, stroke.frequency, phase + 3.6, time, stroke.speed);
+
+      context.lineWidth = Math.max(1, stroke.lineWidth * 0.42);
+      context.strokeStyle = workHubColor(
+        WORK_HUB_CHILD_HUES[(strokeIndex + 1) % WORK_HUB_CHILD_HUES.length],
+        alpha * 0.56,
+        72,
+        44
+      );
+
+      drawWobblyFrameLine(
+        left + 2,
+        top + 1,
+        right - 2,
+        top + 1,
+        stroke.amplitude * 0.64,
+        stroke.frequency * 1.22,
+        phase + 0.4,
+        time,
+        stroke.speed * 1.08
+      );
+    });
+
+    context.restore();
+  }
+
+  function drawWorkDoodleFrame(progress, time) {
+    if (!state.frameDoodles.length) {
+      return;
+    }
+
+    const reducedMotion = prefersReducedMotion();
+
+    context.save();
+    context.globalCompositeOperation = "multiply";
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    state.frameDoodles.forEach((doodle, doodleIndex) => {
+      const driftX = reducedMotion ? 0 : Math.sin(time * doodle.speedX + doodle.phase) * doodle.driftX;
+      const driftY = reducedMotion ? 0 : Math.cos(time * doodle.speedY + doodle.phase * 1.2) * doodle.driftY;
+      const pulse = reducedMotion ? 1 : 1 + Math.sin(time * 0.0007 + doodle.phase) * doodle.pulse;
+      const size = doodle.size * pulse;
+      const edgeMargin = size * 0.62 + 10;
+      const x = clampWork(doodle.xRatio * state.width + driftX, edgeMargin, state.width - edgeMargin);
+      const y = clampWork(doodle.yRatio * state.height + driftY, edgeMargin, state.height - edgeMargin);
+      const alpha = (0.42 + progress * 0.82) * doodle.alpha;
+
+      context.save();
+      context.translate(x, y);
+      context.rotate(doodle.rotation + (reducedMotion ? 0 : Math.sin(time * 0.00022 + doodleIndex) * 0.12));
+
+      context.strokeStyle = workHubColor(doodle.hue, alpha, 72, 40);
+      context.lineWidth = doodle.lineWidth * 1.18;
+
+      if (doodle.shape === "loop") {
+        context.beginPath();
+        context.ellipse(0, 0, size * 0.52, size * 0.34, 0.22, 0, TWO_PI);
+        context.stroke();
+        context.beginPath();
+        context.ellipse(size * 0.12, -size * 0.06, size * 0.34, size * 0.2, -0.3, 0, TWO_PI);
+        context.stroke();
+      } else if (doodle.shape === "rainbow") {
+        for (let arcIndex = 0; arcIndex < 3; arcIndex += 1) {
+          const arcHue = WORK_HUB_DOODLE_HUES[(doodleIndex + arcIndex * 2) % WORK_HUB_DOODLE_HUES.length];
+          context.strokeStyle = workHubColor(arcHue, alpha * (0.84 - arcIndex * 0.14), 74, 44);
+          context.beginPath();
+          context.arc(0, size * 0.08, size * (0.32 + arcIndex * 0.14), Math.PI * 1.06, Math.PI * 1.94);
+          context.stroke();
+        }
+      } else if (doodle.shape === "flower") {
+        for (let petalIndex = 0; petalIndex < 6; petalIndex += 1) {
+          const angle = (petalIndex / 6) * TWO_PI;
+          const px = Math.cos(angle) * size * 0.34;
+          const py = Math.sin(angle) * size * 0.34;
+          context.beginPath();
+          context.ellipse(px, py, size * 0.15, size * 0.1, angle, 0, TWO_PI);
+          context.stroke();
+        }
+
+        context.beginPath();
+        context.arc(0, 0, size * 0.14, 0, TWO_PI);
+        context.stroke();
+      } else if (doodle.shape === "zigzag") {
+        const segmentCount = 5;
+        context.beginPath();
+        context.moveTo(-size * 0.46, 0);
+
+        for (let segmentIndex = 1; segmentIndex <= segmentCount; segmentIndex += 1) {
+          const t = segmentIndex / segmentCount;
+          const px = lerpWork(-size * 0.46, size * 0.46, t);
+          const py = (segmentIndex % 2 === 0 ? -1 : 1) * size * 0.2;
+          context.lineTo(px, py);
+        }
+
+        context.stroke();
+      } else if (doodle.shape === "spiral") {
+        context.beginPath();
+
+        for (let step = 0; step <= 26; step += 1) {
+          const t = step / 26;
+          const angle = t * Math.PI * 4.4;
+          const radius = size * 0.06 + t * size * 0.44;
+          const px = Math.cos(angle) * radius;
+          const py = Math.sin(angle) * radius;
+
+          if (step === 0) {
+            context.moveTo(px, py);
+          } else {
+            context.lineTo(px, py);
+          }
+        }
+
+        context.stroke();
+      } else {
+        context.beginPath();
+        context.arc(0, 0, size * 0.26, 0, TWO_PI);
+        context.stroke();
+
+        for (let rayIndex = 0; rayIndex < 8; rayIndex += 1) {
+          const angle = (rayIndex / 8) * TWO_PI;
+          const inner = size * 0.34;
+          const outer = size * 0.56;
+          context.beginPath();
+          context.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+          context.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
+          context.stroke();
+        }
+      }
+
+      context.restore();
     });
 
     context.restore();
@@ -1163,6 +1477,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const anchors = getAnimatedAnchors(time);
 
     drawWorkAmbientBackground(progress, time);
+    drawWorkKindergartenFrame(progress, time);
+    drawWorkDoodleFrame(progress, time);
     drawClosedStateCore(progress, time);
     drawWorkHubNetwork(anchors, progress, time);
     drawAnchorRings(anchors, progress, time);
