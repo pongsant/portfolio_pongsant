@@ -36,6 +36,11 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const WORK_HUB_RAINBOW_HUES = [214, 198, 176, 44, 22];
   const WORK_HUB_DOODLE_HUES = [216, 224, 204, 188, 172, 46, 34, 20, 242, 256];
   const WORK_HUB_CHILD_HUES = [212, 220, 228, 198, 186, 168, 48, 36, 24, 248, 258, 206, 176];
+  const WORK_HUB_AMBIENT_LAYER_ALPHA = 0.28;
+  const WORK_HUB_FRAME_LAYER_ALPHA = 0.18;
+  const WORK_HUB_DOODLE_LAYER_ALPHA = 0.16;
+  const WORK_HUB_OPEN_SMOOTHING = 0.072;
+  const WORK_HUB_CLOSE_SMOOTHING = 0.112;
   const WORK_HUB_CONNECTIONS = [
     [0, 2],
     [2, 4],
@@ -183,18 +188,30 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
   function syncWorkLayoutVars() {
     const isMobile = window.innerWidth < 720;
-    const centerWidth = Math.min(window.innerWidth * 0.92, isMobile ? 560 : 920);
-    const triggerFontSize = clampWork(
-      Math.min(
-        window.innerWidth * (isMobile ? 0.165 : 0.112),
-        window.innerHeight * (isMobile ? 0.11 : 0.14)
-      ),
-      isMobile ? 46 : 72,
+    const headerHeight = header?.getBoundingClientRect().height || 0;
+    const inlineSafePadding = isMobile ? 16 : 40;
+    const centerWidth = Math.max(220, Math.min(window.innerWidth - inlineSafePadding * 2, isMobile ? 560 : 920));
+    const preferredFontSize = Math.min(
+      window.innerWidth * (isMobile ? 0.165 : 0.112),
+      (window.innerHeight - headerHeight * 0.6) * (isMobile ? 0.12 : 0.145)
+    );
+    let triggerFontSize = clampWork(
+      preferredFontSize,
+      isMobile ? 34 : 56,
       isMobile ? 84 : 144
     );
 
     workScene.style.setProperty("--work-center-width", `${centerWidth}px`);
     workScene.style.setProperty("--work-trigger-font-size", `${triggerFontSize}px`);
+
+    const availableTriggerWidth = Math.max(180, centerWidth - (isMobile ? 8 : 20));
+    const measuredTriggerWidth = workTrigger.scrollWidth;
+
+    if (measuredTriggerWidth > availableTriggerWidth) {
+      const fittedSize = triggerFontSize * (availableTriggerWidth / measuredTriggerWidth);
+      triggerFontSize = clampWork(fittedSize, isMobile ? 28 : 42, triggerFontSize);
+      workScene.style.setProperty("--work-trigger-font-size", `${triggerFontSize}px`);
+    }
   }
 
   function setHoveredIndex(index) {
@@ -568,6 +585,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workCanvas.style.width = `${state.width}px`;
     workCanvas.style.height = `${state.height}px`;
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
     buildStructures();
   }
 
@@ -876,6 +894,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     context.save();
     context.globalCompositeOperation = "multiply";
+    context.globalAlpha = WORK_HUB_AMBIENT_LAYER_ALPHA;
 
     const centerGlow = context.createRadialGradient(
       center.x,
@@ -963,6 +982,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     context.save();
     context.globalCompositeOperation = "multiply";
+    context.globalAlpha = WORK_HUB_FRAME_LAYER_ALPHA;
 
     state.paintPatches.forEach((patch, patchIndex) => {
       const driftX = reducedMotion ? 0 : Math.sin(time * patch.speedX + patch.phase) * patch.driftX;
@@ -1053,6 +1073,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     context.save();
     context.globalCompositeOperation = "multiply";
+    context.globalAlpha = WORK_HUB_DOODLE_LAYER_ALPHA;
     context.lineCap = "round";
     context.lineJoin = "round";
 
@@ -1466,7 +1487,10 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     if (prefersReducedMotion()) {
       state.openProgress = state.targetProgress;
     } else {
-      state.openProgress += (state.targetProgress - state.openProgress) * 0.085;
+      const smoothing = state.targetProgress > state.openProgress
+        ? WORK_HUB_OPEN_SMOOTHING
+        : WORK_HUB_CLOSE_SMOOTHING;
+      state.openProgress += (state.targetProgress - state.openProgress) * smoothing;
     }
 
     if (Math.abs(state.targetProgress - state.openProgress) < 0.0015) {
@@ -1476,9 +1500,16 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     const progress = easeInOutWork(state.openProgress);
     const anchors = getAnimatedAnchors(time);
 
-    drawWorkAmbientBackground(progress, time);
-    drawWorkKindergartenFrame(progress, time);
-    drawWorkDoodleFrame(progress, time);
+    if (progress > 0.01) {
+      drawWorkAmbientBackground(progress, time);
+    }
+
+    if (progress > 0.06) {
+      const detailProgress = (progress - 0.06) / 0.94;
+      drawWorkKindergartenFrame(detailProgress, time);
+      drawWorkDoodleFrame(detailProgress, time);
+    }
+
     drawClosedStateCore(progress, time);
     drawWorkHubNetwork(anchors, progress, time);
     drawAnchorRings(anchors, progress, time);

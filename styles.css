@@ -394,6 +394,7 @@ main {
 .work-hub__scene {
   --work-center-width: min(88vw, 820px);
   --work-trigger-font-size: clamp(2.5rem, 8vw, 5.2rem);
+  --work-center-inline-padding: clamp(0.75rem, 2.4vw, 1.9rem);
   position: relative;
   min-height: 100svh;
   overflow: hidden;
@@ -419,18 +420,20 @@ main {
   display: grid;
   gap: 0.9rem;
   justify-items: center;
-  width: var(--work-center-width);
+  width: min(var(--work-center-width), calc(100vw - (var(--work-center-inline-padding) * 2)));
+  max-width: calc(100vw - (var(--work-center-inline-padding) * 2));
+  padding-inline: var(--work-center-inline-padding);
   transform: translate(-50%, -50%);
 }
 
 .work-hub__trigger {
   width: auto;
-  max-width: min(88vw, 760px);
+  max-width: 100%;
   padding: 0;
   border: 0;
   background: transparent;
   font-family: var(--font-sans);
-  font-size: var(--work-trigger-font-size);
+  font-size: min(var(--work-trigger-font-size), calc((100vw - 1.6rem) / 4.6));
   font-weight: 680;
   line-height: 0.92;
   letter-spacing: 0.16em;
@@ -441,9 +444,9 @@ main {
   text-align: center;
   user-select: none;
   transition:
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
-    letter-spacing 360ms ease,
-    opacity 260ms ease,
+    transform 760ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    letter-spacing 460ms ease,
+    opacity 340ms ease,
     color 360ms ease,
     filter 360ms ease;
 }
@@ -471,9 +474,10 @@ main {
 
 .work-hub__option {
   --option-font-size: clamp(0.86rem, 1.34vw, 1.14rem);
-  --option-scale: 0.14;
+  --option-scale: 0.56;
   --option-shift-x: 0px;
   --option-shift-y: 0px;
+  --option-open-delay: 0ms;
   --option-ring-size: 152px;
   --option-ring-tilt: 0.78;
   --option-ring-rotation: 0deg;
@@ -505,14 +509,18 @@ main {
   pointer-events: none;
   isolation: isolate;
   transform-origin: center center;
-  transform: translate(calc(-50% + var(--option-shift-x)), calc(-50% + var(--option-shift-y))) scale(var(--option-scale));
+  transform: translate3d(calc(-50% + var(--option-shift-x)), calc(-50% + var(--option-shift-y)), 0) scale(var(--option-scale));
+  filter: blur(2px);
   cursor: pointer;
   touch-action: manipulation;
-  will-change: transform, opacity, font-size;
+  backface-visibility: hidden;
+  will-change: transform, opacity, font-size, filter;
   transition:
-    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 320ms ease,
-    font-size 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 900ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    opacity 420ms ease,
+    font-size 660ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    filter 420ms ease;
+  transition-delay: 0ms;
 }
 
 .work-hub__option::before,
@@ -525,7 +533,7 @@ main {
   pointer-events: none;
   opacity: 0;
   transition:
-    transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 980ms cubic-bezier(0.2, 0.86, 0.22, 1),
     opacity 340ms ease,
     border-color 320ms ease,
     box-shadow 320ms ease;
@@ -566,29 +574,29 @@ main {
 }
 
 .work-hub__option:nth-child(1) {
-  transition-delay: 0ms;
+  --option-open-delay: 0ms;
 }
 
 .work-hub__option:nth-child(2) {
-  transition-delay: 26ms;
+  --option-open-delay: 44ms;
 }
 
 .work-hub__option:nth-child(3) {
-  transition-delay: 52ms;
+  --option-open-delay: 88ms;
 }
 
 .work-hub__option:nth-child(4) {
-  transition-delay: 78ms;
+  --option-open-delay: 132ms;
 }
 
 .work-hub__option:nth-child(5) {
-  transition-delay: 104ms;
+  --option-open-delay: 176ms;
 }
 
 .page-my-work.is-work-menu-open .work-hub__trigger {
-  transform: scale(0.42);
-  letter-spacing: 0.28em;
-  opacity: 0.08;
+  transform: scale(0.5);
+  letter-spacing: 0.24em;
+  opacity: 0.14;
   color: rgba(5, 5, 5, 0.34);
   filter: blur(0.2px);
 }
@@ -607,7 +615,9 @@ main {
   --option-shift-x: var(--option-x, 0px);
   --option-shift-y: var(--option-y, 0px);
   opacity: 1;
+  filter: blur(0);
   pointer-events: auto;
+  transition-delay: var(--option-open-delay);
 }
 
 .page-my-work.is-work-menu-open .work-hub__option::before {
@@ -1063,7 +1073,7 @@ main {
   letter-spacing: 0.02em;
   line-height: 0.96;
   text-transform: uppercase;
-  color: rgba(245, 245, 245, 0.66);
+  color: #ffffff;
 }
 
 .home-work-showcase__title-link {
@@ -3945,7 +3955,8 @@ body.is-lightbox-open {
   }
 
   .work-hub__trigger {
-    font-size: clamp(2.05rem, 11.8vw, 2.8rem);
+    font-size: min(var(--work-trigger-font-size), clamp(2rem, 11.2vw, 2.8rem));
+    letter-spacing: 0.12em;
   }
 
   .site-footnote__inner {
