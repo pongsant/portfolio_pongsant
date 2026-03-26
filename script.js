@@ -41,6 +41,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const WORK_HUB_DOODLE_LAYER_ALPHA = 0.16;
   const WORK_HUB_OPEN_SMOOTHING = 0.072;
   const WORK_HUB_CLOSE_SMOOTHING = 0.112;
+  const WORK_HUB_MAX_DPR = 1.5;
   const WORK_HUB_CONNECTIONS = [
     [0, 2],
     [2, 4],
@@ -59,12 +60,13 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const state = {
     width: 0,
     height: 0,
-    dpr: Math.min(window.devicePixelRatio || 1, 2),
+    dpr: Math.min(window.devicePixelRatio || 1, WORK_HUB_MAX_DPR),
     open: false,
     targetProgress: 0,
     openProgress: 0,
     hoverIndex: -1,
     animationId: 0,
+    visible: true,
     flareAt: 0,
     anchors: [],
     groups: [],
@@ -219,6 +221,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     workOptions.forEach((option, optionIndex) => {
       option.classList.toggle("is-hovered", optionIndex === index);
     });
+    queueWorkHubAnimation();
   }
 
   function createDustPoints(radius, count) {
@@ -263,7 +266,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     });
 
     const isMobile = window.innerWidth < 720;
-    const nodeCount = isMobile ? 10 : 16;
+    const nodeCount = isMobile ? 8 : 12;
     const spread = isMobile ? 0.18 : 0.24;
     const coreRingRadius = Math.min(state.width, state.height) * (isMobile ? 0.16 : 0.19);
     const rayBand = Math.min(state.width, state.height) * (isMobile ? 0.042 : 0.06);
@@ -579,7 +582,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
     state.width = Math.round(rect.width);
     state.height = Math.round(Math.max(rect.height, window.innerHeight));
-    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    state.dpr = Math.min(window.devicePixelRatio || 1, WORK_HUB_MAX_DPR);
     workCanvas.width = Math.round(state.width * state.dpr);
     workCanvas.height = Math.round(state.height * state.dpr);
     workCanvas.style.width = `${state.width}px`;
@@ -888,9 +891,8 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   function drawWorkAmbientBackground(progress, time) {
     const center = getWorkCenter();
     const burst = getOpeningBurst(time);
-    const reducedMotion = prefersReducedMotion();
     const fieldStrength = 0.62 + progress * 0.58;
-    const baseRadius = Math.max(state.width, state.height) * (0.52 + progress * 0.12);
+    const baseRadius = Math.max(state.width, state.height) * (0.34 + progress * 0.08);
 
     context.save();
     context.globalCompositeOperation = "multiply";
@@ -910,38 +912,6 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     centerGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
     context.fillStyle = centerGlow;
     context.fillRect(0, 0, state.width, state.height);
-
-    state.ambientGlows.forEach((glow, glowIndex) => {
-      const driftX = reducedMotion ? 0 : Math.sin(time * glow.speedX + glow.phase) * glow.driftX;
-      const driftY = reducedMotion ? 0 : Math.cos(time * glow.speedY + glow.phase * 1.22) * glow.driftY;
-      const radiusPulse = reducedMotion ? 1 : 1 + Math.sin(time * 0.00042 + glow.phase) * 0.06;
-      const radius = glow.radius * radiusPulse * (0.85 + progress * 0.22);
-      const edgeMargin = radius * 0.54;
-      const x = clampWork(state.width * glow.xRatio + driftX, edgeMargin, state.width - edgeMargin);
-      const y = clampWork(state.height * glow.yRatio + driftY, edgeMargin, state.height - edgeMargin);
-      const alpha = glow.alpha * fieldStrength;
-      const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
-
-      gradient.addColorStop(0, workHubColor(glow.hue, alpha, 90, 72));
-      gradient.addColorStop(0.48, workHubColor(glow.hue, alpha * 0.68, 86, 74));
-      gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-      context.fillStyle = gradient;
-      context.beginPath();
-      context.arc(x, y, radius, 0, TWO_PI);
-      context.fill();
-
-      if (glowIndex % 2 === 0) {
-        const waveY = y + (reducedMotion ? 0 : Math.sin(time * 0.00052 + glow.phase) * state.height * 0.012);
-        const controlY = waveY + (glowIndex % 4 === 0 ? 1 : -1) * state.height * 0.06;
-        context.strokeStyle = workHubColor(glow.hue, alpha * 0.62, 86, 66);
-        context.lineWidth = 1.1;
-        context.beginPath();
-        context.moveTo(-state.width * 0.08, waveY);
-        context.quadraticCurveTo(center.x, controlY, state.width * 1.08, waveY + (glowIndex % 3 - 1) * state.height * 0.02);
-        context.stroke();
-      }
-    });
 
     context.restore();
   }
@@ -1480,9 +1450,33 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     } else {
       setHoveredIndex(-1);
     }
+
+    queueWorkHubAnimation();
+  }
+
+  function isWorkHubTransitioning() {
+    return Math.abs(state.targetProgress - state.openProgress) >= 0.0015;
+  }
+
+  function shouldAnimateWorkHub(time = performance.now()) {
+    if (!state.visible || prefersReducedMotion()) {
+      return false;
+    }
+
+    const openingBurstActive = state.open && (time - state.flareAt) < 1600;
+    return isWorkHubTransitioning() || openingBurstActive || state.hoverIndex !== -1;
+  }
+
+  function queueWorkHubAnimation() {
+    if (!state.visible || state.animationId) {
+      return;
+    }
+
+    state.animationId = window.requestAnimationFrame(renderWorkHub);
   }
 
   function renderWorkHub(time) {
+    state.animationId = 0;
     context.clearRect(0, 0, state.width, state.height);
     if (prefersReducedMotion()) {
       state.openProgress = state.targetProgress;
@@ -1504,17 +1498,13 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       drawWorkAmbientBackground(progress, time);
     }
 
-    if (progress > 0.06) {
-      const detailProgress = (progress - 0.06) / 0.94;
-      drawWorkKindergartenFrame(detailProgress, time);
-      drawWorkDoodleFrame(detailProgress, time);
-    }
-
     drawClosedStateCore(progress, time);
     drawWorkHubNetwork(anchors, progress, time);
     drawAnchorRings(anchors, progress, time);
 
-    state.animationId = window.requestAnimationFrame(renderWorkHub);
+    if (shouldAnimateWorkHub(time)) {
+      state.animationId = window.requestAnimationFrame(renderWorkHub);
+    }
   }
 
   function handleWorkTriggerClick(event) {
@@ -1538,13 +1528,29 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
   function initWorkHub() {
     resizeWorkCanvas();
-    renderWorkHub(0);
+    queueWorkHubAnimation();
 
     workTrigger.addEventListener("click", handleWorkTriggerClick);
     workScene.addEventListener("click", handleWorkSceneClick);
     document.addEventListener("keydown", handleKeydown);
-    window.addEventListener("resize", resizeWorkCanvas);
-    reducedMotionQuery.addEventListener("change", resizeWorkCanvas);
+    window.addEventListener("resize", () => {
+      resizeWorkCanvas();
+      queueWorkHubAnimation();
+    });
+    reducedMotionQuery.addEventListener("change", () => {
+      resizeWorkCanvas();
+      queueWorkHubAnimation();
+    });
+    document.addEventListener("visibilitychange", () => {
+      state.visible = !document.hidden;
+
+      if (state.visible) {
+        queueWorkHubAnimation();
+      } else if (state.animationId) {
+        window.cancelAnimationFrame(state.animationId);
+        state.animationId = 0;
+      }
+    });
 
     workOptions.forEach((option, index) => {
       option.addEventListener("pointerenter", () => setHoveredIndex(index));
@@ -5155,6 +5161,7 @@ if (homeWorkShowcaseTopics) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const topicLinks = Array.from(homeWorkShowcaseTopics.querySelectorAll("[data-home-work-topic]"));
   const defaultTopicIndex = Math.max(0, topicLinks.findIndex((topic) => topic.classList.contains("is-active")));
+  const initialShowcaseHue = Number(topicLinks[defaultTopicIndex]?.dataset.topicHue) || 214;
   const lineState = {
     dpr: Math.min(window.devicePixelRatio || 1, 2),
     width: 0,
@@ -5168,8 +5175,8 @@ if (homeWorkShowcaseTopics) {
     lines: [],
     fiberLines: [],
     meshClusters: [],
-    targetHue: 356,
-    currentHue: 356,
+    targetHue: initialShowcaseHue,
+    currentHue: initialShowcaseHue,
     frame: 0,
     visible: true,
     pointerX: 0,
@@ -5193,6 +5200,11 @@ if (homeWorkShowcaseTopics) {
     const ySafe = clampShowcaseCoordinate(y, margin, lineState.height - margin);
 
     return { x: xSafe, y: ySafe };
+  }
+
+  function showcaseHueColor(alpha, saturation = 88, lightness = 72, hueOffset = 0) {
+    const hue = (lineState.currentHue + hueOffset + 360) % 360;
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
   }
 
   function getShowcaseTopicAnchors(sectionRect) {
@@ -5492,7 +5504,7 @@ if (homeWorkShowcaseTopics) {
       return;
     }
 
-    lineState.currentHue += (lineState.targetHue - lineState.currentHue) * 0.06;
+    lineState.currentHue += (lineState.targetHue - lineState.currentHue) * 0.12;
 
     showcaseContext.setTransform(1, 0, 0, 1, 0, 0);
     showcaseContext.clearRect(0, 0, showcaseCanvas.width, showcaseCanvas.height);
@@ -5538,8 +5550,8 @@ if (homeWorkShowcaseTopics) {
       flowOrigin.y,
       Math.max(lineState.width, lineState.height) * 0.82
     );
-    radialGlow.addColorStop(0, "rgba(255, 255, 255, 0.13)");
-    radialGlow.addColorStop(0.42, "rgba(255, 255, 255, 0.05)");
+    radialGlow.addColorStop(0, showcaseHueColor(0.2, 92, 76, 6));
+    radialGlow.addColorStop(0.42, showcaseHueColor(0.08, 90, 68, -8));
     radialGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
     showcaseContext.fillStyle = radialGlow;
     showcaseContext.fillRect(0, 0, lineState.width, lineState.height);
@@ -5576,14 +5588,14 @@ if (homeWorkShowcaseTopics) {
       const safeControl1 = clampShowcasePoint(control1X, control1Y, 2);
       const safeControl2 = clampShowcasePoint(control2X, control2Y, 2);
 
-      showcaseContext.strokeStyle = `rgba(255, 255, 255, ${line.glowAlpha * 0.86})`;
+      showcaseContext.strokeStyle = showcaseHueColor(line.glowAlpha * 0.86, 92, 78, 8);
       showcaseContext.lineWidth = line.width * 2.2;
       showcaseContext.beginPath();
       showcaseContext.moveTo(safeSource.x, safeSource.y);
       showcaseContext.bezierCurveTo(safeControl1.x, safeControl1.y, safeControl2.x, safeControl2.y, safeTarget.x, safeTarget.y);
       showcaseContext.stroke();
 
-      showcaseContext.strokeStyle = `rgba(216, 216, 216, ${line.alpha})`;
+      showcaseContext.strokeStyle = showcaseHueColor(line.alpha, 84, 70, -4);
       showcaseContext.lineWidth = line.width;
       showcaseContext.beginPath();
       showcaseContext.moveTo(safeSource.x, safeSource.y);
@@ -5622,14 +5634,14 @@ if (homeWorkShowcaseTopics) {
       const safeControl1 = clampShowcasePoint(control1X, control1Y, 2);
       const safeControl2 = clampShowcasePoint(control2X, control2Y, 2);
 
-      showcaseContext.strokeStyle = `rgba(255, 255, 255, ${line.glowAlpha})`;
+      showcaseContext.strokeStyle = showcaseHueColor(line.glowAlpha, 92, 76, 14);
       showcaseContext.lineWidth = line.width * 2.8;
       showcaseContext.beginPath();
       showcaseContext.moveTo(safeSource.x, safeSource.y);
       showcaseContext.bezierCurveTo(safeControl1.x, safeControl1.y, safeControl2.x, safeControl2.y, safeTarget.x, safeTarget.y);
       showcaseContext.stroke();
 
-      showcaseContext.strokeStyle = `rgba(232, 232, 232, ${line.alpha})`;
+      showcaseContext.strokeStyle = showcaseHueColor(line.alpha, 86, 68, 2);
       showcaseContext.lineWidth = line.width;
       showcaseContext.beginPath();
       showcaseContext.moveTo(safeSource.x, safeSource.y);
@@ -5637,7 +5649,7 @@ if (homeWorkShowcaseTopics) {
       showcaseContext.stroke();
 
       if (index % 24 === 0) {
-        showcaseContext.fillStyle = "rgba(245, 245, 245, 0.24)";
+        showcaseContext.fillStyle = showcaseHueColor(0.24, 94, 82, 16);
         showcaseContext.beginPath();
         showcaseContext.arc(safeTarget.x, safeTarget.y, Math.max(0.7, line.width * 1.1), 0, Math.PI * 2);
         showcaseContext.fill();
@@ -5671,7 +5683,7 @@ if (homeWorkShowcaseTopics) {
             continue;
           }
 
-          showcaseContext.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+          showcaseContext.strokeStyle = showcaseHueColor(alpha, 90, 74, clusterIndex * 6 - 10);
           showcaseContext.lineWidth = cluster.lineWidth * (0.62 + fade * 0.96);
           showcaseContext.beginPath();
           showcaseContext.moveTo(startPoint.x, startPoint.y);
@@ -5685,7 +5697,7 @@ if (homeWorkShowcaseTopics) {
             flowOrigin.y + (startPoint.y - flowOrigin.y) * 0.42 + Math.cos(drift * 2.6 + startIndex) * lineState.height * 0.016,
             2
           );
-          showcaseContext.strokeStyle = "rgba(255, 255, 255, 0.14)";
+          showcaseContext.strokeStyle = showcaseHueColor(0.14, 88, 70, -14);
           showcaseContext.lineWidth = 0.82;
           showcaseContext.beginPath();
           showcaseContext.moveTo(flowOrigin.x, flowOrigin.y);
@@ -5730,14 +5742,14 @@ if (homeWorkShowcaseTopics) {
           showcaseContext.setLineDash([approximateLength, approximateLength + 32]);
           showcaseContext.lineDashOffset = approximateLength * (1 - revealProgress);
 
-          showcaseContext.strokeStyle = `rgba(255, 255, 255, ${0.26 + revealProgress * 0.28})`;
+          showcaseContext.strokeStyle = showcaseHueColor(0.26 + revealProgress * 0.28, 94, 78, 10);
           showcaseContext.lineWidth = 2.2;
           showcaseContext.beginPath();
           showcaseContext.moveTo(sourcePoint.x, sourcePoint.y);
           showcaseContext.quadraticCurveTo(focusControl.x, focusControl.y, targetPoint.x, targetPoint.y);
           showcaseContext.stroke();
 
-          showcaseContext.strokeStyle = `rgba(245, 245, 245, ${0.45 + revealProgress * 0.3})`;
+          showcaseContext.strokeStyle = showcaseHueColor(0.45 + revealProgress * 0.3, 92, 70, 4);
           showcaseContext.lineWidth = 1.04;
           showcaseContext.beginPath();
           showcaseContext.moveTo(sourcePoint.x, sourcePoint.y);
@@ -5745,7 +5757,7 @@ if (homeWorkShowcaseTopics) {
           showcaseContext.stroke();
 
           if (revealProgress > 0.92) {
-            showcaseContext.fillStyle = `rgba(255, 255, 255, ${0.48 + revealProgress * 0.34})`;
+            showcaseContext.fillStyle = showcaseHueColor(0.48 + revealProgress * 0.34, 96, 84, 14);
             showcaseContext.beginPath();
             showcaseContext.arc(targetPoint.x, targetPoint.y, 2.4, 0, Math.PI * 2);
             showcaseContext.fill();
@@ -5768,21 +5780,21 @@ if (homeWorkShowcaseTopics) {
           2
         );
 
-        showcaseContext.strokeStyle = `rgba(255, 255, 255, ${0.16 + lineState.pointerLinkProgress * 0.32})`;
+        showcaseContext.strokeStyle = showcaseHueColor(0.16 + lineState.pointerLinkProgress * 0.32, 94, 80, 10);
         showcaseContext.lineWidth = 2.9;
         showcaseContext.beginPath();
         showcaseContext.moveTo(pointerPoint.x, pointerPoint.y);
         showcaseContext.quadraticCurveTo(tetherControl.x, tetherControl.y, hoverFocusPoint.x, hoverFocusPoint.y);
         showcaseContext.stroke();
 
-        showcaseContext.strokeStyle = `rgba(255, 255, 255, ${0.34 + lineState.pointerLinkProgress * 0.42})`;
+        showcaseContext.strokeStyle = showcaseHueColor(0.34 + lineState.pointerLinkProgress * 0.42, 92, 72, 4);
         showcaseContext.lineWidth = 1.2;
         showcaseContext.beginPath();
         showcaseContext.moveTo(pointerPoint.x, pointerPoint.y);
         showcaseContext.quadraticCurveTo(tetherControl.x, tetherControl.y, hoverFocusPoint.x, hoverFocusPoint.y);
         showcaseContext.stroke();
 
-        showcaseContext.fillStyle = `rgba(255, 255, 255, ${0.56 + lineState.pointerLinkProgress * 0.34})`;
+        showcaseContext.fillStyle = showcaseHueColor(0.56 + lineState.pointerLinkProgress * 0.34, 96, 84, 12);
         showcaseContext.beginPath();
         showcaseContext.arc(hoverFocusPoint.x, hoverFocusPoint.y, 2.3, 0, Math.PI * 2);
         showcaseContext.fill();
@@ -5797,7 +5809,7 @@ if (homeWorkShowcaseTopics) {
       }
 
       const safeAnchor = clampShowcasePoint(anchor.x, anchor.y, 2);
-      showcaseContext.fillStyle = "rgba(252, 252, 252, 0.78)";
+      showcaseContext.fillStyle = showcaseHueColor(0.78, 94, 86, 16);
       showcaseContext.beginPath();
       showcaseContext.arc(safeAnchor.x, safeAnchor.y, 2, 0, Math.PI * 2);
       showcaseContext.fill();
@@ -5908,19 +5920,20 @@ if (homeWorkShowcaseTopics) {
       item.classList.toggle("is-active", itemIndex === index);
     });
 
-    const hue = topic.dataset.topicHue || "356";
+    const hue = topic.dataset.topicHue || String(initialShowcaseHue);
     showcaseSection.style.setProperty("--showcase-hue", hue);
-    lineState.targetHue = Number(hue) || 356;
+    lineState.targetHue = Number(hue) || initialShowcaseHue;
 
     if (!reducedMotionQuery.matches) {
       return;
     }
 
+    lineState.currentHue = lineState.targetHue;
     drawShowcaseLines(performance.now());
   }
 
   topicLinks.forEach((topic, index) => {
-    const hue = topic.dataset.topicHue || "356";
+    const hue = topic.dataset.topicHue || String(initialShowcaseHue);
     topic.style.setProperty("--topic-hue", hue);
 
     topic.addEventListener("pointerenter", (event) => {
