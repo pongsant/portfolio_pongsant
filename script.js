@@ -4208,6 +4208,20 @@ if (photoGallery && photoLightbox) {
     });
   }
 
+  function applySpotlightLayoutMetrics(totalTriggers) {
+    if (!spotlightState.enabled) {
+      return;
+    }
+
+    const thumbnailCount = Math.max(1, totalTriggers - 1);
+    const columnGuess = Math.ceil(Math.sqrt(thumbnailCount * 1.6));
+    const columns = Math.max(2, Math.min(6, columnGuess));
+    const rows = Math.max(1, Math.ceil(thumbnailCount / columns));
+
+    photoGallery.style.setProperty("--spotlight-cols", String(columns));
+    photoGallery.style.setProperty("--spotlight-rows", String(rows));
+  }
+
   function setSpotlightMain(trigger) {
     if (!spotlightState.enabled || !spotlightMainSlot || !spotlightThumbSlot || !trigger) {
       return;
@@ -4260,8 +4274,15 @@ if (photoGallery && photoLightbox) {
 
     spotlightState.enabled = true;
     setSpotlightMain(triggers[0]);
+    applySpotlightLayoutMetrics(triggers.length);
     photoGallery.classList.toggle("is-single", triggers.length <= 1);
     setSpotlightExpanded(triggers.length <= 1);
+
+    if (triggers.length > 1) {
+      window.requestAnimationFrame(() => {
+        setSpotlightExpanded(true);
+      });
+    }
   }
 
   function syncPhotoLightboxNav() {
@@ -4626,7 +4647,6 @@ if (photoGallery && photoLightbox) {
       if (!spotlightState.expanded && getPhotoTriggers().length > 1) {
         setSpotlightMain(trigger);
         setSpotlightExpanded(true);
-        return;
       }
 
       if (!trigger.classList.contains("is-spotlight-main")) {
@@ -6124,6 +6144,444 @@ if (homeWorkShowcaseTopics) {
 
   setActiveShowcaseTopic(defaultTopicIndex);
 }
+
+async function syncGraphicDesignArchiveLetterFrames() {
+  if (!body || !body.classList.contains("page-graphic-design-archive")) {
+    return;
+  }
+
+  const cards = Array.from(document.querySelectorAll(".photo-poster--graphic .photo-poster__item"));
+
+  if (cards.length === 0) {
+    return;
+  }
+
+  function getPosterOrientation(width, height) {
+    if (!width || !height) {
+      return "portrait";
+    }
+
+    return (width / height) > 1.06 ? "landscape" : "portrait";
+  }
+
+  function loadPosterDimensions(image) {
+    const readyWidth = image.naturalWidth || image.width;
+    const readyHeight = image.naturalHeight || image.height;
+
+    if (readyWidth && readyHeight) {
+      return Promise.resolve({
+        width: readyWidth,
+        height: readyHeight
+      });
+    }
+
+    const source = image.currentSrc || image.src;
+
+    if (!source) {
+      return Promise.resolve({
+        width: 0,
+        height: 0
+      });
+    }
+
+    return new Promise((resolve) => {
+      const probe = new Image();
+
+      probe.addEventListener("load", () => {
+        resolve({
+          width: probe.naturalWidth,
+          height: probe.naturalHeight
+        });
+      }, { once: true });
+
+      probe.addEventListener("error", () => {
+        resolve({
+          width: 0,
+          height: 0
+        });
+      }, { once: true });
+
+      probe.src = source;
+    });
+  }
+
+  await Promise.all(cards.map(async (card) => {
+    const image = card.querySelector(".photo-poster__item-media img");
+
+    if (!image) {
+      card.dataset.posterOrientation = "portrait";
+      return;
+    }
+
+    const { width, height } = await loadPosterDimensions(image);
+    card.dataset.posterOrientation = getPosterOrientation(width, height);
+
+    image.addEventListener("load", () => {
+      const liveWidth = image.naturalWidth || image.width;
+      const liveHeight = image.naturalHeight || image.height;
+      card.dataset.posterOrientation = getPosterOrientation(liveWidth, liveHeight);
+    });
+  }));
+}
+
+function initGraphicDesignArchiveScrollReveal() {
+  if (!body || !body.classList.contains("page-graphic-design-archive")) {
+    return;
+  }
+
+  const cards = Array.from(document.querySelectorAll(".photo-poster--graphic .photo-poster__item"));
+
+  if (cards.length === 0) {
+    return;
+  }
+
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  cards.forEach((card, index) => {
+    card.classList.add("is-scroll-reveal");
+    card.style.setProperty("--reveal-delay", `${(index % 4) * 60}ms`);
+  });
+
+  function revealAllCards() {
+    cards.forEach((card) => {
+      card.classList.add("is-visible");
+    });
+  }
+
+  if (reducedMotionQuery.matches || !("IntersectionObserver" in window)) {
+    revealAllCards();
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) {
+        return;
+      }
+
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, {
+    threshold: 0.16,
+    rootMargin: "0px 0px -10% 0px"
+  });
+
+  cards.forEach((card) => {
+    observer.observe(card);
+  });
+}
+
+function initGraphicDesignArchivePopup() {
+  if (!body || !body.classList.contains("page-graphic-design-archive")) {
+    return;
+  }
+
+  const popup = document.querySelector("[data-graphic-archive-popup]");
+  const openButtons = Array.from(document.querySelectorAll("[data-graphic-archive-open]"));
+
+  if (!popup || openButtons.length === 0 || typeof popup.showModal !== "function") {
+    return;
+  }
+
+  const closeButton = popup.querySelector("[data-graphic-archive-close]");
+  const popupPanel = popup.querySelector(".graphic-archive-popup__panel");
+
+  function openPopup() {
+    if (popup.open) {
+      return;
+    }
+
+    popup.showModal();
+    body.classList.add("is-graphic-archive-popup-open");
+
+    window.requestAnimationFrame(() => {
+      const firstProject = popup.querySelector(".graphic-archive-popup__item");
+      firstProject?.focus({ preventScroll: true });
+    });
+  }
+
+  function closePopup() {
+    if (!popup.open) {
+      return;
+    }
+
+    popup.close();
+  }
+
+  openButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      openPopup();
+    });
+  });
+
+  closeButton?.addEventListener("click", closePopup);
+
+  popup.addEventListener("click", (event) => {
+    if (popupPanel && popupPanel.contains(event.target)) {
+      return;
+    }
+
+    closePopup();
+  });
+
+  popup.addEventListener("close", () => {
+    body.classList.remove("is-graphic-archive-popup-open");
+  });
+
+  popup.addEventListener("cancel", () => {
+    body.classList.remove("is-graphic-archive-popup-open");
+  });
+}
+
+function initGraphicDesignParticleBackdrop() {
+  if (!body || !body.classList.contains("page-graphic-design-archive")) {
+    return;
+  }
+
+  const host = document.querySelector(".page-main--photo-poster");
+
+  if (!host || host.querySelector(".graphic-archive-particle-canvas")) {
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.className = "graphic-archive-particle-canvas";
+  canvas.setAttribute("aria-hidden", "true");
+  host.prepend(canvas);
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return;
+  }
+
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const MAX_DPR = 1.6;
+  const LINK_DISTANCE = 186;
+  const POINTER_PULL_RADIUS = 220;
+  const state = {
+    width: 0,
+    height: 0,
+    dpr: 1,
+    frameId: 0,
+    particles: [],
+    pointerX: 0,
+    pointerY: 0,
+    pointerActive: false,
+    lastTime: 0
+  };
+
+  function clampBackdrop(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function randomBackdrop(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function buildParticles() {
+    const densityBase = state.width * state.height;
+    const count = clampBackdrop(Math.round(densityBase / 24000), 34, 96);
+    const centerX = state.width / 2;
+    const centerY = state.height / 2;
+    const orbitRadius = Math.min(state.width, state.height) * 0.34;
+
+    state.particles = Array.from({ length: count }, (_, index) => {
+      const angle = (index / count) * Math.PI * 2;
+      const radialOffset = randomBackdrop(0.35, 1.06) * orbitRadius;
+      const x = centerX + Math.cos(angle) * radialOffset + randomBackdrop(-44, 44);
+      const y = centerY + Math.sin(angle) * radialOffset + randomBackdrop(-38, 38);
+
+      return {
+        x: clampBackdrop(x, 0, state.width),
+        y: clampBackdrop(y, 0, state.height),
+        vx: randomBackdrop(-0.24, 0.24),
+        vy: randomBackdrop(-0.2, 0.2),
+        seed: randomBackdrop(0, Math.PI * 2),
+        wave: randomBackdrop(0.3, 1.4),
+        pulse: randomBackdrop(0.2, 0.9)
+      };
+    });
+  }
+
+  function resizeBackdrop() {
+    const rect = host.getBoundingClientRect();
+    state.width = Math.max(1, Math.floor(rect.width));
+    state.height = Math.max(1, Math.floor(rect.height));
+    state.dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    canvas.width = Math.round(state.width * state.dpr);
+    canvas.height = Math.round(state.height * state.dpr);
+    canvas.style.width = `${state.width}px`;
+    canvas.style.height = `${state.height}px`;
+    context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    state.pointerX = state.width / 2;
+    state.pointerY = state.height / 2;
+    buildParticles();
+    drawBackdrop(performance.now(), true);
+  }
+
+  function stepParticles(time, frozen = false) {
+    const centerX = state.width / 2;
+    const centerY = state.height / 2;
+    const morphPhase = time * 0.00024;
+
+    state.particles.forEach((particle) => {
+      if (!frozen) {
+        const driftX = Math.cos(morphPhase * particle.wave + particle.seed) * 0.08;
+        const driftY = Math.sin(morphPhase * (particle.wave + 0.28) + particle.seed * 0.8) * 0.08;
+
+        particle.x += particle.vx + driftX;
+        particle.y += particle.vy + driftY;
+
+        if (particle.x < 0 || particle.x > state.width) {
+          particle.vx *= -1;
+          particle.x = clampBackdrop(particle.x, 0, state.width);
+        }
+
+        if (particle.y < 0 || particle.y > state.height) {
+          particle.vy *= -1;
+          particle.y = clampBackdrop(particle.y, 0, state.height);
+        }
+      }
+
+      if (!state.pointerActive || frozen) {
+        return;
+      }
+
+      const toPointerX = state.pointerX - particle.x;
+      const toPointerY = state.pointerY - particle.y;
+      const pointerDistance = Math.hypot(toPointerX, toPointerY);
+
+      if (!pointerDistance || pointerDistance > POINTER_PULL_RADIUS) {
+        return;
+      }
+
+      const pointerStrength = (1 - (pointerDistance / POINTER_PULL_RADIUS)) * 0.035;
+      particle.x += toPointerX * pointerStrength;
+      particle.y += toPointerY * pointerStrength;
+    });
+
+    context.clearRect(0, 0, state.width, state.height);
+
+    for (let index = 0; index < state.particles.length; index += 1) {
+      const particleA = state.particles[index];
+
+      for (let nextIndex = index + 1; nextIndex < state.particles.length; nextIndex += 1) {
+        const particleB = state.particles[nextIndex];
+        const dx = particleB.x - particleA.x;
+        const dy = particleB.y - particleA.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (!distance || distance > LINK_DISTANCE) {
+          continue;
+        }
+
+        const ratio = 1 - (distance / LINK_DISTANCE);
+        const alpha = ratio * ratio * 0.72;
+        context.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+        context.lineWidth = 0.6 + ratio * 1.5;
+        context.beginPath();
+        context.moveTo(particleA.x, particleA.y);
+        context.lineTo(particleB.x, particleB.y);
+        context.stroke();
+      }
+    }
+
+    state.particles.forEach((particle) => {
+      const glow = 0.56 + ((Math.sin(morphPhase * 1.8 + particle.seed) + 1) * 0.5);
+      context.fillStyle = `rgba(255, 255, 255, ${0.22 + glow * 0.24})`;
+      context.beginPath();
+      context.arc(particle.x, particle.y, 0.55 + particle.pulse * 0.6, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = `rgba(255, 255, 255, ${0.09 + glow * 0.12})`;
+      context.beginPath();
+      context.arc(particle.x, particle.y, 2.3 + particle.pulse * 1.6, 0, Math.PI * 2);
+      context.fill();
+
+      const pullX = (particle.x - centerX) * 0.01;
+      const pullY = (particle.y - centerY) * 0.01;
+      particle.vx = clampBackdrop(particle.vx - pullX * 0.001, -0.28, 0.28);
+      particle.vy = clampBackdrop(particle.vy - pullY * 0.001, -0.24, 0.24);
+    });
+  }
+
+  function drawBackdrop(time, frozen = false) {
+    stepParticles(time, frozen);
+  }
+
+  function animateBackdrop(time) {
+    if (reducedMotionQuery.matches) {
+      state.frameId = 0;
+      drawBackdrop(time, true);
+      return;
+    }
+
+    state.lastTime = time;
+    drawBackdrop(time, false);
+    state.frameId = window.requestAnimationFrame(animateBackdrop);
+  }
+
+  function startBackdrop() {
+    if (state.frameId) {
+      return;
+    }
+
+    state.frameId = window.requestAnimationFrame(animateBackdrop);
+  }
+
+  function stopBackdrop() {
+    if (!state.frameId) {
+      return;
+    }
+
+    window.cancelAnimationFrame(state.frameId);
+    state.frameId = 0;
+  }
+
+  function onPointerMove(event) {
+    const rect = host.getBoundingClientRect();
+    state.pointerActive = true;
+    state.pointerX = clampBackdrop(event.clientX - rect.left, 0, state.width);
+    state.pointerY = clampBackdrop(event.clientY - rect.top, 0, state.height);
+  }
+
+  function onPointerLeave() {
+    state.pointerActive = false;
+  }
+
+  host.addEventListener("pointermove", onPointerMove, { passive: true });
+  host.addEventListener("pointerleave", onPointerLeave);
+  window.addEventListener("resize", resizeBackdrop);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      stopBackdrop();
+      return;
+    }
+
+    startBackdrop();
+  });
+
+  reducedMotionQuery.addEventListener("change", () => {
+    if (reducedMotionQuery.matches) {
+      stopBackdrop();
+      drawBackdrop(performance.now(), true);
+      return;
+    }
+
+    startBackdrop();
+  });
+
+  resizeBackdrop();
+  startBackdrop();
+}
+
+syncGraphicDesignArchiveLetterFrames();
+initGraphicDesignArchiveScrollReveal();
+initGraphicDesignArchivePopup();
+initGraphicDesignParticleBackdrop();
 
 function ensureGlobalSiteFootnote() {
   if (!document.body || document.querySelector("[data-site-footnote]")) {

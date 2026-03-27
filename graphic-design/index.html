@@ -19,87 +19,141 @@
     </header>
 
     <main class="page-main page-main--photo-poster">
-      <section class="photo-poster photo-poster--graphic" aria-labelledby="graphic-design-title">
+      <section class="photo-poster photo-poster--graphic photo-poster--graphic-board" aria-labelledby="graphic-design-title">
         <div class="photo-poster__top">
           <a class="page-back" href="../my-work/">Back to My Work</a>
+        </div>
 
-          <div class="photo-poster__strip" id="projects" aria-label="Graphic design projects">
-            <a class="photo-poster__item" href="./POTRAIT-OF-THE-SELFLESS-SELF/">
-              <div class="photo-poster__item-media">
-                <img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">01</p>
-                <p class="photo-poster__item-label">Potrait</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./Soft-Hands/">
-              <div class="photo-poster__item-media">
-                <img src="./Soft-Hands/Soft%20Hands%201.png.webp" alt="SOFT HANDS preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">02</p>
-                <p class="photo-poster__item-label">Soft Hands</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./Typography-Women-Designers-Poster-Series/">
-              <div class="photo-poster__item-media">
-                <img src="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp" alt="Typography Women Designers Poster Series preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">03</p>
-                <p class="photo-poster__item-label">Typography Series</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./John-Lennon-Poster/">
-              <div class="photo-poster__item-media">
-                <img src="./John-Lennon-Poster/John%20Lennon%20Poster.png" alt="John Lennon Poster preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">04</p>
-                <p class="photo-poster__item-label">John Lennon Poster</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./Font-Design-1/">
-              <div class="photo-poster__item-media">
-                <img src="./Font-Design-1/Font%20Design%201.1.jpg.webp" alt="Font Design 1 preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">05</p>
-                <p class="photo-poster__item-label">Font Design 1</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./Font-Design-2/">
-              <div class="photo-poster__item-media">
-                <img src="./Font-Design-2/Font%20Design%202.png" alt="Font Design 2 preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">06</p>
-                <p class="photo-poster__item-label">Font Design 2</p>
-              </div>
-            </a>
-
-            <a class="photo-poster__item" href="./Calendar-Design/">
-              <div class="photo-poster__item-media">
-                <img src="./Calendar-Design/1.jpg.webp" alt="Calendar Design preview" loading="lazy">
-              </div>
-              <div class="photo-poster__item-meta">
-                <p class="photo-poster__item-index">07</p>
-                <p class="photo-poster__item-label">Calendar Design</p>
-              </div>
-            </a>
-          </div>
+        <div class="graphic-archive-board" id="projects" aria-label="Selected graphic design projects">
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy">
+            <span class="graphic-archive-board__label">Potrait</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Soft-Hands/Soft%20Hands%201.png.webp" alt="SOFT HANDS preview" loading="lazy">
+            <span class="graphic-archive-board__label">Soft Hands</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp" alt="Typography Women Designers Poster Series preview" loading="lazy">
+            <span class="graphic-archive-board__label">Typography Series</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./John-Lennon-Poster/John%20Lennon%20Poster.png" alt="John Lennon Poster preview" loading="lazy">
+            <span class="graphic-archive-board__label">John Lennon Poster</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Font-Design-1/Font%20Design%201.1.jpg.webp" alt="Font Design 1 preview" loading="lazy">
+            <span class="graphic-archive-board__label">Font Design 1</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Font-Design-2/Font%20Design%202.png" alt="Font Design 2 preview" loading="lazy">
+            <span class="graphic-archive-board__label">Font Design 2</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Calendar-Design/1.jpg.webp" alt="Calendar Design preview" loading="lazy">
+            <span class="graphic-archive-board__label">Calendar Design</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Initial-Logo-Design/1.png" alt="Initial Logo Design preview" loading="lazy">
+            <span class="graphic-archive-board__label">Initial Logo Design</span>
+          </button>
+          <button class="graphic-archive-board__tile" type="button" data-graphic-archive-open>
+            <img src="./Postcards-from%20the-Future/Screenshot%202026-03-26%20at%2021.38.02.png" alt="Postcards from the Future preview" loading="lazy">
+            <span class="graphic-archive-board__label">Postcards from the Future</span>
+          </button>
         </div>
 
         <div class="photo-poster__hero">
           <h1 class="photo-poster__title photo-poster__title--graphic" id="graphic-design-title">GRAPHIC DESIGN</h1>
         </div>
       </section>
+
+      <dialog class="graphic-archive-popup" data-graphic-archive-popup aria-label="All graphic design works">
+        <div class="graphic-archive-popup__panel">
+          <div class="graphic-archive-popup__head">
+            <p class="graphic-archive-popup__title">All Graphic Design Works</p>
+            <button class="graphic-archive-popup__close" type="button" data-graphic-archive-close aria-label="Close all works popup">x</button>
+          </div>
+
+          <div class="graphic-archive-popup__grid" aria-label="Graphic design project list">
+            <a class="graphic-archive-popup__item" href="./POTRAIT-OF-THE-SELFLESS-SELF/" style="--item-order: 0;">
+              <span class="graphic-archive-popup__item-index">01</span>
+              <div class="graphic-archive-popup__thumb"><img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Potrait</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Soft-Hands/" style="--item-order: 1;">
+              <span class="graphic-archive-popup__item-index">02</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Soft-Hands/Soft%20Hands%201.png.webp" alt="SOFT HANDS preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Soft Hands</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Typography-Women-Designers-Poster-Series/" style="--item-order: 2;">
+              <span class="graphic-archive-popup__item-index">03</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp" alt="Typography Women Designers Poster Series preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Typography Series</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./John-Lennon-Poster/" style="--item-order: 3;">
+              <span class="graphic-archive-popup__item-index">04</span>
+              <div class="graphic-archive-popup__thumb"><img src="./John-Lennon-Poster/John%20Lennon%20Poster.png" alt="John Lennon Poster preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">John Lennon Poster</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Font-Design-1/" style="--item-order: 4;">
+              <span class="graphic-archive-popup__item-index">05</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Font-Design-1/Font%20Design%201.1.jpg.webp" alt="Font Design 1 preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Font Design 1</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Font-Design-2/" style="--item-order: 5;">
+              <span class="graphic-archive-popup__item-index">06</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Font-Design-2/Font%20Design%202.png" alt="Font Design 2 preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Font Design 2</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Calendar-Design/" style="--item-order: 6;">
+              <span class="graphic-archive-popup__item-index">07</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Calendar-Design/1.jpg.webp" alt="Calendar Design preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Calendar Design</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Initial-Logo-Design/" style="--item-order: 7;">
+              <span class="graphic-archive-popup__item-index">08</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Initial-Logo-Design/1.png" alt="Initial Logo Design preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Initial Logo Design</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Portrait-Poster-Design/" style="--item-order: 8;">
+              <span class="graphic-archive-popup__item-index">09</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Portrait-Poster-Design/1.jpg.webp" alt="Portrait Poster Design preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Portrait Poster Design</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Name-Poster/" style="--item-order: 9;">
+              <span class="graphic-archive-popup__item-index">10</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Name-Poster/Screenshot%202026-03-26%20at%2020.32.53.png" alt="Name Poster preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Name Poster</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./7-Sins-Design/" style="--item-order: 10;">
+              <span class="graphic-archive-popup__item-index">11</span>
+              <div class="graphic-archive-popup__thumb"><img src="./7-Sins-Design/Screenshot%202026-03-26%20at%2020.35.38.png" alt="7 Sins Design preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">7 Sins Design</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Nature-Poster-Design/" style="--item-order: 11;">
+              <span class="graphic-archive-popup__item-index">12</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Nature-Poster-Design/Screenshot%202026-03-26%20at%2020.37.36.png" alt="Nature Poster Design preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Nature Poster Design</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Year-Poster-Design-1/" style="--item-order: 12;">
+              <span class="graphic-archive-popup__item-index">13</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Year-Poster-Design-1/Year%20Poster%20Design%201.png" alt="Year Poster Design 1 preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Year Poster Design 1</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Year-Poster-Design-2/" style="--item-order: 13;">
+              <span class="graphic-archive-popup__item-index">14</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Year-Poster-Design-2/1.jpg.webp" alt="Year Poster Design 2 preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Year Poster Design 2</span>
+            </a>
+            <a class="graphic-archive-popup__item" href="./Postcards-from%20the-Future/" style="--item-order: 14;">
+              <span class="graphic-archive-popup__item-index">15</span>
+              <div class="graphic-archive-popup__thumb"><img src="./Postcards-from%20the-Future/Screenshot%202026-03-26%20at%2021.38.02.png" alt="Postcards from the Future preview" loading="lazy"></div>
+              <span class="graphic-archive-popup__item-label">Postcards from the Future</span>
+            </a>
+          </div>
+        </div>
+      </dialog>
     </main>
   </body>
 </html>
