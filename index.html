@@ -25,6 +25,9 @@
       <section class="hero" id="top" aria-label="Interactive particle background">
         <canvas class="hero__canvas" id="particle-canvas" aria-hidden="true"></canvas>
         <div class="hero__audio-controls" aria-label="Audio reactive controls">
+          <audio id="hero-audio-track" preload="auto" loop>
+            <source src="interactive-work/master2%20copy.wav" type="audio/wav">
+          </audio>
           <div class="hero__audio-actions">
             <button class="hero__audio-button" id="audio-reactive-toggle" type="button" aria-pressed="false">
               CLICK
@@ -97,6 +100,7 @@
           <h2 class="photography-feature__title" id="photography-title">photography</h2>
 
           <div class="photography-feature__scene" data-photo-gallery data-photo-sphere aria-label="Rotating photography selections">
+            <canvas class="photography-feature__network" data-photo-sphere-canvas aria-hidden="true"></canvas>
             <button
               class="photography-feature__item"
               type="button"
