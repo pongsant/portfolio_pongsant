@@ -6286,6 +6286,55 @@ function initGraphicDesignArchivePopup() {
 
   const closeButton = popup.querySelector("[data-graphic-archive-close]");
   const popupPanel = popup.querySelector(".graphic-archive-popup__panel");
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let popupFloatFrame = 0;
+  let popupFloatTimer = 0;
+  let popupFloatStart = 0;
+
+  function stopPopupFloat() {
+    if (popupFloatTimer) {
+      window.clearTimeout(popupFloatTimer);
+      popupFloatTimer = 0;
+    }
+
+    if (popupFloatFrame) {
+      window.cancelAnimationFrame(popupFloatFrame);
+      popupFloatFrame = 0;
+    }
+
+    if (popupPanel) {
+      popupPanel.style.transform = "";
+      popupPanel.style.willChange = "";
+    }
+  }
+
+  function animatePopupFloat(time) {
+    if (!popup.open || !popupPanel) {
+      stopPopupFloat();
+      return;
+    }
+
+    const elapsed = (time - popupFloatStart) * 0.001;
+    const driftX = Math.sin(elapsed * 0.9) * 4;
+    const driftY = Math.cos(elapsed * 1.12) * 3;
+    popupPanel.style.transform = `translate3d(${driftX}px, ${driftY}px, 0)`;
+    popupFloatFrame = window.requestAnimationFrame(animatePopupFloat);
+  }
+
+  function startPopupFloat() {
+    stopPopupFloat();
+
+    if (!popupPanel || reducedMotionQuery.matches) {
+      return;
+    }
+
+    popupPanel.style.willChange = "transform";
+    popupFloatStart = performance.now();
+    popupFloatTimer = window.setTimeout(() => {
+      popupFloatTimer = 0;
+      popupFloatFrame = window.requestAnimationFrame(animatePopupFloat);
+    }, 360);
+  }
 
   function openPopup() {
     if (popup.open) {
@@ -6294,6 +6343,7 @@ function initGraphicDesignArchivePopup() {
 
     popup.showModal();
     body.classList.add("is-graphic-archive-popup-open");
+    startPopupFloat();
 
     window.requestAnimationFrame(() => {
       const firstProject = popup.querySelector(".graphic-archive-popup__item");
@@ -6327,10 +6377,12 @@ function initGraphicDesignArchivePopup() {
   });
 
   popup.addEventListener("close", () => {
+    stopPopupFloat();
     body.classList.remove("is-graphic-archive-popup-open");
   });
 
   popup.addEventListener("cancel", () => {
+    stopPopupFloat();
     body.classList.remove("is-graphic-archive-popup-open");
   });
 }
@@ -6341,15 +6393,19 @@ function initGraphicDesignParticleBackdrop() {
   }
 
   const host = document.querySelector(".page-main--photo-poster");
+  const existingCanvas = host?.querySelector(".graphic-archive-particle-canvas");
 
-  if (!host || host.querySelector(".graphic-archive-particle-canvas")) {
+  if (!host) {
     return;
   }
 
-  const canvas = document.createElement("canvas");
-  canvas.className = "graphic-archive-particle-canvas";
-  canvas.setAttribute("aria-hidden", "true");
-  host.prepend(canvas);
+  const canvas = existingCanvas || document.createElement("canvas");
+
+  if (!existingCanvas) {
+    canvas.className = "graphic-archive-particle-canvas";
+    canvas.setAttribute("aria-hidden", "true");
+    host.prepend(canvas);
+  }
 
   const context = canvas.getContext("2d");
 
@@ -6359,8 +6415,14 @@ function initGraphicDesignParticleBackdrop() {
 
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const MAX_DPR = 1.6;
-  const LINK_DISTANCE = 186;
-  const POINTER_PULL_RADIUS = 220;
+  const LINK_DISTANCE = 168;
+  const LINK_DISTANCE_VARIANCE = 26;
+  const POINTER_PULL_RADIUS = 240;
+  const SWIRL_STRENGTH = 0.064;
+  const FLOW_DRIFT_STRENGTH = 0.22;
+  const FLOW_DAMPING = 0.992;
+  const MAX_VELOCITY = 1.34;
+  const EDGE_WRAP_MARGIN = 34;
   const state = {
     width: 0,
     height: 0,
@@ -6370,7 +6432,8 @@ function initGraphicDesignParticleBackdrop() {
     pointerX: 0,
     pointerY: 0,
     pointerActive: false,
-    lastTime: 0
+    offsetX: 0,
+    offsetY: 0
   };
 
   function clampBackdrop(value, min, max) {
@@ -6382,85 +6445,107 @@ function initGraphicDesignParticleBackdrop() {
   }
 
   function buildParticles() {
-    const densityBase = state.width * state.height;
-    const count = clampBackdrop(Math.round(densityBase / 24000), 34, 96);
-    const centerX = state.width / 2;
-    const centerY = state.height / 2;
-    const orbitRadius = Math.min(state.width, state.height) * 0.34;
+    const area = state.width * state.height;
+    const count = clampBackdrop(Math.round(area / 10800), 90, 240);
 
-    state.particles = Array.from({ length: count }, (_, index) => {
-      const angle = (index / count) * Math.PI * 2;
-      const radialOffset = randomBackdrop(0.35, 1.06) * orbitRadius;
-      const x = centerX + Math.cos(angle) * radialOffset + randomBackdrop(-44, 44);
-      const y = centerY + Math.sin(angle) * radialOffset + randomBackdrop(-38, 38);
-
-      return {
-        x: clampBackdrop(x, 0, state.width),
-        y: clampBackdrop(y, 0, state.height),
-        vx: randomBackdrop(-0.24, 0.24),
-        vy: randomBackdrop(-0.2, 0.2),
-        seed: randomBackdrop(0, Math.PI * 2),
-        wave: randomBackdrop(0.3, 1.4),
-        pulse: randomBackdrop(0.2, 0.9)
-      };
-    });
+    state.particles = Array.from({ length: count }, () => ({
+      x: randomBackdrop(0, state.width),
+      y: randomBackdrop(0, state.height),
+      vx: randomBackdrop(-0.4, 0.4),
+      vy: randomBackdrop(-0.4, 0.4),
+      seed: randomBackdrop(0, Math.PI * 2),
+      wave: randomBackdrop(0.45, 1.6),
+      pulse: randomBackdrop(0.22, 1.1),
+      size: randomBackdrop(0.8, 1.65),
+      spin: randomBackdrop(0.58, 1.42),
+      tension: randomBackdrop(0.75, 1.3),
+      orbitDir: Math.random() > 0.5 ? 1 : -1
+    }));
   }
 
   function resizeBackdrop() {
-    const rect = host.getBoundingClientRect();
-    state.width = Math.max(1, Math.floor(rect.width));
-    state.height = Math.max(1, Math.floor(rect.height));
+    const hostRect = host.getBoundingClientRect();
+    const targetWidth = Math.max(1, Math.floor(hostRect.width));
+    const targetHeight = Math.max(
+      1,
+      Math.floor(Math.max(host.scrollHeight, host.clientHeight, hostRect.height))
+    );
+
+    state.width = targetWidth;
+    state.height = targetHeight;
+    state.offsetX = 0;
+    state.offsetY = 0;
     state.dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     canvas.width = Math.round(state.width * state.dpr);
     canvas.height = Math.round(state.height * state.dpr);
+    canvas.style.left = `${state.offsetX}px`;
+    canvas.style.top = `${state.offsetY}px`;
     canvas.style.width = `${state.width}px`;
     canvas.style.height = `${state.height}px`;
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
-    state.pointerX = state.width / 2;
-    state.pointerY = state.height / 2;
+    state.pointerX = state.width * 0.5;
+    state.pointerY = state.height * 0.5;
     buildParticles();
     drawBackdrop(performance.now(), true);
   }
 
+  function wrapParticle(particle) {
+    if (particle.x < -EDGE_WRAP_MARGIN) {
+      particle.x = state.width + EDGE_WRAP_MARGIN;
+    } else if (particle.x > state.width + EDGE_WRAP_MARGIN) {
+      particle.x = -EDGE_WRAP_MARGIN;
+    }
+
+    if (particle.y < -EDGE_WRAP_MARGIN) {
+      particle.y = state.height + EDGE_WRAP_MARGIN;
+    } else if (particle.y > state.height + EDGE_WRAP_MARGIN) {
+      particle.y = -EDGE_WRAP_MARGIN;
+    }
+  }
+
   function stepParticles(time, frozen = false) {
-    const centerX = state.width / 2;
-    const centerY = state.height / 2;
-    const morphPhase = time * 0.00024;
+    const t = time * 0.001;
+    const centerX = state.width * 0.5;
+    const centerY = state.height * 0.5;
+    const flowBreath = 0.86 + Math.sin(t * 0.28) * 0.24;
+    const dynamicLinkDistance = LINK_DISTANCE + Math.sin(t * 0.42) * LINK_DISTANCE_VARIANCE;
 
     state.particles.forEach((particle) => {
+      const ambientDriftX = Math.sin(t * particle.spin + particle.seed * 0.6) * FLOW_DRIFT_STRENGTH;
+      const ambientDriftY = Math.cos(t * (particle.spin * 1.08) + particle.seed * 0.9) * FLOW_DRIFT_STRENGTH;
+
       if (!frozen) {
-        const driftX = Math.cos(morphPhase * particle.wave + particle.seed) * 0.08;
-        const driftY = Math.sin(morphPhase * (particle.wave + 0.28) + particle.seed * 0.8) * 0.08;
+        const toCenterX = particle.x - centerX;
+        const toCenterY = particle.y - centerY;
+        const distance = Math.hypot(toCenterX, toCenterY) + 1;
+        const inverseDistance = 1 / distance;
+        const swirlForce = (particle.orbitDir * SWIRL_STRENGTH * flowBreath) / (1 + distance * 0.0032);
+        const swirlX = -toCenterY * inverseDistance * swirlForce;
+        const swirlY = toCenterX * inverseDistance * swirlForce;
+        const flowX = Math.cos(t * 0.75 * particle.wave + particle.seed) * 0.022 * particle.tension;
+        const flowY = Math.sin(t * 0.68 * (particle.wave + 0.32) + particle.seed * 1.14) * 0.022 * particle.tension;
 
-        particle.x += particle.vx + driftX;
-        particle.y += particle.vy + driftY;
+        particle.vx += swirlX + flowX + ambientDriftX * 0.026;
+        particle.vy += swirlY + flowY + ambientDriftY * 0.026;
 
-        if (particle.x < 0 || particle.x > state.width) {
-          particle.vx *= -1;
-          particle.x = clampBackdrop(particle.x, 0, state.width);
+        if (state.pointerActive) {
+          const toPointerX = state.pointerX - particle.x;
+          const toPointerY = state.pointerY - particle.y;
+          const pointerDistance = Math.hypot(toPointerX, toPointerY);
+
+          if (pointerDistance && pointerDistance < POINTER_PULL_RADIUS) {
+            const pointerStrength = (1 - (pointerDistance / POINTER_PULL_RADIUS)) * 0.048;
+            particle.vx += (toPointerX / pointerDistance) * pointerStrength;
+            particle.vy += (toPointerY / pointerDistance) * pointerStrength;
+          }
         }
 
-        if (particle.y < 0 || particle.y > state.height) {
-          particle.vy *= -1;
-          particle.y = clampBackdrop(particle.y, 0, state.height);
-        }
+        particle.vx = clampBackdrop(particle.vx * FLOW_DAMPING, -MAX_VELOCITY, MAX_VELOCITY);
+        particle.vy = clampBackdrop(particle.vy * FLOW_DAMPING, -MAX_VELOCITY, MAX_VELOCITY);
+        particle.x += particle.vx + ambientDriftX;
+        particle.y += particle.vy + ambientDriftY;
+        wrapParticle(particle);
       }
-
-      if (!state.pointerActive || frozen) {
-        return;
-      }
-
-      const toPointerX = state.pointerX - particle.x;
-      const toPointerY = state.pointerY - particle.y;
-      const pointerDistance = Math.hypot(toPointerX, toPointerY);
-
-      if (!pointerDistance || pointerDistance > POINTER_PULL_RADIUS) {
-        return;
-      }
-
-      const pointerStrength = (1 - (pointerDistance / POINTER_PULL_RADIUS)) * 0.035;
-      particle.x += toPointerX * pointerStrength;
-      particle.y += toPointerY * pointerStrength;
     });
 
     context.clearRect(0, 0, state.width, state.height);
@@ -6474,14 +6559,14 @@ function initGraphicDesignParticleBackdrop() {
         const dy = particleB.y - particleA.y;
         const distance = Math.hypot(dx, dy);
 
-        if (!distance || distance > LINK_DISTANCE) {
+        if (!distance || distance > dynamicLinkDistance) {
           continue;
         }
 
-        const ratio = 1 - (distance / LINK_DISTANCE);
-        const alpha = ratio * ratio * 0.72;
+        const ratio = 1 - (distance / dynamicLinkDistance);
+        const alpha = ratio * ratio * 0.48;
         context.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-        context.lineWidth = 0.6 + ratio * 1.5;
+        context.lineWidth = 0.34 + ratio * 1.18;
         context.beginPath();
         context.moveTo(particleA.x, particleA.y);
         context.lineTo(particleB.x, particleB.y);
@@ -6490,21 +6575,19 @@ function initGraphicDesignParticleBackdrop() {
     }
 
     state.particles.forEach((particle) => {
-      const glow = 0.56 + ((Math.sin(morphPhase * 1.8 + particle.seed) + 1) * 0.5);
-      context.fillStyle = `rgba(255, 255, 255, ${0.22 + glow * 0.24})`;
+      const glow = 0.52 + ((Math.sin(t * 1.9 + particle.seed) + 1) * 0.5);
+      const coreRadius = particle.size * (0.44 + particle.pulse * 0.3);
+      const haloRadius = particle.size * (2.1 + particle.pulse * 1.6);
+
+      context.fillStyle = `rgba(255, 255, 255, ${0.2 + glow * 0.22})`;
       context.beginPath();
-      context.arc(particle.x, particle.y, 0.55 + particle.pulse * 0.6, 0, Math.PI * 2);
+      context.arc(particle.x, particle.y, coreRadius, 0, Math.PI * 2);
       context.fill();
 
-      context.fillStyle = `rgba(255, 255, 255, ${0.09 + glow * 0.12})`;
+      context.fillStyle = `rgba(255, 255, 255, ${0.08 + glow * 0.12})`;
       context.beginPath();
-      context.arc(particle.x, particle.y, 2.3 + particle.pulse * 1.6, 0, Math.PI * 2);
+      context.arc(particle.x, particle.y, haloRadius, 0, Math.PI * 2);
       context.fill();
-
-      const pullX = (particle.x - centerX) * 0.01;
-      const pullY = (particle.y - centerY) * 0.01;
-      particle.vx = clampBackdrop(particle.vx - pullX * 0.001, -0.28, 0.28);
-      particle.vy = clampBackdrop(particle.vy - pullY * 0.001, -0.24, 0.24);
     });
   }
 
@@ -6519,7 +6602,6 @@ function initGraphicDesignParticleBackdrop() {
       return;
     }
 
-    state.lastTime = time;
     drawBackdrop(time, false);
     state.frameId = window.requestAnimationFrame(animateBackdrop);
   }
@@ -6542,10 +6624,20 @@ function initGraphicDesignParticleBackdrop() {
   }
 
   function onPointerMove(event) {
-    const rect = host.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
+    const localX = event.clientX - hostRect.left - state.offsetX;
+    const localY = event.clientY - hostRect.top - state.offsetY;
+    const insideX = localX >= 0 && localX <= state.width;
+    const insideY = localY >= 0 && localY <= state.height;
+
+    if (!insideX || !insideY) {
+      state.pointerActive = false;
+      return;
+    }
+
     state.pointerActive = true;
-    state.pointerX = clampBackdrop(event.clientX - rect.left, 0, state.width);
-    state.pointerY = clampBackdrop(event.clientY - rect.top, 0, state.height);
+    state.pointerX = localX;
+    state.pointerY = localY;
   }
 
   function onPointerLeave() {

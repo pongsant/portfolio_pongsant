@@ -4188,6 +4188,21 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .site-header {
   background: #020202;
+  gap: clamp(0.65rem, 1.5vw, 1.25rem);
+  padding:
+    calc(1rem + var(--safe-top))
+    calc(var(--page-gutter) + var(--safe-right))
+    0.9rem
+    calc(var(--page-gutter) + var(--safe-left));
+}
+
+.page-graphic-design-archive .site-header__brand {
+  font-size: clamp(1.28rem, 2.45vw, 2.15rem);
+  letter-spacing: clamp(0.12em, 0.22vw, 0.2em);
+}
+
+.page-graphic-design-archive .site-nav {
+  gap: clamp(0.55rem, 1.2vw, 1rem);
 }
 
 .page-graphic-design-archive .site-header__brand,
@@ -4195,9 +4210,19 @@ body.is-lightbox-open {
   color: rgba(244, 244, 244, 0.9);
 }
 
+.page-graphic-design-archive .site-nav a {
+  font-size: clamp(0.62rem, 0.54rem + 0.22vw, 0.8rem);
+  letter-spacing: clamp(0.08em, 0.18vw, 0.13em);
+}
+
 .page-graphic-design-archive.is-scrolled .site-header {
   border-bottom-color: rgba(255, 255, 255, 0.16);
   background: rgba(2, 2, 2, 0.82);
+  padding:
+    calc(0.82rem + var(--safe-top))
+    calc(var(--page-gutter-tight) + var(--safe-right))
+    0.78rem
+    calc(var(--page-gutter-tight) + var(--safe-left));
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.52);
 }
 
@@ -4208,7 +4233,7 @@ body.is-lightbox-open {
   height: auto;
   overflow-x: clip;
   overflow-y: visible;
-  padding: clamp(5.6rem, 7.8vw, 6.4rem) clamp(0.4rem, 0.9vw, 0.82rem) clamp(0.28rem, 0.7vw, 0.52rem);
+  padding: clamp(7.2rem, 10.8vw, 8.8rem) clamp(0.4rem, 0.9vw, 0.82rem) clamp(10rem, 24vh, 18rem);
   background: #020202;
 }
 
@@ -4616,6 +4641,21 @@ body.is-lightbox-open {
   min-height: 140px;
 }
 
+.page-graphic-project .graphic-spreadbook__item--pdf {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.page-graphic-project .graphic-spreadbook__pdf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(340px, 56vh, 760px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: #ffffff;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
+}
+
 .page-graphic-project .graphic-spreadbook__item:nth-child(1) {
   grid-column: span 3;
   grid-row: span 4;
@@ -4869,25 +4909,29 @@ body.is-lightbox-open {
 }
 
 body.page-graphic-design-archive.is-graphic-archive-popup-open {
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .page-graphic-design-archive {
   background: #000000;
+  overflow-x: hidden;
 }
 
 .page-graphic-design-archive .page-main--photo-poster {
   background: #000000;
+  overflow-x: visible;
 }
 
 .page-graphic-design-archive .graphic-archive-particle-canvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
   pointer-events: none;
   z-index: 0;
   opacity: 1;
+  mix-blend-mode: screen;
 }
 
 .page-graphic-design-archive .page-main--photo-poster > :not(.graphic-archive-particle-canvas) {
@@ -4901,16 +4945,17 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 }
 
 .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board {
-  width: min(94vw, 920px);
+  width: min(98vw, 1140px);
   margin-inline: auto;
-  min-height: calc(100svh - clamp(6.6rem, 9.5vw, 7.8rem));
+  min-height: calc(100svh - clamp(6.1rem, 8.6vw, 7rem));
   height: auto;
   grid-template-rows: auto auto minmax(0, 1fr);
   align-content: center;
   justify-items: center;
-  gap: clamp(0.2rem, 0.8vh, 0.48rem);
-  padding: clamp(0.25rem, 0.8vw, 0.52rem);
+  gap: clamp(0.3rem, 1.2vh, 0.9rem);
+  padding: clamp(0.24rem, 0.9vw, 0.6rem);
   position: relative;
+  margin-top: clamp(0.8rem, 1.8vh, 1.5rem);
 }
 
 .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board::before,
@@ -4933,9 +4978,10 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 
 .page-graphic-design-archive .graphic-archive-board {
   order: 3;
+  position: relative;
   align-self: center;
   justify-self: center;
-  width: min(74vw, 64svh, 560px);
+  width: min(84vw, 74svh, 730px);
   max-width: 100%;
   aspect-ratio: 1 / 1;
   display: grid;
@@ -5017,23 +5063,28 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 
 .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board .photo-poster__hero {
   order: 2;
+  width: 100%;
   min-height: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0;
-  margin-bottom: clamp(0.08rem, 0.3vh, 0.2rem);
+  margin-bottom: clamp(0.14rem, 0.54vh, 0.44rem);
+  text-align: center;
 }
 
 .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board .photo-poster__title--graphic {
   color: rgba(246, 248, 252, 0.92);
-  font-size: clamp(1rem, 2.2vw, 1.7rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(1.7rem, 4.4vw, 3.3rem);
+  letter-spacing: 0.18em;
   line-height: 1;
   animation: none;
 }
 
 .page-graphic-design-archive .graphic-archive-popup {
+  position: fixed;
+  inset: 0;
+  margin: auto;
   width: min(96vw, 1120px);
   max-height: 88svh;
   border: 0;
@@ -5145,7 +5196,7 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 @keyframes graphic-archive-popup-in {
   from {
     opacity: 0;
-    transform: translateY(26px) scale(0.96);
+    transform: translateY(-30px) scale(0.96);
   }
 
   to {
@@ -5157,7 +5208,7 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 @keyframes graphic-archive-popup-item-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.97);
+    transform: translateY(-14px) scale(0.97);
   }
 
   to {
@@ -5168,20 +5219,24 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
 
 @media (max-width: 900px) {
   .page-graphic-design-archive .graphic-archive-board {
-    width: min(84vw, 62svh, 500px);
+    width: min(88vw, 72svh, 640px);
+  }
+
+  .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board .photo-poster__title--graphic {
+    font-size: clamp(1.38rem, 4.6vw, 2.5rem);
   }
 }
 
 @media (max-width: 640px) {
   .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board {
-    min-height: calc(100svh - clamp(6.8rem, 13vw, 8rem));
+    min-height: calc(100svh - clamp(7.2rem, 14vw, 8.3rem));
     grid-template-rows: auto auto minmax(0, 1fr);
-    gap: clamp(0.14rem, 0.7vh, 0.34rem);
-    padding: 0.38rem;
+    gap: clamp(0.16rem, 0.76vh, 0.4rem);
+    padding: 0.34rem;
   }
 
   .page-graphic-design-archive .graphic-archive-board {
-    width: min(88vw, 68svh, 430px);
+    width: min(94vw, 72svh, 560px);
   }
 
   .page-graphic-design-archive .graphic-archive-board__label {
@@ -5190,8 +5245,8 @@ body.page-graphic-design-archive.is-graphic-archive-popup-open {
   }
 
   .page-graphic-design-archive .photo-poster--graphic.photo-poster--graphic-board .photo-poster__title--graphic {
-    font-size: clamp(0.92rem, 4.3vw, 1.2rem);
-    letter-spacing: 0.12em;
+    font-size: clamp(1.2rem, 5.8vw, 1.9rem);
+    letter-spacing: 0.14em;
   }
 
   .page-graphic-design-archive .graphic-archive-popup__grid {
