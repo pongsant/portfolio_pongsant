@@ -4172,6 +4172,22 @@ if (hero && canvas) {
     const isAudioPortraitMode = state.audio.enabled && !state.camera.active && isPortraitShape;
     const isAudioMode = state.audio.visualBlend > 0.025 && !state.camera.active && !isRealWorldShape && !isPortraitShape;
     const isCameraShape = shapeName === "camera" && !isAudioMode;
+    const portraitEntrance = isAudioPortraitMode ? Math.min(1, state.audio.visualBlend * 1.45) : 0;
+    const portraitScatterPulse = isAudioPortraitMode
+      ? Math.min(
+          1.45,
+          audioBeatPulse * 1.06 +
+          audioImpact * 0.56 +
+          audioBass * 0.24 +
+          Math.max(0, Math.sin(time * 0.0022) * 0.14)
+        )
+      : 0;
+    const portraitGatherPulse = isAudioPortraitMode
+      ? Math.max(
+          0.14,
+          Math.min(1.28, portraitEntrance * (1.2 - portraitScatterPulse * 0.74 + audioLevel * 0.2))
+        )
+      : 0;
     const baseScaleBoost = isAudioMode
       ? 1.06
       : isCameraShape
@@ -4439,6 +4455,23 @@ if (hero && canvas) {
         }
       }
 
+      if (isAudioPortraitMode) {
+        const radialLength = Math.max(0.0001, Math.hypot(targetX, targetY, targetZ));
+        const radialX = targetX / radialLength;
+        const radialY = targetY / radialLength;
+        const radialZ = targetZ / radialLength;
+        const swirlAngle = time * (0.00074 + audioTempo * 0.00000095) + point.seed * 2.2 + point.audioGroup * 0.32;
+        const swirlAmount = (0.012 + portraitScatterPulse * 0.082 + audioTreble * 0.028) * (0.4 + point.motionBias * 0.9);
+        const swirlX = Math.cos(swirlAngle) * swirlAmount;
+        const swirlY = Math.sin(swirlAngle * 1.12) * swirlAmount * 0.92;
+        const swirlZ = Math.sin(swirlAngle * 0.86) * swirlAmount * 0.72;
+        const explodeAmount = (0.034 + portraitScatterPulse * 0.24) * (0.3 + point.audioBias * 0.95 + point.motionBias * 0.4);
+
+        targetX = (targetX * portraitGatherPulse) + (radialX * explodeAmount) + swirlX;
+        targetY = (targetY * portraitGatherPulse) + (radialY * explodeAmount) + swirlY;
+        targetZ = (targetZ * portraitGatherPulse) + (radialZ * explodeAmount) + swirlZ;
+      }
+
       if (shapeName === "portrait" && point.region === "halo") {
         targetX += spreadX * 1.2;
         targetY += spreadY * 1.2;
@@ -4502,7 +4535,15 @@ if (hero && canvas) {
         targetZ += ornamentZ;
       }
 
-      const cameraLerp = isAudioMode ? 0.034 + audioImpact * 0.005 : isCameraShape ? 0.062 + audioImpact * 0.012 : isRealWorldShape ? 0.048 + audioImpact * 0.01 : 0.04 + audioImpact * 0.008;
+      const cameraLerp = isAudioMode
+        ? 0.034 + audioImpact * 0.005
+        : isAudioPortraitMode
+          ? 0.058 + audioImpact * 0.018 + audioBeatPulse * 0.01
+        : isCameraShape
+          ? 0.062 + audioImpact * 0.012
+        : isRealWorldShape
+          ? 0.048 + audioImpact * 0.01
+        : 0.04 + audioImpact * 0.008;
       point.x += (targetX - point.x) * cameraLerp;
       point.y += (targetY - point.y) * cameraLerp;
       point.z += (targetZ - point.z) * cameraLerp;
@@ -4566,7 +4607,7 @@ if (hero && canvas) {
 
       if (isAudioPortraitMode) {
         const stippleNoise = (Math.sin(point.seed * 83.17 + x * 0.12 + y * 0.09 + time * 0.0032) + 1) * 0.5;
-        const stippleGate = 0.16 + (1 - Math.min(1, alpha)) * 0.24;
+        const stippleGate = 0.12 + (1 - Math.min(1, alpha)) * 0.24 + portraitScatterPulse * 0.2;
         if (stippleNoise < stippleGate) {
           continue;
         }
@@ -4593,7 +4634,7 @@ if (hero && canvas) {
 
       if (isAudioPortraitMode) {
         const leftRatio = Math.max(0, 0.62 - (x / state.width));
-        const dissolve = leftRatio * (0.48 + audioImpact * 0.9 + audioBass * 0.35);
+        const dissolve = leftRatio * (0.14 + portraitScatterPulse * 1.2 + audioBass * 0.22);
         x -= dissolve * (18 + audioImpact * 34 + audioBass * 24);
         y += Math.sin(time * 0.0016 + point.seed * 4.6) * dissolve * (7 + audioTreble * 12);
       }
