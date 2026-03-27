@@ -8681,6 +8681,9 @@ function initInteractiveWorkLiveSync() {
 
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const bodyElement = document.body;
+  const INTERACTIVE_MEDIAPIPE_VISION_BUNDLE_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
+  const INTERACTIVE_MEDIAPIPE_WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
+  const INTERACTIVE_MEDIAPIPE_FACE_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task";
   const state = {
     width: 0,
     height: 0,
@@ -8708,6 +8711,12 @@ function initInteractiveWorkLiveSync() {
     cameraActive: false,
     cameraStarting: false,
     cameraDetector: ("FaceDetector" in window) ? new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }) : null,
+    cameraMediapipe: {
+      loading: false,
+      ready: false,
+      failed: false,
+      faceLandmarker: null
+    },
     cameraTemplate: [],
     cameraMotion: 0,
     cameraConfidence: 0,
@@ -8715,6 +8724,21 @@ function initInteractiveWorkLiveSync() {
     cameraLastCenterY: 0,
     cameraLastTrackAt: 0,
     cameraWorking: false,
+    headAxisX: 0,
+    headAxisY: 0,
+    headNeutralX: 0.5,
+    headNeutralY: 0.5,
+    headNeutralReady: false,
+    headLastSeenAt: 0,
+    headSignalRead: {
+      axisX: 0,
+      axisY: 0,
+      left: 0,
+      right: 0,
+      up: 0,
+      down: 0,
+      direction: "center"
+    },
     audioLevel: 0,
     audioBass: 0,
     audioMid: 0,
@@ -8726,6 +8750,7 @@ function initInteractiveWorkLiveSync() {
     beatCount: 0,
     introPattern: 0
   };
+  const INTERACTIVE_HEAD_SIGNAL_EVENT = "interactive:head-signal";
 
   state.isOpen = Boolean(bodyElement?.classList.contains("is-interactive-work-open"));
 
@@ -8736,6 +8761,75 @@ function initInteractiveWorkLiveSync() {
   function randomInteractive(min, max) {
     return min + Math.random() * (max - min);
   }
+
+  function toHeadDirectionStrength(axisValue, threshold = 0.15) {
+    const magnitude = Math.abs(axisValue);
+
+    if (magnitude <= threshold) {
+      return 0;
+    }
+
+    return clampInteractive((magnitude - threshold) / (1 - threshold), 0, 1);
+  }
+
+  function buildInteractiveHeadSignalPayload(time = performance.now()) {
+    const axisX = clampInteractive(state.headAxisX, -1, 1);
+    const axisY = clampInteractive(state.headAxisY, -1, 1);
+    const left = axisX < 0 ? toHeadDirectionStrength(axisX, 0.13) : 0;
+    const right = axisX > 0 ? toHeadDirectionStrength(axisX, 0.13) : 0;
+    const up = axisY < 0 ? toHeadDirectionStrength(axisY, 0.12) : 0;
+    const down = axisY > 0 ? toHeadDirectionStrength(axisY, 0.12) : 0;
+
+    const candidates = [
+      { name: "left", value: left },
+      { name: "right", value: right },
+      { name: "up", value: up },
+      { name: "down", value: down }
+    ];
+    const strongest = candidates.sort((first, second) => second.value - first.value)[0];
+    const direction = strongest.value > 0.02 ? strongest.name : "center";
+
+    return {
+      time,
+      axisX,
+      axisY,
+      left,
+      right,
+      up,
+      down,
+      direction
+    };
+  }
+
+  function emitInteractiveHeadSignal(time = performance.now()) {
+    const payload = buildInteractiveHeadSignalPayload(time);
+    interactiveSection.dispatchEvent(new CustomEvent(INTERACTIVE_HEAD_SIGNAL_EVENT, {
+      detail: payload,
+      bubbles: true
+    }));
+  }
+
+  function readInteractiveHeadSignal(event) {
+    const detail = event?.detail || {};
+    state.headSignalRead.axisX = clampInteractive(Number(detail.axisX) || 0, -1, 1);
+    state.headSignalRead.axisY = clampInteractive(Number(detail.axisY) || 0, -1, 1);
+    state.headSignalRead.left = clampInteractive(Number(detail.left) || 0, 0, 1);
+    state.headSignalRead.right = clampInteractive(Number(detail.right) || 0, 0, 1);
+    state.headSignalRead.up = clampInteractive(Number(detail.up) || 0, 0, 1);
+    state.headSignalRead.down = clampInteractive(Number(detail.down) || 0, 0, 1);
+    state.headSignalRead.direction = typeof detail.direction === "string" ? detail.direction : "center";
+  }
+
+  function resetInteractiveHeadSignal(time = performance.now()) {
+    state.headAxisX = 0;
+    state.headAxisY = 0;
+    state.headLastSeenAt = 0;
+    state.headNeutralReady = false;
+    emitInteractiveHeadSignal(time);
+  }
+
+  interactiveSection.addEventListener(INTERACTIVE_HEAD_SIGNAL_EVENT, readInteractiveHeadSignal);
+  emitInteractiveHeadSignal(performance.now());
 
   function hueInteractive(alpha, saturation = 88, lightness = 64, hueShift = 0) {
     const safeAlpha = clampInteractive(alpha, 0, 1);
@@ -8796,6 +8890,127 @@ function initInteractiveWorkLiveSync() {
     const sw = clampInteractive(crop.sw, 1, maxWidth);
     const sh = clampInteractive(crop.sh, 1, maxHeight);
     return { sx, sy, sw, sh };
+  }
+
+  function getInteractiveLandmarkBounds(landmarks) {
+    let minX = 1;
+    let minY = 1;
+    let maxX = 0;
+    let maxY = 0;
+
+    landmarks.forEach((landmark) => {
+      minX = Math.min(minX, landmark.x);
+      minY = Math.min(minY, landmark.y);
+      maxX = Math.max(maxX, landmark.x);
+      maxY = Math.max(maxY, landmark.y);
+    });
+
+    return {
+      minX,
+      minY,
+      maxX,
+      maxY,
+      width: Math.max(0.001, maxX - minX),
+      height: Math.max(0.001, maxY - minY),
+      centerX: (minX + maxX) * 0.5,
+      centerY: (minY + maxY) * 0.5
+    };
+  }
+
+  function getInteractiveCropFromLandmarks(landmarks, width, height) {
+    const bounds = getInteractiveLandmarkBounds(landmarks);
+    const paddingX = bounds.width * 0.38;
+    const paddingTop = bounds.height * 0.34;
+    const paddingBottom = bounds.height * 0.46;
+
+    return clampCameraCrop({
+      sx: (bounds.minX - paddingX) * width,
+      sy: (bounds.minY - paddingTop) * height,
+      sw: (bounds.width + paddingX * 2) * width,
+      sh: (bounds.height + paddingTop + paddingBottom) * height
+    }, width, height);
+  }
+
+  async function ensureInteractiveMediapipeFaceTracker() {
+    if (
+      state.cameraMediapipe.faceLandmarker ||
+      state.cameraMediapipe.loading ||
+      state.cameraMediapipe.failed
+    ) {
+      return state.cameraMediapipe.faceLandmarker;
+    }
+
+    state.cameraMediapipe.loading = true;
+
+    try {
+      const vision = await import(INTERACTIVE_MEDIAPIPE_VISION_BUNDLE_URL);
+      const filesetResolver = await vision.FilesetResolver.forVisionTasks(INTERACTIVE_MEDIAPIPE_WASM_URL);
+
+      state.cameraMediapipe.faceLandmarker = await vision.FaceLandmarker.createFromOptions(filesetResolver, {
+        baseOptions: {
+          modelAssetPath: INTERACTIVE_MEDIAPIPE_FACE_MODEL_URL
+        },
+        runningMode: "VIDEO",
+        numFaces: 1,
+        outputFaceBlendshapes: false,
+        outputFacialTransformationMatrixes: false
+      });
+      state.cameraMediapipe.ready = true;
+    } catch (error) {
+      state.cameraMediapipe.failed = true;
+      state.cameraMediapipe.ready = false;
+      state.cameraMediapipe.faceLandmarker = null;
+    } finally {
+      state.cameraMediapipe.loading = false;
+    }
+
+    return state.cameraMediapipe.faceLandmarker;
+  }
+
+  function updateHeadAxisFromFaceCenter(centerX, centerY, widthNorm, heightNorm, time = performance.now()) {
+    if (
+      !Number.isFinite(centerX) ||
+      !Number.isFinite(centerY) ||
+      !Number.isFinite(widthNorm) ||
+      !Number.isFinite(heightNorm)
+    ) {
+      return false;
+    }
+
+    const safeCenterX = clampInteractive(centerX, 0, 1);
+    const safeCenterY = clampInteractive(centerY, 0, 1);
+    const safeWidthNorm = clampInteractive(widthNorm, 0.04, 1);
+    const safeHeightNorm = clampInteractive(heightNorm, 0.04, 1);
+
+    if (!state.headNeutralReady) {
+      state.headNeutralX = safeCenterX;
+      state.headNeutralY = safeCenterY;
+      state.headNeutralReady = true;
+    } else {
+      // Slowly adapt baseline while face is near center to avoid drift over long sessions.
+      const relaxedCenterX = Math.abs(safeCenterX - state.headNeutralX) < safeWidthNorm * 0.16;
+      const relaxedCenterY = Math.abs(safeCenterY - state.headNeutralY) < safeHeightNorm * 0.16;
+
+      if (relaxedCenterX) {
+        state.headNeutralX += (safeCenterX - state.headNeutralX) * 0.018;
+      }
+
+      if (relaxedCenterY) {
+        state.headNeutralY += (safeCenterY - state.headNeutralY) * 0.018;
+      }
+    }
+
+    const axisRangeX = Math.max(0.06, safeWidthNorm * 0.66);
+    const axisRangeY = Math.max(0.07, safeHeightNorm * 0.78);
+    // Front camera feed is mirrored in UI, so invert X to keep head-left => signal-left.
+    const rawAxisX = clampInteractive((state.headNeutralX - safeCenterX) / axisRangeX, -1, 1);
+    const rawAxisY = clampInteractive((safeCenterY - state.headNeutralY) / axisRangeY, -1, 1);
+
+    state.headAxisX += (rawAxisX - state.headAxisX) * 0.34;
+    state.headAxisY += (rawAxisY - state.headAxisY) * 0.34;
+    state.headLastSeenAt = time;
+    emitInteractiveHeadSignal(time);
+    return true;
   }
 
   function getFallbackCameraCrop(width, height) {
@@ -9021,14 +9236,48 @@ function initInteractiveWorkLiveSync() {
       }
 
       let crop = null;
+      let detectorBox = null;
+      let trackedHeadThisFrame = false;
 
-      if (state.cameraDetector) {
+      if (
+        !state.cameraMediapipe.faceLandmarker &&
+        !state.cameraMediapipe.loading &&
+        !state.cameraMediapipe.failed
+      ) {
+        await ensureInteractiveMediapipeFaceTracker();
+      }
+
+      if (state.cameraMediapipe.faceLandmarker) {
+        try {
+          const results = state.cameraMediapipe.faceLandmarker.detectForVideo(cameraPreview, time);
+          const landmarks = results?.faceLandmarks?.[0];
+
+          if (landmarks?.length) {
+            const landmarkBounds = getInteractiveLandmarkBounds(landmarks);
+            crop = getInteractiveCropFromLandmarks(landmarks, sourceWidth, sourceHeight);
+            trackedHeadThisFrame = updateHeadAxisFromFaceCenter(
+              landmarkBounds.centerX,
+              landmarkBounds.centerY,
+              landmarkBounds.width,
+              landmarkBounds.height,
+              time
+            );
+          }
+        } catch (error) {
+          state.cameraMediapipe.failed = true;
+          state.cameraMediapipe.ready = false;
+          state.cameraMediapipe.faceLandmarker = null;
+        }
+      }
+
+      if (!crop && state.cameraDetector) {
         try {
           const faces = await state.cameraDetector.detect(cameraPreview);
           const face = faces?.[0];
 
           if (face?.boundingBox) {
             const box = face.boundingBox;
+            detectorBox = box;
             crop = clampCameraCrop({
               sx: box.x - box.width * 0.22,
               sy: box.y - box.height * 0.26,
@@ -9038,6 +9287,39 @@ function initInteractiveWorkLiveSync() {
           }
         } catch (error) {
           state.cameraDetector = null;
+        }
+      }
+
+      if (!trackedHeadThisFrame && detectorBox) {
+        trackedHeadThisFrame = updateHeadAxisFromFaceCenter(
+          (detectorBox.x + detectorBox.width * 0.5) / sourceWidth,
+          (detectorBox.y + detectorBox.height * 0.5) / sourceHeight,
+          detectorBox.width / sourceWidth,
+          detectorBox.height / sourceHeight,
+          time
+        );
+      }
+
+      if (!trackedHeadThisFrame) {
+        const signalGap = time - state.headLastSeenAt;
+
+        if (signalGap > 260) {
+          state.headAxisX += (0 - state.headAxisX) * 0.22;
+          state.headAxisY += (0 - state.headAxisY) * 0.22;
+
+          if (Math.abs(state.headAxisX) < 0.0015) {
+            state.headAxisX = 0;
+          }
+
+          if (Math.abs(state.headAxisY) < 0.0015) {
+            state.headAxisY = 0;
+          }
+
+          emitInteractiveHeadSignal(time);
+        }
+
+        if (signalGap > 1200) {
+          state.headNeutralReady = false;
         }
       }
 
@@ -9059,7 +9341,8 @@ function initInteractiveWorkLiveSync() {
         }, sourceWidth, sourceHeight);
       }
 
-      let analysis = buildCameraFaceTemplate(cameraPreview, crop);
+      const safeCrop = crop || clampCameraCrop(getFallbackCameraCrop(sourceWidth, sourceHeight), sourceWidth, sourceHeight);
+      let analysis = buildCameraFaceTemplate(cameraPreview, safeCrop);
 
       if (!analysis) {
         const centerCrop = clampCameraCrop({
@@ -9072,7 +9355,11 @@ function initInteractiveWorkLiveSync() {
       }
 
       if (!analysis) {
-        analysis = buildFallbackCameraFaceTemplate(cameraPreview, crop);
+        analysis = buildFallbackCameraFaceTemplate(cameraPreview, safeCrop);
+      }
+
+      if (!analysis) {
+        return;
       }
 
       const motionDelta = Math.hypot(
@@ -9145,6 +9432,23 @@ function initInteractiveWorkLiveSync() {
     }
   }
 
+  function updateInteractiveFlowFromHeadSignal(time = performance.now()) {
+    const centerX = state.width * 0.5;
+    const centerY = state.height * 0.52;
+    const signalAge = time - state.headLastSeenAt;
+    const hasHeadSignal = state.cameraActive && signalAge < 560;
+    const axisX = hasHeadSignal ? state.headSignalRead.axisX : 0;
+    const axisY = hasHeadSignal ? state.headSignalRead.axisY : 0;
+    const offsetX = state.width * (state.isOpen ? 0.16 : 0.21);
+    const offsetY = state.height * (state.isOpen ? 0.14 : 0.19);
+    const targetX = clampInteractive(centerX + axisX * offsetX, 2, Math.max(2, state.width - 2));
+    const targetY = clampInteractive(centerY + axisY * offsetY, 2, Math.max(2, state.height - 2));
+    const easing = state.cameraActive ? 0.18 : 0.12;
+
+    state.flowX += (targetX - state.flowX) * easing;
+    state.flowY += (targetY - state.flowY) * easing;
+  }
+
   async function stopInteractiveCamera() {
     if (state.cameraStream) {
       state.cameraStream.getTracks().forEach((track) => track.stop());
@@ -9160,6 +9464,7 @@ function initInteractiveWorkLiveSync() {
     state.cameraStarting = false;
     state.cameraWorking = false;
     state.cameraTemplate = [];
+    resetInteractiveHeadSignal(performance.now());
     syncInteractiveCameraButton();
     queueLiveBackdrop();
   }
@@ -9200,9 +9505,16 @@ function initInteractiveWorkLiveSync() {
       state.cameraStream = stream;
       state.cameraActive = true;
       state.cameraLastTrackAt = 0;
+      state.headNeutralReady = false;
+      resetInteractiveHeadSignal(performance.now());
       state.lastBeatAt = 0;
       state.beatPulse = 0;
       state.introPattern = 0;
+      if (!state.cameraMediapipe.faceLandmarker) {
+        state.cameraMediapipe.failed = false;
+      }
+      void ensureInteractiveMediapipeFaceTracker();
+      void refreshInteractiveCameraTemplate(performance.now());
       queueLiveBackdrop();
     } catch (error) {
       state.cameraActive = false;
@@ -9642,8 +9954,9 @@ function initInteractiveWorkLiveSync() {
     const isFrozen = frozen || reducedMotionQuery.matches;
     const isOpen = state.isOpen;
     state.currentHue += (state.targetHue - state.currentHue) * (isFrozen ? 1 : 0.12);
-    stepParticles(time, isFrozen);
     updateInteractiveCameraReactiveState(time);
+    updateInteractiveFlowFromHeadSignal(time);
+    stepParticles(time, isFrozen);
     const audioBoost = isOpen ? 0 : state.audioLevel;
     const beatBoost = isOpen ? 0 : state.beatPulse;
     const reactiveBoost = clampInteractive(audioBoost * 0.7 + beatBoost * 0.8, 0, 1.8);
