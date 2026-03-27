@@ -7160,6 +7160,62 @@ initGraphicDesignArchiveScrollReveal();
 initGraphicDesignArchivePopup();
 initGraphicDesignParticleBackdrop();
 
+function initTimedVideos() {
+  const timedVideos = Array.from(document.querySelectorAll("video[data-max-seconds]"));
+
+  if (!timedVideos.length) {
+    return;
+  }
+
+  timedVideos.forEach((video) => {
+    const maxSeconds = Number(video.dataset.maxSeconds);
+
+    if (!Number.isFinite(maxSeconds) || maxSeconds <= 0) {
+      return;
+    }
+
+    const mode = String(video.dataset.maxMode || (video.loop ? "loop" : "pause")).trim().toLowerCase();
+    const epsilon = 0.08;
+
+    const clampPlayback = () => {
+      if (video.currentTime < maxSeconds - epsilon) {
+        return;
+      }
+
+      if (mode === "loop") {
+        video.currentTime = 0;
+        if (video.paused && video.autoplay) {
+          const playPromise = video.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
+        }
+        return;
+      }
+
+      video.currentTime = maxSeconds;
+      if (!video.paused) {
+        video.pause();
+      }
+    };
+
+    video.addEventListener("loadedmetadata", () => {
+      if (video.currentTime > maxSeconds) {
+        video.currentTime = mode === "loop" ? 0 : maxSeconds;
+      }
+    });
+
+    video.addEventListener("timeupdate", clampPlayback);
+    video.addEventListener("seeking", () => {
+      if (mode !== "loop" && video.currentTime > maxSeconds) {
+        video.currentTime = maxSeconds;
+      }
+    });
+  });
+}
+
+initTimedVideos();
+
 function ensureGlobalSiteFootnote() {
   if (!document.body || document.querySelector("[data-site-footnote]")) {
     return;
