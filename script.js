@@ -1585,6 +1585,8 @@ if (hero && canvas) {
     height: 0,
     dpr: Math.min(window.devicePixelRatio || 1, 2),
     points: [],
+    stars: [],
+    starNebula: [],
     pointCount: window.innerWidth < 720 ? 1450 : 2600,
     currentShape: 0,
     shapes: [
@@ -1598,6 +1600,7 @@ if (hero && canvas) {
       "ribbon",
       "bloom",
       "hourglass",
+      "portrait",
       "fish",
       "bird",
       "cat",
@@ -1689,10 +1692,11 @@ if (hero && canvas) {
   const REAL_WORLD_MORPH_SHAPES = new Set(["fish", "bird", "cat", "butterfly", "guitar"]);
 
   function getRandomMorphIndex(excludeIndex = null, options = {}) {
-    const { preferRealWorld = false } = options;
+    const { preferRealWorld = false, allowPortrait = false } = options;
     let availableIndexes = state.shapes
       .map((shape, index) => index)
-      .filter((index) => index !== excludeIndex);
+      .filter((index) => index !== excludeIndex)
+      .filter((index) => allowPortrait || state.shapes[index] !== "portrait");
 
     if (preferRealWorld) {
       const realWorldIndexes = availableIndexes.filter((index) => REAL_WORLD_MORPH_SHAPES.has(state.shapes[index]));
@@ -1706,6 +1710,10 @@ if (hero && canvas) {
     }
 
     return availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+  }
+
+  function getPortraitShapeIndex() {
+    return state.shapes.indexOf("portrait");
   }
 
   function getHeroPointCount() {
@@ -3415,14 +3423,19 @@ if (hero && canvas) {
       syncHeroPointCloud();
 
       if (!state.camera.active) {
-        morphRandom({ preferRealWorld: true });
+        const portraitIndex = getPortraitShapeIndex();
+        if (portraitIndex >= 0) {
+          morphTo(portraitIndex);
+        } else {
+          morphRandom({ preferRealWorld: true });
+        }
         state.audio.lastMorphAt = performance.now();
       }
 
       if (state.camera.active) {
         updateAudioUi(getCameraStatusMessage());
       } else {
-        updateAudioUi("Audio-reactive mode is on. The morph now follows the same track as Interactive Work.");
+        updateAudioUi("Audio-reactive portrait mode is on. The face morph now follows the music.");
       }
 
       return true;
@@ -3679,7 +3692,10 @@ if (hero && canvas) {
       state.audio.beatCooldown = state.audio.snare > state.audio.bass ? 5 : 6;
 
       if (!state.camera.active && time - state.audio.lastMorphAt > 900 && state.audio.bass > 0.12) {
-        morphRandom({ preferRealWorld: true });
+        const portraitIndex = getPortraitShapeIndex();
+        if (portraitIndex >= 0 && state.currentShape !== portraitIndex) {
+          morphTo(portraitIndex);
+        }
         state.audio.lastMorphAt = time;
       }
     }
@@ -3691,7 +3707,10 @@ if (hero && canvas) {
       time - state.audio.lastMorphAt > Math.max(520, 1400 - state.audio.surge * 450 - state.audio.bass * 300) &&
       (state.audio.beatPulse > 0.18 || state.audio.level > 0.22 || state.audio.transient > 0.24)
     ) {
-      morphRandom({ preferRealWorld: true });
+      const portraitIndex = getPortraitShapeIndex();
+      if (portraitIndex >= 0 && state.currentShape !== portraitIndex) {
+        morphTo(portraitIndex);
+      }
       state.audio.lastMorphAt = time;
     }
   }
@@ -3780,6 +3799,161 @@ if (hero && canvas) {
     };
   }
 
+  function buildHeroStarfield() {
+    const starCount = state.width < 720 ? 220 : 420;
+    const nebulaCount = state.width < 720 ? 7 : 10;
+
+    state.stars = Array.from({ length: starCount }, () => ({
+      x: Math.random() * state.width,
+      y: Math.random() * state.height,
+      depth: randomBetween(0.3, 1),
+      size: randomBetween(0.5, 2.3),
+      speed: randomBetween(0.16, 1.1),
+      twinkle: randomBetween(0, Math.PI * 2),
+      drift: randomBetween(0.44, 1.48),
+      sparkle: Math.random() > 0.84
+    }));
+
+    state.starNebula = Array.from({ length: nebulaCount }, () => ({
+      x: Math.random() * state.width,
+      y: Math.random() * state.height,
+      radius: randomBetween(
+        Math.min(state.width, state.height) * 0.12,
+        Math.min(state.width, state.height) * 0.24
+      ),
+      alpha: randomBetween(0.04, 0.1),
+      phase: randomBetween(0, Math.PI * 2),
+      drift: randomBetween(0.12, 0.48)
+    }));
+  }
+
+  function drawAudioCosmicBackdrop(time, audioLevel, audioBass, audioTreble, audioBeatPulse, audioImpact) {
+    const t = time * 0.001;
+    const fadeAlpha = reducedMotion
+      ? 0.62
+      : Math.max(0.24, 0.46 - audioLevel * 0.14 - audioImpact * 0.09);
+
+    context.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
+    context.fillRect(0, 0, state.width, state.height);
+
+    const glowRadius = Math.max(state.width, state.height) * (0.52 + audioImpact * 0.09 + audioBeatPulse * 0.05);
+    const glow = context.createRadialGradient(
+      state.width * (0.52 + Math.sin(t * 0.24) * 0.02),
+      state.height * (0.48 + Math.cos(t * 0.2) * 0.02),
+      0,
+      state.width * 0.52,
+      state.height * 0.48,
+      glowRadius
+    );
+    glow.addColorStop(0, `rgba(255, 255, 255, ${0.2 + audioImpact * 0.18})`);
+    glow.addColorStop(0.42, `rgba(190, 190, 190, ${0.12 + audioLevel * 0.08})`);
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    context.fillStyle = glow;
+    context.fillRect(0, 0, state.width, state.height);
+
+    state.starNebula.forEach((cloud, index) => {
+      const wobbleX = Math.sin(t * cloud.drift + cloud.phase + index) * (8 + audioImpact * 18);
+      const wobbleY = Math.cos(t * cloud.drift * 0.86 + cloud.phase) * (6 + audioImpact * 12);
+      const cx = cloud.x + wobbleX;
+      const cy = cloud.y + wobbleY;
+      const radius = cloud.radius * (1 + audioBeatPulse * 0.18 + audioLevel * 0.08);
+      const cloudGradient = context.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      cloudGradient.addColorStop(0, `rgba(255, 255, 255, ${cloud.alpha + audioImpact * 0.07})`);
+      cloudGradient.addColorStop(0.58, `rgba(194, 194, 194, ${cloud.alpha * 0.46})`);
+      cloudGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      context.fillStyle = cloudGradient;
+      context.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
+    });
+
+    state.stars.forEach((star, index) => {
+      const velocity = (0.12 + star.speed * 0.22) * (1 + audioBass * 1.8 + audioImpact * 1.2) * star.depth;
+      const driftX = Math.sin(t * (0.7 + star.drift) + star.twinkle) * (0.06 + audioTreble * 0.2);
+      const driftY = Math.cos(t * (0.54 + star.drift * 0.7) + star.twinkle) * (0.04 + audioTreble * 0.14);
+
+      star.x -= velocity + driftX;
+      star.y += driftY;
+
+      if (star.x < -8) {
+        star.x = state.width + 8;
+        star.y = Math.random() * state.height;
+      }
+
+      if (star.y < -8) {
+        star.y = state.height + 8;
+      } else if (star.y > state.height + 8) {
+        star.y = -8;
+      }
+
+      const twinkle = (Math.sin(t * (3.2 + star.drift * 2) + star.twinkle) + 1) * 0.5;
+      const alpha = Math.min(1, 0.24 + twinkle * 0.62 * star.depth + audioImpact * 0.2 * star.depth);
+      const size = Math.max(0.4, star.size * (0.68 + twinkle * 0.86 + audioBeatPulse * 0.34));
+
+      context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      context.fillRect(star.x, star.y, size, size);
+
+      if (star.sparkle && (index % 2 === 0)) {
+        context.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.42})`;
+        context.lineWidth = Math.max(0.5, size * 0.32);
+        context.beginPath();
+        context.moveTo(star.x - size * 0.9, star.y + size * 0.5);
+        context.lineTo(star.x + size * 1.9, star.y + size * 0.5);
+        context.stroke();
+      }
+    });
+  }
+
+  function drawAudioPortraitOrbitField(time, audioLevel, audioBass, audioTreble, audioBeatPulse, audioImpact) {
+    const t = time * 0.001;
+    const centerX = state.width * 0.5 + Math.sin(t * 0.32) * state.width * 0.012;
+    const centerY = state.height * (state.width < 720 ? 0.57 : 0.58) + Math.cos(t * 0.28) * state.height * 0.012;
+    const orbitCount = state.width < 720 ? 28 : 48;
+    const baseRadius = Math.min(state.width, state.height) * (0.22 + audioBass * 0.06 + audioImpact * 0.04);
+    const radiusSpread = Math.min(state.width, state.height) * (0.38 + audioImpact * 0.08);
+
+    for (let orbitIndex = 0; orbitIndex < orbitCount; orbitIndex += 1) {
+      const ratio = orbitIndex / Math.max(1, orbitCount - 1);
+      const direction = orbitIndex % 2 === 0 ? 1 : -1;
+      const orbitPhase = t * (0.22 + audioBass * 0.4 + audioTreble * 0.18) * direction + ratio * Math.PI * 2;
+      const radiusX = baseRadius + ratio * radiusSpread;
+      const radiusY = radiusX * (0.18 + ratio * 0.22);
+      const startAngle = orbitPhase;
+      const endAngle = startAngle + Math.PI * (0.9 + audioLevel * 0.8 + audioBeatPulse * 0.26);
+      const ringAlpha = Math.max(
+        0.08,
+        (1 - ratio * 0.58) * (0.24 + audioBeatPulse * 0.2 + audioImpact * 0.14)
+      );
+
+      context.save();
+      context.translate(centerX, centerY);
+      context.rotate(Math.sin(t * 0.13 + ratio * 3.6) * (0.18 + audioImpact * 0.14));
+      context.strokeStyle = `rgba(255, 255, 255, ${ringAlpha})`;
+      context.lineWidth = 0.52 + (1 - ratio) * 0.86 + audioTreble * 0.42;
+      context.beginPath();
+      context.ellipse(0, 0, radiusX, Math.max(8, radiusY), 0, startAngle, endAngle);
+      context.stroke();
+      context.restore();
+    }
+
+    const coreGlow = context.createRadialGradient(
+      centerX,
+      centerY - baseRadius * 0.34,
+      0,
+      centerX,
+      centerY - baseRadius * 0.34,
+      baseRadius * (0.82 + audioImpact * 0.26)
+    );
+    coreGlow.addColorStop(0, `rgba(255, 255, 255, ${0.26 + audioImpact * 0.28})`);
+    coreGlow.addColorStop(0.42, `rgba(255, 255, 255, ${0.12 + audioLevel * 0.12})`);
+    coreGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
+    context.fillStyle = coreGlow;
+    context.fillRect(
+      centerX - baseRadius,
+      centerY - baseRadius * 1.4,
+      baseRadius * 2,
+      baseRadius * 2.2
+    );
+  }
+
   function resizeCanvas() {
     const rect = hero.getBoundingClientRect();
 
@@ -3791,6 +3965,7 @@ if (hero && canvas) {
     canvas.style.width = `${state.width}px`;
     canvas.style.height = `${state.height}px`;
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    buildHeroStarfield();
   }
 
   function createPointInstance() {
@@ -3876,7 +4051,16 @@ if (hero && canvas) {
     morphTo(getRandomMorphIndex(state.currentShape, options));
   }
 
-  function drawPointMesh(projectedPoints, audioLevel, audioTreble, guitar, flash, shapeName, isAudioMode = false) {
+  function drawPointMesh(
+    projectedPoints,
+    audioLevel,
+    audioTreble,
+    guitar,
+    flash,
+    shapeName,
+    isAudioMode = false,
+    isAudioPortraitMode = false
+  ) {
     if (projectedPoints.length < 3) {
       return;
     }
@@ -3886,11 +4070,13 @@ if (hero && canvas) {
     const sorted = projectedPoints
       .slice()
       .sort((first, second) => first.x - second.x);
-    const maxDistance = Math.min(state.width, state.height) * (isAudioMode ? 0.102 : shapeName === "portrait" ? 0.074 : isCameraShape ? 0.092 : 0.088);
-    const lookahead = isAudioMode ? 5 : isCameraShape ? 5 : shapeName === "portrait" ? 5 : 4;
+    const maxDistance = Math.min(state.width, state.height) * (isAudioMode ? 0.102 : isAudioPortraitMode ? 0.12 : shapeName === "portrait" ? 0.074 : isCameraShape ? 0.092 : 0.088);
+    const lookahead = isAudioMode ? 5 : isAudioPortraitMode ? 6 : isCameraShape ? 5 : shapeName === "portrait" ? 5 : 4;
 
     context.lineWidth = isAudioMode
       ? 0.12 + audioTreble * 0.08 + guitar * 0.07 + flash * 0.03
+      : isAudioPortraitMode
+      ? 0.46 + audioTreble * 0.42 + guitar * 0.44 + flash * 0.2
       : isCameraShape
       ? 0.28 + audioTreble * 0.22 + guitar * 0.24 + flash * 0.1
       : 0.16 + audioTreble * 0.08 + guitar * 0.08 + flash * 0.04;
@@ -3917,16 +4103,20 @@ if (hero && canvas) {
         const alpha = (1 - distance / maxDistance) * (
           isAudioMode
             ? (0.012 + audioLevel * 0.018 + guitar * 0.014 + flash * 0.008)
+            : isAudioPortraitMode
+            ? (0.12 + audioLevel * 0.16 + guitar * 0.14 + flash * 0.08)
             : isCameraShape
             ? (0.03 + audioLevel * 0.04 + guitar * 0.05 + flash * 0.03)
             : (0.016 + audioLevel * 0.016 + guitar * 0.014 + flash * 0.01)
         );
 
-        if (alpha < (isAudioMode ? 0.008 : 0.01)) {
+        if (alpha < (isAudioMode ? 0.008 : isAudioPortraitMode ? 0.018 : 0.01)) {
           continue;
         }
 
-        context.strokeStyle = `rgba(12, 12, 12, ${alpha})`;
+        context.strokeStyle = isAudioPortraitMode
+          ? `rgba(232, 244, 255, ${alpha})`
+          : `rgba(12, 12, 12, ${alpha})`;
         context.beginPath();
         context.moveTo(point.x, point.y);
         context.lineTo(candidate.x, candidate.y);
@@ -3945,6 +4135,11 @@ if (hero && canvas) {
 
     if (!state.camera.active && !state.audio.enabled && time - state.lastAutoMorphAt > state.autoMorphInterval) {
       morphRandom();
+    }
+
+    const portraitIndex = getPortraitShapeIndex();
+    if (state.audio.enabled && !state.camera.active && portraitIndex >= 0 && state.currentShape !== portraitIndex) {
+      applyShapeTargets(portraitIndex, false);
     }
 
     const audioLevel = state.audio.level;
@@ -3973,19 +4168,32 @@ if (hero && canvas) {
     const audioImpact = Math.min(1.9, audioBeatPulse * 1.16 + audioTransient * 0.98 + audioFlux * 0.74 + audioSnare * 0.58 + audioKick * 0.4 + audioWaveform * 0.34);
     const shapeName = state.shapes[state.currentShape];
     const isRealWorldShape = REAL_WORLD_MORPH_SHAPES.has(shapeName);
-    const isAudioMode = state.audio.visualBlend > 0.025 && !state.camera.active && !isRealWorldShape;
-    const isCameraShape = shapeName === "camera" && !isAudioMode;
     const isPortraitShape = shapeName === "portrait";
-    const baseScaleBoost = isAudioMode ? 1.06 : isCameraShape ? 1 : isPortraitShape ? 0.93 : isRealWorldShape ? 0.98 : 0.9;
+    const isAudioPortraitMode = state.audio.enabled && !state.camera.active && isPortraitShape;
+    const isAudioMode = state.audio.visualBlend > 0.025 && !state.camera.active && !isRealWorldShape && !isPortraitShape;
+    const isCameraShape = shapeName === "camera" && !isAudioMode;
+    const baseScaleBoost = isAudioMode
+      ? 1.06
+      : isCameraShape
+      ? 1
+      : isAudioPortraitMode
+      ? 1.04
+      : isPortraitShape
+      ? 0.93
+      : isRealWorldShape
+      ? 0.98
+      : 0.9;
     const sceneScale = Math.min(state.width, state.height) *
       (
         state.width < 720
-          ? (isAudioMode ? 0.33 : isCameraShape ? 0.34 : 0.235)
-          : (isAudioMode ? 0.4 : isCameraShape ? 0.39 : 0.275)
+          ? (isAudioMode ? 0.33 : isCameraShape ? 0.34 : isAudioPortraitMode ? 0.29 : 0.235)
+          : (isAudioMode ? 0.4 : isCameraShape ? 0.39 : isAudioPortraitMode ? 0.335 : 0.275)
       ) * baseScaleBoost *
       (1 + (
         isAudioMode
           ? audioBass * 0.08 + audioLevel * 0.05 + audioTransient * 0.04 + audioImpact * 0.035
+          : isAudioPortraitMode
+            ? audioBass * 0.14 + audioLevel * 0.08 + audioTransient * 0.06 + audioBeatPulse * 0.06 + audioImpact * 0.06
           : isCameraShape
             ? audioBass * 0.12 + audioLevel * 0.06 + audioImpact * 0.05
             : audioBass * 0.21 + audioLevel * 0.12 + audioPercussion * 0.05 + audioImpact * 0.06
@@ -3995,17 +4203,23 @@ if (hero && canvas) {
       ? 0.02
       : isAudioMode
         ? 0.024 + Math.sin(time * 0.00012) * 0.003
+        : isAudioPortraitMode
+        ? 0.016 + Math.sin(time * 0.0003) * 0.004
         : isCameraShape
         ? 0.004 + Math.sin(time * 0.00024) * 0.002
         : 0.02 + Math.sin(time * 0.00042) * 0.006;
     const reactiveDispersion = isAudioMode
       ? audioLevel * 0.022 + audioBass * 0.024 + audioTreble * 0.008 + audioFlux * 0.01 + audioPercussion * 0.012 + audioGuitar * 0.01 + audioSurge * 0.01 + audioTransient * 0.014 + audioNoteDrift * 0.008 + audioBeatPulse * 0.018 + audioKick * 0.014 + audioSnare * 0.014
+      : isAudioPortraitMode
+      ? audioLevel * 0.04 + audioBass * 0.055 + audioTreble * 0.02 + audioFlux * 0.03 + audioPercussion * 0.04 + audioSurge * 0.03 + audioBeatPulse * 0.05 + audioTransient * 0.05
       : isCameraShape
       ? audioLevel * 0.03 + audioBass * 0.04 + audioFlux * 0.022 + audioBeatPulse * 0.024 + audioTransient * 0.026
       : audioLevel * 0.12 + audioBass * 0.16 + audioTreble * 0.045 + audioFlux * 0.12 + audioPercussion * 0.08 + audioSurge * 0.08 + audioBeatPulse * 0.06 + audioTransient * 0.07;
     const globalDriftX = reducedMotion ? 0 : (
       isAudioMode
         ? Math.sin(time * (0.00003 + audioTempo * 0.0000002 + audioNote * 0.0000024)) * (0.018 + audioMelody * 0.014 + audioBeatPulse * 0.014 + audioImpact * 0.018)
+        : isAudioPortraitMode
+          ? Math.sin(time * (0.00026 + audioTempo * 0.00000016)) * (0.016 + audioMelody * 0.014 + audioImpact * 0.02)
         : isCameraShape
           ? Math.sin(time * 0.00022) * (0.014 + audioImpact * 0.014 + audioPresence * 0.008)
           : Math.sin(time * 0.00034) * (0.034 + audioSurge * 0.018 + audioImpact * 0.02)
@@ -4013,6 +4227,8 @@ if (hero && canvas) {
     const globalDriftY = reducedMotion ? 0 : (
       isAudioMode
         ? Math.cos(time * (0.000028 + audioBrightness * 0.000004 + audioTempo * 0.00000022)) * (0.012 + audioSnare * 0.01 + audioWaveform * 0.008 + audioBeatPulse * 0.012 + audioImpact * 0.014)
+        : isAudioPortraitMode
+          ? Math.cos(time * (0.00022 + audioBass * 0.0001)) * (0.012 + audioWaveform * 0.01 + audioImpact * 0.016)
         : isCameraShape
           ? Math.cos(time * 0.0002) * (0.012 + audioImpact * 0.012 + audioBass * 0.008)
           : Math.cos(time * 0.00028) * (0.028 + audioSurge * 0.016 + audioImpact * 0.016)
@@ -4020,6 +4236,8 @@ if (hero && canvas) {
     const globalBreathe = reducedMotion ? 0 : (
       isAudioMode
         ? Math.sin(time * (0.000072 + audioBass * 0.00001 + audioWaveform * 0.000012 + audioTempo * 0.00000014)) * (0.004 + audioLevel * 0.003 + audioKick * 0.004 + audioBeatPulse * 0.005)
+        : isAudioPortraitMode
+          ? Math.sin(time * (0.00036 + audioBass * 0.00012)) * (0.01 + audioLevel * 0.012 + audioBeatPulse * 0.014 + audioImpact * 0.014)
         : isCameraShape
           ? Math.sin(time * 0.0003) * (0.006 + audioLevel * 0.008 + audioImpact * 0.008)
           : Math.sin(time * (0.00042 + audioBass * 0.00014)) * (0.018 + audioLevel * 0.02 + audioImpact * 0.016)
@@ -4027,6 +4245,8 @@ if (hero && canvas) {
     const globalSway = reducedMotion ? 0 : (
       isAudioMode
         ? Math.sin(time * (0.000034 + audioMid * 0.000006 + audioMelody * 0.000008)) * (0.028 + audioPresence * 0.014 + audioMelody * 0.018 + audioBeatPulse * 0.016 + audioImpact * 0.014)
+        : isAudioPortraitMode
+          ? Math.sin(time * (0.00028 + audioMid * 0.00009 + audioGuitar * 0.00012)) * (0.028 + audioPresence * 0.02 + audioGuitar * 0.016 + audioImpact * 0.02)
         : isCameraShape
           ? Math.sin(time * 0.00022) * (0.018 + audioPresence * 0.018 + audioImpact * 0.018)
           : Math.sin(time * (0.00034 + audioMid * 0.0001 + audioGuitar * 0.00012)) * (0.034 + audioPresence * 0.028 + audioGuitar * 0.036 + audioSurge * 0.016 + audioImpact * 0.016)
@@ -4062,6 +4282,8 @@ if (hero && canvas) {
       ? 1
       : isAudioMode
         ? Math.max(0.11, 0.18 - audioLevel * 0.02 - state.flash * 0.012)
+        : isAudioPortraitMode
+          ? Math.max(0.2, 0.36 - audioLevel * 0.06 - audioImpact * 0.06)
         : isCameraShape
           ? 1
           : Math.max(0.16, 0.34 - audioLevel * 0.12 - state.flash * 0.08);
@@ -4069,12 +4291,17 @@ if (hero && canvas) {
     const audioRenderModulo = state.width < 720 ? 4 : 5;
     const audioVisibleGroups = state.width < 720 ? 3 : 4;
 
-    context.fillStyle = `rgba(255, 255, 255, ${clearAlpha})`;
-    context.fillRect(0, 0, state.width, state.height);
+    if (isAudioPortraitMode) {
+      drawAudioCosmicBackdrop(time, audioLevel, audioBass, audioTreble, audioBeatPulse, audioImpact);
+      drawAudioPortraitOrbitField(time, audioLevel, audioBass, audioTreble, audioBeatPulse, audioImpact);
+    } else {
+      context.fillStyle = `rgba(255, 255, 255, ${clearAlpha})`;
+      context.fillRect(0, 0, state.width, state.height);
+    }
 
-    state.pointerBoost *= isAudioMode ? 0.94 : 0.95;
-    state.dispersion += ((idleDispersion + reactiveDispersion) - state.dispersion) * (isAudioMode ? 0.024 : isCameraShape ? 0.048 : 0.04);
-    state.flash *= isAudioMode ? 0.84 : isCameraShape ? 0.88 : 0.89;
+    state.pointerBoost *= isAudioMode ? 0.94 : isAudioPortraitMode ? 0.92 : 0.95;
+    state.dispersion += ((idleDispersion + reactiveDispersion) - state.dispersion) * (isAudioMode ? 0.024 : isAudioPortraitMode ? 0.032 : isCameraShape ? 0.048 : 0.04);
+    state.flash *= isAudioMode ? 0.84 : isAudioPortraitMode ? 0.82 : isCameraShape ? 0.88 : 0.89;
 
     for (const point of state.points) {
       let targetX = point.tx;
@@ -4242,7 +4469,7 @@ if (hero && canvas) {
         targetZ += spreadZ * (isAudioMode ? 0.4 : 0.66);
       }
 
-      if (!isCameraShape && !isAudioMode && !isRealWorldShape) {
+      if (!isCameraShape && !isAudioMode && !isRealWorldShape && !isPortraitShape) {
         const geometricTarget = getGeometricEnergyTarget(
           point,
           time,
@@ -4305,12 +4532,12 @@ if (hero && canvas) {
         ? 0
         : Math.sin(time * (isAudioMode ? 0.00014 : isCameraShape ? 0.00012 : 0.00022) + point.seed * 0.1) *
           (isAudioMode ? 0.0016 + audioKick * 0.001 + audioHat * 0.001 + audioFlux * 0.001 : isCameraShape ? 0.002 + audioBass * 0.0034 + audioImpact * 0.003 : 0.01 + audioBass * 0.018 + audioFlux * 0.016 + state.dispersion * 0.008 + audioImpact * 0.012);
-      const deformedX = point.x + wobble + flowX + globalDriftX + point.y * globalSway * (isAudioMode ? 0.05 : isRealWorldShape ? 0.09 : 0.14);
-      const deformedY = point.y * (1 + globalBreathe * (isAudioMode ? 0.07 : 0.18)) + wobble * 0.3 + audioLift + flowY + globalDriftY;
+      const deformedX = point.x + wobble + flowX + globalDriftX + point.y * globalSway * (isAudioMode ? 0.05 : isAudioPortraitMode ? 0.08 : isRealWorldShape ? 0.09 : 0.14);
+      const deformedY = point.y * (1 + globalBreathe * (isAudioMode ? 0.07 : isAudioPortraitMode ? 0.1 : 0.18)) + wobble * 0.3 + audioLift + flowY + globalDriftY;
       const deformedZ = point.z + audioLift * 0.65 + flowZ;
       const depth = perspective / (perspective - deformedZ * sceneScale * 0.6);
-      const x = deformedX * sceneScale * depth + state.width / 2;
-      const y = deformedY * sceneScale * depth + state.height / 2;
+      let x = deformedX * sceneScale * depth + state.width / 2;
+      let y = deformedY * sceneScale * depth + state.height / 2;
 
       const size = point.size * depth * (
         isAudioMode
@@ -4329,11 +4556,21 @@ if (hero && canvas) {
           0.92,
           isAudioMode
             ? 0.18 + depth * 0.26 + audioLevel * 0.1 + audioTreble * 0.05 + state.flash * 0.026 + audioBrightness * 0.034 + audioImpact * 0.03
+            : isAudioPortraitMode
+            ? 0.26 + depth * 0.5 + audioLevel * 0.22 + audioTreble * 0.12 + state.flash * 0.08 + audioImpact * 0.12
             : isCameraShape
             ? 0.24 + depth * 0.44 + audioLevel * 0.22 + audioBass * 0.16 + state.flash * 0.09 + audioImpact * 0.08
             : 0.25 + depth * 0.42 + audioLevel * 0.18 + audioBass * 0.12 + state.flash * 0.06 + audioImpact * 0.05
         )
       );
+
+      if (isAudioPortraitMode) {
+        const stippleNoise = (Math.sin(point.seed * 83.17 + x * 0.12 + y * 0.09 + time * 0.0032) + 1) * 0.5;
+        const stippleGate = 0.16 + (1 - Math.min(1, alpha)) * 0.24;
+        if (stippleNoise < stippleGate) {
+          continue;
+        }
+      }
 
       if (x < -12 || x > state.width + 12 || y < -12 || y > state.height + 12) {
         continue;
@@ -4341,28 +4578,70 @@ if (hero && canvas) {
 
       const drawSize = isAudioMode
         ? Math.max(1.9, size * 1.72)
+        : isAudioPortraitMode
+          ? Math.max(2.2, size * 1.86)
         : isCameraShape
           ? Math.max(1.34, size * 1.22)
           : Math.max(isPortraitShape ? 1.44 : 1.28, size * (isPortraitShape ? 1.12 : 1.02));
 
       const ghostShiftX = isCameraShape
         ? 0
-        : (Math.sin(time * 0.00018 + point.seed * 0.16 + audioNote * 0.4) * ((isAudioMode ? 0.3 : 0.44) + audioTreble * (isAudioMode ? 0.3 : 0.5) + audioGuitar * (isAudioMode ? 0.34 : 0.7)) + globalDriftX * sceneScale * (isAudioMode ? 0.05 : 0.08));
+        : (Math.sin(time * 0.00018 + point.seed * 0.16 + audioNote * 0.4) * ((isAudioMode ? 0.3 : isAudioPortraitMode ? 0.78 : 0.44) + audioTreble * (isAudioMode ? 0.3 : 0.5) + audioGuitar * (isAudioMode ? 0.34 : 0.7)) + globalDriftX * sceneScale * (isAudioMode ? 0.05 : 0.08));
       const ghostShiftY = isCameraShape
         ? 0
         : (Math.cos(time * 0.00016 + point.seed * 0.18 + audioCentroid * 0.8) * ((isAudioMode ? 0.24 : 0.38) + audioMid * (isAudioMode ? 0.26 : 0.52) + audioPercussion * (isAudioMode ? 0.24 : 0.56)) + globalDriftY * sceneScale * (isAudioMode ? 0.04 : 0.06));
 
-      if (!isCameraShape) {
-        context.fillStyle = `rgba(17, 17, 17, ${alpha * (isAudioMode ? 0.12 : 0.1)})`;
-        context.fillRect(x - ghostShiftX, y - ghostShiftY, Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)), Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)));
+      if (isAudioPortraitMode) {
+        const leftRatio = Math.max(0, 0.62 - (x / state.width));
+        const dissolve = leftRatio * (0.48 + audioImpact * 0.9 + audioBass * 0.35);
+        x -= dissolve * (18 + audioImpact * 34 + audioBass * 24);
+        y += Math.sin(time * 0.0016 + point.seed * 4.6) * dissolve * (7 + audioTreble * 12);
       }
 
-      context.fillStyle = `rgba(17, 17, 17, ${alpha})`;
-      context.fillRect(x, y, drawSize, drawSize);
+      if (!isCameraShape) {
+        if (isAudioPortraitMode) {
+          context.fillStyle = `rgba(220, 220, 220, ${Math.min(0.56, alpha * 0.44)})`;
+          context.beginPath();
+          context.arc(
+            x - ghostShiftX * 1.1,
+            y - ghostShiftY * 1.06,
+            Math.max(0.75, drawSize * 0.44),
+            0,
+            Math.PI * 2
+          );
+          context.fill();
+        } else {
+          context.fillStyle = `rgba(17, 17, 17, ${alpha * (isAudioMode ? 0.12 : 0.1)})`;
+          context.fillRect(x - ghostShiftX, y - ghostShiftY, Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)), Math.max(isAudioMode ? 0.82 : 0.56, drawSize * (isAudioMode ? 0.82 : 0.56)));
+        }
+      }
+
+      if (isAudioPortraitMode) {
+        context.fillStyle = `rgba(255, 255, 255, ${Math.min(1, alpha + 0.16)})`;
+        context.beginPath();
+        context.arc(x, y, Math.max(0.85, drawSize * 0.5), 0, Math.PI * 2);
+        context.fill();
+      } else {
+        context.fillStyle = `rgba(17, 17, 17, ${alpha})`;
+        context.fillRect(x, y, drawSize, drawSize);
+      }
 
       if (!isCameraShape && drawSize > 1.05) {
-        context.fillStyle = `rgba(17, 17, 17, ${Math.min(isAudioMode ? 0.18 : 0.18, alpha * (isAudioMode ? 0.16 : 0.14))})`;
-        context.fillRect(x - drawSize * 0.24, y - drawSize * 0.24, drawSize * (isAudioMode ? 0.22 : 0.18), drawSize * (isAudioMode ? 0.22 : 0.18));
+        if (isAudioPortraitMode) {
+          context.fillStyle = `rgba(255, 255, 255, ${Math.min(0.72, alpha * 0.42)})`;
+          context.beginPath();
+          context.arc(
+            x - drawSize * 0.22,
+            y - drawSize * 0.2,
+            Math.max(0.55, drawSize * 0.2),
+            0,
+            Math.PI * 2
+          );
+          context.fill();
+        } else {
+          context.fillStyle = `rgba(17, 17, 17, ${Math.min(isAudioMode ? 0.18 : 0.18, alpha * (isAudioMode ? 0.16 : 0.14))})`;
+          context.fillRect(x - drawSize * 0.24, y - drawSize * 0.24, drawSize * (isAudioMode ? 0.22 : 0.18), drawSize * (isAudioMode ? 0.22 : 0.18));
+        }
       }
 
       const meshStep = isAudioMode
@@ -4371,7 +4650,7 @@ if (hero && canvas) {
           ? (state.width < 720 ? 12 : 15)
           : (state.width < 720 ? 16 : 20);
 
-      if (projectedPoints.length < (isAudioMode ? 72 : isCameraShape ? 180 : 120) && Math.floor(point.seed * 1000) % meshStep === 0) {
+      if (projectedPoints.length < (isAudioMode ? 72 : isAudioPortraitMode ? 260 : isCameraShape ? 180 : 120) && Math.floor(point.seed * 1000) % meshStep === 0) {
         projectedPoints.push({
           x,
           y
@@ -4379,7 +4658,7 @@ if (hero && canvas) {
       }
     }
 
-    drawPointMesh(projectedPoints, audioLevel, audioTreble, audioGuitar, state.flash, shapeName, isAudioMode);
+    drawPointMesh(projectedPoints, audioLevel, audioTreble, audioGuitar, state.flash, shapeName, isAudioMode, isAudioPortraitMode);
 
     state.animationId = window.requestAnimationFrame(render);
   }
@@ -8571,6 +8850,8 @@ function initInteractiveWorkLiveSync() {
     let totalContrast = 0;
     let totalEdge = 0;
 
+    const minKeep = window.innerWidth < 720 ? 0.14 : 0.12;
+
     for (let y = 1; y < height - 1; y += step) {
       for (let x = 1; x < width - 1; x += step) {
         const offset = (y * width + x) * 4;
@@ -8585,16 +8866,21 @@ function initInteractiveWorkLiveSync() {
         const ny = y / (height - 1);
         const ellipse = (((nx - 0.5) ** 2) / 0.2) + (((ny - 0.5) ** 2) / 0.34);
         const faceWeight = Math.max(0, 1.2 - ellipse);
-        const keep = darkness * 1.2 + contrast * 1.14 + faceWeight * 0.36;
+        const keep = darkness * 1.1 + contrast * 1.42 + faceWeight * 0.42;
 
-        if (faceWeight <= 0 || keep < 0.24 || Math.random() > Math.min(0.96, keep)) {
+        if (faceWeight <= 0 || keep < minKeep) {
+          continue;
+        }
+
+        // Keep dense detail only where contrast is stronger to avoid noisy blobs.
+        if (keep < 0.28 && ((x + y) % (step * 2)) !== 0) {
           continue;
         }
 
         points.push({
           x: (nx - 0.5) * 1.26,
           y: (ny - 0.52) * 1.68,
-          z: (darkness - 0.32) * 0.7 + contrast * 0.45 + randomInteractive(-0.03, 0.03)
+          z: (darkness - 0.28) * 0.72 + contrast * 0.56 + randomInteractive(-0.02, 0.02)
         });
         totalDarkness += darkness;
         totalContrast += contrast;
@@ -8603,7 +8889,7 @@ function initInteractiveWorkLiveSync() {
     }
 
     const count = points.length;
-    if (count < 22) {
+    if (count < 12) {
       return null;
     }
 
@@ -8612,7 +8898,59 @@ function initInteractiveWorkLiveSync() {
       darkness: totalDarkness / count,
       contrast: totalContrast / count,
       edge: totalEdge / count,
-      fill: clampInteractive(count / 460, 0, 1),
+      fill: clampInteractive(count / 520, 0, 1),
+      centerX: (crop.sx + (crop.sw * 0.5)) / (source.videoWidth || 1),
+      centerY: (crop.sy + (crop.sh * 0.5)) / (source.videoHeight || 1)
+    };
+  }
+
+  function buildFallbackCameraFaceTemplate(source, crop) {
+    const points = [];
+    const rings = [1, 0.84, 0.68, 0.52];
+
+    rings.forEach((ring, ringIndex) => {
+      const count = Math.max(16, Math.round(34 * ring));
+      for (let index = 0; index < count; index += 1) {
+        const ratio = index / count;
+        const angle = ratio * Math.PI * 2;
+        points.push({
+          x: Math.cos(angle) * 0.5 * ring,
+          y: Math.sin(angle) * 0.72 * ring - 0.04,
+          z: 0.04 + ringIndex * 0.04
+        });
+      }
+    });
+
+    const eyeY = -0.18;
+    const eyeRadius = 0.08;
+    [-1, 1].forEach((side) => {
+      const eyeX = side * 0.21;
+      for (let index = 0; index < 18; index += 1) {
+        const angle = (index / 18) * Math.PI * 2;
+        points.push({
+          x: eyeX + Math.cos(angle) * eyeRadius,
+          y: eyeY + Math.sin(angle) * eyeRadius * 0.55,
+          z: 0.16
+        });
+      }
+    });
+
+    for (let index = 0; index <= 22; index += 1) {
+      const ratio = index / 22;
+      const angle = Math.PI * (1 - ratio);
+      points.push({
+        x: Math.cos(angle) * 0.22,
+        y: 0.25 + Math.sin(angle) * 0.08,
+        z: 0.18
+      });
+    }
+
+    return {
+      points,
+      darkness: 0.44,
+      contrast: 0.42,
+      edge: 0.38,
+      fill: clampInteractive(points.length / 420, 0, 1),
       centerX: (crop.sx + (crop.sw * 0.5)) / (source.videoWidth || 1),
       centerY: (crop.sy + (crop.sh * 0.5)) / (source.videoHeight || 1)
     };
@@ -8663,13 +9001,37 @@ function initInteractiveWorkLiveSync() {
       }
 
       if (!crop) {
-        crop = detectSubjectCropFromCamera(cameraPreview, sourceWidth, sourceHeight);
+        const detectedCrop = detectSubjectCropFromCamera(cameraPreview, sourceWidth, sourceHeight);
+        const centerCrop = clampCameraCrop({
+          sx: sourceWidth * 0.26,
+          sy: sourceHeight * 0.16,
+          sw: sourceWidth * 0.48,
+          sh: sourceHeight * 0.68
+        }, sourceWidth, sourceHeight);
+
+        // Blend detected crop with centered crop to stay stable on low-light webcams.
+        crop = clampCameraCrop({
+          sx: detectedCrop.sx * 0.36 + centerCrop.sx * 0.64,
+          sy: detectedCrop.sy * 0.36 + centerCrop.sy * 0.64,
+          sw: detectedCrop.sw * 0.4 + centerCrop.sw * 0.6,
+          sh: detectedCrop.sh * 0.4 + centerCrop.sh * 0.6
+        }, sourceWidth, sourceHeight);
       }
 
-      const analysis = buildCameraFaceTemplate(cameraPreview, crop);
+      let analysis = buildCameraFaceTemplate(cameraPreview, crop);
 
       if (!analysis) {
-        return;
+        const centerCrop = clampCameraCrop({
+          sx: sourceWidth * 0.26,
+          sy: sourceHeight * 0.16,
+          sw: sourceWidth * 0.48,
+          sh: sourceHeight * 0.68
+        }, sourceWidth, sourceHeight);
+        analysis = buildCameraFaceTemplate(cameraPreview, centerCrop);
+      }
+
+      if (!analysis) {
+        analysis = buildFallbackCameraFaceTemplate(cameraPreview, crop);
       }
 
       const motionDelta = Math.hypot(
@@ -9045,6 +9407,20 @@ function initInteractiveWorkLiveSync() {
     queueLiveBackdrop();
   }
 
+  function closeInteractiveWorks() {
+    if (!bodyElement || !state.isOpen) {
+      return;
+    }
+
+    state.isOpen = false;
+    bodyElement.classList.remove("is-interactive-work-open");
+    if (liveVideo && !liveVideo.paused) {
+      liveVideo.pause();
+    }
+    setActiveInteractiveCard(state.defaultIndex);
+    queueLiveBackdrop();
+  }
+
   function stepParticles(time, frozen = false) {
     const t = time * 0.001;
     const pointerTargetX = state.pointerInside ? state.pointerX : state.flowX;
@@ -9128,28 +9504,48 @@ function initInteractiveWorkLiveSync() {
 
   function drawInteractiveCameraFace(time, reactiveBoost) {
     if (!state.cameraActive || !state.cameraTemplate.length) {
-      return;
+      return false;
     }
 
-    const faceScale = Math.min(state.width, state.height) * (0.28 + reactiveBoost * 0.05 + state.cameraConfidence * 0.08);
+    const faceScale = Math.min(state.width, state.height) * (0.24 + reactiveBoost * 0.04 + state.cameraConfidence * 0.08);
     const sampleStep = Math.max(1, Math.floor(state.cameraTemplate.length / 240));
     const points = [];
+    const splitPulse = (Math.sin(time * (0.0018 + state.cameraMotion * 0.0012)) + 1) * 0.5;
+    const splitBase = clampInteractive(
+      0.14 + reactiveBoost * 0.36 + state.cameraMotion * 0.28 + splitPulse * 0.46,
+      0.08,
+      1.24
+    );
 
     for (let index = 0; index < state.cameraTemplate.length; index += sampleStep) {
       const point = state.cameraTemplate[index];
-      const wave = Math.sin(time * 0.0012 + point.z * 6 + index * 0.07) * (2.4 + reactiveBoost * 5.2);
+      const wave = Math.sin(time * 0.0012 + point.z * 6 + index * 0.07) * (2.2 + reactiveBoost * 5.2);
       const depthOffset = point.z * (8 + reactiveBoost * 12);
-      const x = state.flowX + point.x * faceScale + wave * 0.22;
-      const y = state.flowY + point.y * faceScale * 1.04 + depthOffset;
-      points.push({ x, y, z: point.z });
+      const tx = state.flowX + point.x * faceScale + wave * 0.22;
+      const ty = state.flowY + point.y * faceScale * 1.04 + depthOffset;
+
+      // Split each face region into drifting clusters, then let it stitch back.
+      const clusterX = point.x >= 0 ? 1 : -1;
+      const clusterY = point.y >= 0 ? 1 : -1;
+      const localSplit = splitBase * (0.72 + Math.sin(time * 0.0021 + index * 0.19) * 0.28);
+      const angleSeed = ((index * 13.7) + point.z * 49.1) % (Math.PI * 2);
+      const splitRadius = faceScale * (0.06 + localSplit * 0.17);
+      const jitterRadius = faceScale * (0.02 + localSplit * 0.09);
+
+      const splitX = clusterX * splitRadius + Math.cos(angleSeed + time * 0.0008) * jitterRadius;
+      const splitY = clusterY * splitRadius * 0.9 + Math.sin(angleSeed + time * 0.00095) * jitterRadius * 0.82;
+      const x = tx + splitX;
+      const y = ty + splitY;
+
+      points.push({ x, y, z: point.z, tx, ty, localSplit });
     }
 
     if (points.length < 8) {
-      return;
+      return false;
     }
 
-    const meshDistance = Math.min(state.width, state.height) * (0.11 + reactiveBoost * 0.04);
-    context.lineWidth = 0.9 + reactiveBoost * 1.2;
+    const meshDistance = Math.min(state.width, state.height) * (0.14 + reactiveBoost * 0.05 + splitBase * 0.02);
+    context.lineWidth = 1.18 + reactiveBoost * 1.42 + state.cameraConfidence * 0.4;
 
     for (let index = 0; index < points.length; index += 1) {
       const pointA = points[index];
@@ -9163,7 +9559,7 @@ function initInteractiveWorkLiveSync() {
           continue;
         }
 
-        const alpha = (1 - (distance / meshDistance)) * (0.18 + reactiveBoost * 0.28 + state.cameraConfidence * 0.2);
+        const alpha = (1 - (distance / meshDistance)) * (0.28 + reactiveBoost * 0.34 + state.cameraConfidence * 0.26);
         context.strokeStyle = hueInteractive(alpha, 98, 74, 0);
         context.beginPath();
         context.moveTo(pointA.x, pointA.y);
@@ -9172,11 +9568,29 @@ function initInteractiveWorkLiveSync() {
       }
     }
 
+    // Stitch lines show pieces reconnecting into a face structure.
+    for (let index = 0; index < points.length; index += 3) {
+      const point = points[index];
+      const stitchAlpha = clampInteractive(
+        0.08 + point.localSplit * 0.34 + reactiveBoost * 0.12 + state.cameraConfidence * 0.12,
+        0,
+        0.62
+      );
+      context.strokeStyle = hueInteractive(stitchAlpha, 96, 78, 0);
+      context.lineWidth = 0.52 + point.localSplit * 1.08;
+      context.beginPath();
+      context.moveTo(point.x, point.y);
+      context.lineTo(point.tx, point.ty);
+      context.stroke();
+    }
+
     points.forEach((point) => {
       const nodeSize = 1.1 + reactiveBoost * 1.7 + Math.max(0, point.z) * 1.3;
-      context.fillStyle = hueInteractive(0.34 + reactiveBoost * 0.3 + state.cameraConfidence * 0.14, 98, 84, 0);
+      context.fillStyle = hueInteractive(0.52 + reactiveBoost * 0.26 + state.cameraConfidence * 0.18, 98, 84, 0);
       context.fillRect(point.x - (nodeSize * 0.5), point.y - (nodeSize * 0.5), nodeSize, nodeSize);
     });
+
+    return true;
   }
 
   function drawLiveBackdrop(time = 0, frozen = false) {
@@ -9395,7 +9809,7 @@ function initInteractiveWorkLiveSync() {
         context.quadraticCurveTo(controlB.x, controlB.y, state.flowX, state.flowY);
         context.stroke();
       }
-    } else if (state.cameraActive && state.cameraTemplate.length > 24) {
+    } else if (state.cameraActive && state.cameraTemplate.length > 8) {
       drawInteractiveCameraFace(time, reactiveBoost);
     } else {
       const introTime = time * 0.001;
@@ -9766,6 +10180,7 @@ function initInteractiveWorkLiveSync() {
       return;
     }
 
+    event.stopPropagation();
     openInteractiveWorks();
   });
 
@@ -9782,6 +10197,45 @@ function initInteractiveWorkLiveSync() {
       event.preventDefault();
       openInteractiveWorks();
     }
+  });
+
+  interactiveSection.addEventListener("pointerdown", (event) => {
+    if (!state.isOpen) {
+      return;
+    }
+
+    if (!(event.target instanceof Element)) {
+      closeInteractiveWorks();
+      return;
+    }
+
+    const shouldIgnoreClose = Boolean(
+      event.target.closest("[data-interactive-work-gate]") ||
+      event.target.closest(".photo-poster__item") ||
+      event.target.closest(".page-back") ||
+      event.target.closest(".site-header") ||
+      event.target.closest("[data-interactive-camera-toggle]") ||
+      event.target.closest("[data-interactive-camera-preview]")
+    );
+
+    if (shouldIgnoreClose) {
+      return;
+    }
+
+    closeInteractiveWorks();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (!state.isOpen) {
+      return;
+    }
+
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    event.preventDefault();
+    closeInteractiveWorks();
   });
 
   window.addEventListener("resize", refreshLiveBackdrop);

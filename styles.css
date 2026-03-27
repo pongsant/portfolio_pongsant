@@ -1981,13 +1981,15 @@ main {
   position: absolute;
   left: calc(clamp(0.9rem, 1.2vw, 1.3rem) + 84px);
   bottom: clamp(0.9rem, 1.2vw, 1.3rem);
-  width: clamp(84px, 10vw, 124px);
+  z-index: 2;
+  width: clamp(92px, 10.8vw, 138px);
   aspect-ratio: 4 / 5;
   display: block;
   object-fit: cover;
-  border: 1px solid rgba(0, 0, 0, 0.42);
+  border: 1px solid rgba(0, 0, 0, 0.56);
+  border-radius: 6px;
   background: #050505;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
   opacity: 0;
   transform: translateY(4px) scale(0.98) scaleX(-1);
   pointer-events: none;
