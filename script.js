@@ -44,17 +44,16 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const WORK_HUB_MAX_DPR = 1.5;
   const WORK_HUB_CONNECTIONS = [
     [0, 2],
-    [2, 4],
-    [4, 1],
+    [2, 1],
     [1, 3],
     [3, 0],
     [0, 1],
     [2, 3]
   ];
   const WORK_HUB_SCRIBBLES = [
-    { indices: [0, 4, 1, 3], width: 4.4, alpha: 0.74, sway: 28 },
-    { indices: [1, 2, 0, 4], width: 2.3, alpha: 0.42, sway: 20 },
-    { indices: [3, 0, 2, 1, 4], width: 1.12, alpha: 0.24, sway: 14 }
+    { indices: [0, 2, 1, 3], width: 4.4, alpha: 0.74, sway: 28 },
+    { indices: [1, 2, 0, 3], width: 2.3, alpha: 0.42, sway: 20 },
+    { indices: [3, 0, 2, 1], width: 1.12, alpha: 0.24, sway: 14 }
   ];
 
   const state = {
@@ -4146,9 +4145,15 @@ if (photoGallery && photoLightbox) {
   const photoLightboxClose = photoLightbox.querySelector("[data-photo-lightbox-close]");
   let photoLightboxPrev = photoLightbox.querySelector("[data-photo-lightbox-prev]");
   let photoLightboxNext = photoLightbox.querySelector("[data-photo-lightbox-next]");
+  let photoLightboxThumbStrip = photoLightbox.querySelector("[data-photo-lightbox-thumbs]");
+  let photoLightboxThumbButtons = [];
+  let activePhotoGroup = "";
   const isResearchGallery = photoGallery.classList.contains("photo-gallery--research");
-  const isGraphicProjectGallery = body.classList.contains("page-graphic-project")
+  const isGraphicProjectPage = body.classList.contains("page-graphic-project");
+  const isGraphicProjectGallery = isGraphicProjectPage
     && photoGallery.classList.contains("graphic-spreadbook__grid");
+  const disableSpotlight = photoGallery.hasAttribute("data-photo-no-spotlight");
+  const shouldUseSpotlight = isGraphicProjectGallery && !disableSpotlight;
   const spotlightState = {
     enabled: false,
     expanded: false
@@ -4179,10 +4184,34 @@ if (photoGallery && photoLightbox) {
       photoLightboxNext.textContent = ">";
       photoLightboxSurface.appendChild(photoLightboxNext);
     }
+
+    if (isGraphicProjectPage && !photoLightboxThumbStrip) {
+      photoLightboxThumbStrip = document.createElement("div");
+      photoLightboxThumbStrip.className = "photo-lightbox__thumb-strip";
+      photoLightboxThumbStrip.setAttribute("data-photo-lightbox-thumbs", "");
+      photoLightboxSurface.appendChild(photoLightboxThumbStrip);
+    }
   }
 
-  function getPhotoTriggers() {
-    return Array.from(photoGallery.querySelectorAll("[data-photo-trigger]"));
+  function normalizePhotoGroup(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function getTriggerPhotoGroup(trigger) {
+    return normalizePhotoGroup(trigger?.dataset.photoGroup);
+  }
+
+  function getPhotoTriggers(groupOverride = activePhotoGroup) {
+    const triggers = Array.from(photoGallery.querySelectorAll("[data-photo-trigger]"));
+    const targetGroup = normalizePhotoGroup(groupOverride);
+
+    if (!targetGroup) {
+      return triggers;
+    }
+
+    const filtered = triggers.filter((trigger) => getTriggerPhotoGroup(trigger) === targetGroup);
+
+    return filtered.length > 0 ? filtered : triggers;
   }
 
   function setSpotlightExpanded(expanded) {
@@ -4243,7 +4272,7 @@ if (photoGallery && photoLightbox) {
   }
 
   function initGraphicProjectSpotlightGallery() {
-    if (!isGraphicProjectGallery) {
+    if (!shouldUseSpotlight) {
       return;
     }
 
@@ -4286,7 +4315,7 @@ if (photoGallery && photoLightbox) {
   }
 
   function syncPhotoLightboxNav() {
-    const hasMultiplePhotos = getPhotoTriggers().length > 1;
+    const hasMultiplePhotos = getPhotoTriggers(activePhotoGroup).length > 1;
 
     [photoLightboxPrev, photoLightboxNext].forEach((button) => {
       if (!button) {
@@ -4298,13 +4327,97 @@ if (photoGallery && photoLightbox) {
     });
   }
 
+  function getPhotoTriggerSource(trigger) {
+    const image = trigger.querySelector("img");
+    const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src || "";
+    const previewSrc = trigger.dataset.photoThumb || image?.currentSrc || image?.src || fullSrc;
+    const title = trigger.dataset.photoTitle || image?.alt || "Graphic frame";
+
+    return {
+      image,
+      fullSrc,
+      previewSrc,
+      title
+    };
+  }
+
+  function syncPhotoLightboxThumbs() {
+    if (!photoLightboxThumbStrip) {
+      return;
+    }
+
+    const hasMultiplePhotos = photoLightboxThumbButtons.length > 1;
+    photoLightboxThumbStrip.hidden = !hasMultiplePhotos;
+
+    photoLightboxThumbButtons.forEach((button, buttonIndex) => {
+      const isActive = buttonIndex === activePhotoIndex;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-current", isActive ? "true" : "false");
+    });
+
+    if (!hasMultiplePhotos || activePhotoIndex < 0 || activePhotoIndex >= photoLightboxThumbButtons.length) {
+      return;
+    }
+
+    const activeButton = photoLightboxThumbButtons[activePhotoIndex];
+
+    if (!activeButton) {
+      return;
+    }
+
+    activeButton.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center"
+    });
+  }
+
+  function buildPhotoLightboxThumbs(groupOverride = activePhotoGroup) {
+    if (!photoLightboxThumbStrip) {
+      return;
+    }
+
+    const triggers = getPhotoTriggers(groupOverride);
+    const fragment = document.createDocumentFragment();
+
+    photoLightboxThumbStrip.textContent = "";
+    photoLightboxThumbButtons = [];
+
+    triggers.forEach((trigger, triggerIndex) => {
+      const source = getPhotoTriggerSource(trigger);
+
+      if (!source.previewSrc) {
+        return;
+      }
+
+      const thumbButton = document.createElement("button");
+      thumbButton.type = "button";
+      thumbButton.className = "photo-lightbox__thumb";
+      thumbButton.setAttribute("data-photo-lightbox-index", String(triggerIndex));
+      thumbButton.setAttribute("aria-label", `View ${source.title}`);
+
+      const thumbImage = document.createElement("img");
+      thumbImage.className = "photo-lightbox__thumb-image";
+      thumbImage.src = source.previewSrc;
+      thumbImage.alt = source.title;
+      thumbImage.loading = "lazy";
+      thumbButton.appendChild(thumbImage);
+
+      photoLightboxThumbButtons.push(thumbButton);
+      fragment.appendChild(thumbButton);
+    });
+
+    photoLightboxThumbStrip.appendChild(fragment);
+    syncPhotoLightboxThumbs();
+  }
+
   function setPhotoLightboxContent(trigger) {
     if (!trigger) {
       return false;
     }
 
-    const image = trigger.querySelector("img");
-    const fullSrc = trigger.dataset.photoFull || image?.currentSrc || image?.src;
+    const source = getPhotoTriggerSource(trigger);
+    const fullSrc = source.fullSrc;
 
     if (!fullSrc) {
       return false;
@@ -4312,18 +4425,18 @@ if (photoGallery && photoLightbox) {
 
     if (photoLightboxImage) {
       photoLightboxImage.src = fullSrc;
-      photoLightboxImage.alt = image?.alt || trigger.dataset.photoTitle || "Expanded photo";
+      photoLightboxImage.alt = source.image?.alt || source.title || "Expanded photo";
     }
 
     if (photoLightboxCaption) {
-      photoLightboxCaption.textContent = trigger.dataset.photoTitle || image?.alt || "";
+      photoLightboxCaption.textContent = source.title;
     }
 
     return true;
   }
 
-  function showPhotoByIndex(index) {
-    const triggers = getPhotoTriggers();
+  function showPhotoByIndex(index, groupOverride = activePhotoGroup) {
+    const triggers = getPhotoTriggers(groupOverride);
 
     if (triggers.length === 0) {
       return;
@@ -4338,7 +4451,9 @@ if (photoGallery && photoLightbox) {
 
     activePhotoIndex = normalizedIndex;
     lastPhotoTrigger = trigger;
+    activePhotoGroup = getTriggerPhotoGroup(trigger);
     syncPhotoLightboxNav();
+    syncPhotoLightboxThumbs();
   }
 
   function stepPhotoLightbox(direction) {
@@ -4360,6 +4475,7 @@ if (photoGallery && photoLightbox) {
     }
 
     activePhotoIndex = -1;
+    syncPhotoLightboxThumbs();
   }
 
   function closePhotoLightbox() {
@@ -4633,6 +4749,7 @@ if (photoGallery && photoLightbox) {
   organizeResearchGallery();
   initPhotoSphere();
   initGraphicProjectSpotlightGallery();
+    buildPhotoLightboxThumbs();
 
   photoGallery.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-photo-trigger]");
@@ -4667,14 +4784,17 @@ if (photoGallery && photoLightbox) {
       return;
     }
 
-    const triggers = getPhotoTriggers();
+    const triggerGroup = getTriggerPhotoGroup(trigger);
+    activePhotoGroup = triggerGroup;
+    const triggers = getPhotoTriggers(triggerGroup);
     const triggerIndex = triggers.indexOf(trigger);
 
     if (triggerIndex === -1) {
       return;
     }
 
-    showPhotoByIndex(triggerIndex);
+    buildPhotoLightboxThumbs(triggerGroup);
+    showPhotoByIndex(triggerIndex, triggerGroup);
 
     photoLightbox.showModal();
     body.classList.add("is-lightbox-open");
@@ -4693,6 +4813,24 @@ if (photoGallery && photoLightbox) {
   if (photoLightboxNext) {
     photoLightboxNext.addEventListener("click", () => {
       stepPhotoLightbox(1);
+    });
+  }
+
+  if (photoLightboxThumbStrip) {
+    photoLightboxThumbStrip.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-photo-lightbox-index]");
+
+      if (!trigger) {
+        return;
+      }
+
+      const targetIndex = Number(trigger.getAttribute("data-photo-lightbox-index"));
+
+      if (!Number.isInteger(targetIndex)) {
+        return;
+      }
+
+      showPhotoByIndex(targetIndex, activePhotoGroup);
     });
   }
 
@@ -4721,7 +4859,10 @@ if (photoGallery && photoLightbox) {
   photoLightbox.addEventListener("close", () => {
     body.classList.remove("is-lightbox-open");
     resetPhotoLightbox();
+    activePhotoGroup = "";
+    buildPhotoLightboxThumbs();
     syncPhotoLightboxNav();
+    syncPhotoLightboxThumbs();
 
     if (lastPhotoTrigger) {
       lastPhotoTrigger.focus();
@@ -4729,6 +4870,7 @@ if (photoGallery && photoLightbox) {
   });
 
   syncPhotoLightboxNav();
+  syncPhotoLightboxThumbs();
 }
 
 const horizontalRails = Array.from(document.querySelectorAll("[data-horizontal-rail]"));
@@ -6393,6 +6535,7 @@ function initGraphicDesignParticleBackdrop() {
   }
 
   const host = document.querySelector(".page-main--photo-poster");
+  const frame = host?.querySelector(".graphic-archive-board");
   const existingCanvas = host?.querySelector(".graphic-archive-particle-canvas");
 
   if (!host) {
@@ -6423,12 +6566,21 @@ function initGraphicDesignParticleBackdrop() {
   const FLOW_DAMPING = 0.992;
   const MAX_VELOCITY = 1.34;
   const EDGE_WRAP_MARGIN = 34;
+  const TENDRIL_COUNT_MIN = 14;
+  const TENDRIL_COUNT_MAX = 34;
+  const TENDRIL_BASE_ALPHA = 0.56;
+  const STAR_COUNT_MIN = 90;
+  const STAR_COUNT_MAX = 260;
   const state = {
     width: 0,
     height: 0,
     dpr: 1,
     frameId: 0,
     particles: [],
+    tendrils: [],
+    stars: [],
+    frameBox: null,
+    frameMeasureAt: 0,
     pointerX: 0,
     pointerY: 0,
     pointerActive: false,
@@ -6463,6 +6615,75 @@ function initGraphicDesignParticleBackdrop() {
     }));
   }
 
+  function buildTendrils() {
+    const count = clampBackdrop(
+      Math.round((state.width + state.height) / 88),
+      TENDRIL_COUNT_MIN,
+      TENDRIL_COUNT_MAX
+    );
+
+    state.tendrils = Array.from({ length: count }, (_, index) => ({
+      side: index % 4,
+      seed: randomBackdrop(0, Math.PI * 2),
+      speed: randomBackdrop(0.22, 0.86),
+      thickness: randomBackdrop(0.8, 2.1),
+      alpha: randomBackdrop(0.32, 0.84),
+      swing: randomBackdrop(14, 52),
+      wave: randomBackdrop(0.4, 1.26),
+      targetBias: randomBackdrop(0.08, 0.92),
+      branchBias: randomBackdrop(0.18, 0.82)
+    }));
+  }
+
+  function buildStars() {
+    const area = state.width * state.height;
+    const count = clampBackdrop(
+      Math.round(area / 9400),
+      STAR_COUNT_MIN,
+      STAR_COUNT_MAX
+    );
+
+    state.stars = Array.from({ length: count }, () => ({
+      x: randomBackdrop(0, state.width),
+      y: randomBackdrop(0, state.height),
+      size: randomBackdrop(0.35, 1.82),
+      alpha: randomBackdrop(0.28, 0.9),
+      twinkleSeed: randomBackdrop(0, Math.PI * 2),
+      twinkleSpeed: randomBackdrop(0.54, 2.2),
+      driftX: randomBackdrop(-0.026, 0.026),
+      driftY: randomBackdrop(0.006, 0.048),
+      flareBias: randomBackdrop(0.18, 0.92)
+    }));
+  }
+
+  function updateFrameBox() {
+    if (!frame) {
+      state.frameBox = null;
+      return;
+    }
+
+    const hostRect = host.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
+    const x = frameRect.left - hostRect.left;
+    const y = frameRect.top - hostRect.top;
+    const width = frameRect.width;
+    const height = frameRect.height;
+
+    if (!Number.isFinite(x) || !Number.isFinite(y) || width <= 0 || height <= 0) {
+      state.frameBox = null;
+      return;
+    }
+
+    state.frameBox = {
+      x,
+      y,
+      width,
+      height,
+      centerX: x + width * 0.5,
+      centerY: y + height * 0.5
+    };
+  }
+
   function resizeBackdrop() {
     const hostRect = host.getBoundingClientRect();
     const targetWidth = Math.max(1, Math.floor(hostRect.width));
@@ -6485,7 +6706,10 @@ function initGraphicDesignParticleBackdrop() {
     context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
     state.pointerX = state.width * 0.5;
     state.pointerY = state.height * 0.5;
+    updateFrameBox();
     buildParticles();
+    buildTendrils();
+    buildStars();
     drawBackdrop(performance.now(), true);
   }
 
@@ -6503,12 +6727,214 @@ function initGraphicDesignParticleBackdrop() {
     }
   }
 
+  function getTendrilOrigin(tendril, t) {
+    const overshoot = 20 + tendril.swing * 0.28;
+    const swingA = Math.sin(t * 0.58 * tendril.wave + tendril.seed);
+    const swingB = Math.cos(t * 0.72 * tendril.wave + tendril.seed * 1.2);
+
+    if (tendril.side === 0) {
+      return {
+        x: state.width * tendril.targetBias + swingA * state.width * 0.24,
+        y: -overshoot + swingB * tendril.swing * 0.22
+      };
+    }
+
+    if (tendril.side === 1) {
+      return {
+        x: state.width + overshoot + swingB * tendril.swing * 0.22,
+        y: state.height * tendril.targetBias + swingA * state.height * 0.24
+      };
+    }
+
+    if (tendril.side === 2) {
+      return {
+        x: state.width * tendril.targetBias + swingA * state.width * 0.24,
+        y: state.height + overshoot + swingB * tendril.swing * 0.22
+      };
+    }
+
+    return {
+      x: -overshoot + swingB * tendril.swing * 0.22,
+      y: state.height * tendril.targetBias + swingA * state.height * 0.24
+    };
+  }
+
+  function getTendrilTarget(tendril, t, biasOffset = 0) {
+    if (!state.frameBox) {
+      return {
+        x: state.width * 0.5,
+        y: state.height * 0.5
+      };
+    }
+
+    const frameBox = state.frameBox;
+    const variance = Math.sin(t * 0.62 * tendril.wave + tendril.seed * 1.4) * 0.1;
+    const targetRatio = clampBackdrop(
+      tendril.targetBias + variance + biasOffset,
+      0.04,
+      0.96
+    );
+
+    if (tendril.side === 0) {
+      return {
+        x: frameBox.x + frameBox.width * targetRatio,
+        y: frameBox.y
+      };
+    }
+
+    if (tendril.side === 1) {
+      return {
+        x: frameBox.x + frameBox.width,
+        y: frameBox.y + frameBox.height * targetRatio
+      };
+    }
+
+    if (tendril.side === 2) {
+      return {
+        x: frameBox.x + frameBox.width * targetRatio,
+        y: frameBox.y + frameBox.height
+      };
+    }
+
+    return {
+      x: frameBox.x,
+      y: frameBox.y + frameBox.height * targetRatio
+    };
+  }
+
+  function drawBackdropTendrils(t) {
+    if (!state.frameBox || state.tendrils.length === 0) {
+      return;
+    }
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    state.tendrils.forEach((tendril) => {
+      const origin = getTendrilOrigin(tendril, t);
+      const target = getTendrilTarget(tendril, t);
+      const dx = target.x - origin.x;
+      const dy = target.y - origin.y;
+      const distance = Math.hypot(dx, dy) || 1;
+      const normalX = -dy / distance;
+      const normalY = dx / distance;
+      const wobble = Math.sin(t * 1.1 * tendril.wave + tendril.seed) * tendril.swing;
+      const frameBox = state.frameBox;
+      const pullX = frameBox.centerX + Math.cos(t * 0.48 + tendril.seed) * frameBox.width * 0.34;
+      const pullY = frameBox.centerY + Math.sin(t * 0.52 + tendril.seed * 1.1) * frameBox.height * 0.34;
+      const control1X = origin.x + (pullX - origin.x) * 0.36 + normalX * wobble * 0.34;
+      const control1Y = origin.y + (pullY - origin.y) * 0.36 + normalY * wobble * 0.34;
+      const control2X = target.x + (pullX - target.x) * 0.52 - normalX * wobble * 0.42;
+      const control2Y = target.y + (pullY - target.y) * 0.52 - normalY * wobble * 0.42;
+      const alpha = tendril.alpha * TENDRIL_BASE_ALPHA;
+      const branchTarget = getTendrilTarget(
+        tendril,
+        t + 0.4,
+        (tendril.branchBias - 0.5) * 0.34
+      );
+
+      context.strokeStyle = `rgba(124, 166, 255, ${0.08 * alpha})`;
+      context.lineWidth = tendril.thickness * 3.7;
+      context.beginPath();
+      context.moveTo(origin.x, origin.y);
+      context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
+      context.stroke();
+
+      context.strokeStyle = `rgba(186, 216, 255, ${0.24 * alpha})`;
+      context.lineWidth = tendril.thickness * 1.42;
+      context.beginPath();
+      context.moveTo(origin.x, origin.y);
+      context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
+      context.stroke();
+
+      context.strokeStyle = `rgba(255, 255, 255, ${0.38 * alpha})`;
+      context.lineWidth = tendril.thickness * 0.64;
+      context.beginPath();
+      context.moveTo(origin.x, origin.y);
+      context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
+      context.stroke();
+
+      context.strokeStyle = `rgba(198, 226, 255, ${0.16 * alpha})`;
+      context.lineWidth = tendril.thickness * 0.72;
+      context.beginPath();
+      context.moveTo(
+        origin.x + normalX * tendril.thickness * 0.55,
+        origin.y + normalY * tendril.thickness * 0.55
+      );
+      context.quadraticCurveTo(
+        control2X + normalX * wobble * 0.24,
+        control2Y + normalY * wobble * 0.24,
+        branchTarget.x,
+        branchTarget.y
+      );
+      context.stroke();
+
+      context.fillStyle = `rgba(236, 246, 255, ${0.28 * alpha})`;
+      context.beginPath();
+      context.arc(target.x, target.y, 1 + tendril.thickness * 0.62, 0, Math.PI * 2);
+      context.fill();
+    });
+
+    context.restore();
+  }
+
+  function drawBackdropStars(t) {
+    if (state.stars.length === 0) {
+      return;
+    }
+
+    context.save();
+    context.lineCap = "round";
+
+    state.stars.forEach((star) => {
+      const pulse = (Math.sin(t * star.twinkleSpeed + star.twinkleSeed) + 1) * 0.5;
+      const twinkle = 0.24 + pulse * 0.92;
+      const alpha = star.alpha * twinkle;
+      const coreRadius = star.size * (0.26 + twinkle * 0.82);
+      const haloRadius = star.size * (1.6 + twinkle * 3.1);
+
+      context.fillStyle = `rgba(188, 224, 255, ${alpha * 0.18})`;
+      context.beginPath();
+      context.arc(star.x, star.y, haloRadius, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = `rgba(255, 255, 255, ${alpha * 0.88})`;
+      context.beginPath();
+      context.arc(star.x, star.y, coreRadius, 0, Math.PI * 2);
+      context.fill();
+
+      if (twinkle > 0.64) {
+        const flare = star.size * (2.4 + twinkle * 4.4) * star.flareBias;
+        const crossAlpha = (alpha - 0.15) * 0.34;
+
+        if (crossAlpha > 0.02) {
+          context.strokeStyle = `rgba(236, 246, 255, ${crossAlpha})`;
+          context.lineWidth = 0.42 + star.size * 0.28;
+          context.beginPath();
+          context.moveTo(star.x - flare, star.y);
+          context.lineTo(star.x + flare, star.y);
+          context.moveTo(star.x, star.y - flare);
+          context.lineTo(star.x, star.y + flare);
+          context.stroke();
+        }
+      }
+    });
+
+    context.restore();
+  }
+
   function stepParticles(time, frozen = false) {
     const t = time * 0.001;
     const centerX = state.width * 0.5;
     const centerY = state.height * 0.5;
     const flowBreath = 0.86 + Math.sin(t * 0.28) * 0.24;
     const dynamicLinkDistance = LINK_DISTANCE + Math.sin(t * 0.42) * LINK_DISTANCE_VARIANCE;
+
+    if (time - state.frameMeasureAt > 280) {
+      updateFrameBox();
+      state.frameMeasureAt = time;
+    }
 
     state.particles.forEach((particle) => {
       const ambientDriftX = Math.sin(t * particle.spin + particle.seed * 0.6) * FLOW_DRIFT_STRENGTH;
@@ -6548,7 +6974,28 @@ function initGraphicDesignParticleBackdrop() {
       }
     });
 
+    if (!frozen) {
+      state.stars.forEach((star) => {
+        star.x += star.driftX;
+        star.y += star.driftY;
+
+        if (star.x < -12) {
+          star.x = state.width + 12;
+        } else if (star.x > state.width + 12) {
+          star.x = -12;
+        }
+
+        if (star.y < -12) {
+          star.y = state.height + 12;
+        } else if (star.y > state.height + 12) {
+          star.y = -12;
+        }
+      });
+    }
+
     context.clearRect(0, 0, state.width, state.height);
+    drawBackdropStars(t);
+    drawBackdropTendrils(t);
 
     for (let index = 0; index < state.particles.length; index += 1) {
       const particleA = state.particles[index];
