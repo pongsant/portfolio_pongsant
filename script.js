@@ -7267,6 +7267,665 @@ syncGraphicDesignArchiveLetterFrames();
 initGraphicDesignArchiveScrollReveal();
 initGraphicDesignArchivePopup();
 initGraphicDesignParticleBackdrop();
+initInteractiveWorkLiveSync();
+
+function initInteractiveWorkLiveSync() {
+  const interactiveSection = document.querySelector(".photo-poster--interactive");
+  const gateLayer = interactiveSection?.querySelector("[data-interactive-work-gate]");
+  const liveVideo = interactiveSection?.querySelector("[data-interactive-live-video]");
+  const liveCanvas = interactiveSection?.querySelector("[data-interactive-live-bg]");
+  const projectStrip = interactiveSection?.querySelector("#projects");
+  const projectCards = Array.from(projectStrip?.querySelectorAll(".photo-poster__item[data-interactive-hue]") ?? []);
+
+  if (!interactiveSection || !liveCanvas || !projectStrip || projectCards.length === 0) {
+    return;
+  }
+
+  const context = liveCanvas.getContext("2d");
+
+  if (!context) {
+    return;
+  }
+
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const bodyElement = document.body;
+  const state = {
+    width: 0,
+    height: 0,
+    dpr: 1,
+    frameId: 0,
+    visible: true,
+    particles: [],
+    activeIndex: 0,
+    defaultIndex: 0,
+    targetHue: Number(projectCards[0].dataset.interactiveHue) || 214,
+    currentHue: Number(projectCards[0].dataset.interactiveHue) || 214,
+    flowX: 0,
+    flowY: 0,
+    pointerInside: false,
+    pointerX: 0,
+    pointerY: 0,
+    pointerDrawX: 0,
+    pointerDrawY: 0,
+    currentPreviewPath: "",
+    previewToken: "",
+    isOpen: false
+  };
+
+  state.isOpen = Boolean(bodyElement?.classList.contains("is-interactive-work-open"));
+
+  function clampInteractive(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function randomInteractive(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function hueInteractive(alpha, saturation = 88, lightness = 64, hueShift = 0) {
+    const hue = (state.currentHue + hueShift + 360) % 360;
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+  }
+
+  function getLiveFrameRect() {
+    const rect = liveCanvas?.getBoundingClientRect();
+
+    if (rect && rect.width > 0 && rect.height > 0) {
+      return rect;
+    }
+
+    return {
+      left: 0,
+      top: 0,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  }
+
+  function playLiveVideo() {
+    if (!liveVideo || !state.isOpen) {
+      return;
+    }
+
+    const playPromise = liveVideo.play();
+
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+  }
+
+  function setLivePreview(path, force = false) {
+    if (!liveVideo || !path || !state.isOpen) {
+      return;
+    }
+
+    const nextPath = String(path).trim();
+
+    if (!nextPath) {
+      return;
+    }
+
+    if (!force && state.currentPreviewPath === nextPath) {
+      playLiveVideo();
+      return;
+    }
+
+    state.currentPreviewPath = nextPath;
+    const token = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    state.previewToken = token;
+    liveVideo.classList.remove("is-ready");
+
+    const onReady = () => {
+      if (state.previewToken !== token) {
+        return;
+      }
+
+      liveVideo.classList.add("is-ready");
+      playLiveVideo();
+    };
+
+    liveVideo.onloadeddata = onReady;
+    liveVideo.setAttribute("src", nextPath);
+    liveVideo.load();
+    playLiveVideo();
+  }
+
+  function getCardAnchor(card) {
+    const targetNode = card.querySelector(".photo-poster__item-media") || card;
+    const cardRect = targetNode.getBoundingClientRect();
+    const frameRect = getLiveFrameRect();
+
+    if (!cardRect.width || !cardRect.height || !frameRect.width || !frameRect.height) {
+      return null;
+    }
+
+    return {
+      x: clampInteractive(cardRect.right - frameRect.left, 2, state.width - 2),
+      y: clampInteractive(cardRect.top - frameRect.top + cardRect.height * 0.56, 2, state.height - 2)
+    };
+  }
+
+  function buildParticles() {
+    const isMobile = window.innerWidth < 720;
+    const area = state.width * state.height;
+    const count = clampInteractive(Math.round(area / 17000), isMobile ? 44 : 56, isMobile ? 88 : 124);
+    const minX = state.width * (isMobile ? 0.46 : 0.5);
+    const maxX = state.width + 18;
+    const minY = -12;
+    const maxY = state.height + 12;
+
+    state.particles = Array.from({ length: count }, () => ({
+      x: randomInteractive(minX, maxX),
+      y: randomInteractive(0, state.height),
+      vx: randomInteractive(-0.24, 0.18),
+      vy: randomInteractive(-0.26, 0.26),
+      drift: randomInteractive(0.2, 1),
+      seed: randomInteractive(0, Math.PI * 2),
+      size: randomInteractive(0.74, 2.2),
+      minX,
+      maxX,
+      minY,
+      maxY
+    }));
+  }
+
+  function resizeLiveCanvas() {
+    const frameRect = getLiveFrameRect();
+    state.width = Math.max(1, Math.round(frameRect.width || window.innerWidth));
+    state.height = Math.max(1, Math.round(frameRect.height || window.innerHeight));
+    state.dpr = Math.min(window.devicePixelRatio || 1, 1.8);
+    liveCanvas.width = Math.max(1, Math.round(state.width * state.dpr));
+    liveCanvas.height = Math.max(1, Math.round(state.height * state.dpr));
+    liveCanvas.style.width = `${state.width}px`;
+    liveCanvas.style.height = `${state.height}px`;
+    context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    state.flowX = state.width * 0.5;
+    state.flowY = state.height * 0.52;
+    state.pointerX = state.flowX;
+    state.pointerY = state.flowY;
+    state.pointerDrawX = state.flowX;
+    state.pointerDrawY = state.flowY;
+    buildParticles();
+    drawLiveBackdrop(performance.now(), true);
+  }
+
+  function setInteractivePointer(event) {
+    const frameRect = getLiveFrameRect();
+    const localX = event.clientX - frameRect.left;
+    const localY = event.clientY - frameRect.top;
+
+    state.pointerX = clampInteractive(localX, 2, state.width - 2);
+    state.pointerY = clampInteractive(localY, 2, state.height - 2);
+
+    if (!state.pointerInside) {
+      state.pointerDrawX = state.pointerX;
+      state.pointerDrawY = state.pointerY;
+    }
+
+    state.pointerInside = true;
+
+    if (reducedMotionQuery.matches) {
+      drawLiveBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueLiveBackdrop();
+  }
+
+  function clearInteractivePointer() {
+    state.pointerInside = false;
+
+    if (reducedMotionQuery.matches) {
+      drawLiveBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueLiveBackdrop();
+  }
+
+  function setActiveInteractiveCard(index) {
+    const safeIndex = clampInteractive(index, 0, projectCards.length - 1);
+    state.activeIndex = safeIndex;
+    state.targetHue = Number(projectCards[safeIndex].dataset.interactiveHue) || state.targetHue;
+
+    if (state.isOpen) {
+      setLivePreview(projectCards[safeIndex].dataset.interactivePreview || "");
+    }
+
+    projectCards.forEach((card, cardIndex) => {
+      const hue = Number(card.dataset.interactiveHue) || 214;
+      card.style.setProperty("--interactive-item-hue", String(hue));
+      card.classList.toggle("is-live-active", cardIndex === safeIndex);
+    });
+
+    if (reducedMotionQuery.matches) {
+      state.currentHue = state.targetHue;
+      drawLiveBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueLiveBackdrop();
+  }
+
+  function openInteractiveWorks() {
+    if (!bodyElement || state.isOpen) {
+      return;
+    }
+
+    state.isOpen = true;
+    bodyElement.classList.add("is-interactive-work-open");
+    setLivePreview(projectCards[state.activeIndex]?.dataset.interactivePreview || "", true);
+    playLiveVideo();
+
+    queueLiveBackdrop();
+  }
+
+  function stepParticles(time, frozen = false) {
+    const t = time * 0.001;
+    const pointerTargetX = state.pointerInside ? state.pointerX : state.flowX;
+    const pointerTargetY = state.pointerInside ? state.pointerY : state.flowY;
+
+    state.pointerDrawX += (pointerTargetX - state.pointerDrawX) * (frozen ? 1 : 0.2);
+    state.pointerDrawY += (pointerTargetY - state.pointerDrawY) * (frozen ? 1 : 0.2);
+
+    if (frozen) {
+      return;
+    }
+
+    state.particles.forEach((particle) => {
+      const wobbleX = Math.cos(t * particle.drift + particle.seed) * 0.06;
+      const wobbleY = Math.sin(t * (particle.drift + 0.24) + particle.seed * 1.2) * 0.08;
+      const pullX = (state.flowX - particle.x) * 0.00032;
+      const pullY = (state.flowY - particle.y) * 0.00026;
+
+      particle.vx = clampInteractive((particle.vx + pullX + wobbleX) * 0.992, -0.72, 0.72);
+      particle.vy = clampInteractive((particle.vy + pullY + wobbleY) * 0.992, -0.68, 0.68);
+
+      if (state.pointerInside) {
+        const dx = state.pointerDrawX - particle.x;
+        const dy = state.pointerDrawY - particle.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance > 0.001 && distance < 210) {
+          const strength = (1 - (distance / 210)) * 0.04;
+          particle.vx += (dx / distance) * strength;
+          particle.vy += (dy / distance) * strength;
+        }
+      }
+
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+
+      if (particle.x < particle.minX) {
+        particle.x = particle.maxX;
+      } else if (particle.x > particle.maxX) {
+        particle.x = particle.minX;
+      }
+
+      if (particle.y < particle.minY) {
+        particle.y = particle.maxY;
+      } else if (particle.y > particle.maxY) {
+        particle.y = particle.minY;
+      }
+    });
+  }
+
+  function drawLiveBackdrop(time = 0, frozen = false) {
+    if (!context) {
+      return;
+    }
+
+    const isFrozen = frozen || reducedMotionQuery.matches;
+    const isOpen = state.isOpen;
+    state.currentHue += (state.targetHue - state.currentHue) * (isFrozen ? 1 : 0.12);
+    stepParticles(time, isFrozen);
+
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, liveCanvas.width, liveCanvas.height);
+    context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    context.clearRect(0, 0, state.width, state.height);
+
+    if (!isOpen) {
+      const introBackground = context.createRadialGradient(
+        state.flowX,
+        state.flowY,
+        0,
+        state.flowX,
+        state.flowY,
+        Math.max(state.width, state.height) * 0.74
+      );
+      introBackground.addColorStop(0, "rgba(238, 246, 255, 0.84)");
+      introBackground.addColorStop(0.52, "rgba(246, 250, 255, 0.6)");
+      introBackground.addColorStop(1, "rgba(255, 255, 255, 1)");
+      context.fillStyle = introBackground;
+      context.fillRect(0, 0, state.width, state.height);
+    }
+
+    const linkDistance = window.innerWidth < 720 ? (isOpen ? 110 : 128) : (isOpen ? 140 : 182);
+    for (let index = 0; index < state.particles.length; index += 1) {
+      const particleA = state.particles[index];
+
+      for (let nextIndex = index + 1; nextIndex < state.particles.length; nextIndex += 1) {
+        const particleB = state.particles[nextIndex];
+        const dx = particleB.x - particleA.x;
+        const dy = particleB.y - particleA.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (!distance || distance > linkDistance) {
+          continue;
+        }
+
+        const alpha = (1 - (distance / linkDistance)) ** 2 * (isOpen ? 0.24 : 0.38);
+        context.strokeStyle = hueInteractive(alpha, isOpen ? 86 : 92, isOpen ? 66 : 74, isOpen ? 2 : 8);
+        context.lineWidth = isOpen ? 0.4 + alpha * 2.2 : 0.8 + alpha * 2.6;
+        context.beginPath();
+        context.moveTo(particleA.x, particleA.y);
+        context.lineTo(particleB.x, particleB.y);
+        context.stroke();
+      }
+    }
+
+    state.particles.forEach((particle) => {
+      const pulse = (Math.sin(time * 0.0015 + particle.seed) + 1) * 0.5;
+      context.fillStyle = hueInteractive(
+        isOpen ? 0.18 + pulse * 0.32 : 0.26 + pulse * 0.44,
+        isOpen ? 94 : 98,
+        isOpen ? 82 : 84,
+        isOpen ? 10 : 14
+      );
+      context.beginPath();
+      context.arc(
+        particle.x,
+        particle.y,
+        particle.size * (isOpen ? (0.76 + pulse * 0.84) : (1.08 + pulse * 1.06)),
+        0,
+        Math.PI * 2
+      );
+      context.fill();
+    });
+
+    if (isOpen) {
+      const anchors = projectCards
+        .map((card) => getCardAnchor(card))
+        .filter((anchor) => anchor !== null);
+
+      anchors.forEach((anchor, index) => {
+        const isActive = index === state.activeIndex;
+        const wave = Math.sin(time * 0.0017 + index * 0.74);
+        const controlPoint = {
+          x: state.flowX + wave * state.width * 0.014,
+          y: state.flowY + (anchor.y - state.flowY) * 0.44 + Math.cos(time * 0.0015 + index) * state.height * 0.03
+        };
+        const strength = isActive ? 1 : 0.58;
+
+        context.strokeStyle = hueInteractive(0.08 * strength, 88, 82, 18);
+        context.lineWidth = isActive ? 4.2 : 2.1;
+        context.beginPath();
+        context.moveTo(anchor.x, anchor.y);
+        context.quadraticCurveTo(controlPoint.x, controlPoint.y, state.flowX, state.flowY);
+        context.stroke();
+
+        context.strokeStyle = hueInteractive((isActive ? 0.42 : 0.2) * strength, 90, 64, 2);
+        context.lineWidth = isActive ? 1.6 : 0.88;
+        context.beginPath();
+        context.moveTo(anchor.x, anchor.y);
+        context.quadraticCurveTo(controlPoint.x, controlPoint.y, state.flowX, state.flowY);
+        context.stroke();
+      });
+
+      const activeAnchor = anchors[state.activeIndex];
+      if (activeAnchor) {
+        const pointerPoint = {
+          x: state.pointerDrawX,
+          y: state.pointerDrawY
+        };
+        const controlA = {
+          x: pointerPoint.x + (state.flowX - pointerPoint.x) * 0.48,
+          y: pointerPoint.y + (state.flowY - pointerPoint.y) * 0.38
+        };
+        const controlB = {
+          x: activeAnchor.x + (state.flowX - activeAnchor.x) * 0.44,
+          y: activeAnchor.y + (state.flowY - activeAnchor.y) * 0.36
+        };
+
+        context.strokeStyle = hueInteractive(0.26, 92, 72, 14);
+        context.lineWidth = 2.6;
+        context.beginPath();
+        context.moveTo(pointerPoint.x, pointerPoint.y);
+        context.quadraticCurveTo(controlA.x, controlA.y, state.flowX, state.flowY);
+        context.stroke();
+
+        context.strokeStyle = hueInteractive(0.32, 90, 68, 4);
+        context.lineWidth = 1.08;
+        context.beginPath();
+        context.moveTo(activeAnchor.x, activeAnchor.y);
+        context.quadraticCurveTo(controlB.x, controlB.y, state.flowX, state.flowY);
+        context.stroke();
+      }
+    } else {
+      const introNodeCount = window.innerWidth < 720 ? 8 : 12;
+      const introTime = time * 0.001;
+      const introRadiusX = state.width * (window.innerWidth < 720 ? 0.28 : 0.34);
+      const introRadiusY = state.height * (window.innerWidth < 720 ? 0.18 : 0.24);
+
+      for (let nodeIndex = 0; nodeIndex < introNodeCount; nodeIndex += 1) {
+        const ratio = nodeIndex / introNodeCount;
+        const angle = ratio * Math.PI * 2 + introTime * 0.44;
+        const anchorX = state.flowX + Math.cos(angle) * introRadiusX;
+        const anchorY = state.flowY + Math.sin(angle * 1.14) * introRadiusY;
+        const ctrlX = state.flowX + Math.cos(angle * 1.62 + introTime) * introRadiusX * 0.46;
+        const ctrlY = state.flowY + Math.sin(angle * 1.34 + introTime * 0.72) * introRadiusY * 0.48;
+
+        context.strokeStyle = hueInteractive(0.22, 96, 76, 8);
+        context.lineWidth = 2.6;
+        context.beginPath();
+        context.moveTo(anchorX, anchorY);
+        context.quadraticCurveTo(ctrlX, ctrlY, state.flowX, state.flowY);
+        context.stroke();
+
+        context.strokeStyle = hueInteractive(0.34, 100, 74, 12);
+        context.lineWidth = 0.98;
+        context.beginPath();
+        context.moveTo(anchorX, anchorY);
+        context.quadraticCurveTo(ctrlX, ctrlY, state.flowX, state.flowY);
+        context.stroke();
+      }
+
+      for (let ringIndex = 0; ringIndex < 3; ringIndex += 1) {
+        const ringPulse = Math.sin(introTime * (0.56 + ringIndex * 0.12) + ringIndex * 0.82);
+        const ringRadiusX = state.width * (0.14 + ringIndex * 0.06) + ringPulse * 12;
+        const ringRadiusY = state.height * (0.1 + ringIndex * 0.046) + ringPulse * 8;
+        context.strokeStyle = hueInteractive(0.14 + ringIndex * 0.07, 96, 80, 16);
+        context.lineWidth = 1.2 + ringIndex * 0.5;
+        context.beginPath();
+        context.ellipse(
+          state.flowX,
+          state.flowY,
+          ringRadiusX,
+          ringRadiusY,
+          introTime * (0.24 + ringIndex * 0.07),
+          0,
+          Math.PI * 2
+        );
+        context.stroke();
+      }
+
+      if (state.pointerInside) {
+        context.strokeStyle = hueInteractive(0.42, 98, 72, 18);
+        context.lineWidth = 2.4;
+        context.beginPath();
+        context.moveTo(state.pointerDrawX, state.pointerDrawY);
+        context.quadraticCurveTo(
+          state.pointerDrawX + (state.flowX - state.pointerDrawX) * 0.44,
+          state.pointerDrawY + (state.flowY - state.pointerDrawY) * 0.32,
+          state.flowX,
+          state.flowY
+        );
+        context.stroke();
+      }
+    }
+
+    const ambientNodeCount = isOpen ? 14 : 22;
+    const liveT = time * 0.001;
+    const orbitRadiusX = state.width * (isOpen ? 0.26 : 0.34);
+    const orbitRadiusY = state.height * (isOpen ? 0.22 : 0.28);
+    for (let nodeIndex = 0; nodeIndex < ambientNodeCount; nodeIndex += 1) {
+      const ratio = ambientNodeCount === 1 ? 0 : nodeIndex / (ambientNodeCount - 1);
+      const baseAngle = ratio * Math.PI * 2 + liveT * (isOpen ? 0.18 : 0.32);
+      const targetX = state.flowX + Math.cos(baseAngle) * orbitRadiusX;
+      const targetY = state.flowY + Math.sin(baseAngle) * orbitRadiusY;
+      const controlPoint = {
+        x: state.flowX + Math.cos(baseAngle * 1.24 + liveT * 0.44) * orbitRadiusX * 0.52,
+        y: state.flowY + Math.sin(baseAngle * 1.14 + liveT * 0.5) * orbitRadiusY * 0.52
+      };
+      const alpha = (isOpen ? 0.06 : 0.11) + (nodeIndex % 3) * (isOpen ? 0.03 : 0.04);
+
+      context.strokeStyle = hueInteractive(alpha, isOpen ? 84 : 94, isOpen ? 66 : 76, isOpen ? -6 : 2);
+      context.lineWidth = isOpen ? (0.84 + (nodeIndex % 2) * 0.42) : (1.12 + (nodeIndex % 2) * 0.6);
+      context.beginPath();
+      context.moveTo(state.flowX, state.flowY);
+      context.quadraticCurveTo(controlPoint.x, controlPoint.y, targetX, targetY);
+      context.stroke();
+    }
+
+    if (!isOpen) {
+      const corePulse = (Math.sin(liveT * 2.2) + 1) * 0.5;
+      const coreGlow = context.createRadialGradient(
+        state.flowX,
+        state.flowY,
+        0,
+        state.flowX,
+        state.flowY,
+        Math.max(state.width, state.height) * 0.24
+      );
+      coreGlow.addColorStop(0, hueInteractive(0.38 + corePulse * 0.18, 98, 86, 24));
+      coreGlow.addColorStop(0.36, hueInteractive(0.2, 96, 80, 10));
+      coreGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
+      context.fillStyle = coreGlow;
+      context.beginPath();
+      context.arc(state.flowX, state.flowY, Math.max(state.width, state.height) * 0.24, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    context.fillStyle = hueInteractive(isOpen ? 0.56 : 0.68, 96, 84, isOpen ? 18 : 24);
+    context.beginPath();
+    context.arc(state.flowX, state.flowY, isOpen ? 3.2 : 4.6, 0, Math.PI * 2);
+    context.fill();
+
+    if (isFrozen || !state.visible) {
+      state.frameId = 0;
+      return;
+    }
+
+    state.frameId = window.requestAnimationFrame(drawLiveBackdrop);
+  }
+
+  function queueLiveBackdrop() {
+    if (state.frameId || reducedMotionQuery.matches || !state.visible) {
+      return;
+    }
+
+    state.frameId = window.requestAnimationFrame(drawLiveBackdrop);
+  }
+
+  function stopLiveBackdrop() {
+    if (!state.frameId) {
+      return;
+    }
+
+    window.cancelAnimationFrame(state.frameId);
+    state.frameId = 0;
+  }
+
+  function refreshLiveBackdrop() {
+    resizeLiveCanvas();
+    stopLiveBackdrop();
+    drawLiveBackdrop(performance.now(), reducedMotionQuery.matches);
+    queueLiveBackdrop();
+  }
+
+  projectCards.forEach((card, index) => {
+    const hue = Number(card.dataset.interactiveHue) || 214;
+    card.style.setProperty("--interactive-item-hue", String(hue));
+
+    card.addEventListener("pointerenter", (event) => {
+      setInteractivePointer(event);
+      setActiveInteractiveCard(index);
+    });
+
+    card.addEventListener("pointermove", setInteractivePointer);
+
+    card.addEventListener("focus", () => {
+      setActiveInteractiveCard(index);
+    });
+  });
+
+  interactiveSection.addEventListener("pointermove", setInteractivePointer, { passive: true });
+
+  interactiveSection.addEventListener("pointerleave", () => {
+    clearInteractivePointer();
+    setActiveInteractiveCard(state.defaultIndex);
+  });
+
+  gateLayer?.addEventListener("pointerdown", (event) => {
+    if (state.isOpen) {
+      return;
+    }
+
+    openInteractiveWorks();
+  });
+
+  gateLayer?.addEventListener("keydown", (event) => {
+    if (state.isOpen) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openInteractiveWorks();
+    }
+  });
+
+  window.addEventListener("resize", refreshLiveBackdrop);
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      state.visible = Boolean(entry?.isIntersecting);
+
+      if (!state.visible) {
+        stopLiveBackdrop();
+        if (liveVideo && !liveVideo.paused) {
+          liveVideo.pause();
+        }
+        return;
+      }
+
+      if (state.isOpen) {
+        playLiveVideo();
+      }
+      drawLiveBackdrop(performance.now(), reducedMotionQuery.matches);
+      queueLiveBackdrop();
+    }, {
+      threshold: 0.1
+    });
+
+    observer.observe(interactiveSection);
+  }
+
+  reducedMotionQuery.addEventListener("change", () => {
+    if (reducedMotionQuery.matches) {
+      stopLiveBackdrop();
+      drawLiveBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueLiveBackdrop();
+  });
+
+  setActiveInteractiveCard(state.defaultIndex);
+  refreshLiveBackdrop();
+}
 
 function initTimedVideos() {
   const timedVideos = Array.from(document.querySelectorAll("video[data-max-seconds]"));

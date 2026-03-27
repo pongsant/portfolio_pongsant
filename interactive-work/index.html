@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="../styles.css">
     <script src="../script.js" defer></script>
   </head>
-  <body>
+  <body class="page-interactive-archive">
     <header class="site-header">
       <a class="site-header__brand" href="../">PORTFOLIO</a>
+      <h1 class="site-header__section-title" id="interactive-work-title">INTERACTIVE WORK</h1>
       <nav class="site-nav" aria-label="Primary">
         <a href="../">HOME</a>
         <a href="../my-work/" aria-current="page">MY WORK</a>
@@ -20,11 +21,28 @@
 
     <main class="page-main page-main--photo-poster">
       <section class="photo-poster photo-poster--interactive" aria-labelledby="interactive-work-title">
+        <div class="interactive-live-media" aria-hidden="true">
+          <video
+            class="interactive-live-media__video"
+            data-interactive-live-video
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          ></video>
+        </div>
+
+        <canvas class="interactive-live-bg" data-interactive-live-bg aria-hidden="true"></canvas>
+
+        <div class="interactive-work-gate" data-interactive-work-gate role="button" tabindex="0" aria-label="Open interactive works">
+          <p class="interactive-work-gate__hint">click</p>
+        </div>
+
         <div class="photo-poster__top">
           <a class="page-back" href="../my-work/">Back to Work Topics</a>
 
           <div class="photo-poster__strip" id="projects" aria-label="Interactive work projects">
-            <a class="photo-poster__item" href="./p5.js-work/">
+            <a class="photo-poster__item" href="./p5.js-work/" data-interactive-hue="214" data-interactive-preview="./p5.js-work/Screen%20Recording%202026-03-27%20at%2001.01.20.mov">
               <div class="photo-poster__item-media">
                 <video
                   autoplay
@@ -45,7 +63,7 @@
               </div>
             </a>
 
-            <a class="photo-poster__item" href="./The%20Last%20Light%E2%80%94Interactive%20Flower%20Lamp/">
+            <a class="photo-poster__item" href="./The%20Last%20Light%E2%80%94Interactive%20Flower%20Lamp/" data-interactive-hue="176" data-interactive-preview="./The%20Last%20Light%E2%80%94Interactive%20Flower%20Lamp/game_environment.MOV">
               <div class="photo-poster__item-media">
                 <video
                   autoplay
@@ -64,8 +82,8 @@
               </div>
             </a>
 
-            <a class="photo-poster__item" href="../filialproject.html">
-              <div class="photo-poster__item-media photo-poster__item-media--circle">
+            <a class="photo-poster__item" href="../filialproject.html" data-interactive-hue="252" data-interactive-preview="../filialproject/filial%20web%20test%201.mov">
+              <div class="photo-poster__item-media">
                 <video
                   autoplay
                   muted
@@ -85,9 +103,6 @@
           </div>
         </div>
 
-        <div class="photo-poster__hero">
-          <h1 class="photo-poster__title photo-poster__title--interactive" id="interactive-work-title">INTERACTIVE WORK</h1>
-        </div>
       </section>
     </main>
   </body>

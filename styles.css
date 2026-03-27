@@ -249,6 +249,11 @@ video {
   transition: gap 280ms ease, transform 280ms ease;
 }
 
+.site-header__section-title {
+  margin: 0;
+  pointer-events: none;
+}
+
 .site-nav a {
   padding: 0.15rem 0;
   border-radius: 0;
@@ -295,6 +300,30 @@ body.is-scrolled .site-nav a {
   transform: translateY(-1px);
   font-size: clamp(0.6rem, 0.52rem + 0.18vw, 0.74rem);
   letter-spacing: clamp(0.08em, 0.15vw, 0.12em);
+}
+
+.page-interactive-archive .site-header__section-title,
+.page-graphic-design-archive .site-header__section-title,
+.page-photo-archive .site-header__section-title,
+.page-product-archive .site-header__section-title,
+.page-my-work .site-header__section-title {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + (var(--safe-top) * 0.08));
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  font-family: var(--font-sans);
+  font-size: clamp(0.92rem, 0.74rem + 0.92vw, 1.42rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.78);
+  white-space: nowrap;
+}
+
+.page-graphic-design-archive .site-header__section-title {
+  color: rgba(244, 244, 244, 0.9);
 }
 
 main {
@@ -1498,6 +1527,161 @@ main {
   min-height: calc(100svh - clamp(7.6rem, 10vw, 9rem));
 }
 
+.page-interactive-archive .photo-poster {
+  grid-template-rows: auto;
+  min-height: auto;
+}
+
+.page-interactive-archive .photo-poster__hero {
+  display: none;
+}
+
+.photo-poster--interactive {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.photo-poster--interactive .interactive-live-media {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 520ms ease, visibility 520ms ease;
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster--interactive .interactive-live-media {
+  opacity: 1;
+  visibility: visible;
+}
+
+.photo-poster--interactive .interactive-live-media::after {
+  content: none;
+}
+
+.photo-poster--interactive .interactive-live-media__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  filter: saturate(1.06) contrast(1.02);
+  transition: opacity 280ms ease, transform 1200ms ease;
+}
+
+.photo-poster--interactive .interactive-live-media__video.is-ready {
+  opacity: 1;
+  transform: scale(1.01);
+}
+
+.photo-poster--interactive .interactive-live-bg {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100svh;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.photo-poster--interactive .photo-poster__top,
+.photo-poster--interactive .photo-poster__hero {
+  position: relative;
+  z-index: 2;
+}
+
+.page-interactive-archive .interactive-work-gate {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
+  transition: opacity 260ms ease;
+}
+
+.page-interactive-archive .interactive-work-gate__hint {
+  margin: 0;
+  pointer-events: none;
+  color: rgba(20, 30, 52, 0.58);
+  font-family: var(--font-sans);
+  font-size: clamp(0.82rem, 0.72rem + 0.3vw, 1.06rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 16px rgba(120, 170, 255, 0.2);
+  animation: interactive-work-gate-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes interactive-work-gate-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+}
+
+.page-interactive-archive .photo-poster__top {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 300ms ease, transform 360ms ease;
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster__top {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.page-interactive-archive .photo-poster--interactive .photo-poster__item {
+  opacity: 0;
+  transform: translateY(24px) scale(0.92);
+  transition:
+    opacity 280ms ease,
+    transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster--interactive .photo-poster__item {
+  opacity: 1;
+  transform: none;
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster--interactive .photo-poster__item:nth-child(1) {
+  transition-delay: 40ms;
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster--interactive .photo-poster__item:nth-child(2) {
+  transition-delay: 110ms;
+}
+
+.page-interactive-archive.is-interactive-work-open .photo-poster--interactive .photo-poster__item:nth-child(3) {
+  transition-delay: 180ms;
+}
+
+.page-interactive-archive.is-interactive-work-open .interactive-work-gate {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .photo-poster__top {
   display: grid;
   gap: 0.75rem;
@@ -1515,6 +1699,34 @@ main {
   display: grid;
   gap: 0.38rem;
   color: inherit;
+}
+
+.photo-poster--interactive .photo-poster__item {
+  --interactive-item-hue: 214;
+  transition: transform 220ms ease;
+}
+
+.photo-poster--interactive .photo-poster__item-media {
+  transition: box-shadow 240ms ease, transform 240ms ease;
+}
+
+.photo-poster--interactive .photo-poster__item.is-live-active .photo-poster__item-media {
+  box-shadow:
+    0 0 0 1px hsl(var(--interactive-item-hue) 86% 58% / 0.34),
+    0 14px 30px hsl(var(--interactive-item-hue) 90% 48% / 0.26);
+  transform: translateY(-1px);
+}
+
+.photo-poster--interactive .photo-poster__item.is-live-active .photo-poster__item-index,
+.photo-poster--interactive .photo-poster__item.is-live-active .photo-poster__item-label {
+  color: #000000;
+}
+
+.photo-poster--interactive .photo-poster__item:hover .photo-poster__item-index,
+.photo-poster--interactive .photo-poster__item:hover .photo-poster__item-label,
+.photo-poster--interactive .photo-poster__item:focus-visible .photo-poster__item-index,
+.photo-poster--interactive .photo-poster__item:focus-visible .photo-poster__item-label {
+  color: #000000;
 }
 
 .photo-poster__item-media {
@@ -3544,6 +3756,15 @@ body.is-lightbox-open {
   .site-nav a {
     font-size: 0.54rem;
     letter-spacing: 0.08em;
+  }
+
+  .page-interactive-archive .site-header__section-title,
+  .page-graphic-design-archive .site-header__section-title,
+  .page-photo-archive .site-header__section-title,
+  .page-product-archive .site-header__section-title,
+  .page-my-work .site-header__section-title {
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
   }
 
   body.is-scrolled .site-header {
