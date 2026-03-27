@@ -6429,9 +6429,40 @@ function initGraphicDesignArchivePopup() {
   const closeButton = popup.querySelector("[data-graphic-archive-close]");
   const popupPanel = popup.querySelector(".graphic-archive-popup__panel");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const ARCHIVE_HASH = "#all-graphic-design-works";
   let popupFloatFrame = 0;
   let popupFloatTimer = 0;
   let popupFloatStart = 0;
+
+  function hasArchiveHash() {
+    return String(window.location.hash || "").toLowerCase() === ARCHIVE_HASH;
+  }
+
+  function syncArchiveHash(shouldShow) {
+    if (!window.history || typeof window.history.replaceState !== "function") {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    const currentHash = String(url.hash || "").toLowerCase();
+
+    if (shouldShow) {
+      if (currentHash === ARCHIVE_HASH) {
+        return;
+      }
+
+      url.hash = ARCHIVE_HASH;
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      return;
+    }
+
+    if (currentHash !== ARCHIVE_HASH) {
+      return;
+    }
+
+    url.hash = "";
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }
 
   function stopPopupFloat() {
     if (popupFloatTimer) {
@@ -6484,6 +6515,7 @@ function initGraphicDesignArchivePopup() {
     }
 
     popup.showModal();
+    syncArchiveHash(true);
     body.classList.add("is-graphic-archive-popup-open");
     startPopupFloat();
 
@@ -6520,13 +6552,19 @@ function initGraphicDesignArchivePopup() {
 
   popup.addEventListener("close", () => {
     stopPopupFloat();
+    syncArchiveHash(false);
     body.classList.remove("is-graphic-archive-popup-open");
   });
 
   popup.addEventListener("cancel", () => {
     stopPopupFloat();
+    syncArchiveHash(false);
     body.classList.remove("is-graphic-archive-popup-open");
   });
+
+  if (hasArchiveHash()) {
+    openPopup();
+  }
 }
 
 function initGraphicDesignParticleBackdrop() {
