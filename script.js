@@ -4147,6 +4147,15 @@ if (photoGallery && photoLightbox) {
   let photoLightboxPrev = photoLightbox.querySelector("[data-photo-lightbox-prev]");
   let photoLightboxNext = photoLightbox.querySelector("[data-photo-lightbox-next]");
   const isResearchGallery = photoGallery.classList.contains("photo-gallery--research");
+  const isGraphicProjectGallery = body.classList.contains("page-graphic-project")
+    && photoGallery.classList.contains("graphic-spreadbook__grid");
+  const spotlightState = {
+    enabled: false,
+    expanded: false
+  };
+  let spotlightMainSlot = null;
+  let spotlightThumbSlot = null;
+  let spotlightStatement = null;
   let lastPhotoTrigger = null;
   let activePhotoIndex = -1;
 
@@ -4174,6 +4183,85 @@ if (photoGallery && photoLightbox) {
 
   function getPhotoTriggers() {
     return Array.from(photoGallery.querySelectorAll("[data-photo-trigger]"));
+  }
+
+  function setSpotlightExpanded(expanded) {
+    if (!spotlightState.enabled) {
+      return;
+    }
+
+    spotlightState.expanded = expanded;
+    photoGallery.classList.toggle("is-expanded", expanded);
+    if (spotlightStatement) {
+      spotlightStatement.classList.toggle("is-spotlight-hint", !expanded);
+    }
+  }
+
+  function updateSpotlightThumbDelays() {
+    if (!spotlightThumbSlot) {
+      return;
+    }
+
+    const thumbnails = Array.from(spotlightThumbSlot.querySelectorAll("[data-photo-trigger]"));
+    thumbnails.forEach((thumbnail, thumbIndex) => {
+      thumbnail.style.setProperty("--spotlight-delay", `${thumbIndex * 46}ms`);
+    });
+  }
+
+  function setSpotlightMain(trigger) {
+    if (!spotlightState.enabled || !spotlightMainSlot || !spotlightThumbSlot || !trigger) {
+      return;
+    }
+
+    const currentMain = spotlightMainSlot.querySelector("[data-photo-trigger]");
+
+    if (currentMain && currentMain !== trigger) {
+      currentMain.classList.remove("is-spotlight-main");
+      spotlightThumbSlot.appendChild(currentMain);
+    }
+
+    if (trigger.parentElement !== spotlightMainSlot) {
+      spotlightMainSlot.appendChild(trigger);
+    }
+
+    trigger.classList.add("is-spotlight-main");
+    updateSpotlightThumbDelays();
+  }
+
+  function initGraphicProjectSpotlightGallery() {
+    if (!isGraphicProjectGallery) {
+      return;
+    }
+
+    const triggers = getPhotoTriggers();
+
+    if (triggers.length === 0) {
+      return;
+    }
+
+    photoGallery.classList.add("graphic-spreadbook__grid--spotlight");
+    spotlightStatement = photoGallery.querySelector(".graphic-spreadbook__statement");
+    spotlightMainSlot = document.createElement("div");
+    spotlightMainSlot.className = "graphic-spreadbook__spotlight-main";
+    spotlightThumbSlot = document.createElement("div");
+    spotlightThumbSlot.className = "graphic-spreadbook__spotlight-thumbs";
+
+    if (spotlightStatement) {
+      photoGallery.insertBefore(spotlightMainSlot, spotlightStatement);
+      photoGallery.insertBefore(spotlightThumbSlot, spotlightStatement);
+    } else {
+      photoGallery.append(spotlightMainSlot, spotlightThumbSlot);
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.classList.remove("is-spotlight-main");
+      spotlightThumbSlot.appendChild(trigger);
+    });
+
+    spotlightState.enabled = true;
+    setSpotlightMain(triggers[0]);
+    photoGallery.classList.toggle("is-single", triggers.length <= 1);
+    setSpotlightExpanded(triggers.length <= 1);
   }
 
   function syncPhotoLightboxNav() {
@@ -4523,6 +4611,7 @@ if (photoGallery && photoLightbox) {
 
   organizeResearchGallery();
   initPhotoSphere();
+  initGraphicProjectSpotlightGallery();
 
   photoGallery.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-photo-trigger]");
@@ -4532,6 +4621,19 @@ if (photoGallery && photoLightbox) {
     }
 
     event.preventDefault();
+
+    if (spotlightState.enabled) {
+      if (!spotlightState.expanded && getPhotoTriggers().length > 1) {
+        setSpotlightMain(trigger);
+        setSpotlightExpanded(true);
+        return;
+      }
+
+      if (!trigger.classList.contains("is-spotlight-main")) {
+        setSpotlightMain(trigger);
+        return;
+      }
+    }
 
     if (typeof photoLightbox.showModal !== "function") {
       const image = trigger.querySelector("img");
