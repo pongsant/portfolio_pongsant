@@ -5422,6 +5422,7 @@ if (homeWorkShowcaseTopics) {
   const showcaseSection = homeWorkShowcaseTopics.closest(".home-work-showcase");
   const showcaseCanvas = showcaseSection?.querySelector("[data-home-work-showcase-canvas]");
   const showcaseContext = showcaseCanvas?.getContext("2d");
+  const showcaseTitleLink = showcaseSection?.querySelector(".home-work-showcase__title-link");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const topicLinks = Array.from(homeWorkShowcaseTopics.querySelectorAll("[data-home-work-topic]"));
   const defaultTopicIndex = Math.max(0, topicLinks.findIndex((topic) => topic.classList.contains("is-active")));
@@ -5448,7 +5449,9 @@ if (homeWorkShowcaseTopics) {
     pointerDrawX: 0,
     pointerDrawY: 0,
     pointerInside: false,
-    pointerLinkProgress: 0
+    pointerLinkProgress: 0,
+    titleHover: false,
+    titleLinkProgress: 0
   };
 
   function showcaseRandomBetween(min, max) {
@@ -5521,6 +5524,25 @@ if (homeWorkShowcaseTopics) {
     return clampShowcasePoint(
       topicRect.left - sectionRect.left + topicRect.width * xRatio,
       topicRect.top - sectionRect.top + topicRect.height * 0.56,
+      2
+    );
+  }
+
+  function getShowcaseTitleFocusPoint() {
+    if (!showcaseSection || !showcaseTitleLink) {
+      return null;
+    }
+
+    const titleRect = showcaseTitleLink.getBoundingClientRect();
+    const sectionRect = showcaseSection.getBoundingClientRect();
+
+    if (!titleRect.width || !titleRect.height || !sectionRect.width || !sectionRect.height) {
+      return null;
+    }
+
+    return clampShowcasePoint(
+      titleRect.left - sectionRect.left + titleRect.width * 0.56,
+      titleRect.top - sectionRect.top + titleRect.height * 0.54,
       2
     );
   }
@@ -5785,6 +5807,11 @@ if (homeWorkShowcaseTopics) {
     lineState.pointerLinkProgress += (pointerTarget - lineState.pointerLinkProgress) * (isReducedMotion ? 1 : 0.16);
     if (Math.abs(pointerTarget - lineState.pointerLinkProgress) < 0.002) {
       lineState.pointerLinkProgress = pointerTarget;
+    }
+    const titlePointerTarget = lineState.titleHover ? 1 : 0;
+    lineState.titleLinkProgress += (titlePointerTarget - lineState.titleLinkProgress) * (isReducedMotion ? 1 : 0.16);
+    if (Math.abs(titlePointerTarget - lineState.titleLinkProgress) < 0.002) {
+      lineState.titleLinkProgress = titlePointerTarget;
     }
 
     showcaseContext.globalCompositeOperation = "source-over";
@@ -6065,6 +6092,39 @@ if (homeWorkShowcaseTopics) {
       }
     }
 
+    if (lineState.titleLinkProgress > 0.01) {
+      const titleFocusPoint = getShowcaseTitleFocusPoint();
+
+      if (titleFocusPoint) {
+        const pointerPoint = clampShowcasePoint(lineState.pointerDrawX, lineState.pointerDrawY, 2);
+        const trailCount = 4;
+
+        for (let trailIndex = 0; trailIndex < trailCount; trailIndex += 1) {
+          const trailProgress = trailCount === 1 ? 0 : trailIndex / (trailCount - 1);
+          const swing = Math.sin(drift * (3.4 + trailIndex * 0.7) + trailIndex * 0.84);
+          const lift = Math.cos(drift * (3 + trailIndex * 0.6) + trailIndex * 1.18);
+          const controlPoint = clampShowcasePoint(
+            pointerPoint.x + (titleFocusPoint.x - pointerPoint.x) * (0.48 + trailProgress * 0.14) + swing * lineState.width * 0.012,
+            pointerPoint.y + (titleFocusPoint.y - pointerPoint.y) * (0.34 + trailProgress * 0.2) + lift * lineState.height * 0.024,
+            2
+          );
+          const alphaBoost = lineState.titleLinkProgress * (1 - trailProgress * 0.18);
+
+          showcaseContext.strokeStyle = showcaseHueColor(0.18 + alphaBoost * 0.3, 92, 80, 10 + trailIndex * 3);
+          showcaseContext.lineWidth = 1.8 - trailProgress * 0.6;
+          showcaseContext.beginPath();
+          showcaseContext.moveTo(pointerPoint.x, pointerPoint.y);
+          showcaseContext.quadraticCurveTo(controlPoint.x, controlPoint.y, titleFocusPoint.x, titleFocusPoint.y);
+          showcaseContext.stroke();
+        }
+
+        showcaseContext.fillStyle = showcaseHueColor(0.56 + lineState.titleLinkProgress * 0.3, 96, 86, 16);
+        showcaseContext.beginPath();
+        showcaseContext.arc(titleFocusPoint.x, titleFocusPoint.y, 2.4, 0, Math.PI * 2);
+        showcaseContext.fill();
+      }
+    }
+
     for (let anchorIndex = 0; anchorIndex < lineState.wordAnchorCount; anchorIndex += 1) {
       const anchor = lineState.anchors[anchorIndex];
 
@@ -6173,6 +6233,24 @@ if (homeWorkShowcaseTopics) {
     setHoveredShowcaseTopic(-1);
   }
 
+  function setShowcaseTitleHoverState(isHovered) {
+    const nextState = Boolean(isHovered);
+
+    if (lineState.titleHover === nextState) {
+      return;
+    }
+
+    lineState.titleHover = nextState;
+
+    if (reducedMotionQuery.matches) {
+      lineState.titleLinkProgress = nextState ? 1 : 0;
+      drawShowcaseLines(performance.now());
+      return;
+    }
+
+    queueShowcaseLines();
+  }
+
   function setActiveShowcaseTopic(index) {
     const topic = topicLinks[index];
 
@@ -6216,7 +6294,12 @@ if (homeWorkShowcaseTopics) {
 
   homeWorkShowcaseTopics.addEventListener("pointermove", updateShowcasePointer);
 
-  homeWorkShowcaseTopics.addEventListener("pointerleave", () => {
+  homeWorkShowcaseTopics.addEventListener("pointerleave", (event) => {
+    if (event.relatedTarget instanceof Node && showcaseSection?.contains(event.relatedTarget)) {
+      clearHoveredShowcaseTopic();
+      return;
+    }
+
     resetShowcasePointer();
     clearHoveredShowcaseTopic();
     setActiveShowcaseTopic(defaultTopicIndex);
@@ -6229,6 +6312,31 @@ if (homeWorkShowcaseTopics) {
 
     clearHoveredShowcaseTopic();
     setActiveShowcaseTopic(defaultTopicIndex);
+  });
+
+  if (showcaseTitleLink) {
+    showcaseTitleLink.addEventListener("pointerenter", (event) => {
+      updateShowcasePointer(event);
+      setShowcaseTitleHoverState(true);
+    });
+
+    showcaseTitleLink.addEventListener("pointermove", updateShowcasePointer);
+
+    showcaseTitleLink.addEventListener("pointerleave", () => {
+      setShowcaseTitleHoverState(false);
+    });
+
+    showcaseTitleLink.addEventListener("focus", () => {
+      setShowcaseTitleHoverState(true);
+    });
+
+    showcaseTitleLink.addEventListener("blur", () => {
+      setShowcaseTitleHoverState(false);
+    });
+  }
+
+  showcaseSection?.addEventListener("pointerleave", () => {
+    setShowcaseTitleHoverState(false);
   });
 
   function refreshShowcaseLines() {
