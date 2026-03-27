@@ -5423,6 +5423,7 @@ if (homeWorkShowcaseTopics) {
   const showcaseCanvas = showcaseSection?.querySelector("[data-home-work-showcase-canvas]");
   const showcaseContext = showcaseCanvas?.getContext("2d");
   const showcaseTitleLink = showcaseSection?.querySelector(".home-work-showcase__title-link");
+  const isLightShowcase = Boolean(showcaseSection?.classList.contains("home-work-showcase--light"));
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const topicLinks = Array.from(homeWorkShowcaseTopics.querySelectorAll("[data-home-work-topic]"));
   const defaultTopicIndex = Math.max(0, topicLinks.findIndex((topic) => topic.classList.contains("is-active")));
@@ -5470,8 +5471,15 @@ if (homeWorkShowcaseTopics) {
   }
 
   function showcaseHueColor(alpha, saturation = 88, lightness = 72, hueOffset = 0) {
+    const safeAlpha = clampShowcaseCoordinate(alpha, 0, 1);
+    const useTopicHue = !isLightShowcase || lineState.hoveredWordIndex >= 0 || lineState.focusTarget > 0;
+
+    if (!useTopicHue) {
+      return `rgba(5, 5, 5, ${safeAlpha})`;
+    }
+
     const hue = (lineState.currentHue + hueOffset + 360) % 360;
-    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${safeAlpha})`;
   }
 
   function getShowcaseTopicAnchors(sectionRect) {
@@ -5830,7 +5838,7 @@ if (homeWorkShowcaseTopics) {
     lineState.pointerDrawY += (pointerTargetY - lineState.pointerDrawY) * (isReducedMotion ? 1 : 0.24);
     const terminalStart = lineState.wordAnchorCount * 2;
 
-    showcaseContext.fillStyle = "#020202";
+    showcaseContext.fillStyle = isLightShowcase ? "#ffffff" : "#020202";
     showcaseContext.fillRect(0, 0, lineState.width, lineState.height);
 
     const radialGlow = showcaseContext.createRadialGradient(
@@ -5841,8 +5849,18 @@ if (homeWorkShowcaseTopics) {
       flowOrigin.y,
       Math.max(lineState.width, lineState.height) * 0.82
     );
-    radialGlow.addColorStop(0, showcaseHueColor(0.2, 92, 76, 6));
-    radialGlow.addColorStop(0.42, showcaseHueColor(0.08, 90, 68, -8));
+    radialGlow.addColorStop(
+      0,
+      isLightShowcase
+        ? "rgba(5, 5, 5, 0.14)"
+        : showcaseHueColor(0.2, 92, 76, 6)
+    );
+    radialGlow.addColorStop(
+      0.42,
+      isLightShowcase
+        ? "rgba(5, 5, 5, 0.06)"
+        : showcaseHueColor(0.08, 90, 68, -8)
+    );
     radialGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
     showcaseContext.fillStyle = radialGlow;
     showcaseContext.fillRect(0, 0, lineState.width, lineState.height);
@@ -6393,6 +6411,562 @@ if (homeWorkShowcaseTopics) {
   }
 
   setActiveShowcaseTopic(defaultTopicIndex);
+}
+
+const homeGraphicSliderSection = document.querySelector("[data-home-graphic-slider]");
+
+if (homeGraphicSliderSection) {
+  const sliderCanvas = homeGraphicSliderSection.querySelector("[data-home-graphic-canvas]");
+  const sliderContext = sliderCanvas?.getContext("2d");
+  const sliderItems = Array.from(homeGraphicSliderSection.querySelectorAll("[data-home-graphic-item]"));
+  const sliderPrevButton = homeGraphicSliderSection.querySelector("[data-home-graphic-prev]");
+  const sliderNextButton = homeGraphicSliderSection.querySelector("[data-home-graphic-next]");
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const initialHue = Number(sliderItems[0]?.dataset.graphicHue) || 214;
+  const sliderState = {
+    currentIndex: 0,
+    width: 0,
+    height: 0,
+    dpr: Math.min(window.devicePixelRatio || 1, 2),
+    frame: 0,
+    visible: true,
+    particles: [],
+    pointerInside: false,
+    pointerX: 0,
+    pointerY: 0,
+    pointerDrawX: 0,
+    pointerDrawY: 0,
+    flowX: 0,
+    flowY: 0,
+    targetHue: initialHue,
+    currentHue: initialHue
+  };
+
+  function clampHomeGraphic(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function normalizeSliderIndex(value) {
+    if (!sliderItems.length) {
+      return 0;
+    }
+
+    return (value % sliderItems.length + sliderItems.length) % sliderItems.length;
+  }
+
+  function getSignedSliderDistance(index, current, total) {
+    let delta = index - current;
+    const half = total / 2;
+
+    if (delta > half) {
+      delta -= total;
+    } else if (delta < -half) {
+      delta += total;
+    }
+
+    return delta;
+  }
+
+  function sliderHue(alpha, saturation = 90, lightness = 70, hueOffset = 0) {
+    const safeAlpha = clampHomeGraphic(alpha, 0, 1);
+    return `rgba(255, 255, 255, ${safeAlpha})`;
+  }
+
+  function getSectionRect() {
+    const rect = homeGraphicSliderSection.getBoundingClientRect();
+
+    if (rect.width > 0 && rect.height > 0) {
+      return rect;
+    }
+
+    return {
+      left: 0,
+      top: 0,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  }
+
+  function getItemAnchor(item) {
+    const media = item.querySelector(".home-graphic-slider__media") || item;
+    const itemRect = media.getBoundingClientRect();
+    const sectionRect = getSectionRect();
+
+    if (!itemRect.width || !itemRect.height || !sectionRect.width || !sectionRect.height) {
+      return null;
+    }
+
+    return {
+      x: clampHomeGraphic(itemRect.left - sectionRect.left + itemRect.width * 0.5, 2, sliderState.width - 2),
+      y: clampHomeGraphic(itemRect.top - sectionRect.top + itemRect.height * 0.52, 2, sliderState.height - 2)
+    };
+  }
+
+  function buildSliderParticles() {
+    const area = sliderState.width * sliderState.height;
+    const count = clampHomeGraphic(Math.round(area / 13500), 96, 172);
+    const left = sliderState.width * 0.24;
+    const right = sliderState.width + 26;
+
+    sliderState.particles = Array.from({ length: count }, () => ({
+      x: left + Math.random() * (right - left),
+      y: Math.random() * sliderState.height,
+      vx: (Math.random() - 0.5) * 0.58,
+      vy: (Math.random() - 0.5) * 0.58,
+      seed: Math.random() * Math.PI * 2,
+      drift: 0.24 + Math.random() * 1.1,
+      size: 0.74 + Math.random() * 2.6,
+      minX: left,
+      maxX: right,
+      minY: -14,
+      maxY: sliderState.height + 14
+    }));
+  }
+
+  function resizeHomeGraphicSlider() {
+    if (!sliderCanvas || !sliderContext) {
+      return;
+    }
+
+    const rect = getSectionRect();
+    sliderState.width = Math.max(1, Math.round(rect.width || window.innerWidth));
+    sliderState.height = Math.max(1, Math.round(rect.height || window.innerHeight));
+    sliderState.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    sliderCanvas.width = Math.max(1, Math.round(sliderState.width * sliderState.dpr));
+    sliderCanvas.height = Math.max(1, Math.round(sliderState.height * sliderState.dpr));
+    sliderCanvas.style.width = `${sliderState.width}px`;
+    sliderCanvas.style.height = `${sliderState.height}px`;
+    sliderContext.setTransform(sliderState.dpr, 0, 0, sliderState.dpr, 0, 0);
+    sliderState.flowX = sliderState.width * (window.innerWidth < 720 ? 0.62 : 0.56);
+    sliderState.flowY = sliderState.height * 0.5;
+    sliderState.pointerX = sliderState.flowX;
+    sliderState.pointerY = sliderState.flowY;
+    sliderState.pointerDrawX = sliderState.flowX;
+    sliderState.pointerDrawY = sliderState.flowY;
+    buildSliderParticles();
+  }
+
+  function updateSliderPointer(event) {
+    const rect = getSectionRect();
+    const localX = event.clientX - rect.left;
+    const localY = event.clientY - rect.top;
+    sliderState.pointerX = clampHomeGraphic(localX, 2, sliderState.width - 2);
+    sliderState.pointerY = clampHomeGraphic(localY, 2, sliderState.height - 2);
+
+    if (!sliderState.pointerInside) {
+      sliderState.pointerDrawX = sliderState.pointerX;
+      sliderState.pointerDrawY = sliderState.pointerY;
+    }
+
+    sliderState.pointerInside = true;
+    queueHomeGraphicBackdrop();
+  }
+
+  function clearSliderPointer() {
+    sliderState.pointerInside = false;
+    queueHomeGraphicBackdrop();
+  }
+
+  function stepSliderParticles(time, frozen = false) {
+    const pointerTargetX = sliderState.pointerInside ? sliderState.pointerX : sliderState.flowX;
+    const pointerTargetY = sliderState.pointerInside ? sliderState.pointerY : sliderState.flowY;
+    sliderState.pointerDrawX += (pointerTargetX - sliderState.pointerDrawX) * (frozen ? 1 : 0.2);
+    sliderState.pointerDrawY += (pointerTargetY - sliderState.pointerDrawY) * (frozen ? 1 : 0.2);
+
+    if (frozen) {
+      return;
+    }
+
+    const t = time * 0.001;
+    sliderState.particles.forEach((particle) => {
+      const wobbleX = Math.cos(t * (0.5 + particle.drift) + particle.seed) * 0.08;
+      const wobbleY = Math.sin(t * (0.44 + particle.drift * 1.08) + particle.seed * 0.84) * 0.08;
+      const pullX = (sliderState.flowX - particle.x) * 0.0004;
+      const pullY = (sliderState.flowY - particle.y) * 0.00032;
+
+      particle.vx = clampHomeGraphic((particle.vx + wobbleX + pullX) * 0.992, -0.74, 0.74);
+      particle.vy = clampHomeGraphic((particle.vy + wobbleY + pullY) * 0.992, -0.74, 0.74);
+
+      if (sliderState.pointerInside) {
+        const dx = sliderState.pointerDrawX - particle.x;
+        const dy = sliderState.pointerDrawY - particle.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance > 0.001 && distance < 220) {
+          const strength = (1 - (distance / 220)) * 0.038;
+          particle.vx += (dx / distance) * strength;
+          particle.vy += (dy / distance) * strength;
+        }
+      }
+
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+
+      if (particle.x < particle.minX) {
+        particle.x = particle.maxX;
+      } else if (particle.x > particle.maxX) {
+        particle.x = particle.minX;
+      }
+
+      if (particle.y < particle.minY) {
+        particle.y = particle.maxY;
+      } else if (particle.y > particle.maxY) {
+        particle.y = particle.minY;
+      }
+    });
+  }
+
+  function drawHomeGraphicBackdrop(time = 0, frozen = false) {
+    if (!sliderContext || !sliderCanvas) {
+      return;
+    }
+
+    const isFrozen = frozen || reducedMotionQuery.matches;
+    sliderState.currentHue += (sliderState.targetHue - sliderState.currentHue) * (isFrozen ? 1 : 0.12);
+    stepSliderParticles(time, isFrozen);
+
+    sliderContext.setTransform(1, 0, 0, 1, 0, 0);
+    sliderContext.clearRect(0, 0, sliderCanvas.width, sliderCanvas.height);
+    sliderContext.setTransform(sliderState.dpr, 0, 0, sliderState.dpr, 0, 0);
+    sliderContext.clearRect(0, 0, sliderState.width, sliderState.height);
+
+    sliderContext.fillStyle = "#000000";
+    sliderContext.fillRect(0, 0, sliderState.width, sliderState.height);
+
+    const glow = sliderContext.createRadialGradient(
+      sliderState.flowX,
+      sliderState.flowY,
+      0,
+      sliderState.flowX,
+      sliderState.flowY,
+      Math.max(sliderState.width, sliderState.height) * 0.8
+    );
+    glow.addColorStop(0, sliderHue(0.24, 94, 72, 8));
+    glow.addColorStop(0.42, sliderHue(0.1, 90, 66, -6));
+    glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+    sliderContext.fillStyle = glow;
+    sliderContext.fillRect(0, 0, sliderState.width, sliderState.height);
+
+    const linkDistance = window.innerWidth < 720 ? 126 : 168;
+    for (let index = 0; index < sliderState.particles.length; index += 1) {
+      const pointA = sliderState.particles[index];
+
+      for (let nextIndex = index + 1; nextIndex < sliderState.particles.length; nextIndex += 1) {
+        const pointB = sliderState.particles[nextIndex];
+        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+
+        if (!distance || distance > linkDistance) {
+          continue;
+        }
+
+        const alpha = (1 - (distance / linkDistance)) ** 2 * 0.4;
+        sliderContext.strokeStyle = sliderHue(alpha, 90, 70, 4);
+        sliderContext.lineWidth = 0.5 + alpha * 2.4;
+        sliderContext.beginPath();
+        sliderContext.moveTo(pointA.x, pointA.y);
+        sliderContext.lineTo(pointB.x, pointB.y);
+        sliderContext.stroke();
+      }
+    }
+
+    const extendedDistance = window.innerWidth < 720 ? 188 : 248;
+    for (let index = 0; index < sliderState.particles.length; index += 2) {
+      const pointA = sliderState.particles[index];
+      const maxNext = Math.min(sliderState.particles.length, index + 24);
+
+      for (let nextIndex = index + 2; nextIndex < maxNext; nextIndex += 4) {
+        const pointB = sliderState.particles[nextIndex];
+        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+
+        if (!distance || distance > extendedDistance) {
+          continue;
+        }
+
+        const alpha = (1 - (distance / extendedDistance)) ** 1.8 * 0.16;
+        sliderContext.strokeStyle = sliderHue(alpha, 92, 76, 8);
+        sliderContext.lineWidth = 0.36 + alpha * 1.1;
+        sliderContext.beginPath();
+        sliderContext.moveTo(pointA.x, pointA.y);
+        sliderContext.lineTo(pointB.x, pointB.y);
+        sliderContext.stroke();
+      }
+    }
+
+    const liveT = time * 0.001;
+    const ringCount = window.innerWidth < 720 ? 2 : 3;
+    for (let ringIndex = 0; ringIndex < ringCount; ringIndex += 1) {
+      const radiusX = sliderState.width * (0.1 + ringIndex * 0.08) + Math.sin(liveT * (0.7 + ringIndex * 0.2)) * 16;
+      const radiusY = sliderState.height * (0.08 + ringIndex * 0.06) + Math.cos(liveT * (0.62 + ringIndex * 0.18)) * 10;
+      const rotate = liveT * (0.22 + ringIndex * 0.09);
+
+      sliderContext.strokeStyle = sliderHue(0.12 + ringIndex * 0.06, 94, 80, 12);
+      sliderContext.lineWidth = 1.2 + ringIndex * 0.7;
+      sliderContext.beginPath();
+      sliderContext.ellipse(
+        sliderState.flowX,
+        sliderState.flowY,
+        Math.max(24, radiusX),
+        Math.max(20, radiusY),
+        rotate,
+        0,
+        Math.PI * 2
+      );
+      sliderContext.stroke();
+    }
+
+    const orbitCount = window.innerWidth < 720 ? 11 : 17;
+    const orbitRadiusX = sliderState.width * (window.innerWidth < 720 ? 0.24 : 0.3);
+    const orbitRadiusY = sliderState.height * (window.innerWidth < 720 ? 0.2 : 0.26);
+    let previousOrbitPoint = null;
+    for (let orbitIndex = 0; orbitIndex < orbitCount; orbitIndex += 1) {
+      const ratio = orbitCount === 1 ? 0 : orbitIndex / orbitCount;
+      const angle = ratio * Math.PI * 2 + liveT * 0.36;
+      const orbitX = sliderState.flowX + Math.cos(angle) * orbitRadiusX;
+      const orbitY = sliderState.flowY + Math.sin(angle * 1.12) * orbitRadiusY;
+      const wobbleX = Math.sin(liveT * 1.8 + orbitIndex) * sliderState.width * 0.006;
+      const wobbleY = Math.cos(liveT * 1.5 + orbitIndex) * sliderState.height * 0.01;
+      const pointX = orbitX + wobbleX;
+      const pointY = orbitY + wobbleY;
+
+      if (previousOrbitPoint) {
+        sliderContext.strokeStyle = sliderHue(0.16, 92, 76, 6);
+        sliderContext.lineWidth = 0.74;
+        sliderContext.beginPath();
+        sliderContext.moveTo(previousOrbitPoint.x, previousOrbitPoint.y);
+        sliderContext.lineTo(pointX, pointY);
+        sliderContext.stroke();
+      }
+
+      if (orbitIndex % 2 === 0) {
+        sliderContext.strokeStyle = sliderHue(0.12, 90, 74, 2);
+        sliderContext.lineWidth = 0.86;
+        sliderContext.beginPath();
+        sliderContext.moveTo(pointX, pointY);
+        sliderContext.lineTo(sliderState.flowX, sliderState.flowY);
+        sliderContext.stroke();
+      }
+
+      sliderContext.fillStyle = sliderHue(0.46, 98, 86, 12);
+      sliderContext.beginPath();
+      sliderContext.arc(pointX, pointY, 1.26, 0, Math.PI * 2);
+      sliderContext.fill();
+
+      previousOrbitPoint = { x: pointX, y: pointY };
+    }
+
+    const streamCount = window.innerWidth < 720 ? 8 : 13;
+    for (let streamIndex = 0; streamIndex < streamCount; streamIndex += 1) {
+      const streamRatio = streamCount === 1 ? 0.5 : streamIndex / (streamCount - 1);
+      const fromX = sliderState.width + 2;
+      const fromY = sliderState.height * (0.06 + streamRatio * 0.88);
+      const sway = Math.sin(liveT * 1.3 + streamIndex * 0.72);
+      const controlX = sliderState.flowX + sliderState.width * 0.28 + sway * sliderState.width * 0.06;
+      const controlY = sliderState.flowY + (fromY - sliderState.flowY) * 0.44 + Math.cos(liveT * 1.08 + streamIndex) * sliderState.height * 0.04;
+
+      sliderContext.strokeStyle = sliderHue(0.08, 90, 72, 10);
+      sliderContext.lineWidth = 0.7;
+      sliderContext.beginPath();
+      sliderContext.moveTo(fromX, fromY);
+      sliderContext.quadraticCurveTo(controlX, controlY, sliderState.flowX, sliderState.flowY);
+      sliderContext.stroke();
+    }
+
+    sliderState.particles.forEach((particle) => {
+      const pulse = (Math.sin(time * 0.0013 + particle.seed) + 1) * 0.5;
+      sliderContext.fillStyle = sliderHue(0.18 + pulse * 0.3, 96, 82, 10);
+      sliderContext.beginPath();
+      sliderContext.arc(particle.x, particle.y, particle.size * (0.72 + pulse * 0.84), 0, Math.PI * 2);
+      sliderContext.fill();
+    });
+
+    const featuredAnchors = sliderItems
+      .filter((item) => item.classList.contains("is-current") || item.classList.contains("is-prev"))
+      .map((item) => getItemAnchor(item))
+      .filter((anchor) => anchor !== null);
+
+    featuredAnchors.forEach((anchor, index) => {
+      const wave = Math.sin(time * 0.0017 + index * 0.88);
+      const controlPoint = {
+        x: sliderState.flowX + (anchor.x - sliderState.flowX) * 0.48 + wave * sliderState.width * 0.028,
+        y: sliderState.flowY + (anchor.y - sliderState.flowY) * 0.42 + Math.cos(time * 0.0012 + index) * sliderState.height * 0.04
+      };
+
+      sliderContext.strokeStyle = sliderHue(0.24, 94, 78, 12);
+      sliderContext.lineWidth = index === 0 ? 3.2 : 2;
+      sliderContext.beginPath();
+      sliderContext.moveTo(anchor.x, anchor.y);
+      sliderContext.quadraticCurveTo(controlPoint.x, controlPoint.y, sliderState.flowX, sliderState.flowY);
+      sliderContext.stroke();
+
+      sliderContext.strokeStyle = sliderHue(0.4, 92, 70, 2);
+      sliderContext.lineWidth = index === 0 ? 1.2 : 0.9;
+      sliderContext.beginPath();
+      sliderContext.moveTo(anchor.x, anchor.y);
+      sliderContext.quadraticCurveTo(controlPoint.x, controlPoint.y, sliderState.flowX, sliderState.flowY);
+      sliderContext.stroke();
+    });
+
+    if (sliderState.pointerInside) {
+      for (let trailIndex = 0; trailIndex < 3; trailIndex += 1) {
+        const spread = trailIndex - 1;
+        sliderContext.strokeStyle = sliderHue(0.2 + trailIndex * 0.1, 96, 76, 12 + trailIndex * 4);
+        sliderContext.lineWidth = 1.8 - trailIndex * 0.36;
+        sliderContext.beginPath();
+        sliderContext.moveTo(sliderState.pointerDrawX, sliderState.pointerDrawY);
+        sliderContext.quadraticCurveTo(
+          sliderState.pointerDrawX + (sliderState.flowX - sliderState.pointerDrawX) * (0.42 + trailIndex * 0.08),
+          sliderState.pointerDrawY + (sliderState.flowY - sliderState.pointerDrawY) * (0.34 + trailIndex * 0.1) + spread * sliderState.height * 0.05,
+          sliderState.flowX,
+          sliderState.flowY
+        );
+        sliderContext.stroke();
+      }
+    }
+
+    sliderContext.fillStyle = sliderHue(0.72, 98, 86, 16);
+    sliderContext.beginPath();
+    sliderContext.arc(sliderState.flowX, sliderState.flowY, 3.8, 0, Math.PI * 2);
+    sliderContext.fill();
+
+    if (isFrozen || !sliderState.visible) {
+      sliderState.frame = 0;
+      return;
+    }
+
+    sliderState.frame = window.requestAnimationFrame(drawHomeGraphicBackdrop);
+  }
+
+  function stopHomeGraphicBackdrop() {
+    if (!sliderState.frame) {
+      return;
+    }
+
+    window.cancelAnimationFrame(sliderState.frame);
+    sliderState.frame = 0;
+  }
+
+  function queueHomeGraphicBackdrop() {
+    if (sliderState.frame || reducedMotionQuery.matches || !sliderState.visible) {
+      return;
+    }
+
+    sliderState.frame = window.requestAnimationFrame(drawHomeGraphicBackdrop);
+  }
+
+  function applySliderClasses() {
+    if (!sliderItems.length) {
+      return;
+    }
+
+    sliderItems.forEach((item, index) => {
+      const delta = getSignedSliderDistance(index, sliderState.currentIndex, sliderItems.length);
+      item.classList.remove("is-current", "is-prev", "is-next", "is-far-left", "is-far-right");
+
+      if (delta === 0) {
+        item.classList.add("is-current");
+        item.setAttribute("aria-hidden", "false");
+        item.tabIndex = 0;
+      } else if (delta === -1) {
+        item.classList.add("is-prev");
+        item.setAttribute("aria-hidden", "false");
+        item.tabIndex = -1;
+      } else if (delta === 1) {
+        item.classList.add("is-next");
+        item.setAttribute("aria-hidden", "true");
+        item.tabIndex = -1;
+      } else if (delta < 0) {
+        item.classList.add("is-far-left");
+        item.setAttribute("aria-hidden", "true");
+        item.tabIndex = -1;
+      } else {
+        item.classList.add("is-far-right");
+        item.setAttribute("aria-hidden", "true");
+        item.tabIndex = -1;
+      }
+    });
+
+    const currentItem = sliderItems[sliderState.currentIndex];
+    const hue = Number(currentItem?.dataset.graphicHue) || initialHue;
+    sliderState.targetHue = hue;
+    homeGraphicSliderSection.style.setProperty("--showcase-hue", String(hue));
+
+    if (reducedMotionQuery.matches) {
+      sliderState.currentHue = sliderState.targetHue;
+      drawHomeGraphicBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueHomeGraphicBackdrop();
+  }
+
+  function moveHomeGraphicSlider(step) {
+    sliderState.currentIndex = normalizeSliderIndex(sliderState.currentIndex + step);
+    applySliderClasses();
+  }
+
+  sliderPrevButton?.addEventListener("click", () => {
+    moveHomeGraphicSlider(-1);
+  });
+
+  sliderNextButton?.addEventListener("click", () => {
+    moveHomeGraphicSlider(1);
+  });
+
+  homeGraphicSliderSection.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      moveHomeGraphicSlider(-1);
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      moveHomeGraphicSlider(1);
+    }
+  });
+
+  homeGraphicSliderSection.addEventListener("pointermove", updateSliderPointer, { passive: true });
+  homeGraphicSliderSection.addEventListener("pointerleave", clearSliderPointer);
+
+  function refreshHomeGraphicSlider() {
+    resizeHomeGraphicSlider();
+    stopHomeGraphicBackdrop();
+    drawHomeGraphicBackdrop(performance.now(), reducedMotionQuery.matches);
+    queueHomeGraphicBackdrop();
+  }
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      sliderState.visible = Boolean(entry?.isIntersecting);
+
+      if (sliderState.visible) {
+        drawHomeGraphicBackdrop(performance.now(), reducedMotionQuery.matches);
+        queueHomeGraphicBackdrop();
+        return;
+      }
+
+      stopHomeGraphicBackdrop();
+    }, {
+      threshold: 0.08
+    });
+
+    observer.observe(homeGraphicSliderSection);
+  }
+
+  reducedMotionQuery.addEventListener("change", () => {
+    if (reducedMotionQuery.matches) {
+      stopHomeGraphicBackdrop();
+      drawHomeGraphicBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueHomeGraphicBackdrop();
+  });
+
+  window.addEventListener("resize", refreshHomeGraphicSlider);
+  applySliderClasses();
+  refreshHomeGraphicSlider();
 }
 
 async function syncGraphicDesignArchiveLetterFrames() {
@@ -7296,6 +7870,8 @@ function initInteractiveWorkLiveSync() {
     frameId: 0,
     visible: true,
     particles: [],
+    shards: [],
+    weaveLines: [],
     activeIndex: 0,
     defaultIndex: 0,
     targetHue: Number(projectCards[0].dataset.interactiveHue) || 214,
@@ -7323,8 +7899,8 @@ function initInteractiveWorkLiveSync() {
   }
 
   function hueInteractive(alpha, saturation = 88, lightness = 64, hueShift = 0) {
-    const hue = (state.currentHue + hueShift + 360) % 360;
-    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+    const safeAlpha = clampInteractive(alpha, 0, 1);
+    return `rgba(0, 0, 0, ${safeAlpha})`;
   }
 
   function getLiveFrameRect() {
@@ -7408,24 +7984,52 @@ function initInteractiveWorkLiveSync() {
   function buildParticles() {
     const isMobile = window.innerWidth < 720;
     const area = state.width * state.height;
-    const count = clampInteractive(Math.round(area / 17000), isMobile ? 44 : 56, isMobile ? 88 : 124);
-    const minX = state.width * (isMobile ? 0.46 : 0.5);
-    const maxX = state.width + 18;
-    const minY = -12;
-    const maxY = state.height + 12;
+    const count = clampInteractive(Math.round(area / 12200), isMobile ? 62 : 82, isMobile ? 138 : 196);
+    const minX = state.width * (isMobile ? 0.34 : 0.3);
+    const maxX = state.width + 28;
+    const minY = -18;
+    const maxY = state.height + 18;
 
     state.particles = Array.from({ length: count }, () => ({
       x: randomInteractive(minX, maxX),
       y: randomInteractive(0, state.height),
-      vx: randomInteractive(-0.24, 0.18),
-      vy: randomInteractive(-0.26, 0.26),
+      vx: randomInteractive(-0.34, 0.24),
+      vy: randomInteractive(-0.3, 0.3),
       drift: randomInteractive(0.2, 1),
       seed: randomInteractive(0, Math.PI * 2),
-      size: randomInteractive(0.74, 2.2),
+      orbit: randomInteractive(0.2, 0.9),
+      size: randomInteractive(0.66, 2.1),
       minX,
       maxX,
       minY,
       maxY
+    }));
+
+    const shardCount = clampInteractive(Math.round(area / 34000), isMobile ? 18 : 24, isMobile ? 54 : 74);
+    state.shards = Array.from({ length: shardCount }, () => ({
+      x: randomInteractive(0, state.width),
+      y: randomInteractive(0, state.height),
+      vx: randomInteractive(-0.46, 0.46),
+      vy: randomInteractive(-0.42, 0.42),
+      life: randomInteractive(0.44, 1),
+      decay: randomInteractive(0.0026, 0.0088),
+      seed: randomInteractive(0, Math.PI * 2),
+      size: randomInteractive(6, isMobile ? 22 : 32),
+      minX: -24,
+      maxX: state.width + 24,
+      minY: -24,
+      maxY: state.height + 24
+    }));
+
+    const weaveCount = clampInteractive(Math.round((state.width + state.height) / 90), isMobile ? 10 : 14, isMobile ? 22 : 30);
+    state.weaveLines = Array.from({ length: weaveCount }, (_, index) => ({
+      side: index % 4,
+      seed: randomInteractive(0, Math.PI * 2),
+      speed: randomInteractive(0.24, 0.92),
+      amplitude: randomInteractive(isMobile ? 24 : 34, isMobile ? 66 : 94),
+      alpha: randomInteractive(0.06, 0.18),
+      width: randomInteractive(0.9, 2.6),
+      targetBias: randomInteractive(0.06, 0.94)
     }));
   }
 
@@ -7535,11 +8139,17 @@ function initInteractiveWorkLiveSync() {
     state.particles.forEach((particle) => {
       const wobbleX = Math.cos(t * particle.drift + particle.seed) * 0.06;
       const wobbleY = Math.sin(t * (particle.drift + 0.24) + particle.seed * 1.2) * 0.08;
+      const centerX = particle.x - state.flowX;
+      const centerY = particle.y - state.flowY;
+      const radialDistance = Math.hypot(centerX, centerY) + 1;
+      const swirl = (particle.orbit * 0.052) / (1 + radialDistance * 0.0032);
+      const swirlX = (-centerY / radialDistance) * swirl;
+      const swirlY = (centerX / radialDistance) * swirl;
       const pullX = (state.flowX - particle.x) * 0.00032;
       const pullY = (state.flowY - particle.y) * 0.00026;
 
-      particle.vx = clampInteractive((particle.vx + pullX + wobbleX) * 0.992, -0.72, 0.72);
-      particle.vy = clampInteractive((particle.vy + pullY + wobbleY) * 0.992, -0.68, 0.68);
+      particle.vx = clampInteractive((particle.vx + pullX + wobbleX + swirlX) * 0.992, -0.94, 0.94);
+      particle.vy = clampInteractive((particle.vy + pullY + wobbleY + swirlY) * 0.992, -0.94, 0.94);
 
       if (state.pointerInside) {
         const dx = state.pointerDrawX - particle.x;
@@ -7568,6 +8178,31 @@ function initInteractiveWorkLiveSync() {
         particle.y = particle.minY;
       }
     });
+
+    state.shards.forEach((shard) => {
+      if (frozen) {
+        return;
+      }
+
+      const wobbleX = Math.cos(t * 0.9 + shard.seed) * 0.06;
+      const wobbleY = Math.sin(t * 0.76 + shard.seed * 1.2) * 0.06;
+      const pullX = (state.flowX - shard.x) * 0.00012;
+      const pullY = (state.flowY - shard.y) * 0.00012;
+
+      shard.vx = clampInteractive((shard.vx + pullX + wobbleX) * 0.994, -1.14, 1.14);
+      shard.vy = clampInteractive((shard.vy + pullY + wobbleY) * 0.994, -1.14, 1.14);
+      shard.x += shard.vx;
+      shard.y += shard.vy;
+      shard.life -= shard.decay;
+
+      if (shard.life <= 0 || shard.x < shard.minX || shard.x > shard.maxX || shard.y < shard.minY || shard.y > shard.maxY) {
+        shard.x = randomInteractive(0, state.width);
+        shard.y = randomInteractive(0, state.height);
+        shard.vx = randomInteractive(-0.5, 0.5);
+        shard.vy = randomInteractive(-0.5, 0.5);
+        shard.life = randomInteractive(0.48, 1);
+      }
+    });
   }
 
   function drawLiveBackdrop(time = 0, frozen = false) {
@@ -7594,14 +8229,14 @@ function initInteractiveWorkLiveSync() {
         state.flowY,
         Math.max(state.width, state.height) * 0.74
       );
-      introBackground.addColorStop(0, "rgba(238, 246, 255, 0.84)");
-      introBackground.addColorStop(0.52, "rgba(246, 250, 255, 0.6)");
+      introBackground.addColorStop(0, "rgba(248, 248, 248, 0.88)");
+      introBackground.addColorStop(0.52, "rgba(244, 244, 244, 0.7)");
       introBackground.addColorStop(1, "rgba(255, 255, 255, 1)");
       context.fillStyle = introBackground;
       context.fillRect(0, 0, state.width, state.height);
     }
 
-    const linkDistance = window.innerWidth < 720 ? (isOpen ? 110 : 128) : (isOpen ? 140 : 182);
+    const linkDistance = window.innerWidth < 720 ? (isOpen ? 126 : 146) : (isOpen ? 168 : 212);
     for (let index = 0; index < state.particles.length; index += 1) {
       const particleA = state.particles[index];
 
@@ -7615,9 +8250,34 @@ function initInteractiveWorkLiveSync() {
           continue;
         }
 
-        const alpha = (1 - (distance / linkDistance)) ** 2 * (isOpen ? 0.24 : 0.38);
+        const alpha = (1 - (distance / linkDistance)) ** 2 * (isOpen ? 0.28 : 0.42);
         context.strokeStyle = hueInteractive(alpha, isOpen ? 86 : 92, isOpen ? 66 : 74, isOpen ? 2 : 8);
-        context.lineWidth = isOpen ? 0.4 + alpha * 2.2 : 0.8 + alpha * 2.6;
+        context.lineWidth = isOpen ? 0.6 + alpha * 2.6 : 0.9 + alpha * 2.9;
+        context.beginPath();
+        context.moveTo(particleA.x, particleA.y);
+        context.lineTo(particleB.x, particleB.y);
+        context.stroke();
+      }
+    }
+
+    const wideDistance = window.innerWidth < 720 ? 224 : 306;
+    for (let index = 0; index < state.particles.length; index += 2) {
+      const particleA = state.particles[index];
+      const limit = Math.min(state.particles.length, index + 36);
+
+      for (let nextIndex = index + 2; nextIndex < limit; nextIndex += 4) {
+        const particleB = state.particles[nextIndex];
+        const dx = particleB.x - particleA.x;
+        const dy = particleB.y - particleA.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (!distance || distance > wideDistance) {
+          continue;
+        }
+
+        const alpha = (1 - (distance / wideDistance)) ** 1.7 * (isOpen ? 0.1 : 0.14);
+        context.strokeStyle = hueInteractive(alpha, 96, 70, 0);
+        context.lineWidth = 0.28 + alpha * 1.14;
         context.beginPath();
         context.moveTo(particleA.x, particleA.y);
         context.lineTo(particleB.x, particleB.y);
@@ -7628,7 +8288,7 @@ function initInteractiveWorkLiveSync() {
     state.particles.forEach((particle) => {
       const pulse = (Math.sin(time * 0.0015 + particle.seed) + 1) * 0.5;
       context.fillStyle = hueInteractive(
-        isOpen ? 0.18 + pulse * 0.32 : 0.26 + pulse * 0.44,
+        isOpen ? 0.22 + pulse * 0.36 : 0.28 + pulse * 0.46,
         isOpen ? 94 : 98,
         isOpen ? 82 : 84,
         isOpen ? 10 : 14
@@ -7642,6 +8302,29 @@ function initInteractiveWorkLiveSync() {
         Math.PI * 2
       );
       context.fill();
+    });
+
+    state.shards.forEach((shard, index) => {
+      const spin = time * 0.0016 + shard.seed;
+      const dx = Math.cos(spin) * shard.size;
+      const dy = Math.sin(spin) * shard.size * 0.62;
+      const alpha = (0.06 + shard.life * 0.16) * (isOpen ? 0.8 : 1);
+
+      context.strokeStyle = hueInteractive(alpha, 96, 72, 0);
+      context.lineWidth = 0.48 + shard.life * 1.2;
+      context.beginPath();
+      context.moveTo(shard.x - dx * 0.46, shard.y - dy * 0.46);
+      context.lineTo(shard.x + dx * 0.46, shard.y + dy * 0.46);
+      context.stroke();
+
+      if (index % 3 === 0) {
+        context.strokeStyle = hueInteractive(alpha * 0.52, 98, 70, 0);
+        context.lineWidth = 0.34 + shard.life * 0.8;
+        context.beginPath();
+        context.moveTo(shard.x + dy * 0.24, shard.y - dx * 0.24);
+        context.lineTo(shard.x - dy * 0.24, shard.y + dx * 0.24);
+        context.stroke();
+      }
     });
 
     if (isOpen) {
@@ -7659,17 +8342,27 @@ function initInteractiveWorkLiveSync() {
         const strength = isActive ? 1 : 0.58;
 
         context.strokeStyle = hueInteractive(0.08 * strength, 88, 82, 18);
-        context.lineWidth = isActive ? 4.2 : 2.1;
+        context.lineWidth = isActive ? 4.6 : 2.4;
         context.beginPath();
         context.moveTo(anchor.x, anchor.y);
         context.quadraticCurveTo(controlPoint.x, controlPoint.y, state.flowX, state.flowY);
         context.stroke();
 
         context.strokeStyle = hueInteractive((isActive ? 0.42 : 0.2) * strength, 90, 64, 2);
-        context.lineWidth = isActive ? 1.6 : 0.88;
+        context.lineWidth = isActive ? 1.8 : 0.96;
         context.beginPath();
         context.moveTo(anchor.x, anchor.y);
         context.quadraticCurveTo(controlPoint.x, controlPoint.y, state.flowX, state.flowY);
+        context.stroke();
+
+        const branchAngle = Math.sin(time * 0.0018 + index) * 0.42;
+        const branchX = anchor.x + (state.flowX - anchor.x) * 0.38 + Math.cos(branchAngle) * state.width * 0.03;
+        const branchY = anchor.y + (state.flowY - anchor.y) * 0.38 + Math.sin(branchAngle) * state.height * 0.03;
+        context.strokeStyle = hueInteractive(0.08 * strength, 90, 68, 0);
+        context.lineWidth = 0.72;
+        context.beginPath();
+        context.moveTo(anchor.x, anchor.y);
+        context.quadraticCurveTo(branchX, branchY, state.flowX, state.flowY);
         context.stroke();
       });
 
@@ -7688,22 +8381,30 @@ function initInteractiveWorkLiveSync() {
           y: activeAnchor.y + (state.flowY - activeAnchor.y) * 0.36
         };
 
-        context.strokeStyle = hueInteractive(0.26, 92, 72, 14);
-        context.lineWidth = 2.6;
-        context.beginPath();
-        context.moveTo(pointerPoint.x, pointerPoint.y);
-        context.quadraticCurveTo(controlA.x, controlA.y, state.flowX, state.flowY);
-        context.stroke();
+        for (let trailIndex = 0; trailIndex < 3; trailIndex += 1) {
+          const spread = trailIndex - 1;
+          context.strokeStyle = hueInteractive(0.12 + trailIndex * 0.06, 94, 72, 0);
+          context.lineWidth = 2.8 - trailIndex * 0.66;
+          context.beginPath();
+          context.moveTo(pointerPoint.x, pointerPoint.y);
+          context.quadraticCurveTo(
+            controlA.x + spread * state.width * 0.01,
+            controlA.y + spread * state.height * 0.02,
+            state.flowX,
+            state.flowY
+          );
+          context.stroke();
+        }
 
-        context.strokeStyle = hueInteractive(0.32, 90, 68, 4);
-        context.lineWidth = 1.08;
+        context.strokeStyle = hueInteractive(0.34, 90, 68, 0);
+        context.lineWidth = 1.18;
         context.beginPath();
         context.moveTo(activeAnchor.x, activeAnchor.y);
         context.quadraticCurveTo(controlB.x, controlB.y, state.flowX, state.flowY);
         context.stroke();
       }
     } else {
-      const introNodeCount = window.innerWidth < 720 ? 8 : 12;
+      const introNodeCount = window.innerWidth < 720 ? 12 : 18;
       const introTime = time * 0.001;
       const introRadiusX = state.width * (window.innerWidth < 720 ? 0.28 : 0.34);
       const introRadiusY = state.height * (window.innerWidth < 720 ? 0.18 : 0.24);
@@ -7717,7 +8418,7 @@ function initInteractiveWorkLiveSync() {
         const ctrlY = state.flowY + Math.sin(angle * 1.34 + introTime * 0.72) * introRadiusY * 0.48;
 
         context.strokeStyle = hueInteractive(0.22, 96, 76, 8);
-        context.lineWidth = 2.6;
+        context.lineWidth = 2.9;
         context.beginPath();
         context.moveTo(anchorX, anchorY);
         context.quadraticCurveTo(ctrlX, ctrlY, state.flowX, state.flowY);
@@ -7731,7 +8432,7 @@ function initInteractiveWorkLiveSync() {
         context.stroke();
       }
 
-      for (let ringIndex = 0; ringIndex < 3; ringIndex += 1) {
+      for (let ringIndex = 0; ringIndex < 4; ringIndex += 1) {
         const ringPulse = Math.sin(introTime * (0.56 + ringIndex * 0.12) + ringIndex * 0.82);
         const ringRadiusX = state.width * (0.14 + ringIndex * 0.06) + ringPulse * 12;
         const ringRadiusY = state.height * (0.1 + ringIndex * 0.046) + ringPulse * 8;
@@ -7751,24 +8452,59 @@ function initInteractiveWorkLiveSync() {
       }
 
       if (state.pointerInside) {
-        context.strokeStyle = hueInteractive(0.42, 98, 72, 18);
-        context.lineWidth = 2.4;
-        context.beginPath();
-        context.moveTo(state.pointerDrawX, state.pointerDrawY);
-        context.quadraticCurveTo(
-          state.pointerDrawX + (state.flowX - state.pointerDrawX) * 0.44,
-          state.pointerDrawY + (state.flowY - state.pointerDrawY) * 0.32,
-          state.flowX,
-          state.flowY
-        );
-        context.stroke();
+        for (let introTrail = 0; introTrail < 3; introTrail += 1) {
+          const spread = introTrail - 1;
+          context.strokeStyle = hueInteractive(0.24 + introTrail * 0.08, 98, 72, 0);
+          context.lineWidth = 2.6 - introTrail * 0.62;
+          context.beginPath();
+          context.moveTo(state.pointerDrawX, state.pointerDrawY);
+          context.quadraticCurveTo(
+            state.pointerDrawX + (state.flowX - state.pointerDrawX) * 0.44 + spread * state.width * 0.012,
+            state.pointerDrawY + (state.flowY - state.pointerDrawY) * 0.32 + spread * state.height * 0.02,
+            state.flowX,
+            state.flowY
+          );
+          context.stroke();
+        }
       }
     }
 
-    const ambientNodeCount = isOpen ? 14 : 22;
+    if (state.weaveLines.length) {
+      const weaveT = time * 0.001;
+      state.weaveLines.forEach((line) => {
+        const sidePhase = Math.sin(weaveT * line.speed + line.seed);
+        let startX = 0;
+        let startY = 0;
+
+        if (line.side === 0) {
+          startX = state.width * line.targetBias;
+          startY = -20;
+        } else if (line.side === 1) {
+          startX = state.width + 20;
+          startY = state.height * line.targetBias;
+        } else if (line.side === 2) {
+          startX = state.width * line.targetBias;
+          startY = state.height + 20;
+        } else {
+          startX = -20;
+          startY = state.height * line.targetBias;
+        }
+
+        const ctrlX = state.flowX + Math.cos(weaveT * 0.8 + line.seed) * line.amplitude;
+        const ctrlY = state.flowY + Math.sin(weaveT * 0.88 + line.seed * 1.2) * line.amplitude * 0.7;
+        context.strokeStyle = hueInteractive(line.alpha * (isOpen ? 0.86 : 1), 90, 70, 0);
+        context.lineWidth = line.width;
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.quadraticCurveTo(ctrlX, ctrlY, state.flowX + sidePhase * line.amplitude * 0.2, state.flowY);
+        context.stroke();
+      });
+    }
+
+    const ambientNodeCount = isOpen ? 24 : 34;
     const liveT = time * 0.001;
-    const orbitRadiusX = state.width * (isOpen ? 0.26 : 0.34);
-    const orbitRadiusY = state.height * (isOpen ? 0.22 : 0.28);
+    const orbitRadiusX = state.width * (isOpen ? 0.3 : 0.36);
+    const orbitRadiusY = state.height * (isOpen ? 0.24 : 0.3);
     for (let nodeIndex = 0; nodeIndex < ambientNodeCount; nodeIndex += 1) {
       const ratio = ambientNodeCount === 1 ? 0 : nodeIndex / (ambientNodeCount - 1);
       const baseAngle = ratio * Math.PI * 2 + liveT * (isOpen ? 0.18 : 0.32);
@@ -7778,10 +8514,10 @@ function initInteractiveWorkLiveSync() {
         x: state.flowX + Math.cos(baseAngle * 1.24 + liveT * 0.44) * orbitRadiusX * 0.52,
         y: state.flowY + Math.sin(baseAngle * 1.14 + liveT * 0.5) * orbitRadiusY * 0.52
       };
-      const alpha = (isOpen ? 0.06 : 0.11) + (nodeIndex % 3) * (isOpen ? 0.03 : 0.04);
+      const alpha = (isOpen ? 0.08 : 0.12) + (nodeIndex % 3) * (isOpen ? 0.036 : 0.046);
 
       context.strokeStyle = hueInteractive(alpha, isOpen ? 84 : 94, isOpen ? 66 : 76, isOpen ? -6 : 2);
-      context.lineWidth = isOpen ? (0.84 + (nodeIndex % 2) * 0.42) : (1.12 + (nodeIndex % 2) * 0.6);
+      context.lineWidth = isOpen ? (1 + (nodeIndex % 2) * 0.48) : (1.22 + (nodeIndex % 2) * 0.66);
       context.beginPath();
       context.moveTo(state.flowX, state.flowY);
       context.quadraticCurveTo(controlPoint.x, controlPoint.y, targetX, targetY);
@@ -7798,8 +8534,8 @@ function initInteractiveWorkLiveSync() {
         state.flowY,
         Math.max(state.width, state.height) * 0.24
       );
-      coreGlow.addColorStop(0, hueInteractive(0.38 + corePulse * 0.18, 98, 86, 24));
-      coreGlow.addColorStop(0.36, hueInteractive(0.2, 96, 80, 10));
+      coreGlow.addColorStop(0, hueInteractive(0.46 + corePulse * 0.24, 98, 86, 24));
+      coreGlow.addColorStop(0.36, hueInteractive(0.24, 96, 80, 10));
       coreGlow.addColorStop(1, "rgba(255, 255, 255, 0)");
       context.fillStyle = coreGlow;
       context.beginPath();
@@ -7807,9 +8543,9 @@ function initInteractiveWorkLiveSync() {
       context.fill();
     }
 
-    context.fillStyle = hueInteractive(isOpen ? 0.56 : 0.68, 96, 84, isOpen ? 18 : 24);
+    context.fillStyle = hueInteractive(isOpen ? 0.64 : 0.74, 96, 84, isOpen ? 18 : 24);
     context.beginPath();
-    context.arc(state.flowX, state.flowY, isOpen ? 3.2 : 4.6, 0, Math.PI * 2);
+    context.arc(state.flowX, state.flowY, isOpen ? 3.8 : 5.2, 0, Math.PI * 2);
     context.fill();
 
     if (isFrozen || !state.visible) {
