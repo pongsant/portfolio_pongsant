@@ -228,249 +228,6 @@ if (body && header) {
 
 initStaggeredSiteMenu();
 
-function initGlobalButtonGooeyEffect() {
-  if (!document.body) {
-    return;
-  }
-
-  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const TARGET_SELECTOR = "button, [role=\"button\"][tabindex]";
-  const particleCount = 15;
-  const particleDistances = [92, 12];
-  const particleRadius = 100;
-  const animationTime = 420;
-  const timeVariance = 240;
-  const colorSlots = [1, 2, 3, 1, 2, 3, 1, 4];
-
-  function noise(value = 1) {
-    return (value / 2) - (Math.random() * value);
-  }
-
-  function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
-  }
-
-  function getXY(distance, pointIndex, totalPoints) {
-    const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
-
-    return [
-      distance * Math.cos(angle),
-      distance * Math.sin(angle)
-    ];
-  }
-
-  function createParticle(index) {
-    const rotationNoise = noise(particleRadius / 10);
-    const duration = Math.max(220, animationTime * 2 + noise(timeVariance * 2));
-    const start = getXY(particleDistances[0], particleCount - index, particleCount);
-    const end = getXY(particleDistances[1] + noise(7), particleCount - index, particleCount);
-
-    return {
-      start,
-      end,
-      duration,
-      scale: 1 + noise(0.2),
-      color: colorSlots[Math.floor(Math.random() * colorSlots.length)],
-      rotate: rotationNoise > 0
-        ? (rotationNoise + (particleRadius / 20)) * 10
-        : (rotationNoise - (particleRadius / 20)) * 10
-    };
-  }
-
-  function isInteractiveTarget(element) {
-    if (!(element instanceof HTMLElement)) {
-      return false;
-    }
-
-    if (!element.matches(TARGET_SELECTOR)) {
-      return false;
-    }
-
-    if (element.hasAttribute("data-gooey-off")) {
-      return false;
-    }
-
-    if (element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true") {
-      return false;
-    }
-
-    return true;
-  }
-
-  function collectTargets(rootNode) {
-    if (!(rootNode instanceof Element || rootNode instanceof Document)) {
-      return [];
-    }
-
-    const targets = Array.from(rootNode.querySelectorAll(TARGET_SELECTOR));
-    if (rootNode instanceof Element && rootNode.matches(TARGET_SELECTOR)) {
-      targets.unshift(rootNode);
-    }
-
-    return targets.filter(isInteractiveTarget);
-  }
-
-  function markTargets(rootNode = document) {
-    const targets = collectTargets(rootNode);
-    targets.forEach((target) => {
-      target.classList.add("has-gooey-click");
-    });
-  }
-
-  function ensureLayer(target) {
-    let layer = null;
-
-    Array.from(target.children).some((child) => {
-      if (child.classList.contains("gooey-click-layer")) {
-        layer = child;
-        return true;
-      }
-
-      return false;
-    });
-
-    if (!layer) {
-      layer = document.createElement("span");
-      layer.className = "gooey-click-layer";
-      target.appendChild(layer);
-    }
-
-    return layer;
-  }
-
-  function runGooeyEffect(target, clientX, clientY) {
-    if (reducedMotionQuery.matches) {
-      return;
-    }
-
-    if (!isInteractiveTarget(target)) {
-      return;
-    }
-
-    const rect = target.getBoundingClientRect();
-    if (rect.width < 3 || rect.height < 3) {
-      return;
-    }
-
-    target.classList.add("has-gooey-click");
-
-    const layer = ensureLayer(target);
-    const hasPointerPosition = Number.isFinite(clientX)
-      && Number.isFinite(clientY)
-      && (Math.abs(clientX) + Math.abs(clientY) > 0);
-    const x = hasPointerPosition ? clamp(clientX - rect.left, 0, rect.width) : rect.width / 2;
-    const y = hasPointerPosition ? clamp(clientY - rect.top, 0, rect.height) : rect.height / 2;
-    const bubbleTime = animationTime * 2 + timeVariance;
-
-    layer.style.setProperty("--gooey-origin-x", `${x}px`);
-    layer.style.setProperty("--gooey-origin-y", `${y}px`);
-    layer.style.setProperty("--gooey-time", `${bubbleTime}ms`);
-    layer.classList.remove("is-active");
-
-    Array.from(layer.querySelectorAll(".gooey-click-particle")).forEach((particle) => {
-      particle.remove();
-    });
-
-    void layer.offsetWidth;
-    layer.classList.add("is-active");
-
-    for (let i = 0; i < particleCount; i += 1) {
-      const particleData = createParticle(i);
-
-      window.setTimeout(() => {
-        if (!layer.isConnected) {
-          return;
-        }
-
-        const particle = document.createElement("span");
-        const point = document.createElement("span");
-
-        particle.className = "gooey-click-particle";
-        point.className = "gooey-click-point";
-
-        particle.style.setProperty("--start-x", `${particleData.start[0]}px`);
-        particle.style.setProperty("--start-y", `${particleData.start[1]}px`);
-        particle.style.setProperty("--end-x", `${particleData.end[0]}px`);
-        particle.style.setProperty("--end-y", `${particleData.end[1]}px`);
-        particle.style.setProperty("--time", `${particleData.duration}ms`);
-        particle.style.setProperty("--scale", `${particleData.scale}`);
-        particle.style.setProperty("--color", `var(--gooey-color-${particleData.color}, currentColor)`);
-        particle.style.setProperty("--rotate", `${particleData.rotate}deg`);
-
-        particle.appendChild(point);
-        layer.appendChild(particle);
-
-        window.setTimeout(() => {
-          if (particle.parentElement === layer) {
-            layer.removeChild(particle);
-          }
-        }, particleData.duration + 80);
-      }, 22);
-    }
-  }
-
-  function findTargetFromEvent(eventTarget) {
-    if (!(eventTarget instanceof Element)) {
-      return null;
-    }
-
-    const target = eventTarget.closest(TARGET_SELECTOR);
-    return isInteractiveTarget(target) ? target : null;
-  }
-
-  document.addEventListener("click", (event) => {
-    const target = findTargetFromEvent(event.target);
-    if (!target) {
-      return;
-    }
-
-    runGooeyEffect(target, event.clientX, event.clientY);
-  }, { passive: true });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" && event.key !== " ") {
-      return;
-    }
-
-    const focused = document.activeElement;
-    if (!(focused instanceof HTMLElement)) {
-      return;
-    }
-
-    if (focused.tagName === "BUTTON") {
-      return;
-    }
-
-    const target = findTargetFromEvent(focused);
-    if (!target) {
-      return;
-    }
-
-    runGooeyEffect(target);
-  });
-
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (!(node instanceof Element)) {
-          return;
-        }
-
-        markTargets(node);
-      });
-    });
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  markTargets();
-}
-
-initGlobalButtonGooeyEffect();
-
 if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const context = workCanvas.getContext("2d");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -9107,6 +8864,9 @@ function initInteractiveWorkLiveSync() {
   const cameraPreview = interactiveSection?.querySelector("[data-interactive-camera-preview]");
   const liveVideo = interactiveSection?.querySelector("[data-interactive-live-video]");
   const liveCanvas = interactiveSection?.querySelector("[data-interactive-live-bg]");
+  const faceModeCanvas = interactiveSection?.querySelector("[data-interactive-face-layer]");
+  const faceModeVideo = interactiveSection?.querySelector("[data-interactive-face-mode-video]");
+  const faceModeToggle = interactiveSection?.querySelector("[data-interactive-face-mode-toggle]");
   const projectStrip = interactiveSection?.querySelector("#projects");
   const projectCards = Array.from(projectStrip?.querySelectorAll(".photo-poster__item[data-interactive-hue]") ?? []);
 
@@ -9115,6 +8875,7 @@ function initInteractiveWorkLiveSync() {
   }
 
   const context = liveCanvas.getContext("2d");
+  const faceModeContext = faceModeCanvas?.getContext("2d");
 
   if (!context) {
     return;
@@ -9136,8 +8897,6 @@ function initInteractiveWorkLiveSync() {
     weaveLines: [],
     activeIndex: 0,
     defaultIndex: 0,
-    targetHue: Number(projectCards[0].dataset.interactiveHue) || 214,
-    currentHue: Number(projectCards[0].dataset.interactiveHue) || 214,
     flowX: 0,
     flowY: 0,
     pointerInside: false,
@@ -9154,11 +8913,13 @@ function initInteractiveWorkLiveSync() {
     cameraDetector: ("FaceDetector" in window) ? new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }) : null,
     cameraMediapipe: {
       loading: false,
-      ready: false,
       failed: false,
       faceLandmarker: null
     },
     cameraTemplate: [],
+    cameraLineTemplate: null,
+    cameraLineLastSeenAt: 0,
+    cameraPortraitBuffer: [],
     cameraMotion: 0,
     cameraConfidence: 0,
     cameraLastCenterX: 0,
@@ -9171,15 +8932,6 @@ function initInteractiveWorkLiveSync() {
     headNeutralY: 0.5,
     headNeutralReady: false,
     headLastSeenAt: 0,
-    headSignalRead: {
-      axisX: 0,
-      axisY: 0,
-      left: 0,
-      right: 0,
-      up: 0,
-      down: 0,
-      direction: "center"
-    },
     audioLevel: 0,
     audioBass: 0,
     audioMid: 0,
@@ -9191,8 +8943,41 @@ function initInteractiveWorkLiveSync() {
     beatCount: 0,
     introPattern: 0
   };
-  const INTERACTIVE_HEAD_SIGNAL_EVENT = "interactive:head-signal";
-
+  const faceModeState = {
+    enabled: false,
+    starting: false,
+    unavailable: false,
+    stream: null,
+    trackPending: false,
+    sessionToken: 0,
+    lastTrackAt: 0,
+    lastSeenAt: 0,
+    confidence: 0,
+    points: [],
+    bounds: null,
+    width: 0,
+    height: 0,
+    dpr: 1,
+    smoothCenterX: 0.5,
+    smoothCenterY: 0.5,
+    smoothWidth: 0.24,
+    smoothHeight: 0.34,
+    visualConfidence: 0,
+    particles: [],
+    featureCenters: {
+      leftEye: { x: 0.4, y: 0.43, ready: false },
+      rightEye: { x: 0.6, y: 0.43, ready: false },
+      nose: { x: 0.5, y: 0.53, ready: false },
+      mouth: { x: 0.5, y: 0.64, ready: false },
+      jaw: { x: 0.5, y: 0.74, ready: false }
+    },
+    detector: ("FaceDetector" in window) ? new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }) : null,
+    mediapipe: {
+      loading: false,
+      failed: false,
+      faceLandmarker: null
+    }
+  };
   state.isOpen = Boolean(bodyElement?.classList.contains("is-interactive-work-open"));
 
   function clampInteractive(value, min, max) {
@@ -9203,78 +8988,998 @@ function initInteractiveWorkLiveSync() {
     return min + Math.random() * (max - min);
   }
 
-  function toHeadDirectionStrength(axisValue, threshold = 0.15) {
-    const magnitude = Math.abs(axisValue);
-
-    if (magnitude <= threshold) {
-      return 0;
-    }
-
-    return clampInteractive((magnitude - threshold) / (1 - threshold), 0, 1);
-  }
-
-  function buildInteractiveHeadSignalPayload(time = performance.now()) {
-    const axisX = clampInteractive(state.headAxisX, -1, 1);
-    const axisY = clampInteractive(state.headAxisY, -1, 1);
-    const left = axisX < 0 ? toHeadDirectionStrength(axisX, 0.13) : 0;
-    const right = axisX > 0 ? toHeadDirectionStrength(axisX, 0.13) : 0;
-    const up = axisY < 0 ? toHeadDirectionStrength(axisY, 0.12) : 0;
-    const down = axisY > 0 ? toHeadDirectionStrength(axisY, 0.12) : 0;
-
-    const candidates = [
-      { name: "left", value: left },
-      { name: "right", value: right },
-      { name: "up", value: up },
-      { name: "down", value: down }
-    ];
-    const strongest = candidates.sort((first, second) => second.value - first.value)[0];
-    const direction = strongest.value > 0.02 ? strongest.name : "center";
-
-    return {
-      time,
-      axisX,
-      axisY,
-      left,
-      right,
-      up,
-      down,
-      direction
-    };
-  }
-
-  function emitInteractiveHeadSignal(time = performance.now()) {
-    const payload = buildInteractiveHeadSignalPayload(time);
-    interactiveSection.dispatchEvent(new CustomEvent(INTERACTIVE_HEAD_SIGNAL_EVENT, {
-      detail: payload,
-      bubbles: true
-    }));
-  }
-
-  function readInteractiveHeadSignal(event) {
-    const detail = event?.detail || {};
-    state.headSignalRead.axisX = clampInteractive(Number(detail.axisX) || 0, -1, 1);
-    state.headSignalRead.axisY = clampInteractive(Number(detail.axisY) || 0, -1, 1);
-    state.headSignalRead.left = clampInteractive(Number(detail.left) || 0, 0, 1);
-    state.headSignalRead.right = clampInteractive(Number(detail.right) || 0, 0, 1);
-    state.headSignalRead.up = clampInteractive(Number(detail.up) || 0, 0, 1);
-    state.headSignalRead.down = clampInteractive(Number(detail.down) || 0, 0, 1);
-    state.headSignalRead.direction = typeof detail.direction === "string" ? detail.direction : "center";
-  }
-
-  function resetInteractiveHeadSignal(time = performance.now()) {
+  function resetInteractiveHeadSignal() {
     state.headAxisX = 0;
     state.headAxisY = 0;
     state.headLastSeenAt = 0;
     state.headNeutralReady = false;
-    emitInteractiveHeadSignal(time);
   }
 
-  interactiveSection.addEventListener(INTERACTIVE_HEAD_SIGNAL_EVENT, readInteractiveHeadSignal);
-  emitInteractiveHeadSignal(performance.now());
-
-  function hueInteractive(alpha, saturation = 88, lightness = 64, hueShift = 0) {
+  function hueInteractive(alpha) {
     const safeAlpha = clampInteractive(alpha, 0, 1);
     return `rgba(0, 0, 0, ${safeAlpha})`;
+  }
+
+  function hasSecureCameraContext() {
+    return Boolean(
+      navigator.mediaDevices?.getUserMedia &&
+      (
+        window.isSecureContext ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      )
+    );
+  }
+
+  function hasFaceModeSupport() {
+    return Boolean(faceModeCanvas && faceModeContext && faceModeVideo && faceModeToggle && hasSecureCameraContext());
+  }
+
+  function clearInteractiveFaceModeLayer() {
+    if (!faceModeContext || !faceModeCanvas) {
+      return;
+    }
+
+    faceModeContext.setTransform(1, 0, 0, 1, 0, 0);
+    faceModeContext.clearRect(0, 0, faceModeCanvas.width, faceModeCanvas.height);
+  }
+
+  function syncInteractiveFaceModeLayer() {
+    faceModeCanvas?.classList.toggle("is-active", faceModeState.enabled);
+  }
+
+  function resetInteractiveFaceModeTracking() {
+    faceModeState.trackPending = false;
+    faceModeState.lastTrackAt = 0;
+    faceModeState.lastSeenAt = 0;
+    faceModeState.confidence = 0;
+    faceModeState.visualConfidence = 0;
+    faceModeState.points = [];
+    faceModeState.bounds = null;
+    faceModeState.smoothCenterX = 0.5;
+    faceModeState.smoothCenterY = 0.5;
+    faceModeState.smoothWidth = 0.24;
+    faceModeState.smoothHeight = 0.34;
+    faceModeState.particles = [];
+    faceModeState.featureCenters.leftEye = { x: 0.4, y: 0.43, ready: false };
+    faceModeState.featureCenters.rightEye = { x: 0.6, y: 0.43, ready: false };
+    faceModeState.featureCenters.nose = { x: 0.5, y: 0.53, ready: false };
+    faceModeState.featureCenters.mouth = { x: 0.5, y: 0.64, ready: false };
+    faceModeState.featureCenters.jaw = { x: 0.5, y: 0.74, ready: false };
+  }
+
+  function syncInteractiveFaceModeButton() {
+    if (!faceModeToggle) {
+      return;
+    }
+
+    if (!hasFaceModeSupport() || faceModeState.unavailable) {
+      faceModeToggle.textContent = faceModeState.unavailable ? "FACE N/A" : "FACE MODE";
+      faceModeToggle.classList.remove("is-active");
+      faceModeToggle.setAttribute("aria-pressed", "false");
+      faceModeToggle.setAttribute("aria-label", faceModeState.unavailable ? "Face mode is unavailable in this browser context" : "Face mode is unavailable");
+      faceModeToggle.disabled = true;
+      return;
+    }
+
+    if (faceModeState.starting) {
+      faceModeToggle.textContent = "OPENING";
+      faceModeToggle.classList.add("is-active");
+      faceModeToggle.setAttribute("aria-pressed", "true");
+      faceModeToggle.setAttribute("aria-label", "Opening face mode");
+      faceModeToggle.disabled = true;
+      return;
+    }
+
+    faceModeToggle.disabled = false;
+    faceModeToggle.classList.toggle("is-active", faceModeState.enabled);
+    faceModeToggle.textContent = faceModeState.enabled ? "FACE ON" : "FACE MODE";
+    faceModeToggle.setAttribute("aria-pressed", faceModeState.enabled ? "true" : "false");
+    faceModeToggle.setAttribute("aria-label", faceModeState.enabled ? "Disable face mode" : "Enable face mode");
+  }
+
+  function getInteractiveFaceModeBounds(landmarks) {
+    let minX = 1;
+    let minY = 1;
+    let maxX = 0;
+    let maxY = 0;
+
+    landmarks.forEach((landmark) => {
+      minX = Math.min(minX, landmark.x);
+      minY = Math.min(minY, landmark.y);
+      maxX = Math.max(maxX, landmark.x);
+      maxY = Math.max(maxY, landmark.y);
+    });
+
+    return {
+      minX,
+      minY,
+      maxX,
+      maxY,
+      width: Math.max(0.001, maxX - minX),
+      height: Math.max(0.001, maxY - minY),
+      centerX: (minX + maxX) * 0.5,
+      centerY: (minY + maxY) * 0.5
+    };
+  }
+
+  async function ensureInteractiveFaceModeTracker() {
+    if (
+      faceModeState.mediapipe.faceLandmarker ||
+      faceModeState.mediapipe.loading ||
+      faceModeState.mediapipe.failed
+    ) {
+      return faceModeState.mediapipe.faceLandmarker;
+    }
+
+    faceModeState.mediapipe.loading = true;
+
+    try {
+      const vision = await import(INTERACTIVE_MEDIAPIPE_VISION_BUNDLE_URL);
+      const filesetResolver = await vision.FilesetResolver.forVisionTasks(INTERACTIVE_MEDIAPIPE_WASM_URL);
+
+      faceModeState.mediapipe.faceLandmarker = await vision.FaceLandmarker.createFromOptions(filesetResolver, {
+        baseOptions: {
+          modelAssetPath: INTERACTIVE_MEDIAPIPE_FACE_MODEL_URL
+        },
+        runningMode: "VIDEO",
+        numFaces: 1,
+        outputFaceBlendshapes: false,
+        outputFacialTransformationMatrixes: false
+      });
+    } catch (error) {
+      faceModeState.mediapipe.failed = true;
+      faceModeState.mediapipe.faceLandmarker = null;
+    } finally {
+      faceModeState.mediapipe.loading = false;
+    }
+
+    return faceModeState.mediapipe.faceLandmarker;
+  }
+
+  async function refreshInteractiveFaceModeTracking(time = performance.now()) {
+    if (
+      !faceModeState.enabled ||
+      faceModeState.starting ||
+      faceModeState.trackPending ||
+      !faceModeVideo ||
+      faceModeVideo.readyState < 2 ||
+      (time - faceModeState.lastTrackAt) < 70
+    ) {
+      return;
+    }
+
+    faceModeState.trackPending = true;
+    faceModeState.lastTrackAt = time;
+
+    try {
+      const sourceWidth = faceModeVideo.videoWidth || 0;
+      const sourceHeight = faceModeVideo.videoHeight || 0;
+
+      if (sourceWidth < 2 || sourceHeight < 2) {
+        return;
+      }
+
+      let nextBounds = null;
+      let nextPoints = [];
+
+      if (
+        !faceModeState.mediapipe.faceLandmarker &&
+        !faceModeState.mediapipe.loading &&
+        !faceModeState.mediapipe.failed
+      ) {
+        await ensureInteractiveFaceModeTracker();
+      }
+
+      if (faceModeState.mediapipe.faceLandmarker) {
+        try {
+          const results = faceModeState.mediapipe.faceLandmarker.detectForVideo(faceModeVideo, time);
+          const landmarks = results?.faceLandmarks?.[0];
+
+          if (landmarks?.length) {
+            const bounds = getInteractiveFaceModeBounds(landmarks);
+            nextBounds = {
+              centerX: 1 - bounds.centerX,
+              centerY: bounds.centerY,
+              width: bounds.width,
+              height: bounds.height
+            };
+            nextPoints = landmarks
+              .filter((point, index) => index % 3 === 0)
+              .map((point) => ({
+                x: 1 - clampInteractive(point.x, 0, 1),
+                y: clampInteractive(point.y, 0, 1)
+              }));
+          }
+        } catch (error) {
+          faceModeState.mediapipe.failed = true;
+          faceModeState.mediapipe.faceLandmarker = null;
+        }
+      }
+
+      if (!nextBounds && faceModeState.detector) {
+        try {
+          const faces = await faceModeState.detector.detect(faceModeVideo);
+          const face = faces?.[0];
+
+          if (face?.boundingBox) {
+            const box = face.boundingBox;
+            nextBounds = {
+              centerX: 1 - ((box.x + box.width * 0.5) / sourceWidth),
+              centerY: (box.y + box.height * 0.5) / sourceHeight,
+              width: box.width / sourceWidth,
+              height: box.height / sourceHeight
+            };
+          }
+        } catch (error) {
+          faceModeState.detector = null;
+        }
+      }
+
+      if (nextBounds) {
+        if (!faceModeState.bounds) {
+          faceModeState.bounds = nextBounds;
+        } else {
+          const maxCenterStep = 0.085;
+          const maxSizeStep = 0.06;
+          const dx = clampInteractive(nextBounds.centerX - faceModeState.bounds.centerX, -maxCenterStep, maxCenterStep);
+          const dy = clampInteractive(nextBounds.centerY - faceModeState.bounds.centerY, -maxCenterStep, maxCenterStep);
+          const dw = clampInteractive(nextBounds.width - faceModeState.bounds.width, -maxSizeStep, maxSizeStep);
+          const dh = clampInteractive(nextBounds.height - faceModeState.bounds.height, -maxSizeStep, maxSizeStep);
+          faceModeState.bounds = {
+            centerX: faceModeState.bounds.centerX + dx * 0.52,
+            centerY: faceModeState.bounds.centerY + dy * 0.52,
+            width: clampInteractive(faceModeState.bounds.width + dw * 0.44, 0.12, 0.56),
+            height: clampInteractive(faceModeState.bounds.height + dh * 0.44, 0.18, 0.7)
+          };
+        }
+        faceModeState.points = nextPoints;
+        faceModeState.lastSeenAt = time;
+        faceModeState.confidence += (1 - faceModeState.confidence) * 0.2;
+        return;
+      }
+
+      faceModeState.confidence += (0 - faceModeState.confidence) * 0.11;
+
+      if ((time - faceModeState.lastSeenAt) > 760) {
+        faceModeState.points = [];
+        faceModeState.bounds = null;
+      }
+    } finally {
+      faceModeState.trackPending = false;
+    }
+  }
+
+  function resizeInteractiveFaceModeCanvas() {
+    if (!faceModeCanvas || !faceModeContext) {
+      return;
+    }
+
+    const frameRect = getLiveFrameRect();
+    faceModeState.width = Math.max(1, Math.round(frameRect.width || window.innerWidth));
+    faceModeState.height = Math.max(1, Math.round(frameRect.height || window.innerHeight));
+    faceModeState.dpr = Math.min(window.devicePixelRatio || 1, 1.8);
+    faceModeCanvas.width = Math.max(1, Math.round(faceModeState.width * faceModeState.dpr));
+    faceModeCanvas.height = Math.max(1, Math.round(faceModeState.height * faceModeState.dpr));
+    faceModeCanvas.style.width = `${faceModeState.width}px`;
+    faceModeCanvas.style.height = `${faceModeState.height}px`;
+    clearInteractiveFaceModeLayer();
+  }
+
+  function ensureInteractiveFaceModeParticles() {
+    if (!faceModeState.width || !faceModeState.height) {
+      return;
+    }
+
+    const area = faceModeState.width * faceModeState.height;
+    const isCompactViewport = window.innerWidth < 900 || window.innerHeight < 760;
+    const desiredCount = clampInteractive(
+      Math.round(area / (isCompactViewport ? 12500 : 7600)),
+      isCompactViewport ? 180 : 260,
+      isCompactViewport ? 300 : 520
+    );
+    const centerX = faceModeState.smoothCenterX * faceModeState.width;
+    const centerY = faceModeState.smoothCenterY * faceModeState.height;
+    const hasExpectedShape = Boolean(faceModeState.particles[0]?.cohort);
+
+    if (faceModeState.particles.length === desiredCount && hasExpectedShape) {
+      return;
+    }
+
+    const cohorts = [
+      { key: "silhouette", ratio: 0.27, group: "structure", structureBand: "silhouette", featureSlot: "jaw" },
+      { key: "jawline", ratio: 0.1, group: "structure", structureBand: "silhouette", featureSlot: "jaw" },
+      { key: "forehead", ratio: 0.08, group: "structure", structureBand: "inner", featureSlot: "nose" },
+      { key: "cheekLeft", ratio: 0.06, group: "structure", structureBand: "inner", featureSlot: "leftEye" },
+      { key: "cheekRight", ratio: 0.06, group: "structure", structureBand: "inner", featureSlot: "rightEye" },
+      { key: "eyeLeft", ratio: 0.08, group: "feature", structureBand: "inner", featureSlot: "leftEye" },
+      { key: "eyeRight", ratio: 0.08, group: "feature", structureBand: "inner", featureSlot: "rightEye" },
+      { key: "noseBridge", ratio: 0.09, group: "feature", structureBand: "inner", featureSlot: "nose" },
+      { key: "mouthContour", ratio: 0.08, group: "feature", structureBand: "inner", featureSlot: "mouth" },
+      { key: "chin", ratio: 0.05, group: "feature", structureBand: "inner", featureSlot: "jaw" },
+      { key: "ambientShell", ratio: 0.05, group: "ambient", structureBand: "inner", featureSlot: "jaw" }
+    ];
+    const cohortRanges = [];
+    let cursor = 0;
+    cohorts.forEach((cohort) => {
+      const start = cursor;
+      cursor += cohort.ratio;
+      cohortRanges.push({ ...cohort, start, end: cursor });
+    });
+    const golden = 2.399963229728653;
+    const spreadBase = Math.min(faceModeState.width, faceModeState.height) * (isCompactViewport ? 0.058 : 0.072);
+    const nextParticles = [];
+
+    for (let index = 0; index < desiredCount; index += 1) {
+      const globalRatio = (index + 0.5) / desiredCount;
+      let selected = cohortRanges[cohortRanges.length - 1];
+
+      for (let rangeIndex = 0; rangeIndex < cohortRanges.length; rangeIndex += 1) {
+        const range = cohortRanges[rangeIndex];
+        if (globalRatio >= range.start && globalRatio < range.end) {
+          selected = range;
+          break;
+        }
+      }
+
+      const rangeSize = Math.max(0.0001, selected.end - selected.start);
+      const slotOffset = clampInteractive((globalRatio - selected.start) / rangeSize, 0, 1);
+      const seed = index * golden + randomInteractive(-0.18, 0.18);
+      const spreadMultiplier = selected.group === "ambient"
+        ? randomInteractive(1.35, 2.05)
+        : selected.key === "silhouette" || selected.key === "jawline"
+          ? randomInteractive(0.56, 1.02)
+          : randomInteractive(0.26, 0.72);
+      const spread = spreadBase * spreadMultiplier;
+      const weight = randomInteractive(0.22, 1);
+      const depth = selected.group === "ambient"
+        ? randomInteractive(0.08, 0.4)
+        : selected.group === "structure"
+          ? randomInteractive(0.32, 0.82)
+          : randomInteractive(0.58, 1);
+
+      nextParticles.push({
+        x: centerX + Math.cos(seed) * spread,
+        y: centerY + Math.sin(seed) * spread,
+        vx: 0,
+        vy: 0,
+        targetX: centerX,
+        targetY: centerY,
+        seed,
+        weight,
+        depth,
+        layer: depth > 0.7 ? "front" : depth > 0.38 ? "mid" : "back",
+        size: selected.group === "feature"
+          ? randomInteractive(1.2, 2.8)
+          : selected.group === "structure"
+            ? randomInteractive(1.0, 2.3)
+            : randomInteractive(0.64, 1.42),
+        group: selected.group,
+        cohort: selected.key,
+        featureSlot: selected.featureSlot,
+        slotOffset,
+        structureBand: selected.structureBand
+      });
+    }
+
+    faceModeState.particles = nextParticles;
+  }
+
+  function drawInteractiveFaceModeLayer(time = performance.now()) {
+    if (!faceModeCanvas || !faceModeContext) {
+      return;
+    }
+
+    clearInteractiveFaceModeLayer();
+
+    if (!faceModeState.enabled) {
+      return;
+    }
+
+    faceModeContext.setTransform(faceModeState.dpr, 0, 0, faceModeState.dpr, 0, 0);
+
+    const hasTrackedFace = Boolean(faceModeState.bounds);
+    const targetCenterX = hasTrackedFace ? faceModeState.bounds.centerX : 0.5;
+    const targetCenterY = hasTrackedFace ? faceModeState.bounds.centerY : 0.5;
+    let targetWidth = hasTrackedFace ? clampInteractive(faceModeState.bounds.width, 0.12, 0.56) : 0.24;
+    let targetHeight = hasTrackedFace ? clampInteractive(faceModeState.bounds.height, 0.18, 0.7) : 0.34;
+    const ratio = targetWidth / Math.max(targetHeight, 0.001);
+    const clampedRatio = clampInteractive(ratio, 0.68, 0.84);
+
+    if (ratio > clampedRatio) {
+      targetWidth = targetHeight * clampedRatio;
+    } else if (ratio < clampedRatio) {
+      targetHeight = targetWidth / clampedRatio;
+    }
+
+    const centerEase = hasTrackedFace ? 0.085 : 0.04;
+    const sizeEase = hasTrackedFace ? 0.072 : 0.05;
+
+    faceModeState.smoothCenterX += (targetCenterX - faceModeState.smoothCenterX) * centerEase;
+    faceModeState.smoothCenterY += (targetCenterY - faceModeState.smoothCenterY) * centerEase;
+    faceModeState.smoothWidth += (targetWidth - faceModeState.smoothWidth) * sizeEase;
+    faceModeState.smoothHeight += (targetHeight - faceModeState.smoothHeight) * sizeEase;
+    faceModeState.visualConfidence += (faceModeState.confidence - faceModeState.visualConfidence) * 0.08;
+
+    ensureInteractiveFaceModeParticles();
+
+    const centerX = faceModeState.smoothCenterX * faceModeState.width;
+    const centerY = faceModeState.smoothCenterY * faceModeState.height;
+    let radiusX = clampInteractive(faceModeState.smoothWidth * faceModeState.width * 0.46, 56, faceModeState.width * 0.28);
+    let radiusY = clampInteractive(faceModeState.smoothHeight * faceModeState.height * 0.56, 74, faceModeState.height * 0.38);
+    const radiusRatio = radiusX / Math.max(1, radiusY);
+
+    if (radiusRatio < 0.68) {
+      radiusX = radiusY * 0.68;
+    } else if (radiusRatio > 0.84) {
+      radiusY = radiusX / 0.84;
+    }
+
+    const visualConfidence = clampInteractive(faceModeState.visualConfidence, 0, 1);
+    const seenAge = time - faceModeState.lastSeenAt;
+    const trackingPresence = clampInteractive(
+      visualConfidence * (1 - clampInteractive((seenAge - 120) / 760, 0, 1)),
+      0,
+      1
+    );
+    const pulse = (Math.sin(time * 0.0016) + 1) * 0.5;
+    const ambientAlpha = 0.018 + (1 - trackingPresence) * 0.045 + pulse * 0.01;
+
+    const outerHaze = faceModeContext.createRadialGradient(centerX, centerY, radiusX * 0.08, centerX, centerY, radiusX * 2.45);
+    outerHaze.addColorStop(0, `rgba(0, 0, 0, ${0.08 + trackingPresence * 0.12})`);
+    outerHaze.addColorStop(0.5, `rgba(0, 0, 0, ${0.028 + trackingPresence * 0.05})`);
+    outerHaze.addColorStop(1, "rgba(0, 0, 0, 0)");
+    faceModeContext.fillStyle = outerHaze;
+    faceModeContext.fillRect(centerX - radiusX * 2.8, centerY - radiusY * 2.8, radiusX * 5.6, radiusY * 5.6);
+
+    const depthGlow = faceModeContext.createRadialGradient(
+      centerX - radiusX * 0.24,
+      centerY - radiusY * 0.32,
+      radiusX * 0.12,
+      centerX,
+      centerY + radiusY * 0.16,
+      radiusX * 1.4
+    );
+    depthGlow.addColorStop(0, `rgba(0, 0, 0, ${0.08 + trackingPresence * 0.08})`);
+    depthGlow.addColorStop(0.7, `rgba(0, 0, 0, ${0.02 + trackingPresence * 0.03})`);
+    depthGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    faceModeContext.fillStyle = depthGlow;
+    faceModeContext.fillRect(centerX - radiusX * 2, centerY - radiusY * 2, radiusX * 4, radiusY * 4);
+
+    const faceVolume = faceModeContext.createRadialGradient(
+      centerX,
+      centerY - radiusY * 0.2,
+      radiusX * 0.08,
+      centerX,
+      centerY + radiusY * 0.16,
+      radiusX * 1.06
+    );
+    faceVolume.addColorStop(0, `rgba(0, 0, 0, ${0.05 + trackingPresence * 0.09})`);
+    faceVolume.addColorStop(0.62, `rgba(0, 0, 0, ${0.012 + trackingPresence * 0.028})`);
+    faceVolume.addColorStop(1, "rgba(0, 0, 0, 0)");
+    faceModeContext.fillStyle = faceVolume;
+    faceModeContext.beginPath();
+    faceModeContext.ellipse(centerX, centerY + radiusY * 0.05, radiusX * 1.02, radiusY * 1.06, 0, 0, Math.PI * 2);
+    faceModeContext.fill();
+
+    const landmarkTargets = faceModeState.points.map((point) => ({
+      x: point.x * faceModeState.width,
+      y: point.y * faceModeState.height
+    }));
+    const hasLandmarks = landmarkTargets.length > 0 && trackingPresence > 0.12;
+    const normalizedLandmarks = landmarkTargets.map((point) => ({
+      x: point.x,
+      y: point.y,
+      nx: (point.x - centerX) / Math.max(1, radiusX),
+      ny: (point.y - centerY) / Math.max(1, radiusY)
+    }));
+
+    function averageCluster(points, fallbackX, fallbackY) {
+      if (!points.length) {
+        return { x: fallbackX, y: fallbackY, count: 0 };
+      }
+
+      const total = points.reduce((accumulator, point) => {
+        accumulator.x += point.x;
+        accumulator.y += point.y;
+        return accumulator;
+      }, { x: 0, y: 0 });
+
+      return {
+        x: total.x / points.length,
+        y: total.y / points.length,
+        count: points.length
+      };
+    }
+
+    function updateFeatureCenter(slot, targetX, targetY, easeBase = 0.1) {
+      const center = faceModeState.featureCenters[slot];
+
+      if (!center.ready) {
+        center.x = targetX;
+        center.y = targetY;
+        center.ready = true;
+        return center;
+      }
+
+      const dx = targetX - center.x;
+      const dy = targetY - center.y;
+      const maxStep = slot === "jaw" ? radiusY * 0.11 : radiusX * 0.085;
+      const clampedDX = clampInteractive(dx, -maxStep, maxStep);
+      const clampedDY = clampInteractive(dy, -maxStep, maxStep);
+      const adaptiveEase = clampInteractive(
+        easeBase + (Math.hypot(clampedDX, clampedDY) / Math.max(1, radiusX * 0.3)) * 0.08,
+        0.08,
+        0.24
+      );
+
+      center.x += clampedDX * adaptiveEase;
+      center.y += clampedDY * adaptiveEase;
+      return center;
+    }
+
+    const proceduralFeatures = {
+      leftEye: { x: centerX - radiusX * 0.34, y: centerY - radiusY * 0.24 },
+      rightEye: { x: centerX + radiusX * 0.34, y: centerY - radiusY * 0.24 },
+      nose: { x: centerX, y: centerY + radiusY * 0.02 },
+      mouth: { x: centerX, y: centerY + radiusY * 0.36 },
+      jaw: { x: centerX, y: centerY + radiusY * 0.62 },
+      forehead: { x: centerX, y: centerY - radiusY * 0.6 },
+      cheekLeft: { x: centerX - radiusX * 0.48, y: centerY + radiusY * 0.12 },
+      cheekRight: { x: centerX + radiusX * 0.48, y: centerY + radiusY * 0.12 },
+      chin: { x: centerX, y: centerY + radiusY * 0.92 }
+    };
+
+    const leftEyeCluster = normalizedLandmarks.filter((point) => point.nx > -0.62 && point.nx < -0.06 && point.ny > -0.5 && point.ny < 0.06);
+    const rightEyeCluster = normalizedLandmarks.filter((point) => point.nx < 0.62 && point.nx > 0.06 && point.ny > -0.5 && point.ny < 0.06);
+    const noseCluster = normalizedLandmarks.filter((point) => Math.abs(point.nx) < 0.2 && point.ny > -0.42 && point.ny < 0.45);
+    const mouthCluster = normalizedLandmarks.filter((point) => Math.abs(point.nx) < 0.54 && point.ny > 0.16 && point.ny < 0.78);
+    const jawCluster = normalizedLandmarks.filter((point) => point.ny > 0.34 && Math.abs(point.nx) < 0.9);
+    const foreheadCluster = normalizedLandmarks.filter((point) => Math.abs(point.nx) < 0.56 && point.ny < -0.34);
+    const leftCheekCluster = normalizedLandmarks.filter((point) => point.nx < -0.22 && point.nx > -0.86 && point.ny > -0.08 && point.ny < 0.48);
+    const rightCheekCluster = normalizedLandmarks.filter((point) => point.nx > 0.22 && point.nx < 0.86 && point.ny > -0.08 && point.ny < 0.48);
+    const chinCluster = normalizedLandmarks.filter((point) => point.ny > 0.64 && Math.abs(point.nx) < 0.56);
+
+    const clusterStrength = clampInteractive(
+      (
+        Math.min(1, leftEyeCluster.length / 18) +
+        Math.min(1, rightEyeCluster.length / 18) +
+        Math.min(1, noseCluster.length / 20) +
+        Math.min(1, mouthCluster.length / 20) +
+        Math.min(1, jawCluster.length / 22) +
+        Math.min(1, foreheadCluster.length / 16) +
+        Math.min(1, leftCheekCluster.length / 16) +
+        Math.min(1, rightCheekCluster.length / 16) +
+        Math.min(1, chinCluster.length / 12)
+      ) / 9,
+      0,
+      1
+    );
+
+    const landmarkInfluence = hasLandmarks
+      ? clampInteractive(0.55 + trackingPresence * 0.25 + clusterStrength * 0.22, 0.55, 0.96)
+      : 0;
+
+    const derivedFeatures = {
+      leftEye: averageCluster(leftEyeCluster, proceduralFeatures.leftEye.x, proceduralFeatures.leftEye.y),
+      rightEye: averageCluster(rightEyeCluster, proceduralFeatures.rightEye.x, proceduralFeatures.rightEye.y),
+      nose: averageCluster(noseCluster, proceduralFeatures.nose.x, proceduralFeatures.nose.y),
+      mouth: averageCluster(mouthCluster, proceduralFeatures.mouth.x, proceduralFeatures.mouth.y),
+      jaw: averageCluster(jawCluster, proceduralFeatures.jaw.x, proceduralFeatures.jaw.y),
+      forehead: averageCluster(foreheadCluster, proceduralFeatures.forehead.x, proceduralFeatures.forehead.y),
+      cheekLeft: averageCluster(leftCheekCluster, proceduralFeatures.cheekLeft.x, proceduralFeatures.cheekLeft.y),
+      cheekRight: averageCluster(rightCheekCluster, proceduralFeatures.cheekRight.x, proceduralFeatures.cheekRight.y),
+      chin: averageCluster(chinCluster, proceduralFeatures.chin.x, proceduralFeatures.chin.y)
+    };
+
+    if (derivedFeatures.leftEye.count < 3 && derivedFeatures.rightEye.count >= 3) {
+      derivedFeatures.leftEye.x = centerX - (derivedFeatures.rightEye.x - centerX);
+      derivedFeatures.leftEye.y = derivedFeatures.rightEye.y;
+    }
+
+    if (derivedFeatures.rightEye.count < 3 && derivedFeatures.leftEye.count >= 3) {
+      derivedFeatures.rightEye.x = centerX + (centerX - derivedFeatures.leftEye.x);
+      derivedFeatures.rightEye.y = derivedFeatures.leftEye.y;
+    }
+
+    derivedFeatures.nose.x = derivedFeatures.nose.x * 0.56 + centerX * 0.44;
+    derivedFeatures.mouth.x = derivedFeatures.mouth.x * 0.78 + centerX * 0.22;
+    derivedFeatures.jaw.x = derivedFeatures.jaw.x * 0.72 + centerX * 0.28;
+    derivedFeatures.chin.x = derivedFeatures.chin.x * 0.72 + centerX * 0.28;
+    derivedFeatures.forehead.x = derivedFeatures.forehead.x * 0.68 + centerX * 0.32;
+
+    const featureCenters = {
+      leftEye: updateFeatureCenter(
+        "leftEye",
+        proceduralFeatures.leftEye.x * (1 - landmarkInfluence) + derivedFeatures.leftEye.x * landmarkInfluence,
+        proceduralFeatures.leftEye.y * (1 - landmarkInfluence) + derivedFeatures.leftEye.y * landmarkInfluence,
+        0.095
+      ),
+      rightEye: updateFeatureCenter(
+        "rightEye",
+        proceduralFeatures.rightEye.x * (1 - landmarkInfluence) + derivedFeatures.rightEye.x * landmarkInfluence,
+        proceduralFeatures.rightEye.y * (1 - landmarkInfluence) + derivedFeatures.rightEye.y * landmarkInfluence,
+        0.095
+      ),
+      nose: updateFeatureCenter(
+        "nose",
+        proceduralFeatures.nose.x * (1 - landmarkInfluence) + derivedFeatures.nose.x * landmarkInfluence,
+        proceduralFeatures.nose.y * (1 - landmarkInfluence) + derivedFeatures.nose.y * landmarkInfluence,
+        0.1
+      ),
+      mouth: updateFeatureCenter(
+        "mouth",
+        proceduralFeatures.mouth.x * (1 - landmarkInfluence) + derivedFeatures.mouth.x * landmarkInfluence,
+        proceduralFeatures.mouth.y * (1 - landmarkInfluence) + derivedFeatures.mouth.y * landmarkInfluence,
+        0.1
+      ),
+      jaw: updateFeatureCenter(
+        "jaw",
+        proceduralFeatures.jaw.x * (1 - landmarkInfluence) + derivedFeatures.jaw.x * landmarkInfluence,
+        proceduralFeatures.jaw.y * (1 - landmarkInfluence) + derivedFeatures.jaw.y * landmarkInfluence,
+        0.108
+      )
+    };
+
+    const foreheadPoint = {
+      x: proceduralFeatures.forehead.x * (1 - landmarkInfluence) + derivedFeatures.forehead.x * landmarkInfluence,
+      y: proceduralFeatures.forehead.y * (1 - landmarkInfluence) + derivedFeatures.forehead.y * landmarkInfluence
+    };
+    const cheekLeftPoint = {
+      x: proceduralFeatures.cheekLeft.x * (1 - landmarkInfluence) + derivedFeatures.cheekLeft.x * landmarkInfluence,
+      y: proceduralFeatures.cheekLeft.y * (1 - landmarkInfluence) + derivedFeatures.cheekLeft.y * landmarkInfluence
+    };
+    const cheekRightPoint = {
+      x: proceduralFeatures.cheekRight.x * (1 - landmarkInfluence) + derivedFeatures.cheekRight.x * landmarkInfluence,
+      y: proceduralFeatures.cheekRight.y * (1 - landmarkInfluence) + derivedFeatures.cheekRight.y * landmarkInfluence
+    };
+    const chinPoint = {
+      x: proceduralFeatures.chin.x * (1 - landmarkInfluence) + derivedFeatures.chin.x * landmarkInfluence,
+      y: proceduralFeatures.chin.y * (1 - landmarkInfluence) + derivedFeatures.chin.y * landmarkInfluence
+    };
+
+    if (trackingPresence > 0.05) {
+      const contourAlpha = 0.1 + trackingPresence * 0.16;
+      const eyeBridgeY = (featureCenters.leftEye.y + featureCenters.rightEye.y) * 0.5;
+      faceModeContext.strokeStyle = `rgba(0, 0, 0, ${contourAlpha})`;
+      faceModeContext.lineWidth = 1.2 + trackingPresence * 0.8;
+      faceModeContext.beginPath();
+      faceModeContext.ellipse(centerX, centerY + radiusY * 0.04, radiusX * 0.99, radiusY * 1.03, 0, 0, Math.PI * 2);
+      faceModeContext.stroke();
+
+      faceModeContext.lineWidth = 0.9 + trackingPresence * 0.5;
+      faceModeContext.strokeStyle = `rgba(0, 0, 0, ${0.085 + trackingPresence * 0.14})`;
+      faceModeContext.beginPath();
+      faceModeContext.moveTo(cheekLeftPoint.x, cheekLeftPoint.y);
+      faceModeContext.quadraticCurveTo(chinPoint.x, chinPoint.y + radiusY * 0.05, cheekRightPoint.x, cheekRightPoint.y);
+      faceModeContext.stroke();
+
+      faceModeContext.beginPath();
+      faceModeContext.moveTo(featureCenters.leftEye.x, featureCenters.leftEye.y - radiusY * 0.05);
+      faceModeContext.quadraticCurveTo(centerX, foreheadPoint.y + radiusY * 0.08, featureCenters.rightEye.x, featureCenters.rightEye.y - radiusY * 0.05);
+      faceModeContext.stroke();
+
+      faceModeContext.strokeStyle = `rgba(0, 0, 0, ${0.11 + trackingPresence * 0.19})`;
+      faceModeContext.lineWidth = 1 + trackingPresence * 0.5;
+      faceModeContext.beginPath();
+      faceModeContext.moveTo((featureCenters.leftEye.x + featureCenters.rightEye.x) * 0.5, eyeBridgeY - radiusY * 0.07);
+      faceModeContext.lineTo(featureCenters.nose.x, featureCenters.nose.y + radiusY * 0.02);
+      faceModeContext.stroke();
+
+      faceModeContext.beginPath();
+      faceModeContext.arc(featureCenters.leftEye.x, featureCenters.leftEye.y, radiusX * 0.062, 0, Math.PI * 2);
+      faceModeContext.arc(featureCenters.rightEye.x, featureCenters.rightEye.y, radiusX * 0.062, 0, Math.PI * 2);
+      faceModeContext.stroke();
+
+      faceModeContext.beginPath();
+      faceModeContext.ellipse(featureCenters.mouth.x, featureCenters.mouth.y + radiusY * 0.02, radiusX * 0.21, radiusY * 0.086, 0, 0, Math.PI * 2);
+      faceModeContext.stroke();
+    }
+
+    const twoPi = Math.PI * 2;
+    const sortedParticles = faceModeState.particles.slice().sort((a, b) => a.depth - b.depth);
+
+    sortedParticles.forEach((particle) => {
+      const staticAngle = particle.seed;
+      const ambientSpeed = particle.group === "ambient"
+        ? (0.00016 + particle.weight * 0.0001)
+        : particle.group === "feature"
+          ? (0.00008 + particle.weight * 0.00005)
+          : (0.00006 + particle.weight * 0.00004);
+      const ambientAngle = staticAngle + time * ambientSpeed;
+      const ambientX = centerX + Math.cos(ambientAngle) * radiusX * (1.18 + particle.weight * 0.88);
+      const ambientY = centerY + Math.sin(ambientAngle * 1.02) * radiusY * (1.12 + particle.weight * 0.76);
+
+      let desiredX = ambientX;
+      let desiredY = ambientY;
+      let spring = 0.012 + trackingPresence * 0.018;
+      let damping = 0.86 + trackingPresence * 0.06;
+      let groupEnergy = 0.42;
+
+      if (particle.group === "structure") {
+        if (particle.cohort === "silhouette") {
+          const angle = particle.slotOffset * twoPi - (Math.PI * 0.5);
+          const edgeNoise = (particle.weight - 0.5) * 0.06;
+          let contourX = centerX + Math.cos(angle) * radiusX * (0.98 + edgeNoise);
+          let contourY = centerY + Math.sin(angle) * radiusY * (1 + edgeNoise * 0.6);
+          const lowerArc = Math.max(0, Math.sin(angle));
+          contourY += lowerArc * radiusY * 0.18;
+          desiredX = contourX * 0.98 + ambientX * 0.02;
+          desiredY = contourY * 0.98 + ambientY * 0.02;
+          spring = 0.118 + trackingPresence * 0.12;
+          damping = 0.72 + trackingPresence * 0.13;
+          groupEnergy = 1.06;
+        } else if (particle.cohort === "jawline") {
+          const jawAngle = particle.slotOffset * Math.PI;
+          desiredX = centerX + Math.cos(jawAngle) * radiusX * 0.86;
+          desiredY = centerY + Math.sin(jawAngle) * radiusY * 0.82 + radiusY * 0.22;
+          spring = 0.122 + trackingPresence * 0.12;
+          damping = 0.7 + trackingPresence * 0.13;
+          groupEnergy = 1.08;
+        } else if (particle.cohort === "forehead") {
+          const offset = particle.slotOffset - 0.5;
+          desiredX = foreheadPoint.x + offset * radiusX * 0.9;
+          desiredY = foreheadPoint.y + Math.abs(offset) * radiusY * 0.18;
+          spring = 0.112 + trackingPresence * 0.1;
+          damping = 0.74 + trackingPresence * 0.12;
+          groupEnergy = 0.98;
+        } else if (particle.cohort === "cheekLeft") {
+          const offset = particle.slotOffset - 0.5;
+          desiredX = cheekLeftPoint.x + Math.cos(offset * Math.PI * 0.86) * radiusX * 0.18;
+          desiredY = cheekLeftPoint.y + Math.sin(offset * Math.PI) * radiusY * 0.14;
+          spring = 0.11 + trackingPresence * 0.1;
+          damping = 0.75 + trackingPresence * 0.12;
+          groupEnergy = 0.96;
+        } else if (particle.cohort === "cheekRight") {
+          const offset = particle.slotOffset - 0.5;
+          desiredX = cheekRightPoint.x - Math.cos(offset * Math.PI * 0.86) * radiusX * 0.18;
+          desiredY = cheekRightPoint.y + Math.sin(offset * Math.PI) * radiusY * 0.14;
+          spring = 0.11 + trackingPresence * 0.1;
+          damping = 0.75 + trackingPresence * 0.12;
+          groupEnergy = 0.96;
+        } else {
+          const radial = 0.2 + Math.sqrt(particle.weight) * 0.72;
+          const innerX = centerX + Math.cos(staticAngle) * radiusX * radial * 0.72;
+          const innerY = centerY + Math.sin(staticAngle) * radiusY * radial * 0.86;
+          desiredX = innerX * 0.9 + featureCenters.nose.x * 0.1;
+          desiredY = innerY * 0.75 + ((featureCenters.nose.y * 0.45) + (featureCenters.mouth.y * 0.55)) * 0.25;
+          spring = 0.1 + trackingPresence * 0.1;
+          damping = 0.76 + trackingPresence * 0.12;
+          groupEnergy = 0.9;
+        }
+      } else if (particle.group === "feature") {
+        let featureX = featureCenters.nose.x;
+        let featureY = featureCenters.nose.y;
+
+        if (particle.cohort === "eyeLeft" || particle.featureSlot === "leftEye") {
+          const eyeAngle = particle.slotOffset * twoPi;
+          featureX = featureCenters.leftEye.x + Math.cos(eyeAngle) * radiusX * 0.12;
+          featureY = featureCenters.leftEye.y + Math.sin(eyeAngle) * radiusY * 0.056;
+          featureY += Math.sin(time * 0.00038 + particle.seed) * radiusY * 0.0024;
+        } else if (particle.cohort === "eyeRight" || particle.featureSlot === "rightEye") {
+          const eyeAngle = particle.slotOffset * twoPi;
+          featureX = featureCenters.rightEye.x + Math.cos(eyeAngle) * radiusX * 0.12;
+          featureY = featureCenters.rightEye.y + Math.sin(eyeAngle) * radiusY * 0.056;
+          featureY += Math.sin(time * 0.00038 + particle.seed) * radiusY * 0.0024;
+        } else if (particle.cohort === "noseBridge" || particle.featureSlot === "nose") {
+          const stem = particle.slotOffset - 0.5;
+          const bridgeMix = particle.weight < 0.56 ? -0.52 : 0.28;
+          featureX = centerX + stem * radiusX * 0.075;
+          featureY = centerY + (bridgeMix + stem * 0.58) * radiusY;
+        } else if (particle.cohort === "mouthContour" || particle.featureSlot === "mouth") {
+          const arcAngle = (particle.slotOffset - 0.5) * Math.PI;
+          featureX = featureCenters.mouth.x + Math.sin(arcAngle) * radiusX * 0.25;
+          featureY = featureCenters.mouth.y + Math.cos(arcAngle) * radiusY * 0.09 + radiusY * 0.02;
+        } else if (particle.cohort === "chin" || particle.featureSlot === "jaw") {
+          const chinAngle = particle.slotOffset * Math.PI;
+          featureX = chinPoint.x + Math.cos(chinAngle) * radiusX * 0.3;
+          featureY = chinPoint.y + Math.sin(chinAngle) * radiusY * 0.08 - radiusY * 0.04;
+        }
+
+        desiredX = featureX * 0.97 + ambientX * 0.03;
+        desiredY = featureY * 0.97 + ambientY * 0.03;
+        spring = 0.13 + trackingPresence * 0.12;
+        damping = 0.68 + trackingPresence * 0.14;
+        groupEnergy = 1.18;
+      } else {
+        desiredX = centerX + Math.cos(ambientAngle) * radiusX * (1.28 + particle.weight * 1.1);
+        desiredY = centerY + Math.sin(ambientAngle * 1.08) * radiusY * (1.2 + particle.weight * 0.94);
+        spring = 0.008 + trackingPresence * 0.01;
+        damping = 0.9 + trackingPresence * 0.04;
+        groupEnergy = 0.36;
+      }
+
+      const targetBlend = particle.group === "ambient"
+        ? 0.2
+        : particle.group === "feature"
+          ? 0.44 + trackingPresence * 0.44
+          : 0.34 + trackingPresence * 0.5;
+      const pullX = desiredX * targetBlend + ambientX * (1 - targetBlend);
+      const pullY = desiredY * targetBlend + ambientY * (1 - targetBlend);
+
+      particle.targetX += (pullX - particle.targetX) * (0.14 + particle.depth * 0.1 + trackingPresence * 0.08);
+      particle.targetY += (pullY - particle.targetY) * (0.14 + particle.depth * 0.1 + trackingPresence * 0.08);
+
+      const drift = (1 - trackingPresence) * (particle.group === "ambient" ? 0.014 : 0.003);
+      particle.vx = particle.vx * damping + (particle.targetX - particle.x) * spring + Math.cos(time * 0.0012 + particle.seed) * drift;
+      particle.vy = particle.vy * damping + (particle.targetY - particle.y) * spring + Math.sin(time * 0.0014 + particle.seed * 1.7) * drift;
+
+      const maxSpeed = (particle.group === "ambient" ? 1.05 : particle.group === "feature" ? 2.5 : 2.2) * (0.72 + trackingPresence * 0.6);
+      const speed = Math.hypot(particle.vx, particle.vy);
+      if (speed > maxSpeed && speed > 0.0001) {
+        const scale = maxSpeed / speed;
+        particle.vx *= scale;
+        particle.vy *= scale;
+      }
+
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+
+      const depthScale = 0.76 + particle.depth * 0.68;
+      const baseCoreSize = particle.group === "feature"
+        ? 1.58
+        : particle.group === "structure"
+          ? 1.3
+          : 0.72;
+      const coreSize = particle.size * baseCoreSize * depthScale;
+      const haloSize = coreSize * (particle.group === "ambient" ? 1.52 : 1.88);
+      const baseAlpha = particle.group === "feature"
+        ? 0.24
+        : particle.group === "structure"
+          ? 0.19
+          : 0.016;
+      const layerBoost = particle.layer === "front" ? 1.16 : particle.layer === "mid" ? 1 : 0.84;
+      const coreAlpha = (
+        baseAlpha +
+        particle.weight * 0.05 +
+        trackingPresence * 0.12 * groupEnergy
+      ) * layerBoost * (0.86 + pulse * 0.14);
+      const haloAlpha = coreAlpha * (particle.group === "ambient" ? 0.14 : 0.22);
+
+      faceModeContext.fillStyle = `rgba(0, 0, 0, ${haloAlpha})`;
+      faceModeContext.beginPath();
+      faceModeContext.arc(particle.x, particle.y, haloSize, 0, Math.PI * 2);
+      faceModeContext.fill();
+
+      faceModeContext.fillStyle = `rgba(0, 0, 0, ${coreAlpha})`;
+      faceModeContext.beginPath();
+      faceModeContext.arc(particle.x, particle.y, coreSize, 0, Math.PI * 2);
+      faceModeContext.fill();
+
+      if (particle.group === "feature" && trackingPresence > 0.4 && particle.depth > 0.64) {
+        faceModeContext.fillStyle = `rgba(0, 0, 0, ${coreAlpha * 0.58})`;
+        faceModeContext.beginPath();
+        faceModeContext.arc(particle.x, particle.y, coreSize * 0.42, 0, Math.PI * 2);
+        faceModeContext.fill();
+      }
+    });
+
+    if (!hasTrackedFace) {
+      faceModeContext.fillStyle = `rgba(0, 0, 0, ${ambientAlpha})`;
+      faceModeContext.beginPath();
+      faceModeContext.arc(centerX, centerY, Math.min(radiusX, radiusY) * (0.18 + pulse * 0.06), 0, Math.PI * 2);
+      faceModeContext.fill();
+    }
+  }
+
+  async function stopInteractiveFaceMode() {
+    faceModeState.sessionToken += 1;
+
+    if (faceModeState.stream) {
+      faceModeState.stream.getTracks().forEach((track) => track.stop());
+      faceModeState.stream = null;
+    }
+
+    if (faceModeVideo) {
+      faceModeVideo.pause();
+      faceModeVideo.srcObject = null;
+    }
+
+    faceModeState.enabled = false;
+    faceModeState.starting = false;
+    resetInteractiveFaceModeTracking();
+    syncInteractiveFaceModeLayer();
+    clearInteractiveFaceModeLayer();
+    syncInteractiveFaceModeButton();
+    queueLiveBackdrop();
+  }
+
+  async function startInteractiveFaceMode() {
+    if (!hasFaceModeSupport() || faceModeState.enabled || faceModeState.starting || !state.isOpen) {
+      syncInteractiveFaceModeButton();
+      return;
+    }
+
+    const sessionToken = faceModeState.sessionToken + 1;
+    faceModeState.sessionToken = sessionToken;
+    faceModeState.starting = true;
+    faceModeState.unavailable = false;
+    syncInteractiveFaceModeButton();
+
+    try {
+      const tracker = faceModeState.detector || await ensureInteractiveFaceModeTracker();
+
+      if (sessionToken !== faceModeState.sessionToken) {
+        return;
+      }
+
+      if (!faceModeState.detector && !tracker) {
+        faceModeState.unavailable = true;
+        return;
+      }
+
+      if (state.cameraActive || state.cameraStarting) {
+        await stopInteractiveCamera();
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 960 },
+          height: { ideal: 960 }
+        },
+        audio: false
+      });
+
+      if (sessionToken !== faceModeState.sessionToken) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      faceModeVideo.srcObject = stream;
+      await faceModeVideo.play();
+
+      if (sessionToken !== faceModeState.sessionToken) {
+        stream.getTracks().forEach((track) => track.stop());
+        faceModeVideo.pause();
+        faceModeVideo.srcObject = null;
+        return;
+      }
+
+      faceModeState.stream = stream;
+      faceModeState.enabled = true;
+      resetInteractiveFaceModeTracking();
+      resizeInteractiveFaceModeCanvas();
+      syncInteractiveFaceModeLayer();
+      void refreshInteractiveFaceModeTracking(performance.now());
+      queueLiveBackdrop();
+    } catch (error) {
+      if (faceModeState.stream) {
+        faceModeState.stream.getTracks().forEach((track) => track.stop());
+        faceModeState.stream = null;
+      }
+
+      if (faceModeVideo) {
+        faceModeVideo.pause();
+        faceModeVideo.srcObject = null;
+      }
+
+      faceModeState.enabled = false;
+      resetInteractiveFaceModeTracking();
+      syncInteractiveFaceModeLayer();
+      clearInteractiveFaceModeLayer();
+    } finally {
+      faceModeState.starting = false;
+      syncInteractiveFaceModeButton();
+    }
+  }
+
+  async function toggleInteractiveFaceMode(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (faceModeState.enabled) {
+      await stopInteractiveFaceMode();
+      return;
+    }
+
+    await startInteractiveFaceMode();
+  }
+
+  function shouldFreezeInteractiveBackdrop() {
+    return reducedMotionQuery.matches && !faceModeState.enabled;
   }
 
   function syncInteractiveCameraButton() {
@@ -9372,6 +10077,127 @@ function initInteractiveWorkLiveSync() {
     }, width, height);
   }
 
+  const CAMERA_FACE_OVAL_INDICES = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+  const CAMERA_LEFT_EYE_INDICES = [33, 160, 158, 133, 153, 144];
+  const CAMERA_RIGHT_EYE_INDICES = [362, 385, 387, 263, 373, 380];
+  const CAMERA_NOSE_BRIDGE_INDICES = [168, 6, 197, 195, 5, 4, 1];
+  const CAMERA_NOSE_BASE_INDICES = [98, 97, 2, 326, 327];
+  const CAMERA_MOUTH_INDICES = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78];
+  const CAMERA_LEFT_EAR_ANCHOR_INDICES = [127, 234, 93];
+  const CAMERA_RIGHT_EAR_ANCHOR_INDICES = [356, 454, 323];
+
+  function getCameraFeaturePathFromIndices(landmarks, indices, toUnitPoint) {
+    const points = [];
+
+    indices.forEach((index) => {
+      const point = landmarks[index];
+
+      if (!point) {
+        return;
+      }
+
+      points.push(toUnitPoint(point));
+    });
+
+    return points;
+  }
+
+  function getCameraFeatureCenter(path, fallback = { x: 0, y: 0 }) {
+    if (!path.length) {
+      return fallback;
+    }
+
+    const total = path.reduce((accumulator, point) => {
+      accumulator.x += point.x;
+      accumulator.y += point.y;
+      return accumulator;
+    }, { x: 0, y: 0 });
+
+    return {
+      x: total.x / path.length,
+      y: total.y / path.length
+    };
+  }
+
+  function getCameraEarArc(anchor, side = -1) {
+    if (!anchor) {
+      return [];
+    }
+
+    const points = [];
+    const halfPi = Math.PI * 0.5;
+
+    for (let index = 0; index < 6; index += 1) {
+      const ratio = index / 5;
+      const angle = (ratio * 1.8 - 0.9) * halfPi;
+      points.push({
+        x: anchor.x + side * Math.cos(angle) * 0.16,
+        y: anchor.y + Math.sin(angle) * 0.24
+      });
+    }
+
+    return points;
+  }
+
+  function buildInteractiveCameraLineTemplate(landmarks) {
+    if (!Array.isArray(landmarks) || landmarks.length < 20) {
+      return null;
+    }
+
+    const bounds = getInteractiveLandmarkBounds(landmarks);
+    const safeWidth = Math.max(0.0001, bounds.width);
+    const safeHeight = Math.max(0.0001, bounds.height);
+    const aspect = clampInteractive(safeWidth / safeHeight, 0.62, 0.92);
+    const toUnitPoint = (point) => ({
+      x: ((point.x - bounds.centerX) / safeWidth) * 2,
+      y: ((point.y - bounds.centerY) / safeHeight) * 2
+    });
+
+    const outline = getCameraFeaturePathFromIndices(landmarks, CAMERA_FACE_OVAL_INDICES, toUnitPoint);
+    const leftEye = getCameraFeaturePathFromIndices(landmarks, CAMERA_LEFT_EYE_INDICES, toUnitPoint);
+    const rightEye = getCameraFeaturePathFromIndices(landmarks, CAMERA_RIGHT_EYE_INDICES, toUnitPoint);
+    const noseBridge = getCameraFeaturePathFromIndices(landmarks, CAMERA_NOSE_BRIDGE_INDICES, toUnitPoint);
+    const noseBase = getCameraFeaturePathFromIndices(landmarks, CAMERA_NOSE_BASE_INDICES, toUnitPoint);
+    const mouth = getCameraFeaturePathFromIndices(landmarks, CAMERA_MOUTH_INDICES, toUnitPoint);
+    const leftEarAnchor = getCameraFeatureCenter(
+      getCameraFeaturePathFromIndices(landmarks, CAMERA_LEFT_EAR_ANCHOR_INDICES, toUnitPoint),
+      { x: -1.02, y: -0.02 }
+    );
+    const rightEarAnchor = getCameraFeatureCenter(
+      getCameraFeaturePathFromIndices(landmarks, CAMERA_RIGHT_EAR_ANCHOR_INDICES, toUnitPoint),
+      { x: 1.02, y: -0.02 }
+    );
+    const leftEar = getCameraEarArc(leftEarAnchor, -1);
+    const rightEar = getCameraEarArc(rightEarAnchor, 1);
+    const outlineLower = outline.filter((point) => point.y > 0.18);
+    const jawCenter = getCameraFeatureCenter(outlineLower, { x: 0, y: 0.86 });
+
+    if (outline.length < 14) {
+      return null;
+    }
+
+    return {
+      aspect,
+      outline,
+      leftEye,
+      rightEye,
+      noseBridge,
+      noseBase,
+      mouth,
+      leftEar,
+      rightEar,
+      anchors: {
+        leftEye: getCameraFeatureCenter(leftEye, { x: -0.34, y: -0.22 }),
+        rightEye: getCameraFeatureCenter(rightEye, { x: 0.34, y: -0.22 }),
+        nose: getCameraFeatureCenter([...noseBridge, ...noseBase], { x: 0, y: 0.04 }),
+        mouth: getCameraFeatureCenter(mouth, { x: 0, y: 0.42 }),
+        jaw: jawCenter,
+        leftEar: leftEarAnchor,
+        rightEar: rightEarAnchor
+      }
+    };
+  }
+
   async function ensureInteractiveMediapipeFaceTracker() {
     if (
       state.cameraMediapipe.faceLandmarker ||
@@ -9396,10 +10222,8 @@ function initInteractiveWorkLiveSync() {
         outputFaceBlendshapes: false,
         outputFacialTransformationMatrixes: false
       });
-      state.cameraMediapipe.ready = true;
     } catch (error) {
       state.cameraMediapipe.failed = true;
-      state.cameraMediapipe.ready = false;
       state.cameraMediapipe.faceLandmarker = null;
     } finally {
       state.cameraMediapipe.loading = false;
@@ -9450,7 +10274,6 @@ function initInteractiveWorkLiveSync() {
     state.headAxisX += (rawAxisX - state.headAxisX) * 0.34;
     state.headAxisY += (rawAxisY - state.headAxisY) * 0.34;
     state.headLastSeenAt = time;
-    emitInteractiveHeadSignal(time);
     return true;
   }
 
@@ -9679,6 +10502,7 @@ function initInteractiveWorkLiveSync() {
       let crop = null;
       let detectorBox = null;
       let trackedHeadThisFrame = false;
+      let hasLineTemplateThisFrame = false;
 
       if (
         !state.cameraMediapipe.faceLandmarker &&
@@ -9696,6 +10520,14 @@ function initInteractiveWorkLiveSync() {
           if (landmarks?.length) {
             const landmarkBounds = getInteractiveLandmarkBounds(landmarks);
             crop = getInteractiveCropFromLandmarks(landmarks, sourceWidth, sourceHeight);
+            const lineTemplate = buildInteractiveCameraLineTemplate(landmarks);
+
+            if (lineTemplate) {
+              state.cameraLineTemplate = lineTemplate;
+              state.cameraLineLastSeenAt = time;
+              hasLineTemplateThisFrame = true;
+            }
+
             trackedHeadThisFrame = updateHeadAxisFromFaceCenter(
               landmarkBounds.centerX,
               landmarkBounds.centerY,
@@ -9706,7 +10538,6 @@ function initInteractiveWorkLiveSync() {
           }
         } catch (error) {
           state.cameraMediapipe.failed = true;
-          state.cameraMediapipe.ready = false;
           state.cameraMediapipe.faceLandmarker = null;
         }
       }
@@ -9755,13 +10586,15 @@ function initInteractiveWorkLiveSync() {
           if (Math.abs(state.headAxisY) < 0.0015) {
             state.headAxisY = 0;
           }
-
-          emitInteractiveHeadSignal(time);
         }
 
         if (signalGap > 1200) {
           state.headNeutralReady = false;
         }
+      }
+
+      if (!hasLineTemplateThisFrame && (time - state.cameraLineLastSeenAt) > 520) {
+        state.cameraLineTemplate = null;
       }
 
       if (!crop) {
@@ -9878,8 +10711,8 @@ function initInteractiveWorkLiveSync() {
     const centerY = state.height * 0.52;
     const signalAge = time - state.headLastSeenAt;
     const hasHeadSignal = state.cameraActive && signalAge < 560;
-    const axisX = hasHeadSignal ? state.headSignalRead.axisX : 0;
-    const axisY = hasHeadSignal ? state.headSignalRead.axisY : 0;
+    const axisX = hasHeadSignal ? state.headAxisX : 0;
+    const axisY = hasHeadSignal ? state.headAxisY : 0;
     const offsetX = state.width * (state.isOpen ? 0.16 : 0.21);
     const offsetY = state.height * (state.isOpen ? 0.14 : 0.19);
     const targetX = clampInteractive(centerX + axisX * offsetX, 2, Math.max(2, state.width - 2));
@@ -9905,7 +10738,10 @@ function initInteractiveWorkLiveSync() {
     state.cameraStarting = false;
     state.cameraWorking = false;
     state.cameraTemplate = [];
-    resetInteractiveHeadSignal(performance.now());
+    state.cameraLineTemplate = null;
+    state.cameraLineLastSeenAt = 0;
+    state.cameraPortraitBuffer = [];
+    resetInteractiveHeadSignal();
     syncInteractiveCameraButton();
     queueLiveBackdrop();
   }
@@ -9946,8 +10782,11 @@ function initInteractiveWorkLiveSync() {
       state.cameraStream = stream;
       state.cameraActive = true;
       state.cameraLastTrackAt = 0;
+      state.cameraLineTemplate = null;
+      state.cameraLineLastSeenAt = 0;
+      state.cameraPortraitBuffer = [];
       state.headNeutralReady = false;
-      resetInteractiveHeadSignal(performance.now());
+      resetInteractiveHeadSignal();
       state.lastBeatAt = 0;
       state.beatPulse = 0;
       state.introPattern = 0;
@@ -9975,6 +10814,10 @@ function initInteractiveWorkLiveSync() {
     if (state.cameraActive) {
       await stopInteractiveCamera();
       return;
+    }
+
+    if (faceModeState.enabled || faceModeState.starting) {
+      await stopInteractiveFaceMode();
     }
 
     await startInteractiveCamera();
@@ -10127,6 +10970,7 @@ function initInteractiveWorkLiveSync() {
     state.pointerDrawX = state.flowX;
     state.pointerDrawY = state.flowY;
     buildParticles();
+    resizeInteractiveFaceModeCanvas();
     drawLiveBackdrop(performance.now(), true);
   }
 
@@ -10145,7 +10989,7 @@ function initInteractiveWorkLiveSync() {
 
     state.pointerInside = true;
 
-    if (reducedMotionQuery.matches) {
+    if (shouldFreezeInteractiveBackdrop()) {
       drawLiveBackdrop(performance.now(), true);
       return;
     }
@@ -10156,7 +11000,7 @@ function initInteractiveWorkLiveSync() {
   function clearInteractivePointer() {
     state.pointerInside = false;
 
-    if (reducedMotionQuery.matches) {
+    if (shouldFreezeInteractiveBackdrop()) {
       drawLiveBackdrop(performance.now(), true);
       return;
     }
@@ -10167,7 +11011,6 @@ function initInteractiveWorkLiveSync() {
   function setActiveInteractiveCard(index) {
     const safeIndex = clampInteractive(index, 0, projectCards.length - 1);
     state.activeIndex = safeIndex;
-    state.targetHue = Number(projectCards[safeIndex].dataset.interactiveHue) || state.targetHue;
 
     if (state.isOpen) {
       setLivePreview(projectCards[safeIndex].dataset.interactivePreview || "");
@@ -10179,8 +11022,7 @@ function initInteractiveWorkLiveSync() {
       card.classList.toggle("is-live-active", cardIndex === safeIndex);
     });
 
-    if (reducedMotionQuery.matches) {
-      state.currentHue = state.targetHue;
+    if (shouldFreezeInteractiveBackdrop()) {
       drawLiveBackdrop(performance.now(), true);
       return;
     }
@@ -10210,6 +11052,12 @@ function initInteractiveWorkLiveSync() {
     bodyElement.classList.remove("is-interactive-work-open");
     if (liveVideo && !liveVideo.paused) {
       liveVideo.pause();
+    }
+    if (faceModeState.enabled || faceModeState.starting) {
+      void stopInteractiveFaceMode();
+    }
+    if (state.cameraActive || state.cameraStarting) {
+      void stopInteractiveCamera();
     }
     setActiveInteractiveCard(state.defaultIndex);
     queueLiveBackdrop();
@@ -10297,93 +11145,335 @@ function initInteractiveWorkLiveSync() {
   }
 
   function drawInteractiveCameraFace(time, reactiveBoost) {
-    if (!state.cameraActive || !state.cameraTemplate.length) {
+    if (!state.cameraActive) {
       return false;
     }
 
-    const faceScale = Math.min(state.width, state.height) * (0.24 + reactiveBoost * 0.04 + state.cameraConfidence * 0.08);
-    const sampleStep = Math.max(1, Math.floor(state.cameraTemplate.length / 240));
-    const points = [];
-    const splitPulse = (Math.sin(time * (0.0018 + state.cameraMotion * 0.0012)) + 1) * 0.5;
-    const splitBase = clampInteractive(
-      0.14 + reactiveBoost * 0.36 + state.cameraMotion * 0.28 + splitPulse * 0.46,
-      0.08,
-      1.24
-    );
+    const lineAge = time - state.cameraLineLastSeenAt;
+    const hasLineTemplate = Boolean(state.cameraLineTemplate) && lineAge < 860;
+    const hasPointTemplate = state.cameraTemplate.length > 8;
 
-    for (let index = 0; index < state.cameraTemplate.length; index += sampleStep) {
-      const point = state.cameraTemplate[index];
-      const wave = Math.sin(time * 0.0012 + point.z * 6 + index * 0.07) * (2.2 + reactiveBoost * 5.2);
-      const depthOffset = point.z * (8 + reactiveBoost * 12);
-      const tx = state.flowX + point.x * faceScale + wave * 0.22;
-      const ty = state.flowY + point.y * faceScale * 1.04 + depthOffset;
-
-      // Split each face region into drifting clusters, then let it stitch back.
-      const clusterX = point.x >= 0 ? 1 : -1;
-      const clusterY = point.y >= 0 ? 1 : -1;
-      const localSplit = splitBase * (0.72 + Math.sin(time * 0.0021 + index * 0.19) * 0.28);
-      const angleSeed = ((index * 13.7) + point.z * 49.1) % (Math.PI * 2);
-      const splitRadius = faceScale * (0.06 + localSplit * 0.17);
-      const jitterRadius = faceScale * (0.02 + localSplit * 0.09);
-
-      const splitX = clusterX * splitRadius + Math.cos(angleSeed + time * 0.0008) * jitterRadius;
-      const splitY = clusterY * splitRadius * 0.9 + Math.sin(angleSeed + time * 0.00095) * jitterRadius * 0.82;
-      const x = tx + splitX;
-      const y = ty + splitY;
-
-      points.push({ x, y, z: point.z, tx, ty, localSplit });
-    }
-
-    if (points.length < 8) {
+    if (!hasLineTemplate && !hasPointTemplate) {
       return false;
     }
 
-    const meshDistance = Math.min(state.width, state.height) * (0.14 + reactiveBoost * 0.05 + splitBase * 0.02);
-    context.lineWidth = 1.18 + reactiveBoost * 1.42 + state.cameraConfidence * 0.4;
+    const portraitPoints = [];
+    const viewportMin = Math.min(state.width, state.height);
+    const confidence = clampInteractive(state.cameraConfidence, 0, 1);
+    const motion = clampInteractive(state.cameraMotion, 0, 1);
 
-    for (let index = 0; index < points.length; index += 1) {
-      const pointA = points[index];
-      const limit = Math.min(points.length, index + 9);
+    function drawParticlePortraitPoint(point) {
+      const pulse = 0.84 + (Math.sin(time * 0.0019 + point.phase) + 1) * 0.08;
+      const coreSize = Math.max(0.72, point.size * (0.78 + confidence * 0.44) * pulse);
+      const glowSize = coreSize * (1.42 + point.halo * 0.2);
+      const coreAlpha = point.alpha * pulse;
+      const glowAlpha = coreAlpha * 0.34;
+      const ghostShiftX = Math.sin(time * 0.001 + point.phase * 0.8) * 0.72;
+      const ghostShiftY = Math.cos(time * 0.00086 + point.phase * 0.7) * 0.58;
 
-      for (let nextIndex = index + 1; nextIndex < limit; nextIndex += 1) {
-        const pointB = points[nextIndex];
-        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
-
-        if (distance > meshDistance) {
-          continue;
-        }
-
-        const alpha = (1 - (distance / meshDistance)) * (0.28 + reactiveBoost * 0.34 + state.cameraConfidence * 0.26);
-        context.strokeStyle = hueInteractive(alpha, 98, 74, 0);
-        context.beginPath();
-        context.moveTo(pointA.x, pointA.y);
-        context.lineTo(pointB.x, pointB.y);
-        context.stroke();
-      }
-    }
-
-    // Stitch lines show pieces reconnecting into a face structure.
-    for (let index = 0; index < points.length; index += 3) {
-      const point = points[index];
-      const stitchAlpha = clampInteractive(
-        0.08 + point.localSplit * 0.34 + reactiveBoost * 0.12 + state.cameraConfidence * 0.12,
-        0,
-        0.62
+      context.fillStyle = hueInteractive(glowAlpha);
+      context.fillRect(
+        point.x - (glowSize * 0.5),
+        point.y - (glowSize * 0.5),
+        glowSize,
+        glowSize
       );
-      context.strokeStyle = hueInteractive(stitchAlpha, 96, 78, 0);
-      context.lineWidth = 0.52 + point.localSplit * 1.08;
+
+      context.fillStyle = hueInteractive(coreAlpha * 0.42);
+      context.fillRect(
+        point.x - ghostShiftX - (coreSize * 0.44),
+        point.y - ghostShiftY - (coreSize * 0.44),
+        coreSize * 0.88,
+        coreSize * 0.88
+      );
+
+      context.fillStyle = hueInteractive(coreAlpha);
+      context.fillRect(
+        point.x - (coreSize * 0.5),
+        point.y - (coreSize * 0.5),
+        coreSize,
+        coreSize
+      );
+    }
+
+    function drawSoftBridge(pointA, pointB, alpha, width) {
+      context.strokeStyle = hueInteractive(alpha);
+      context.lineWidth = width;
       context.beginPath();
-      context.moveTo(point.x, point.y);
-      context.lineTo(point.tx, point.ty);
+      context.moveTo(pointA.x, pointA.y);
+      context.lineTo(pointB.x, pointB.y);
       context.stroke();
     }
 
-    points.forEach((point) => {
-      const nodeSize = 1.1 + reactiveBoost * 1.7 + Math.max(0, point.z) * 1.3;
-      context.fillStyle = hueInteractive(0.52 + reactiveBoost * 0.26 + state.cameraConfidence * 0.18, 98, 84, 0);
-      context.fillRect(point.x - (nodeSize * 0.5), point.y - (nodeSize * 0.5), nodeSize, nodeSize);
-    });
+    function drawPortraitConnections(points, intensity = 1) {
+      if (!points || points.length < 10) {
+        return;
+      }
 
+      const sorted = points.slice().sort((first, second) => first.x - second.x);
+      const maxDistance = viewportMin * (window.innerWidth < 720 ? 0.084 : 0.074);
+      const lookahead = window.innerWidth < 720 ? 4 : 6;
+      context.lineWidth = 0.16 + confidence * 0.26;
+
+      for (let index = 0; index < sorted.length; index += 1) {
+        const point = sorted[index];
+        const limit = Math.min(sorted.length, index + lookahead);
+
+        for (let nextIndex = index + 1; nextIndex < limit; nextIndex += 1) {
+          const candidate = sorted[nextIndex];
+          const dx = candidate.x - point.x;
+
+          if (dx > maxDistance) {
+            break;
+          }
+
+          const dy = candidate.y - point.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance > maxDistance || distance <= 0.0001) {
+            continue;
+          }
+
+          const alpha = (1 - (distance / maxDistance)) * (0.04 + confidence * 0.14 + reactiveBoost * 0.04) * intensity;
+
+          if (alpha < 0.01) {
+            continue;
+          }
+
+          context.strokeStyle = hueInteractive(alpha);
+          context.beginPath();
+          context.moveTo(point.x, point.y);
+          context.lineTo(candidate.x, candidate.y);
+          context.stroke();
+        }
+      }
+    }
+
+    function addFeatureCloud(anchor, options = {}) {
+      if (!anchor) {
+        return;
+      }
+
+      const count = options.count || 20;
+      const radiusX = options.radiusX || 12;
+      const radiusY = options.radiusY || 10;
+      const size = options.size || 1;
+      const alpha = options.alpha || 0.2;
+      const halo = options.halo || 2.1;
+      const phaseSeed = options.phaseSeed || 0;
+      const spiral = 2.399963229728653;
+
+      for (let index = 0; index < count; index += 1) {
+        const ratio = (index + 0.5) / count;
+        const ring = Math.sqrt(ratio);
+        const angle = index * spiral + phaseSeed;
+        portraitPoints.push({
+          x: anchor.x + Math.cos(angle) * radiusX * ring,
+          y: anchor.y + Math.sin(angle) * radiusY * ring,
+          size: size * (0.86 + ratio * 0.4),
+          alpha: alpha * (0.72 + ratio * 0.34),
+          halo,
+          phase: phaseSeed + index * 0.25
+        });
+      }
+    }
+
+    function smoothPortraitPoints(nextPoints) {
+      if (!nextPoints.length) {
+        state.cameraPortraitBuffer = [];
+        return [];
+      }
+
+      const prev = state.cameraPortraitBuffer;
+      const lengthChanged = prev.length !== nextPoints.length;
+      const blendPos = 0.24 + motion * 0.22;
+      const blendStyle = 0.2 + confidence * 0.12;
+
+      if (lengthChanged) {
+        state.cameraPortraitBuffer = nextPoints.map((point) => ({ ...point }));
+        return state.cameraPortraitBuffer;
+      }
+
+      for (let index = 0; index < nextPoints.length; index += 1) {
+        const next = nextPoints[index];
+        const current = prev[index];
+        current.x += (next.x - current.x) * blendPos;
+        current.y += (next.y - current.y) * blendPos;
+        current.size += (next.size - current.size) * blendStyle;
+        current.alpha += (next.alpha - current.alpha) * blendStyle;
+        current.halo += (next.halo - current.halo) * blendStyle;
+        current.phase = next.phase;
+      }
+
+      return prev;
+    }
+
+    function drawPortraitAura(centerX, centerY, radiusX, radiusY, alpha = 0.2) {
+      const gradient = context.createRadialGradient(
+        centerX,
+        centerY,
+        radiusX * 0.05,
+        centerX,
+        centerY,
+        radiusX * 1.9
+      );
+      gradient.addColorStop(0, hueInteractive(alpha * 0.36));
+      gradient.addColorStop(0.46, hueInteractive(alpha * 0.16));
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      context.fillStyle = gradient;
+      context.fillRect(
+        centerX - radiusX * 2.2,
+        centerY - radiusY * 2.2,
+        radiusX * 4.4,
+        radiusY * 4.4
+      );
+    }
+
+    if (hasLineTemplate) {
+      const template = state.cameraLineTemplate;
+      const fade = clampInteractive(1 - (lineAge / 900), 0.36, 1);
+      const isCompactViewport = window.innerWidth < 900 || window.innerHeight < 760;
+      const desiredFaceHeight = viewportMin * (isCompactViewport ? 0.27 : 0.3);
+      const dynamicFaceHeight = viewportMin * (reactiveBoost * 0.018 + state.cameraConfidence * 0.028);
+      const faceHeight = clampInteractive(
+        desiredFaceHeight + dynamicFaceHeight,
+        viewportMin * 0.2,
+        viewportMin * (isCompactViewport ? 0.32 : 0.36)
+      );
+      const halfHeight = faceHeight * 0.5;
+      const desiredHalfWidth = halfHeight * template.aspect * 1.02;
+      const maxHalfWidth = state.width * (isCompactViewport ? 0.26 : 0.22);
+      const halfWidth = Math.min(desiredHalfWidth, maxHalfWidth);
+      const centerX = state.flowX;
+      const centerY = state.flowY + halfHeight * 0.02;
+      const jitterBase = (1 - confidence) * 0.16 + motion * 0.05;
+      const baseAlpha = clampInteractive((0.2 + confidence * 0.42 + reactiveBoost * 0.07) * fade, 0.07, 0.72);
+      const anchorPoints = {};
+
+      const toRenderPoint = (point, seed = 0) => ({
+        x: centerX + point.x * halfWidth + Math.cos(time * 0.001 + seed) * jitterBase,
+        y: centerY + point.y * halfHeight + Math.sin(time * 0.0012 + seed * 1.15) * jitterBase
+      });
+
+      const addPathAsParticles = (path, config = {}, seedShift = 0) => {
+        if (!path || !path.length) {
+          return;
+        }
+
+        const stride = Math.max(1, config.stride || 1);
+        for (let index = 0; index < path.length; index += stride) {
+          const mapped = toRenderPoint(path[index], seedShift + index * 0.19);
+          portraitPoints.push({
+            x: mapped.x,
+            y: mapped.y,
+            size: config.size || 1.1,
+            alpha: (config.alpha || baseAlpha) * (0.86 + Math.sin(time * 0.001 + index * 0.15) * 0.1),
+            halo: config.halo || 2.2,
+            phase: seedShift + index * 0.42
+          });
+        }
+      };
+
+      addPathAsParticles(template.outline, { stride: isCompactViewport ? 2 : 1, size: 1.12, alpha: baseAlpha * 0.86, halo: 2.1 }, 0.2);
+      addPathAsParticles(template.leftEar, { stride: 1, size: 0.92, alpha: baseAlpha * 0.58, halo: 2.0 }, 0.8);
+      addPathAsParticles(template.rightEar, { stride: 1, size: 0.92, alpha: baseAlpha * 0.58, halo: 2.0 }, 1.3);
+      addPathAsParticles(template.leftEye, { stride: 1, size: 1.26, alpha: baseAlpha * 1.06, halo: 2.4 }, 1.9);
+      addPathAsParticles(template.rightEye, { stride: 1, size: 1.26, alpha: baseAlpha * 1.06, halo: 2.4 }, 2.2);
+      addPathAsParticles(template.noseBridge, { stride: 1, size: 1.18, alpha: baseAlpha * 0.98, halo: 2.3 }, 2.7);
+      addPathAsParticles(template.noseBase, { stride: 1, size: 1.08, alpha: baseAlpha * 0.9, halo: 2.15 }, 3.1);
+      addPathAsParticles(template.mouth, { stride: 1, size: 1.22, alpha: baseAlpha * 1.02, halo: 2.35 }, 3.6);
+
+      Object.entries(template.anchors).forEach(([name, anchor], index) => {
+        const mapped = toRenderPoint(anchor, 5 + index * 0.29);
+        anchorPoints[name] = mapped;
+        portraitPoints.push({
+          x: mapped.x,
+          y: mapped.y,
+          size: name === "nose" || name === "mouth" ? 1.6 : 1.28,
+          alpha: baseAlpha * (name === "nose" || name === "mouth" ? 1.1 : 0.9),
+          halo: 2.5,
+          phase: 7 + index * 0.41
+        });
+      });
+
+      context.save();
+      context.lineCap = "round";
+      context.lineJoin = "round";
+
+      if (anchorPoints.leftEye && anchorPoints.rightEye) {
+        drawSoftBridge(anchorPoints.leftEye, anchorPoints.rightEye, baseAlpha * 0.2, 0.42);
+      }
+      if (anchorPoints.nose && anchorPoints.mouth) {
+        drawSoftBridge(anchorPoints.nose, anchorPoints.mouth, baseAlpha * 0.26, 0.52);
+      }
+      if (anchorPoints.mouth && anchorPoints.jaw) {
+        drawSoftBridge(anchorPoints.mouth, anchorPoints.jaw, baseAlpha * 0.2, 0.44);
+      }
+      if (anchorPoints.leftEar && anchorPoints.leftEye) {
+        drawSoftBridge(anchorPoints.leftEar, anchorPoints.leftEye, baseAlpha * 0.14, 0.34);
+      }
+      if (anchorPoints.rightEar && anchorPoints.rightEye) {
+        drawSoftBridge(anchorPoints.rightEar, anchorPoints.rightEye, baseAlpha * 0.14, 0.34);
+      }
+
+      addFeatureCloud(anchorPoints.leftEye, { count: isCompactViewport ? 18 : 28, radiusX: halfWidth * 0.08, radiusY: halfHeight * 0.05, size: 1.08, alpha: baseAlpha * 0.72, halo: 2.3, phaseSeed: 10.1 });
+      addFeatureCloud(anchorPoints.rightEye, { count: isCompactViewport ? 18 : 28, radiusX: halfWidth * 0.08, radiusY: halfHeight * 0.05, size: 1.08, alpha: baseAlpha * 0.72, halo: 2.3, phaseSeed: 11.4 });
+      addFeatureCloud(anchorPoints.nose, { count: isCompactViewport ? 16 : 24, radiusX: halfWidth * 0.06, radiusY: halfHeight * 0.1, size: 1.02, alpha: baseAlpha * 0.64, halo: 2.15, phaseSeed: 12.7 });
+      addFeatureCloud(anchorPoints.mouth, { count: isCompactViewport ? 20 : 30, radiusX: halfWidth * 0.12, radiusY: halfHeight * 0.06, size: 1.1, alpha: baseAlpha * 0.7, halo: 2.25, phaseSeed: 14.2 });
+      addFeatureCloud(anchorPoints.jaw, { count: isCompactViewport ? 24 : 40, radiusX: halfWidth * 0.24, radiusY: halfHeight * 0.1, size: 0.96, alpha: baseAlpha * 0.54, halo: 2.05, phaseSeed: 15.6 });
+
+      if (anchorPoints.leftEye && anchorPoints.rightEye && anchorPoints.mouth) {
+        const cheekLeft = {
+          x: (anchorPoints.leftEye.x * 0.62) + (anchorPoints.mouth.x * 0.38) - halfWidth * 0.05,
+          y: (anchorPoints.leftEye.y * 0.44) + (anchorPoints.mouth.y * 0.56)
+        };
+        const cheekRight = {
+          x: (anchorPoints.rightEye.x * 0.62) + (anchorPoints.mouth.x * 0.38) + halfWidth * 0.05,
+          y: (anchorPoints.rightEye.y * 0.44) + (anchorPoints.mouth.y * 0.56)
+        };
+        addFeatureCloud(cheekLeft, { count: isCompactViewport ? 12 : 18, radiusX: halfWidth * 0.08, radiusY: halfHeight * 0.06, size: 0.9, alpha: baseAlpha * 0.42, halo: 1.95, phaseSeed: 17.4 });
+        addFeatureCloud(cheekRight, { count: isCompactViewport ? 12 : 18, radiusX: halfWidth * 0.08, radiusY: halfHeight * 0.06, size: 0.9, alpha: baseAlpha * 0.42, halo: 1.95, phaseSeed: 18.6 });
+      }
+
+      const smoothed = smoothPortraitPoints(portraitPoints);
+      drawPortraitAura(centerX, centerY, halfWidth * 1.3, halfHeight * 1.46, baseAlpha * 0.74);
+      drawPortraitConnections(smoothed, 1);
+      smoothed.forEach(drawParticlePortraitPoint);
+      context.restore();
+      return true;
+    }
+
+    const faceScale = clampInteractive(
+      viewportMin * (0.16 + reactiveBoost * 0.02 + state.cameraConfidence * 0.04),
+      viewportMin * 0.14,
+      viewportMin * 0.24
+    );
+    const sampleStep = Math.max(2, Math.floor(state.cameraTemplate.length / 68));
+
+    for (let index = 0; index < state.cameraTemplate.length; index += sampleStep) {
+      const point = state.cameraTemplate[index];
+      portraitPoints.push({
+        x: state.flowX + point.x * faceScale * 0.82,
+        y: state.flowY + point.y * faceScale * 0.98 + point.z * 4.2,
+        size: 0.94 + Math.max(0, point.z) * 0.8,
+        alpha: 0.14 + confidence * 0.36 + Math.max(0, point.z) * 0.2,
+        halo: 2.0,
+        phase: index * 0.37
+      });
+    }
+
+    if (portraitPoints.length < 6) {
+      return false;
+    }
+
+    const smoothed = smoothPortraitPoints(portraitPoints);
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    drawPortraitAura(state.flowX, state.flowY, faceScale * 0.86, faceScale * 1.08, 0.22 + confidence * 0.24);
+    drawPortraitConnections(smoothed, 0.72);
+    smoothed.forEach(drawParticlePortraitPoint);
+    context.restore();
     return true;
   }
 
@@ -10394,13 +11484,17 @@ function initInteractiveWorkLiveSync() {
 
     const isFrozen = frozen || reducedMotionQuery.matches;
     const isOpen = state.isOpen;
-    state.currentHue += (state.targetHue - state.currentHue) * (isFrozen ? 1 : 0.12);
+    const faceModeActive = faceModeState.enabled;
     updateInteractiveCameraReactiveState(time);
     updateInteractiveFlowFromHeadSignal(time);
     stepParticles(time, isFrozen);
+    if (faceModeActive) {
+      void refreshInteractiveFaceModeTracking(time);
+    }
     const audioBoost = isOpen ? 0 : state.audioLevel;
     const beatBoost = isOpen ? 0 : state.beatPulse;
     const reactiveBoost = clampInteractive(audioBoost * 0.7 + beatBoost * 0.8, 0, 1.8);
+    const cameraSceneActive = !isOpen && state.cameraActive;
 
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, liveCanvas.width, liveCanvas.height);
@@ -10423,110 +11517,156 @@ function initInteractiveWorkLiveSync() {
       context.fillRect(0, 0, state.width, state.height);
     }
 
-    const linkDistance = window.innerWidth < 720
-      ? (isOpen ? 126 : 146 + reactiveBoost * 56)
-      : (isOpen ? 168 : 212 + reactiveBoost * 72);
-    for (let index = 0; index < state.particles.length; index += 1) {
-      const particleA = state.particles[index];
-
-      for (let nextIndex = index + 1; nextIndex < state.particles.length; nextIndex += 1) {
-        const particleB = state.particles[nextIndex];
-        const dx = particleB.x - particleA.x;
-        const dy = particleB.y - particleA.y;
-        const distance = Math.hypot(dx, dy);
-
-        if (!distance || distance > linkDistance) {
-          continue;
-        }
-
-        const alpha = (1 - (distance / linkDistance)) ** 2 * (isOpen ? 0.28 : 0.42 + reactiveBoost * 0.28);
-        context.strokeStyle = hueInteractive(alpha, isOpen ? 86 : 92, isOpen ? 66 : 74, isOpen ? 2 : 8);
-        context.lineWidth = isOpen ? 0.6 + alpha * 2.6 : 0.9 + alpha * 2.9 + reactiveBoost * 1.08;
-        context.beginPath();
-        context.moveTo(particleA.x, particleA.y);
-        context.lineTo(particleB.x, particleB.y);
-        context.stroke();
-      }
-    }
-
-    const wideDistance = window.innerWidth < 720 ? 224 + reactiveBoost * 38 : 306 + reactiveBoost * 52;
-    for (let index = 0; index < state.particles.length; index += 2) {
-      const particleA = state.particles[index];
-      const limit = Math.min(state.particles.length, index + 36);
-
-      for (let nextIndex = index + 2; nextIndex < limit; nextIndex += 4) {
-        const particleB = state.particles[nextIndex];
-        const dx = particleB.x - particleA.x;
-        const dy = particleB.y - particleA.y;
-        const distance = Math.hypot(dx, dy);
-
-        if (!distance || distance > wideDistance) {
-          continue;
-        }
-
-        const alpha = (1 - (distance / wideDistance)) ** 1.7 * (isOpen ? 0.1 : 0.14 + reactiveBoost * 0.12);
-        context.strokeStyle = hueInteractive(alpha, 96, 70, 0);
-        context.lineWidth = 0.28 + alpha * 1.14 + reactiveBoost * 0.5;
-        context.beginPath();
-        context.moveTo(particleA.x, particleA.y);
-        context.lineTo(particleB.x, particleB.y);
-        context.stroke();
-      }
-    }
-
-    state.particles.forEach((particle) => {
-      const pulse = (Math.sin(time * 0.0015 + particle.seed) + 1) * 0.5;
-      context.fillStyle = hueInteractive(
-        isOpen ? 0.22 + pulse * 0.36 : 0.28 + pulse * 0.46,
-        isOpen ? 94 : 98,
-        isOpen ? 82 : 84,
-        isOpen ? 10 : 14
+    if (faceModeActive) {
+      const quietWash = context.createRadialGradient(
+        state.flowX,
+        state.flowY,
+        0,
+        state.flowX,
+        state.flowY,
+        Math.max(state.width, state.height) * 0.56
       );
+      quietWash.addColorStop(0, "rgba(255, 255, 255, 0.78)");
+      quietWash.addColorStop(0.52, "rgba(255, 255, 255, 0.64)");
+      quietWash.addColorStop(1, "rgba(255, 255, 255, 0.96)");
+      context.fillStyle = quietWash;
+      context.fillRect(0, 0, state.width, state.height);
 
-      if (isOpen) {
+      for (let index = 0; index < state.particles.length; index += 8) {
+        const particle = state.particles[index];
+        const tinyPulse = (Math.sin(time * 0.0009 + particle.seed) + 1) * 0.5;
+        context.fillStyle = hueInteractive(0.03 + tinyPulse * 0.04);
         context.beginPath();
-        context.arc(
-          particle.x,
-          particle.y,
-          particle.size * (0.76 + pulse * 0.84),
-          0,
-          Math.PI * 2
-        );
+        context.arc(particle.x, particle.y, 0.45 + particle.size * 0.22, 0, Math.PI * 2);
         context.fill();
+      }
+
+      drawInteractiveFaceModeLayer(time);
+
+      if ((isFrozen && !faceModeActive) || !state.visible) {
+        state.frameId = 0;
         return;
       }
 
-      const introSize = particle.size * (1.16 + pulse * 1.18 + reactiveBoost * 0.92);
-      const spin = time * (0.0012 + reactiveBoost * 0.0004) + particle.seed;
-      context.save();
-      context.translate(particle.x, particle.y);
-      context.rotate(spin);
-      context.fillRect(-introSize * 0.56, -introSize * 0.56, introSize * 1.12, introSize * 1.12);
-      context.restore();
-    });
+      state.frameId = window.requestAnimationFrame(drawLiveBackdrop);
+      return;
+    }
 
-    state.shards.forEach((shard, index) => {
-      const spin = time * 0.0016 + shard.seed;
-      const dx = Math.cos(spin) * shard.size;
-      const dy = Math.sin(spin) * shard.size * 0.62;
-      const alpha = (0.06 + shard.life * 0.16) * (isOpen ? 0.8 : 1 + reactiveBoost * 0.52);
-
-      context.strokeStyle = hueInteractive(alpha, 96, 72, 0);
-      context.lineWidth = 0.48 + shard.life * 1.2;
-      context.beginPath();
-      context.moveTo(shard.x - dx * 0.46, shard.y - dy * 0.46);
-      context.lineTo(shard.x + dx * 0.46, shard.y + dy * 0.46);
-      context.stroke();
-
-      if (index % 3 === 0) {
-        context.strokeStyle = hueInteractive(alpha * 0.52, 98, 70, 0);
-        context.lineWidth = 0.34 + shard.life * 0.8;
+    if (cameraSceneActive) {
+      for (let index = 0; index < state.particles.length; index += 5) {
+        const particle = state.particles[index];
+        const pulse = (Math.sin(time * 0.0012 + particle.seed) + 1) * 0.5;
+        context.fillStyle = hueInteractive(0.05 + pulse * 0.08);
         context.beginPath();
-        context.moveTo(shard.x + dy * 0.24, shard.y - dx * 0.24);
-        context.lineTo(shard.x - dy * 0.24, shard.y + dx * 0.24);
-        context.stroke();
+        context.arc(particle.x, particle.y, 0.5 + particle.size * 0.28, 0, Math.PI * 2);
+        context.fill();
       }
-    });
+    } else {
+      const linkDistance = window.innerWidth < 720
+        ? (isOpen ? 126 : 146 + reactiveBoost * 56)
+        : (isOpen ? 168 : 212 + reactiveBoost * 72);
+      for (let index = 0; index < state.particles.length; index += 1) {
+        const particleA = state.particles[index];
+
+        for (let nextIndex = index + 1; nextIndex < state.particles.length; nextIndex += 1) {
+          const particleB = state.particles[nextIndex];
+          const dx = particleB.x - particleA.x;
+          const dy = particleB.y - particleA.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (!distance || distance > linkDistance) {
+            continue;
+          }
+
+          const alpha = (1 - (distance / linkDistance)) ** 2 * (isOpen ? 0.28 : 0.42 + reactiveBoost * 0.28);
+          context.strokeStyle = hueInteractive(alpha, isOpen ? 86 : 92, isOpen ? 66 : 74, isOpen ? 2 : 8);
+          context.lineWidth = isOpen ? 0.6 + alpha * 2.6 : 0.9 + alpha * 2.9 + reactiveBoost * 1.08;
+          context.beginPath();
+          context.moveTo(particleA.x, particleA.y);
+          context.lineTo(particleB.x, particleB.y);
+          context.stroke();
+        }
+      }
+
+      const wideDistance = window.innerWidth < 720 ? 224 + reactiveBoost * 38 : 306 + reactiveBoost * 52;
+      for (let index = 0; index < state.particles.length; index += 2) {
+        const particleA = state.particles[index];
+        const limit = Math.min(state.particles.length, index + 36);
+
+        for (let nextIndex = index + 2; nextIndex < limit; nextIndex += 4) {
+          const particleB = state.particles[nextIndex];
+          const dx = particleB.x - particleA.x;
+          const dy = particleB.y - particleA.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (!distance || distance > wideDistance) {
+            continue;
+          }
+
+          const alpha = (1 - (distance / wideDistance)) ** 1.7 * (isOpen ? 0.1 : 0.14 + reactiveBoost * 0.12);
+          context.strokeStyle = hueInteractive(alpha, 96, 70, 0);
+          context.lineWidth = 0.28 + alpha * 1.14 + reactiveBoost * 0.5;
+          context.beginPath();
+          context.moveTo(particleA.x, particleA.y);
+          context.lineTo(particleB.x, particleB.y);
+          context.stroke();
+        }
+      }
+
+      state.particles.forEach((particle) => {
+        const pulse = (Math.sin(time * 0.0015 + particle.seed) + 1) * 0.5;
+        context.fillStyle = hueInteractive(
+          isOpen ? 0.22 + pulse * 0.36 : 0.28 + pulse * 0.46,
+          isOpen ? 94 : 98,
+          isOpen ? 82 : 84,
+          isOpen ? 10 : 14
+        );
+
+        if (isOpen) {
+          context.beginPath();
+          context.arc(
+            particle.x,
+            particle.y,
+            particle.size * (0.76 + pulse * 0.84),
+            0,
+            Math.PI * 2
+          );
+          context.fill();
+          return;
+        }
+
+        const introSize = particle.size * (1.16 + pulse * 1.18 + reactiveBoost * 0.92);
+        const spin = time * (0.0012 + reactiveBoost * 0.0004) + particle.seed;
+        context.save();
+        context.translate(particle.x, particle.y);
+        context.rotate(spin);
+        context.fillRect(-introSize * 0.56, -introSize * 0.56, introSize * 1.12, introSize * 1.12);
+        context.restore();
+      });
+
+      state.shards.forEach((shard, index) => {
+        const spin = time * 0.0016 + shard.seed;
+        const dx = Math.cos(spin) * shard.size;
+        const dy = Math.sin(spin) * shard.size * 0.62;
+        const alpha = (0.06 + shard.life * 0.16) * (isOpen ? 0.8 : 1 + reactiveBoost * 0.52);
+
+        context.strokeStyle = hueInteractive(alpha, 96, 72, 0);
+        context.lineWidth = 0.48 + shard.life * 1.2;
+        context.beginPath();
+        context.moveTo(shard.x - dx * 0.46, shard.y - dy * 0.46);
+        context.lineTo(shard.x + dx * 0.46, shard.y + dy * 0.46);
+        context.stroke();
+
+        if (index % 3 === 0) {
+          context.strokeStyle = hueInteractive(alpha * 0.52, 98, 70, 0);
+          context.lineWidth = 0.34 + shard.life * 0.8;
+          context.beginPath();
+          context.moveTo(shard.x + dy * 0.24, shard.y - dx * 0.24);
+          context.lineTo(shard.x - dy * 0.24, shard.y + dx * 0.24);
+          context.stroke();
+        }
+      });
+    }
 
     if (isOpen) {
       const anchors = projectCards
@@ -10604,7 +11744,7 @@ function initInteractiveWorkLiveSync() {
         context.quadraticCurveTo(controlB.x, controlB.y, state.flowX, state.flowY);
         context.stroke();
       }
-    } else if (state.cameraActive && state.cameraTemplate.length > 8) {
+    } else if (!faceModeState.enabled && state.cameraActive && (state.cameraTemplate.length > 8 || state.cameraLineTemplate)) {
       drawInteractiveCameraFace(time, reactiveBoost);
     } else {
       const introTime = time * 0.001;
@@ -10899,7 +12039,9 @@ function initInteractiveWorkLiveSync() {
       context.restore();
     }
 
-    if (isFrozen || !state.visible) {
+    drawInteractiveFaceModeLayer(time);
+
+    if ((isFrozen && !faceModeState.enabled) || !state.visible) {
       state.frameId = 0;
       return;
     }
@@ -10908,7 +12050,7 @@ function initInteractiveWorkLiveSync() {
   }
 
   function queueLiveBackdrop() {
-    if (state.frameId || reducedMotionQuery.matches || !state.visible) {
+    if (state.frameId || shouldFreezeInteractiveBackdrop() || !state.visible) {
       return;
     }
 
@@ -10955,6 +12097,7 @@ function initInteractiveWorkLiveSync() {
   });
 
   syncInteractiveCameraButton();
+  syncInteractiveFaceModeButton();
 
   cameraToggle?.addEventListener("pointerdown", (event) => {
     event.stopPropagation();
@@ -10963,6 +12106,16 @@ function initInteractiveWorkLiveSync() {
   cameraToggle?.addEventListener("click", toggleInteractiveCamera);
 
   cameraToggle?.addEventListener("keydown", (event) => {
+    event.stopPropagation();
+  });
+
+  faceModeToggle?.addEventListener("pointerdown", (event) => {
+    event.stopPropagation();
+  });
+
+  faceModeToggle?.addEventListener("click", toggleInteractiveFaceMode);
+
+  faceModeToggle?.addEventListener("keydown", (event) => {
     event.stopPropagation();
   });
 
@@ -11010,7 +12163,8 @@ function initInteractiveWorkLiveSync() {
       event.target.closest(".page-back") ||
       event.target.closest(".site-header") ||
       event.target.closest("[data-interactive-camera-toggle]") ||
-      event.target.closest("[data-interactive-camera-preview]")
+      event.target.closest("[data-interactive-camera-preview]") ||
+      event.target.closest("[data-interactive-face-mode-toggle]")
     );
 
     if (shouldIgnoreClose) {
@@ -11035,6 +12189,7 @@ function initInteractiveWorkLiveSync() {
 
   window.addEventListener("resize", refreshLiveBackdrop);
   window.addEventListener("beforeunload", () => {
+    void stopInteractiveFaceMode();
     void stopInteractiveCamera();
   });
 
@@ -11047,6 +12202,12 @@ function initInteractiveWorkLiveSync() {
         stopLiveBackdrop();
         if (liveVideo && !liveVideo.paused) {
           liveVideo.pause();
+        }
+        if (faceModeState.enabled || faceModeState.starting) {
+          void stopInteractiveFaceMode();
+        }
+        if (state.cameraActive || state.cameraStarting) {
+          void stopInteractiveCamera();
         }
         return;
       }
@@ -11064,7 +12225,7 @@ function initInteractiveWorkLiveSync() {
   }
 
   onMediaQueryChange(reducedMotionQuery, () => {
-    if (reducedMotionQuery.matches) {
+    if (shouldFreezeInteractiveBackdrop()) {
       stopLiveBackdrop();
       drawLiveBackdrop(performance.now(), true);
       return;
@@ -11075,6 +12236,7 @@ function initInteractiveWorkLiveSync() {
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
+      void stopInteractiveFaceMode();
       void stopInteractiveCamera();
     }
   });

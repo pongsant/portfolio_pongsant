@@ -130,32 +130,6 @@
   --safe-right: env(safe-area-inset-right);
   --safe-bottom: env(safe-area-inset-bottom);
   --safe-left: env(safe-area-inset-left);
-  --gooey-linear-ease: linear(
-    0,
-    0.068,
-    0.19 2.7%,
-    0.804 8.1%,
-    1.037,
-    1.199 13.2%,
-    1.245,
-    1.27 15.8%,
-    1.274,
-    1.272 17.4%,
-    1.249 19.1%,
-    0.996 28%,
-    0.949,
-    0.928 33.3%,
-    0.926,
-    0.933 36.8%,
-    1.001 45.6%,
-    1.013,
-    1.019 50.8%,
-    1.018 54.4%,
-    1 63.1%,
-    0.995 68%,
-    1.001 85%,
-    1
-  );
 }
 
 * {
@@ -189,144 +163,6 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-.has-gooey-click {
-  position: relative;
-  isolation: isolate;
-  --gooey-color-1: currentColor;
-  --gooey-color-2: #ffffff;
-  --gooey-color-3: #050505;
-  --gooey-color-4: #8eb4ff;
-}
-
-.has-gooey-click > .gooey-click-layer {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 2;
-  filter: blur(6px) contrast(95) blur(0);
-}
-
-.has-gooey-click > .gooey-click-layer::after {
-  content: "";
-  position: absolute;
-  left: var(--gooey-origin-x, 50%);
-  top: var(--gooey-origin-y, 50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0);
-}
-
-.has-gooey-click > .gooey-click-layer.is-active::after {
-  animation: gooey-click-pill 360ms var(--gooey-linear-ease) both;
-}
-
-.gooey-click-particle,
-.gooey-click-point {
-  display: block;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-}
-
-.gooey-click-particle {
-  position: absolute;
-  left: calc(var(--gooey-origin-x, 50%) - 9px);
-  top: calc(var(--gooey-origin-y, 50%) - 9px);
-  opacity: 0;
-  animation: gooey-click-particle-motion var(--time, 600ms) ease 1 -140ms;
-}
-
-.gooey-click-point {
-  background: var(--color, currentColor);
-  opacity: 1;
-  animation: gooey-click-point-motion var(--time, 600ms) ease 1 -140ms;
-}
-
-@keyframes gooey-click-pill {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-  }
-
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.16;
-  }
-}
-
-@keyframes gooey-click-particle-motion {
-  0% {
-    transform: rotate(0deg) translate(var(--start-x, 0px), var(--start-y, 0px));
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
-  }
-
-  70% {
-    transform: rotate(calc(var(--rotate, 0deg) * 0.5)) translate(
-      calc(var(--end-x, 0px) * 1.2),
-      calc(var(--end-y, 0px) * 1.2)
-    );
-    opacity: 1;
-    animation-timing-function: ease;
-  }
-
-  85% {
-    transform: rotate(calc(var(--rotate, 0deg) * 0.66)) translate(var(--end-x, 0px), var(--end-y, 0px));
-    opacity: 1;
-  }
-
-  100% {
-    transform: rotate(calc(var(--rotate, 0deg) * 1.2)) translate(
-      calc(var(--end-x, 0px) * 0.5),
-      calc(var(--end-y, 0px) * 0.5)
-    );
-    opacity: 0;
-  }
-}
-
-@keyframes gooey-click-point-motion {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
-  }
-
-  25% {
-    transform: scale(calc(var(--scale, 1) * 0.25));
-  }
-
-  38% {
-    opacity: 1;
-  }
-
-  65% {
-    transform: scale(var(--scale, 1));
-    opacity: 1;
-    animation-timing-function: ease;
-  }
-
-  85% {
-    transform: scale(var(--scale, 1));
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .has-gooey-click > .gooey-click-layer {
-    display: none;
-  }
 }
 
 a {
@@ -2447,6 +2283,36 @@ main {
   opacity: 0.95;
 }
 
+.photo-poster--interactive .interactive-live-face-layer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100svh;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  mix-blend-mode: normal;
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.photo-poster--interactive .interactive-live-face-layer.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.photo-poster--interactive .interactive-face-mode__video {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .photo-poster--interactive .photo-poster__top,
 .photo-poster--interactive .photo-poster__hero {
   position: relative;
@@ -2468,10 +2334,6 @@ main {
   opacity: 1;
   cursor: pointer;
   transition: opacity 260ms ease;
-}
-
-.page-interactive-archive .interactive-work-gate__audio {
-  display: none;
 }
 
 .page-interactive-archive .interactive-work-gate__camera-preview {
@@ -2535,21 +2397,50 @@ main {
   border-color: rgba(0, 0, 0, 0.9);
 }
 
-.page-interactive-archive .interactive-work-gate__audio-wave {
-  position: absolute;
-  left: calc(clamp(0.9rem, 1.2vw, 1.3rem) + 78px);
-  bottom: clamp(0.9rem, 1.2vw, 1.3rem);
-  width: clamp(92px, 10.8vw, 150px);
-  height: 34px;
-  z-index: 2;
-  display: block;
-  pointer-events: none;
-  opacity: 0.38;
-  transition: opacity 180ms ease;
+.page-interactive-archive .interactive-work-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
-.page-interactive-archive .interactive-work-gate__audio-toggle.is-playing + .interactive-work-gate__audio-wave {
-  opacity: 0.96;
+.page-interactive-archive .interactive-work-face-toggle {
+  min-width: 92px;
+  min-height: 34px;
+  padding: 0.38rem 0.72rem;
+  border: 1px solid rgba(0, 0, 0, 0.34);
+  background: rgba(255, 255, 255, 0.9);
+  color: #050505;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+
+.page-interactive-archive .interactive-work-face-toggle:hover,
+.page-interactive-archive .interactive-work-face-toggle:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 0, 0, 0.56);
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+}
+
+.page-interactive-archive .interactive-work-face-toggle.is-active {
+  background: #050505;
+  color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.9);
+}
+
+.page-interactive-archive .interactive-work-face-toggle:disabled {
+  cursor: default;
+  opacity: 0.48;
+  box-shadow: none;
+  transform: none;
 }
 
 .page-interactive-archive .interactive-work-gate::before {

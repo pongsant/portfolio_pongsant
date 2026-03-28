@@ -33,6 +33,8 @@
         </div>
 
         <canvas class="interactive-live-bg" data-interactive-live-bg aria-hidden="true"></canvas>
+        <canvas class="interactive-live-face-layer" data-interactive-face-layer aria-hidden="true"></canvas>
+        <video class="interactive-face-mode__video" data-interactive-face-mode-video playsinline muted aria-hidden="true"></video>
 
         <div class="interactive-work-gate" data-interactive-work-gate role="button" tabindex="0" aria-label="Open interactive works">
           <button class="interactive-work-gate__audio-toggle" type="button" data-interactive-camera-toggle aria-pressed="false" aria-label="Open camera for face tracking">
@@ -43,7 +45,12 @@
         </div>
 
         <div class="photo-poster__top">
-          <a class="page-back" href="../my-work/index.html">Back to Work Topics</a>
+          <div class="interactive-work-toolbar">
+            <a class="page-back" href="../my-work/index.html">Back to Work Topics</a>
+            <button class="interactive-work-face-toggle" type="button" data-interactive-face-mode-toggle aria-pressed="false" aria-label="Enable face mode">
+              FACE MODE
+            </button>
+          </div>
 
           <div class="photo-poster__strip" id="projects" aria-label="Interactive work projects">
             <a class="photo-poster__item" href="./p5.js-work/" data-interactive-hue="214" data-interactive-preview="./p5.js-work/Screen%20Recording%202026-03-27%20at%2001.01.20.mov">
