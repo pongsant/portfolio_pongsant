@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio</title>
+    <meta name="description" content="Interactive intro for Pongsant Chintanapakdee portfolio">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body class="page-intro">
+    <main class="intro-stage" id="intro-stage">
+      <canvas class="intro-stage__bg" id="intro-bg-canvas" aria-hidden="true"></canvas>
+      <p class="intro-stage__hint">Portfolio Intro</p>
+      <button class="intro-pressure" id="intro-enter" type="button" aria-label="Enter portfolio">
+        <span class="intro-pressure__stack">
+          <span class="intro-pressure__line" id="intro-line-top"></span>
+          <span class="intro-pressure__line" id="intro-line-bottom"></span>
+        </span>
+      </button>
+      <p class="intro-stage__tap">Click Name To Enter</p>
+      <noscript>
+        <a class="intro-stage__noscript" href="../index.html">Enter Portfolio</a>
+      </noscript>
+    </main>
+  </body>
+</html>

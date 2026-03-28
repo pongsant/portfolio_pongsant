@@ -14,6 +14,17 @@ const workOptions = Array.from(document.querySelectorAll(".work-hub__option"));
 const homeWorkNetwork = document.querySelector("[data-home-work-network]");
 const homeWorkNetworkCanvas = homeWorkNetwork?.querySelector("[data-home-work-network-canvas]");
 const homeWorkNetworkLinks = Array.from(homeWorkNetwork?.querySelectorAll("[data-home-work-network-link]") ?? []);
+const pageParams = new URLSearchParams(window.location.search);
+const isIntroArrival = pageParams.get("fromIntro") === "1";
+
+if (body?.classList.contains("page-home") && isIntroArrival) {
+  window.requestAnimationFrame(() => {
+    document.documentElement.classList.add("from-intro-ready");
+  });
+
+  const cleanUrl = `${window.location.pathname}${window.location.hash}`;
+  window.history.replaceState({}, document.title, cleanUrl);
+}
 
 function onMediaQueryChange(mediaQueryList, handler) {
   if (!mediaQueryList || typeof handler !== "function") {
@@ -6436,305 +6447,431 @@ if (homeWorkShowcaseTopics) {
   const showcaseSection = homeWorkShowcaseTopics.closest(".home-work-showcase");
   const showcaseCanvas = showcaseSection?.querySelector("[data-home-work-showcase-canvas]");
   const showcaseContext = showcaseCanvas?.getContext("2d");
+  const showcaseTitleLink = showcaseSection?.querySelector(".home-work-showcase__title-link");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const topicLinks = Array.from(homeWorkShowcaseTopics.querySelectorAll("[data-home-work-topic]"));
   const defaultTopicIndex = Math.max(0, topicLinks.findIndex((topic) => topic.classList.contains("is-active")));
   const initialShowcaseHue = Number(topicLinks[defaultTopicIndex]?.dataset.topicHue) || 214;
-  const wavesConfig = {
-    lineColor: "#000000",
-    backgroundColor: "#ffffff",
-    waveSpeedX: 0.06,
-    waveSpeedY: 0.025,
-    waveAmpX: 40,
-    waveAmpY: 20,
-    friction: 0.9,
-    tension: 0.01,
-    maxCursorMove: 120,
-    xGap: 12,
-    yGap: 36
-  };
-  const waveState = {
+  const interactiveTargets = [showcaseTitleLink, ...topicLinks].filter(Boolean);
+  const backdropState = {
     dpr: Math.min(window.devicePixelRatio || 1, 2),
     width: 0,
     height: 0,
     frame: 0,
     visible: true,
     points: [],
-    cols: 0,
-    rows: 0,
     pointerInside: false,
     pointerX: 0,
     pointerY: 0,
-    pointerTargetX: 0,
-    pointerTargetY: 0,
+    pointerDrawX: 0,
+    pointerDrawY: 0,
+    flowX: 0,
+    flowY: 0,
+    effectMinX: 0,
+    effectMaxX: 0,
+    effectWidth: 0,
     targetHue: initialShowcaseHue,
     currentHue: initialShowcaseHue,
-    phase: 0
+    hoveredTargetIndex: -1,
+    gatherStrength: 0.7,
+    burstProgress: 0,
+    clickPulse: 0,
+    loopOffset: Math.random() * Math.PI * 2
   };
 
-  function clampHomeWorkWave(value, min, max) {
+  function clampHomeWorkBackdrop(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }
 
-  function normalizeWaveColor(hexColor, alpha) {
-    const safeAlpha = clampHomeWorkWave(alpha, 0, 1);
-    const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor);
+  function showcaseBackdropColor(alpha, saturation = 90, lightness = 62, hueOffset = 0, forceHue = false) {
+    const safeAlpha = clampHomeWorkBackdrop(alpha, 0, 1);
+    const shouldUseHue = forceHue || backdropState.hoveredTargetIndex > 0;
 
-    if (!match) {
+    if (!shouldUseHue) {
       return `rgba(0, 0, 0, ${safeAlpha})`;
     }
 
-    const r = Number.parseInt(match[1], 16);
-    const g = Number.parseInt(match[2], 16);
-    const b = Number.parseInt(match[3], 16);
-
-    return `rgba(${r}, ${g}, ${b}, ${safeAlpha})`;
+    const hue = (backdropState.currentHue + hueOffset + 360) % 360;
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${safeAlpha})`;
   }
 
-  function buildShowcaseWaves() {
+  function getShowcaseSectionRect() {
+    const rect = showcaseSection?.getBoundingClientRect();
+
+    if (rect && rect.width > 0 && rect.height > 0) {
+      return rect;
+    }
+
+    return {
+      left: 0,
+      top: 0,
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  }
+
+  function getShowcaseAnchors() {
+    if (!showcaseSection || interactiveTargets.length === 0) {
+      return [];
+    }
+
+    const sectionRect = getShowcaseSectionRect();
+    return interactiveTargets
+      .map((target, index) => {
+        const measuredNode = target.querySelector?.(".home-work-showcase__label") || target;
+        const rect = measuredNode.getBoundingClientRect();
+
+        if (!rect.width || !rect.height || !sectionRect.width || !sectionRect.height) {
+          return null;
+        }
+
+        const isTitle = index === 0;
+        const rawAnchorX = isTitle
+          ? rect.left - sectionRect.left + rect.width * 0.44
+          : rect.left - sectionRect.left + rect.width * 0.22;
+        const anchorX = clampHomeWorkBackdrop(rawAnchorX, 8, backdropState.width - 8);
+        const anchorY = clampHomeWorkBackdrop(
+          rect.top - sectionRect.top + rect.height * (isTitle ? 0.56 : 0.5),
+          8,
+          backdropState.height - 8
+        );
+        const topicHue = Number(target.dataset?.topicHue) || initialShowcaseHue;
+
+        return {
+          x: anchorX,
+          y: anchorY,
+          hue: topicHue,
+          index
+        };
+      })
+      .filter((anchor) => anchor !== null);
+  }
+
+  function buildShowcaseParticles() {
     if (!showcaseSection || !showcaseCanvas || !showcaseContext) {
       return;
     }
 
-    const rect = showcaseSection.getBoundingClientRect();
+    const rect = getShowcaseSectionRect();
+    backdropState.width = Math.max(1, Math.round(rect.width || window.innerWidth));
+    backdropState.height = Math.max(1, Math.round(rect.height || window.innerHeight));
+    backdropState.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    showcaseCanvas.width = Math.max(1, Math.round(backdropState.width * backdropState.dpr));
+    showcaseCanvas.height = Math.max(1, Math.round(backdropState.height * backdropState.dpr));
+    showcaseCanvas.style.width = `${backdropState.width}px`;
+    showcaseCanvas.style.height = `${backdropState.height}px`;
+    showcaseContext.setTransform(backdropState.dpr, 0, 0, backdropState.dpr, 0, 0);
+    backdropState.flowX = backdropState.width * (window.innerWidth < 720 ? 0.74 : 0.84);
+    backdropState.flowY = backdropState.height * 0.52;
+    backdropState.effectMinX = backdropState.width * (window.innerWidth < 720 ? 0.34 : 0.46);
+    backdropState.effectMaxX = backdropState.width - 6;
+    backdropState.effectWidth = Math.max(36, backdropState.effectMaxX - backdropState.effectMinX);
 
-    waveState.width = Math.max(1, Math.round(rect.width));
-    waveState.height = Math.max(1, Math.round(rect.height));
-    waveState.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    showcaseCanvas.width = Math.max(1, Math.round(waveState.width * waveState.dpr));
-    showcaseCanvas.height = Math.max(1, Math.round(waveState.height * waveState.dpr));
-    showcaseCanvas.style.width = `${waveState.width}px`;
-    showcaseCanvas.style.height = `${waveState.height}px`;
+    if (!backdropState.pointerInside) {
+      backdropState.pointerX = backdropState.flowX;
+      backdropState.pointerY = backdropState.flowY;
+      backdropState.pointerDrawX = backdropState.flowX;
+      backdropState.pointerDrawY = backdropState.flowY;
+    }
 
-    waveState.cols = Math.max(2, Math.floor(waveState.width / wavesConfig.xGap) + 1);
-    waveState.rows = Math.max(2, Math.floor(waveState.height / wavesConfig.yGap) + 1);
+    const area = backdropState.width * backdropState.height;
+    const isMobileViewport = window.innerWidth < 720;
+    const count = isMobileViewport
+      ? clampHomeWorkBackdrop(Math.round(area / 11600), 96, 170)
+      : clampHomeWorkBackdrop(Math.round(area / 7600), 170, 280);
+    backdropState.points = Array.from({ length: count }, () => ({
+      x: backdropState.effectMinX + Math.random() * backdropState.effectWidth,
+      y: backdropState.height * (0.12 + Math.random() * 0.76),
+      homeX: backdropState.effectMinX + Math.random() * backdropState.effectWidth,
+      homeY: backdropState.height * (0.1 + Math.random() * 0.8),
+      vx: (Math.random() - 0.5) * 0.42,
+      vy: (Math.random() - 0.5) * 0.42,
+      seed: Math.random() * Math.PI * 2,
+      drift: 0.26 + Math.random() * 1.26,
+      size: 0.6 + Math.random() * 2.4,
+      clusterBias: 0.48 + Math.random() * 0.64,
+      burstVX: 0,
+      burstVY: 0
+    }));
+  }
 
-    const gridWidth = (waveState.cols - 1) * wavesConfig.xGap;
-    const gridHeight = (waveState.rows - 1) * wavesConfig.yGap;
-    const startX = (waveState.width - gridWidth) * 0.5;
-    const startY = (waveState.height - gridHeight) * 0.5;
+  function stopShowcaseBackdrop() {
+    if (!backdropState.frame) {
+      return;
+    }
 
-    waveState.points = [];
+    window.cancelAnimationFrame(backdropState.frame);
+    backdropState.frame = 0;
+  }
 
-    for (let row = 0; row < waveState.rows; row += 1) {
-      for (let col = 0; col < waveState.cols; col += 1) {
-        const baseX = startX + col * wavesConfig.xGap;
-        const baseY = startY + row * wavesConfig.yGap;
+  function queueShowcaseBackdrop() {
+    if (!showcaseContext || !showcaseCanvas || backdropState.frame || reducedMotionQuery.matches || !backdropState.visible) {
+      return;
+    }
 
-        waveState.points.push({
-          baseX,
-          baseY,
-          dx: 0,
-          dy: 0,
-          vx: 0,
-          vy: 0,
-          phaseX: row * 0.28 + col * 0.04,
-          phaseY: col * 0.18 - row * 0.09
+    backdropState.frame = window.requestAnimationFrame(drawShowcaseBackdrop);
+  }
+
+  function triggerShowcaseBurst() {
+    if (reducedMotionQuery.matches || backdropState.points.length === 0) {
+      return;
+    }
+
+    const anchors = getShowcaseAnchors();
+    const activeAnchor = anchors.find((anchor) => anchor.index === backdropState.hoveredTargetIndex);
+    const centerX = activeAnchor ? activeAnchor.x : backdropState.flowX;
+    const centerY = activeAnchor ? activeAnchor.y : backdropState.flowY;
+
+    backdropState.burstProgress = 1;
+    backdropState.clickPulse = 1;
+    backdropState.loopOffset += Math.PI * 0.18;
+
+    backdropState.points.forEach((point) => {
+      const dx = point.x - centerX;
+      const dy = point.y - centerY;
+      const distance = Math.max(10, Math.hypot(dx, dy));
+      const radialX = dx / distance;
+      const radialY = dy / distance;
+      const tangentialX = -radialY;
+      const tangentialY = radialX;
+      const impulse = 4.2 + Math.random() * 6;
+      const swirl = (Math.random() - 0.5) * 3.2;
+
+      point.burstVX = radialX * impulse + tangentialX * swirl;
+      point.burstVY = radialY * impulse + tangentialY * swirl;
+    });
+
+    queueShowcaseBackdrop();
+  }
+
+  function stepShowcaseParticles(time, frozen = false) {
+    const pointerTargetX = backdropState.pointerInside ? backdropState.pointerX : backdropState.flowX;
+    const pointerTargetY = backdropState.pointerInside ? backdropState.pointerY : backdropState.flowY;
+    backdropState.pointerDrawX += (pointerTargetX - backdropState.pointerDrawX) * (frozen ? 1 : 0.2);
+    backdropState.pointerDrawY += (pointerTargetY - backdropState.pointerDrawY) * (frozen ? 1 : 0.2);
+
+    if (frozen) {
+      return;
+    }
+
+    const t = time * 0.001;
+    const gatherWave = 0.5 + Math.sin(t * 0.82 + backdropState.loopOffset) * 0.5;
+    backdropState.gatherStrength += ((0.42 + gatherWave * 0.54) - backdropState.gatherStrength) * 0.08;
+    backdropState.burstProgress = Math.max(0, backdropState.burstProgress - 0.02);
+    backdropState.clickPulse = Math.max(0, backdropState.clickPulse - 0.03);
+
+    backdropState.points.forEach((point) => {
+      const wobbleX = Math.cos(t * (0.62 + point.drift) + point.seed) * 0.86;
+      const wobbleY = Math.sin(t * (0.5 + point.drift * 1.08) + point.seed * 0.84) * 0.84;
+      const gatherX = point.homeX + (backdropState.flowX - point.homeX) * backdropState.gatherStrength * point.clusterBias;
+      const gatherY = point.homeY + (backdropState.flowY - point.homeY) * backdropState.gatherStrength * point.clusterBias;
+      const pullX = (gatherX - point.x) * 0.0064;
+      const pullY = (gatherY - point.y) * 0.006;
+
+      point.vx = (point.vx + wobbleX * 0.02 + pullX) * 0.934;
+      point.vy = (point.vy + wobbleY * 0.02 + pullY) * 0.934;
+
+      if (backdropState.pointerInside) {
+        const dx = backdropState.pointerDrawX - point.x;
+        const dy = backdropState.pointerDrawY - point.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance > 0.001 && distance < 260) {
+          const strength = (1 - distance / 260) * 0.046;
+          point.vx += (dx / distance) * strength;
+          point.vy += (dy / distance) * strength;
+        }
+      }
+
+      if (backdropState.burstProgress > 0) {
+        point.vx += point.burstVX * backdropState.burstProgress * 0.24;
+        point.vy += point.burstVY * backdropState.burstProgress * 0.24;
+      }
+
+      point.vx = clampHomeWorkBackdrop(point.vx, -8.4, 8.4);
+      point.vy = clampHomeWorkBackdrop(point.vy, -8.4, 8.4);
+      point.x += point.vx;
+      point.y += point.vy;
+
+      if (point.x < backdropState.effectMinX - 18) {
+        point.x = backdropState.effectMaxX + 18;
+      } else if (point.x > backdropState.effectMaxX + 18) {
+        point.x = backdropState.effectMinX - 18;
+      }
+
+      if (point.y < -18) {
+        point.y = backdropState.height + 18;
+      } else if (point.y > backdropState.height + 18) {
+        point.y = -18;
+      }
+    });
+  }
+
+  function drawShowcaseBackdrop(time = 0, frozen = false) {
+    if (!showcaseContext || !showcaseCanvas) {
+      return;
+    }
+
+    const isFrozen = frozen || reducedMotionQuery.matches;
+    backdropState.currentHue += (backdropState.targetHue - backdropState.currentHue) * (isFrozen ? 1 : 0.12);
+    stepShowcaseParticles(time, isFrozen);
+
+    showcaseContext.setTransform(1, 0, 0, 1, 0, 0);
+    showcaseContext.clearRect(0, 0, showcaseCanvas.width, showcaseCanvas.height);
+    showcaseContext.setTransform(backdropState.dpr, 0, 0, backdropState.dpr, 0, 0);
+    showcaseContext.fillStyle = "#ffffff";
+    showcaseContext.fillRect(0, 0, backdropState.width, backdropState.height);
+
+    const glow = showcaseContext.createRadialGradient(
+      backdropState.flowX,
+      backdropState.flowY,
+      0,
+      backdropState.flowX,
+      backdropState.flowY,
+      Math.max(backdropState.width, backdropState.height) * 0.72
+    );
+    glow.addColorStop(0, showcaseBackdropColor(0.14, 92, 70, 0, backdropState.hoveredTargetIndex > 0));
+    glow.addColorStop(0.45, showcaseBackdropColor(0.05, 90, 64, -8, backdropState.hoveredTargetIndex > 0));
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    showcaseContext.fillStyle = glow;
+    showcaseContext.fillRect(0, 0, backdropState.width, backdropState.height);
+
+    const linkDistance = window.innerWidth < 720 ? 136 : 186;
+    for (let index = 0; index < backdropState.points.length; index += 1) {
+      const pointA = backdropState.points[index];
+
+      for (let nextIndex = index + 1; nextIndex < backdropState.points.length; nextIndex += 1) {
+        const pointB = backdropState.points[nextIndex];
+        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+
+        if (!distance || distance > linkDistance) {
+          continue;
+        }
+
+        const alpha = (1 - distance / linkDistance) ** 2 * 0.34;
+        showcaseContext.strokeStyle = showcaseBackdropColor(alpha, 88, 62, 0, backdropState.hoveredTargetIndex > 0);
+        showcaseContext.lineWidth = 0.34 + alpha * 1.9;
+        showcaseContext.beginPath();
+        showcaseContext.moveTo(pointA.x, pointA.y);
+        showcaseContext.lineTo(pointB.x, pointB.y);
+        showcaseContext.stroke();
+      }
+    }
+
+    const extendedDistance = window.innerWidth < 720 ? 188 : 246;
+    for (let index = 0; index < backdropState.points.length; index += 2) {
+      const pointA = backdropState.points[index];
+      const maxNext = Math.min(backdropState.points.length, index + 24);
+
+      for (let nextIndex = index + 3; nextIndex < maxNext; nextIndex += 4) {
+        const pointB = backdropState.points[nextIndex];
+        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+
+        if (!distance || distance > extendedDistance) {
+          continue;
+        }
+
+        const alpha = (1 - distance / extendedDistance) ** 1.8 * 0.14;
+        showcaseContext.strokeStyle = showcaseBackdropColor(alpha, 84, 58, -6, backdropState.hoveredTargetIndex > 0);
+        showcaseContext.lineWidth = 0.28 + alpha * 0.92;
+        showcaseContext.beginPath();
+        showcaseContext.moveTo(pointA.x, pointA.y);
+        showcaseContext.lineTo(pointB.x, pointB.y);
+        showcaseContext.stroke();
+      }
+    }
+
+    backdropState.points.forEach((point) => {
+      const pulse = (Math.sin(time * 0.0014 + point.seed) + 1) * 0.5;
+      showcaseContext.fillStyle = showcaseBackdropColor(0.12 + pulse * 0.24, 90, 60, 0, backdropState.hoveredTargetIndex > 0);
+      showcaseContext.beginPath();
+      showcaseContext.arc(point.x, point.y, point.size * (0.72 + pulse * 0.66), 0, Math.PI * 2);
+      showcaseContext.fill();
+    });
+
+    if (backdropState.clickPulse > 0.001) {
+      const pulseRadius = 20 + (1 - backdropState.clickPulse) * Math.min(backdropState.width, backdropState.height) * 0.16;
+      showcaseContext.strokeStyle = showcaseBackdropColor(0.28 * backdropState.clickPulse, 94, 58, 0, true);
+      showcaseContext.lineWidth = 2.6 * backdropState.clickPulse;
+      showcaseContext.beginPath();
+      showcaseContext.arc(backdropState.flowX, backdropState.flowY, pulseRadius, 0, Math.PI * 2);
+      showcaseContext.stroke();
+    }
+
+    const leftFadeMask = showcaseContext.createLinearGradient(0, 0, backdropState.width * 0.46, 0);
+    leftFadeMask.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+    leftFadeMask.addColorStop(0.64, "rgba(255, 255, 255, 0.52)");
+    leftFadeMask.addColorStop(1, "rgba(255, 255, 255, 0)");
+    showcaseContext.fillStyle = leftFadeMask;
+    showcaseContext.fillRect(0, 0, backdropState.width * 0.5, backdropState.height);
+
+    const anchors = getShowcaseAnchors();
+    anchors.forEach((anchor) => {
+      const isHoveredAnchor = anchor.index === backdropState.hoveredTargetIndex;
+      const leftPull = Math.max(24, (backdropState.flowX - anchor.x) * 0.34);
+      const controlX = backdropState.flowX - leftPull;
+      const controlY = backdropState.flowY + (anchor.y - backdropState.flowY) * 0.42 + Math.sin(time * 0.0012 + anchor.index) * 9;
+
+      showcaseContext.strokeStyle = isHoveredAnchor
+        ? showcaseBackdropColor(0.52, 94, 56, 0, true)
+        : showcaseBackdropColor(0.15);
+      showcaseContext.lineWidth = isHoveredAnchor ? 2.1 : 0.92;
+      showcaseContext.beginPath();
+      showcaseContext.moveTo(backdropState.flowX, backdropState.flowY);
+      showcaseContext.quadraticCurveTo(controlX, controlY, anchor.x, anchor.y);
+      showcaseContext.stroke();
+
+      showcaseContext.fillStyle = isHoveredAnchor
+        ? showcaseBackdropColor(0.8, 96, 56, 0, true)
+        : showcaseBackdropColor(0.28);
+      showcaseContext.beginPath();
+      showcaseContext.arc(anchor.x, anchor.y, isHoveredAnchor ? 2.4 : 1.4, 0, Math.PI * 2);
+      showcaseContext.fill();
+    });
+
+    if (backdropState.hoveredTargetIndex >= 0) {
+      const hoveredAnchor = anchors.find((anchor) => anchor.index === backdropState.hoveredTargetIndex);
+
+      if (hoveredAnchor) {
+        const pointerControlX = backdropState.pointerDrawX + (hoveredAnchor.x - backdropState.pointerDrawX) * 0.52;
+        const pointerControlY = backdropState.pointerDrawY + (hoveredAnchor.y - backdropState.pointerDrawY) * 0.42;
+
+        showcaseContext.strokeStyle = showcaseBackdropColor(0.42, 94, 56, 0, true);
+        showcaseContext.lineWidth = 2.6;
+        showcaseContext.beginPath();
+        showcaseContext.moveTo(backdropState.pointerDrawX, backdropState.pointerDrawY);
+        showcaseContext.quadraticCurveTo(pointerControlX, pointerControlY, hoveredAnchor.x, hoveredAnchor.y);
+        showcaseContext.stroke();
+
+        anchors.forEach((anchor) => {
+          if (anchor.index === hoveredAnchor.index) {
+            return;
+          }
+
+          const mixControlX = hoveredAnchor.x + (anchor.x - hoveredAnchor.x) * 0.5 + Math.sin(time * 0.0018 + anchor.index) * 8;
+          const mixControlY = hoveredAnchor.y + (anchor.y - hoveredAnchor.y) * 0.46 + Math.cos(time * 0.0014 + anchor.index) * 7;
+
+          showcaseContext.strokeStyle = showcaseBackdropColor(0.26, 90, 58, 6, true);
+          showcaseContext.lineWidth = 1.18;
+          showcaseContext.beginPath();
+          showcaseContext.moveTo(hoveredAnchor.x, hoveredAnchor.y);
+          showcaseContext.quadraticCurveTo(mixControlX, mixControlY, anchor.x, anchor.y);
+          showcaseContext.stroke();
         });
       }
     }
 
-    const centerX = waveState.width * 0.5;
-    const centerY = waveState.height * 0.5;
-    waveState.pointerX = centerX;
-    waveState.pointerY = centerY;
-    waveState.pointerTargetX = centerX;
-    waveState.pointerTargetY = centerY;
-  }
-
-  function getWavePoint(row, col) {
-    return waveState.points[row * waveState.cols + col];
-  }
-
-  function drawWaveRow(row, color, width, alphaBoost = 1) {
-    if (!showcaseContext || waveState.cols < 2) {
-      return;
-    }
-
-    const firstPoint = getWavePoint(row, 0);
-
-    if (!firstPoint) {
-      return;
-    }
-
-    showcaseContext.strokeStyle = color;
-    showcaseContext.lineWidth = width;
-    showcaseContext.globalAlpha = alphaBoost;
+    showcaseContext.fillStyle = showcaseBackdropColor(0.78, 96, 56, 0, backdropState.hoveredTargetIndex > 0);
     showcaseContext.beginPath();
-    showcaseContext.moveTo(firstPoint.baseX + firstPoint.dx, firstPoint.baseY + firstPoint.dy);
+    showcaseContext.arc(backdropState.flowX, backdropState.flowY, 3.3, 0, Math.PI * 2);
+    showcaseContext.fill();
 
-    for (let col = 1; col < waveState.cols; col += 1) {
-      const previousPoint = getWavePoint(row, col - 1);
-      const currentPoint = getWavePoint(row, col);
-
-      if (!previousPoint || !currentPoint) {
-        continue;
-      }
-
-      const prevX = previousPoint.baseX + previousPoint.dx;
-      const prevY = previousPoint.baseY + previousPoint.dy;
-      const currentX = currentPoint.baseX + currentPoint.dx;
-      const currentY = currentPoint.baseY + currentPoint.dy;
-      const midX = (prevX + currentX) * 0.5;
-      const midY = (prevY + currentY) * 0.5;
-
-      showcaseContext.quadraticCurveTo(prevX, prevY, midX, midY);
-    }
-
-    const lastPoint = getWavePoint(row, waveState.cols - 1);
-
-    if (lastPoint) {
-      showcaseContext.lineTo(lastPoint.baseX + lastPoint.dx, lastPoint.baseY + lastPoint.dy);
-    }
-
-    showcaseContext.stroke();
-    showcaseContext.globalAlpha = 1;
-  }
-
-  function drawWaveColumn(col, color, width) {
-    if (!showcaseContext || waveState.rows < 2) {
+    if (isFrozen || !backdropState.visible) {
+      backdropState.frame = 0;
       return;
     }
 
-    const firstPoint = getWavePoint(0, col);
-
-    if (!firstPoint) {
-      return;
-    }
-
-    showcaseContext.strokeStyle = color;
-    showcaseContext.lineWidth = width;
-    showcaseContext.beginPath();
-    showcaseContext.moveTo(firstPoint.baseX + firstPoint.dx, firstPoint.baseY + firstPoint.dy);
-
-    for (let row = 1; row < waveState.rows; row += 1) {
-      const previousPoint = getWavePoint(row - 1, col);
-      const currentPoint = getWavePoint(row, col);
-
-      if (!previousPoint || !currentPoint) {
-        continue;
-      }
-
-      const prevX = previousPoint.baseX + previousPoint.dx;
-      const prevY = previousPoint.baseY + previousPoint.dy;
-      const currentX = currentPoint.baseX + currentPoint.dx;
-      const currentY = currentPoint.baseY + currentPoint.dy;
-      const midX = (prevX + currentX) * 0.5;
-      const midY = (prevY + currentY) * 0.5;
-
-      showcaseContext.quadraticCurveTo(prevX, prevY, midX, midY);
-    }
-
-    const lastPoint = getWavePoint(waveState.rows - 1, col);
-
-    if (lastPoint) {
-      showcaseContext.lineTo(lastPoint.baseX + lastPoint.dx, lastPoint.baseY + lastPoint.dy);
-    }
-
-    showcaseContext.stroke();
-  }
-
-  function drawShowcaseWaves(time = 0) {
-    if (!showcaseContext || !showcaseCanvas || !showcaseSection) {
-      return;
-    }
-
-    const isReducedMotion = reducedMotionQuery.matches;
-    const pointerEase = isReducedMotion ? 1 : 0.14;
-    const centerX = waveState.width * 0.5;
-    const centerY = waveState.height * 0.5;
-    const pointerPull = waveState.pointerInside ? 1 : 0.45;
-    const targetX = waveState.pointerInside
-      ? waveState.pointerTargetX
-      : centerX + (waveState.pointerTargetX - centerX) * pointerPull;
-    const targetY = waveState.pointerInside
-      ? waveState.pointerTargetY
-      : centerY + (waveState.pointerTargetY - centerY) * pointerPull;
-    waveState.pointerX += (targetX - waveState.pointerX) * pointerEase;
-    waveState.pointerY += (targetY - waveState.pointerY) * pointerEase;
-
-    waveState.currentHue += (waveState.targetHue - waveState.currentHue) * 0.08;
-    const normalizedTime = isReducedMotion ? waveState.phase : time * 0.001;
-    waveState.phase = normalizedTime;
-
-    const waveColor = normalizeWaveColor(wavesConfig.lineColor, 0.74);
-    const supportColor = normalizeWaveColor(wavesConfig.lineColor, 0.18);
-
-    showcaseContext.setTransform(1, 0, 0, 1, 0, 0);
-    showcaseContext.clearRect(0, 0, showcaseCanvas.width, showcaseCanvas.height);
-    showcaseContext.setTransform(waveState.dpr, 0, 0, waveState.dpr, 0, 0);
-    showcaseContext.fillStyle = wavesConfig.backgroundColor;
-    showcaseContext.fillRect(0, 0, waveState.width, waveState.height);
-
-    for (let index = 0; index < waveState.points.length; index += 1) {
-      const point = waveState.points[index];
-      const waveOffsetX = Math.sin(
-        point.baseY * 0.011 + normalizedTime * (wavesConfig.waveSpeedX * 9) + point.phaseX
-      ) * wavesConfig.waveAmpX;
-      const waveOffsetY = Math.cos(
-        point.baseX * 0.01 + normalizedTime * (wavesConfig.waveSpeedY * 14) + point.phaseY
-      ) * wavesConfig.waveAmpY;
-      const deltaX = point.baseX - waveState.pointerX;
-      const deltaY = point.baseY - waveState.pointerY;
-      const distance = Math.max(1, Math.hypot(deltaX, deltaY));
-      const cursorInfluence = clampHomeWorkWave(1 - distance / wavesConfig.maxCursorMove, 0, 1);
-      const cursorForce = cursorInfluence * cursorInfluence;
-      const cursorOffsetX = (deltaX / distance) * cursorForce * (wavesConfig.maxCursorMove * 0.14);
-      const cursorOffsetY = (deltaY / distance) * cursorForce * (wavesConfig.maxCursorMove * 0.085);
-      const targetOffsetX = waveOffsetX + cursorOffsetX;
-      const targetOffsetY = waveOffsetY + cursorOffsetY;
-      point.vx = (point.vx + (targetOffsetX - point.dx) * wavesConfig.tension) * wavesConfig.friction;
-      point.vy = (point.vy + (targetOffsetY - point.dy) * wavesConfig.tension) * wavesConfig.friction;
-      point.dx += point.vx;
-      point.dy += point.vy;
-    }
-
-    for (let row = 0; row < waveState.rows; row += 1) {
-      const rowBlend = waveState.rows <= 1 ? 1 : row / (waveState.rows - 1);
-      const rowAlphaBoost = 0.52 + (1 - Math.abs(rowBlend - 0.5) * 2) * 0.48;
-      drawWaveRow(row, waveColor, 1.08, rowAlphaBoost);
-    }
-
-    for (let col = 0; col < waveState.cols; col += 3) {
-      drawWaveColumn(col, supportColor, 0.48);
-    }
-
-    const glow = showcaseContext.createRadialGradient(
-      waveState.pointerX,
-      waveState.pointerY,
-      0,
-      waveState.pointerX,
-      waveState.pointerY,
-      wavesConfig.maxCursorMove * 1.2
-    );
-    glow.addColorStop(0, normalizeWaveColor(wavesConfig.lineColor, 0.11));
-    glow.addColorStop(1, normalizeWaveColor(wavesConfig.lineColor, 0));
-    showcaseContext.fillStyle = glow;
-    showcaseContext.fillRect(0, 0, waveState.width, waveState.height);
-
-    if (isReducedMotion || !waveState.visible) {
-      waveState.frame = 0;
-      return;
-    }
-
-    waveState.frame = window.requestAnimationFrame(drawShowcaseWaves);
-  }
-
-  function stopShowcaseWaves() {
-    if (!waveState.frame) {
-      return;
-    }
-
-    window.cancelAnimationFrame(waveState.frame);
-    waveState.frame = 0;
-  }
-
-  function queueShowcaseWaves() {
-    if (!showcaseContext || !showcaseCanvas || waveState.frame || reducedMotionQuery.matches || !waveState.visible) {
-      return;
-    }
-
-    waveState.frame = window.requestAnimationFrame(drawShowcaseWaves);
+    backdropState.frame = window.requestAnimationFrame(drawShowcaseBackdrop);
   }
 
   function updateShowcasePointer(event) {
@@ -6748,29 +6885,65 @@ if (homeWorkShowcaseTopics) {
       return;
     }
 
-    waveState.pointerTargetX = clampHomeWorkWave(event.clientX - rect.left, 0, waveState.width);
-    waveState.pointerTargetY = clampHomeWorkWave(event.clientY - rect.top, 0, waveState.height);
-    waveState.pointerInside = true;
+    backdropState.pointerX = clampHomeWorkBackdrop(
+      event.clientX - rect.left,
+      backdropState.effectMinX + 2,
+      backdropState.width - 2
+    );
+    backdropState.pointerY = clampHomeWorkBackdrop(event.clientY - rect.top, 2, backdropState.height - 2);
+
+    if (!backdropState.pointerInside) {
+      backdropState.pointerDrawX = backdropState.pointerX;
+      backdropState.pointerDrawY = backdropState.pointerY;
+    }
+
+    backdropState.pointerInside = true;
 
     if (reducedMotionQuery.matches) {
-      drawShowcaseWaves(performance.now());
+      drawShowcaseBackdrop(performance.now(), true);
       return;
     }
 
-    queueShowcaseWaves();
+    queueShowcaseBackdrop();
   }
 
   function resetShowcasePointer() {
-    waveState.pointerInside = false;
-    waveState.pointerTargetX = waveState.width * 0.5;
-    waveState.pointerTargetY = waveState.height * 0.5;
+    backdropState.pointerInside = false;
 
     if (reducedMotionQuery.matches) {
-      drawShowcaseWaves(performance.now());
+      drawShowcaseBackdrop(performance.now(), true);
       return;
     }
 
-    queueShowcaseWaves();
+    queueShowcaseBackdrop();
+  }
+
+  function setHoveredShowcaseTarget(index) {
+    const nextIndex = Number.isFinite(index) ? index : -1;
+
+    if (backdropState.hoveredTargetIndex === nextIndex) {
+      return;
+    }
+
+    backdropState.hoveredTargetIndex = nextIndex;
+
+    if (nextIndex > 0) {
+      const topic = topicLinks[nextIndex - 1];
+      const nextHue = Number(topic?.dataset.topicHue) || initialShowcaseHue;
+      backdropState.targetHue = nextHue;
+      showcaseSection?.style.setProperty("--showcase-hue", String(nextHue));
+    } else if (nextIndex < 0) {
+      const fallbackHue = Number(topicLinks[defaultTopicIndex]?.dataset.topicHue) || initialShowcaseHue;
+      backdropState.targetHue = fallbackHue;
+      showcaseSection?.style.setProperty("--showcase-hue", String(fallbackHue));
+    }
+
+    if (reducedMotionQuery.matches) {
+      drawShowcaseBackdrop(performance.now(), true);
+      return;
+    }
+
+    queueShowcaseBackdrop();
   }
 
   function setActiveShowcaseTopic(index) {
@@ -6786,14 +6959,15 @@ if (homeWorkShowcaseTopics) {
 
     const hue = topic.dataset.topicHue || String(initialShowcaseHue);
     showcaseSection.style.setProperty("--showcase-hue", hue);
-    waveState.targetHue = Number(hue) || initialShowcaseHue;
+    backdropState.targetHue = Number(hue) || initialShowcaseHue;
 
     if (!reducedMotionQuery.matches) {
+      queueShowcaseBackdrop();
       return;
     }
 
-    waveState.currentHue = waveState.targetHue;
-    drawShowcaseWaves(performance.now());
+    backdropState.currentHue = backdropState.targetHue;
+    drawShowcaseBackdrop(performance.now(), true);
   }
 
   topicLinks.forEach((topic, index) => {
@@ -6803,19 +6977,57 @@ if (homeWorkShowcaseTopics) {
     topic.addEventListener("pointerenter", (event) => {
       updateShowcasePointer(event);
       setActiveShowcaseTopic(index);
+      setHoveredShowcaseTarget(index + 1);
     });
 
     topic.addEventListener("pointermove", updateShowcasePointer);
 
     topic.addEventListener("focus", () => {
       setActiveShowcaseTopic(index);
+      setHoveredShowcaseTarget(index + 1);
+    });
+
+    topic.addEventListener("blur", () => {
+      if (homeWorkShowcaseTopics.contains(document.activeElement)) {
+        return;
+      }
+
+      setHoveredShowcaseTarget(-1);
     });
   });
 
+  if (showcaseTitleLink) {
+    showcaseTitleLink.addEventListener("pointerenter", (event) => {
+      updateShowcasePointer(event);
+      setHoveredShowcaseTarget(0);
+    });
+
+    showcaseTitleLink.addEventListener("pointermove", updateShowcasePointer);
+    showcaseTitleLink.addEventListener("pointerleave", () => {
+      setHoveredShowcaseTarget(-1);
+    });
+    showcaseTitleLink.addEventListener("focus", () => {
+      setHoveredShowcaseTarget(0);
+    });
+    showcaseTitleLink.addEventListener("blur", () => {
+      if (homeWorkShowcaseTopics.contains(document.activeElement)) {
+        return;
+      }
+
+      setHoveredShowcaseTarget(-1);
+    });
+  }
+
   showcaseSection?.addEventListener("pointermove", updateShowcasePointer);
+
+  showcaseSection?.addEventListener("pointerdown", (event) => {
+    updateShowcasePointer(event);
+    triggerShowcaseBurst();
+  });
 
   showcaseSection?.addEventListener("pointerleave", () => {
     resetShowcasePointer();
+    setHoveredShowcaseTarget(-1);
     setActiveShowcaseTopic(defaultTopicIndex);
   });
 
@@ -6824,18 +7036,19 @@ if (homeWorkShowcaseTopics) {
       return;
     }
 
+    setHoveredShowcaseTarget(-1);
     setActiveShowcaseTopic(defaultTopicIndex);
   });
 
-  function refreshShowcaseWaves() {
+  function refreshShowcaseBackdrop() {
     if (!showcaseContext || !showcaseCanvas) {
       return;
     }
 
-    buildShowcaseWaves();
-    stopShowcaseWaves();
-    drawShowcaseWaves(performance.now());
-    queueShowcaseWaves();
+    buildShowcaseParticles();
+    stopShowcaseBackdrop();
+    drawShowcaseBackdrop(performance.now(), reducedMotionQuery.matches);
+    queueShowcaseBackdrop();
   }
 
   if (showcaseContext && showcaseCanvas) {
@@ -6843,15 +7056,15 @@ if (homeWorkShowcaseTopics) {
       const observer = new IntersectionObserver((entries) => {
         const entry = entries[0];
 
-        waveState.visible = Boolean(entry?.isIntersecting);
+        backdropState.visible = Boolean(entry?.isIntersecting);
 
-        if (waveState.visible) {
-          drawShowcaseWaves(performance.now());
-          queueShowcaseWaves();
+        if (backdropState.visible) {
+          drawShowcaseBackdrop(performance.now(), reducedMotionQuery.matches);
+          queueShowcaseBackdrop();
           return;
         }
 
-        stopShowcaseWaves();
+        stopShowcaseBackdrop();
       }, {
         threshold: 0.08
       });
@@ -6861,15 +7074,15 @@ if (homeWorkShowcaseTopics) {
 
     onMediaQueryChange(reducedMotionQuery, () => {
       if (reducedMotionQuery.matches) {
-        stopShowcaseWaves();
+        stopShowcaseBackdrop();
       }
 
-      drawShowcaseWaves(performance.now());
-      queueShowcaseWaves();
+      drawShowcaseBackdrop(performance.now(), reducedMotionQuery.matches);
+      queueShowcaseBackdrop();
     });
 
-    window.addEventListener("resize", refreshShowcaseWaves);
-    refreshShowcaseWaves();
+    window.addEventListener("resize", refreshShowcaseBackdrop);
+    refreshShowcaseBackdrop();
   }
 
   setActiveShowcaseTopic(defaultTopicIndex);
@@ -6885,6 +7098,17 @@ if (homeGraphicSliderSection) {
   const sliderNextButton = homeGraphicSliderSection.querySelector("[data-home-graphic-next]");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const initialHue = Number(sliderItems[0]?.dataset.graphicHue) || 214;
+  const sliderWaveConfig = {
+    waveSpeedX: 0.06,
+    waveSpeedY: 0.025,
+    waveAmpX: 40,
+    waveAmpY: 20,
+    friction: 0.9,
+    tension: 0.01,
+    maxCursorMove: 120,
+    xGap: 12,
+    yGap: 36
+  };
   const sliderState = {
     currentIndex: 0,
     width: 0,
@@ -6900,6 +7124,9 @@ if (homeGraphicSliderSection) {
     pointerDrawY: 0,
     flowX: 0,
     flowY: 0,
+    cols: 0,
+    rows: 0,
+    phase: 0,
     targetHue: initialHue,
     currentHue: initialHue
   };
@@ -6965,24 +7192,36 @@ if (homeGraphicSliderSection) {
   }
 
   function buildSliderParticles() {
-    const area = sliderState.width * sliderState.height;
-    const count = clampHomeGraphic(Math.round(area / 13500), 96, 172);
-    const left = sliderState.width * 0.24;
-    const right = sliderState.width + 26;
+    sliderState.cols = Math.max(2, Math.floor(sliderState.width / sliderWaveConfig.xGap) + 1);
+    sliderState.rows = Math.max(2, Math.floor(sliderState.height / sliderWaveConfig.yGap) + 1);
+    const gridWidth = (sliderState.cols - 1) * sliderWaveConfig.xGap;
+    const gridHeight = (sliderState.rows - 1) * sliderWaveConfig.yGap;
+    const startX = (sliderState.width - gridWidth) * 0.5;
+    const startY = (sliderState.height - gridHeight) * 0.5;
 
-    sliderState.particles = Array.from({ length: count }, () => ({
-      x: left + Math.random() * (right - left),
-      y: Math.random() * sliderState.height,
-      vx: (Math.random() - 0.5) * 0.58,
-      vy: (Math.random() - 0.5) * 0.58,
-      seed: Math.random() * Math.PI * 2,
-      drift: 0.24 + Math.random() * 1.1,
-      size: 0.74 + Math.random() * 2.6,
-      minX: left,
-      maxX: right,
-      minY: -14,
-      maxY: sliderState.height + 14
-    }));
+    sliderState.particles = [];
+
+    for (let row = 0; row < sliderState.rows; row += 1) {
+      for (let col = 0; col < sliderState.cols; col += 1) {
+        const baseX = startX + col * sliderWaveConfig.xGap;
+        const baseY = startY + row * sliderWaveConfig.yGap;
+
+        sliderState.particles.push({
+          baseX,
+          baseY,
+          dx: 0,
+          dy: 0,
+          vx: 0,
+          vy: 0,
+          phaseX: row * 0.28 + col * 0.04,
+          phaseY: col * 0.18 - row * 0.09
+        });
+      }
+    }
+  }
+
+  function getSliderWavePoint(row, col) {
+    return sliderState.particles[row * sliderState.cols + col];
   }
 
   function resizeHomeGraphicSlider() {
@@ -7040,41 +7279,27 @@ if (homeGraphicSliderSection) {
     }
 
     const t = time * 0.001;
-    sliderState.particles.forEach((particle) => {
-      const wobbleX = Math.cos(t * (0.5 + particle.drift) + particle.seed) * 0.08;
-      const wobbleY = Math.sin(t * (0.44 + particle.drift * 1.08) + particle.seed * 0.84) * 0.08;
-      const pullX = (sliderState.flowX - particle.x) * 0.0004;
-      const pullY = (sliderState.flowY - particle.y) * 0.00032;
+    sliderState.particles.forEach((point) => {
+      const waveOffsetX = Math.sin(
+        point.baseY * 0.011 + t * (sliderWaveConfig.waveSpeedX * 9) + point.phaseX
+      ) * sliderWaveConfig.waveAmpX;
+      const waveOffsetY = Math.cos(
+        point.baseX * 0.01 + t * (sliderWaveConfig.waveSpeedY * 14) + point.phaseY
+      ) * sliderWaveConfig.waveAmpY;
+      const deltaX = point.baseX - sliderState.pointerDrawX;
+      const deltaY = point.baseY - sliderState.pointerDrawY;
+      const distance = Math.max(1, Math.hypot(deltaX, deltaY));
+      const cursorInfluence = clampHomeGraphic(1 - distance / sliderWaveConfig.maxCursorMove, 0, 1);
+      const cursorForce = cursorInfluence * cursorInfluence;
+      const cursorOffsetX = (deltaX / distance) * cursorForce * (sliderWaveConfig.maxCursorMove * 0.14);
+      const cursorOffsetY = (deltaY / distance) * cursorForce * (sliderWaveConfig.maxCursorMove * 0.085);
+      const targetOffsetX = waveOffsetX + cursorOffsetX;
+      const targetOffsetY = waveOffsetY + cursorOffsetY;
 
-      particle.vx = clampHomeGraphic((particle.vx + wobbleX + pullX) * 0.992, -0.74, 0.74);
-      particle.vy = clampHomeGraphic((particle.vy + wobbleY + pullY) * 0.992, -0.74, 0.74);
-
-      if (sliderState.pointerInside) {
-        const dx = sliderState.pointerDrawX - particle.x;
-        const dy = sliderState.pointerDrawY - particle.y;
-        const distance = Math.hypot(dx, dy);
-
-        if (distance > 0.001 && distance < 220) {
-          const strength = (1 - (distance / 220)) * 0.038;
-          particle.vx += (dx / distance) * strength;
-          particle.vy += (dy / distance) * strength;
-        }
-      }
-
-      particle.x += particle.vx;
-      particle.y += particle.vy;
-
-      if (particle.x < particle.minX) {
-        particle.x = particle.maxX;
-      } else if (particle.x > particle.maxX) {
-        particle.x = particle.minX;
-      }
-
-      if (particle.y < particle.minY) {
-        particle.y = particle.maxY;
-      } else if (particle.y > particle.maxY) {
-        particle.y = particle.minY;
-      }
+      point.vx = (point.vx + (targetOffsetX - point.dx) * sliderWaveConfig.tension) * sliderWaveConfig.friction;
+      point.vy = (point.vy + (targetOffsetY - point.dy) * sliderWaveConfig.tension) * sliderWaveConfig.friction;
+      point.dx += point.vx;
+      point.dy += point.vy;
     });
   }
 
@@ -7090,205 +7315,98 @@ if (homeGraphicSliderSection) {
     sliderContext.setTransform(1, 0, 0, 1, 0, 0);
     sliderContext.clearRect(0, 0, sliderCanvas.width, sliderCanvas.height);
     sliderContext.setTransform(sliderState.dpr, 0, 0, sliderState.dpr, 0, 0);
-    sliderContext.clearRect(0, 0, sliderState.width, sliderState.height);
-
     sliderContext.fillStyle = "#ffffff";
     sliderContext.fillRect(0, 0, sliderState.width, sliderState.height);
 
-    const glow = sliderContext.createRadialGradient(
-      sliderState.flowX,
-      sliderState.flowY,
+    const pointerGlow = sliderContext.createRadialGradient(
+      sliderState.pointerDrawX,
+      sliderState.pointerDrawY,
       0,
-      sliderState.flowX,
-      sliderState.flowY,
-      Math.max(sliderState.width, sliderState.height) * 0.8
+      sliderState.pointerDrawX,
+      sliderState.pointerDrawY,
+      sliderWaveConfig.maxCursorMove * 1.2
     );
-    glow.addColorStop(0, sliderHue(0.24, 94, 72, 8));
-    glow.addColorStop(0.42, sliderHue(0.1, 90, 66, -6));
-    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-    sliderContext.fillStyle = glow;
+    pointerGlow.addColorStop(0, sliderHue(0.11));
+    pointerGlow.addColorStop(1, sliderHue(0));
+    sliderContext.fillStyle = pointerGlow;
     sliderContext.fillRect(0, 0, sliderState.width, sliderState.height);
 
-    const linkDistance = window.innerWidth < 720 ? 126 : 168;
-    for (let index = 0; index < sliderState.particles.length; index += 1) {
-      const pointA = sliderState.particles[index];
+    const rowColor = sliderHue(0.74);
+    const columnColor = sliderHue(0.18);
 
-      for (let nextIndex = index + 1; nextIndex < sliderState.particles.length; nextIndex += 1) {
-        const pointB = sliderState.particles[nextIndex];
-        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+    for (let row = 0; row < sliderState.rows; row += 1) {
+      const firstPoint = getSliderWavePoint(row, 0);
+      if (!firstPoint) {
+        continue;
+      }
 
-        if (!distance || distance > linkDistance) {
+      const rowBlend = sliderState.rows <= 1 ? 1 : row / (sliderState.rows - 1);
+      const rowAlphaBoost = 0.52 + (1 - Math.abs(rowBlend - 0.5) * 2) * 0.48;
+
+      sliderContext.strokeStyle = rowColor;
+      sliderContext.lineWidth = 1.08;
+      sliderContext.globalAlpha = rowAlphaBoost;
+      sliderContext.beginPath();
+      sliderContext.moveTo(firstPoint.baseX + firstPoint.dx, firstPoint.baseY + firstPoint.dy);
+
+      for (let col = 1; col < sliderState.cols; col += 1) {
+        const previousPoint = getSliderWavePoint(row, col - 1);
+        const currentPoint = getSliderWavePoint(row, col);
+        if (!previousPoint || !currentPoint) {
           continue;
         }
 
-        const alpha = (1 - (distance / linkDistance)) ** 2 * 0.4;
-        sliderContext.strokeStyle = sliderHue(alpha, 90, 70, 4);
-        sliderContext.lineWidth = 0.5 + alpha * 2.4;
-        sliderContext.beginPath();
-        sliderContext.moveTo(pointA.x, pointA.y);
-        sliderContext.lineTo(pointB.x, pointB.y);
-        sliderContext.stroke();
+        const prevX = previousPoint.baseX + previousPoint.dx;
+        const prevY = previousPoint.baseY + previousPoint.dy;
+        const currentX = currentPoint.baseX + currentPoint.dx;
+        const currentY = currentPoint.baseY + currentPoint.dy;
+        const midX = (prevX + currentX) * 0.5;
+        const midY = (prevY + currentY) * 0.5;
+        sliderContext.quadraticCurveTo(prevX, prevY, midX, midY);
       }
+
+      const lastPoint = getSliderWavePoint(row, sliderState.cols - 1);
+      if (lastPoint) {
+        sliderContext.lineTo(lastPoint.baseX + lastPoint.dx, lastPoint.baseY + lastPoint.dy);
+      }
+      sliderContext.stroke();
     }
 
-    const extendedDistance = window.innerWidth < 720 ? 188 : 248;
-    for (let index = 0; index < sliderState.particles.length; index += 2) {
-      const pointA = sliderState.particles[index];
-      const maxNext = Math.min(sliderState.particles.length, index + 24);
+    sliderContext.globalAlpha = 1;
 
-      for (let nextIndex = index + 2; nextIndex < maxNext; nextIndex += 4) {
-        const pointB = sliderState.particles[nextIndex];
-        const distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+    for (let col = 0; col < sliderState.cols; col += 3) {
+      const firstPoint = getSliderWavePoint(0, col);
+      if (!firstPoint) {
+        continue;
+      }
 
-        if (!distance || distance > extendedDistance) {
+      sliderContext.strokeStyle = columnColor;
+      sliderContext.lineWidth = 0.48;
+      sliderContext.beginPath();
+      sliderContext.moveTo(firstPoint.baseX + firstPoint.dx, firstPoint.baseY + firstPoint.dy);
+
+      for (let row = 1; row < sliderState.rows; row += 1) {
+        const previousPoint = getSliderWavePoint(row - 1, col);
+        const currentPoint = getSliderWavePoint(row, col);
+        if (!previousPoint || !currentPoint) {
           continue;
         }
 
-        const alpha = (1 - (distance / extendedDistance)) ** 1.8 * 0.16;
-        sliderContext.strokeStyle = sliderHue(alpha, 92, 76, 8);
-        sliderContext.lineWidth = 0.36 + alpha * 1.1;
-        sliderContext.beginPath();
-        sliderContext.moveTo(pointA.x, pointA.y);
-        sliderContext.lineTo(pointB.x, pointB.y);
-        sliderContext.stroke();
-      }
-    }
-
-    const liveT = time * 0.001;
-    const ringCount = window.innerWidth < 720 ? 2 : 3;
-    for (let ringIndex = 0; ringIndex < ringCount; ringIndex += 1) {
-      const radiusX = sliderState.width * (0.1 + ringIndex * 0.08) + Math.sin(liveT * (0.7 + ringIndex * 0.2)) * 16;
-      const radiusY = sliderState.height * (0.08 + ringIndex * 0.06) + Math.cos(liveT * (0.62 + ringIndex * 0.18)) * 10;
-      const rotate = liveT * (0.22 + ringIndex * 0.09);
-
-      sliderContext.strokeStyle = sliderHue(0.12 + ringIndex * 0.06, 94, 80, 12);
-      sliderContext.lineWidth = 1.2 + ringIndex * 0.7;
-      sliderContext.beginPath();
-      sliderContext.ellipse(
-        sliderState.flowX,
-        sliderState.flowY,
-        Math.max(24, radiusX),
-        Math.max(20, radiusY),
-        rotate,
-        0,
-        Math.PI * 2
-      );
-      sliderContext.stroke();
-    }
-
-    const orbitCount = window.innerWidth < 720 ? 11 : 17;
-    const orbitRadiusX = sliderState.width * (window.innerWidth < 720 ? 0.24 : 0.3);
-    const orbitRadiusY = sliderState.height * (window.innerWidth < 720 ? 0.2 : 0.26);
-    let previousOrbitPoint = null;
-    for (let orbitIndex = 0; orbitIndex < orbitCount; orbitIndex += 1) {
-      const ratio = orbitCount === 1 ? 0 : orbitIndex / orbitCount;
-      const angle = ratio * Math.PI * 2 + liveT * 0.36;
-      const orbitX = sliderState.flowX + Math.cos(angle) * orbitRadiusX;
-      const orbitY = sliderState.flowY + Math.sin(angle * 1.12) * orbitRadiusY;
-      const wobbleX = Math.sin(liveT * 1.8 + orbitIndex) * sliderState.width * 0.006;
-      const wobbleY = Math.cos(liveT * 1.5 + orbitIndex) * sliderState.height * 0.01;
-      const pointX = orbitX + wobbleX;
-      const pointY = orbitY + wobbleY;
-
-      if (previousOrbitPoint) {
-        sliderContext.strokeStyle = sliderHue(0.16, 92, 76, 6);
-        sliderContext.lineWidth = 0.74;
-        sliderContext.beginPath();
-        sliderContext.moveTo(previousOrbitPoint.x, previousOrbitPoint.y);
-        sliderContext.lineTo(pointX, pointY);
-        sliderContext.stroke();
+        const prevX = previousPoint.baseX + previousPoint.dx;
+        const prevY = previousPoint.baseY + previousPoint.dy;
+        const currentX = currentPoint.baseX + currentPoint.dx;
+        const currentY = currentPoint.baseY + currentPoint.dy;
+        const midX = (prevX + currentX) * 0.5;
+        const midY = (prevY + currentY) * 0.5;
+        sliderContext.quadraticCurveTo(prevX, prevY, midX, midY);
       }
 
-      if (orbitIndex % 2 === 0) {
-        sliderContext.strokeStyle = sliderHue(0.12, 90, 74, 2);
-        sliderContext.lineWidth = 0.86;
-        sliderContext.beginPath();
-        sliderContext.moveTo(pointX, pointY);
-        sliderContext.lineTo(sliderState.flowX, sliderState.flowY);
-        sliderContext.stroke();
+      const lastPoint = getSliderWavePoint(sliderState.rows - 1, col);
+      if (lastPoint) {
+        sliderContext.lineTo(lastPoint.baseX + lastPoint.dx, lastPoint.baseY + lastPoint.dy);
       }
-
-      sliderContext.fillStyle = sliderHue(0.46, 98, 86, 12);
-      sliderContext.beginPath();
-      sliderContext.arc(pointX, pointY, 1.26, 0, Math.PI * 2);
-      sliderContext.fill();
-
-      previousOrbitPoint = { x: pointX, y: pointY };
-    }
-
-    const streamCount = window.innerWidth < 720 ? 8 : 13;
-    for (let streamIndex = 0; streamIndex < streamCount; streamIndex += 1) {
-      const streamRatio = streamCount === 1 ? 0.5 : streamIndex / (streamCount - 1);
-      const fromX = sliderState.width + 2;
-      const fromY = sliderState.height * (0.06 + streamRatio * 0.88);
-      const sway = Math.sin(liveT * 1.3 + streamIndex * 0.72);
-      const controlX = sliderState.flowX + sliderState.width * 0.28 + sway * sliderState.width * 0.06;
-      const controlY = sliderState.flowY + (fromY - sliderState.flowY) * 0.44 + Math.cos(liveT * 1.08 + streamIndex) * sliderState.height * 0.04;
-
-      sliderContext.strokeStyle = sliderHue(0.08, 90, 72, 10);
-      sliderContext.lineWidth = 0.7;
-      sliderContext.beginPath();
-      sliderContext.moveTo(fromX, fromY);
-      sliderContext.quadraticCurveTo(controlX, controlY, sliderState.flowX, sliderState.flowY);
       sliderContext.stroke();
     }
-
-    sliderState.particles.forEach((particle) => {
-      const pulse = (Math.sin(time * 0.0013 + particle.seed) + 1) * 0.5;
-      sliderContext.fillStyle = sliderHue(0.18 + pulse * 0.3, 96, 82, 10);
-      sliderContext.beginPath();
-      sliderContext.arc(particle.x, particle.y, particle.size * (0.72 + pulse * 0.84), 0, Math.PI * 2);
-      sliderContext.fill();
-    });
-
-    const featuredAnchors = sliderItems
-      .filter((item) => item.classList.contains("is-current") || item.classList.contains("is-prev"))
-      .map((item) => getItemAnchor(item))
-      .filter((anchor) => anchor !== null);
-
-    featuredAnchors.forEach((anchor, index) => {
-      const wave = Math.sin(time * 0.0017 + index * 0.88);
-      const controlPoint = {
-        x: sliderState.flowX + (anchor.x - sliderState.flowX) * 0.48 + wave * sliderState.width * 0.028,
-        y: sliderState.flowY + (anchor.y - sliderState.flowY) * 0.42 + Math.cos(time * 0.0012 + index) * sliderState.height * 0.04
-      };
-
-      sliderContext.strokeStyle = sliderHue(0.24, 94, 78, 12);
-      sliderContext.lineWidth = index === 0 ? 3.2 : 2;
-      sliderContext.beginPath();
-      sliderContext.moveTo(anchor.x, anchor.y);
-      sliderContext.quadraticCurveTo(controlPoint.x, controlPoint.y, sliderState.flowX, sliderState.flowY);
-      sliderContext.stroke();
-
-      sliderContext.strokeStyle = sliderHue(0.4, 92, 70, 2);
-      sliderContext.lineWidth = index === 0 ? 1.2 : 0.9;
-      sliderContext.beginPath();
-      sliderContext.moveTo(anchor.x, anchor.y);
-      sliderContext.quadraticCurveTo(controlPoint.x, controlPoint.y, sliderState.flowX, sliderState.flowY);
-      sliderContext.stroke();
-    });
-
-    if (sliderState.pointerInside) {
-      for (let trailIndex = 0; trailIndex < 3; trailIndex += 1) {
-        const spread = trailIndex - 1;
-        sliderContext.strokeStyle = sliderHue(0.2 + trailIndex * 0.1, 96, 76, 12 + trailIndex * 4);
-        sliderContext.lineWidth = 1.8 - trailIndex * 0.36;
-        sliderContext.beginPath();
-        sliderContext.moveTo(sliderState.pointerDrawX, sliderState.pointerDrawY);
-        sliderContext.quadraticCurveTo(
-          sliderState.pointerDrawX + (sliderState.flowX - sliderState.pointerDrawX) * (0.42 + trailIndex * 0.08),
-          sliderState.pointerDrawY + (sliderState.flowY - sliderState.pointerDrawY) * (0.34 + trailIndex * 0.1) + spread * sliderState.height * 0.05,
-          sliderState.flowX,
-          sliderState.flowY
-        );
-        sliderContext.stroke();
-      }
-    }
-
-    sliderContext.fillStyle = sliderHue(0.72, 98, 86, 16);
-    sliderContext.beginPath();
-    sliderContext.arc(sliderState.flowX, sliderState.flowY, 3.8, 0, Math.PI * 2);
-    sliderContext.fill();
 
     if (isFrozen || !sliderState.visible) {
       sliderState.frame = 0;

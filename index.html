@@ -4,6 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portfolio</title>
+    <script>
+      (() => {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const fromIntro = params.get("fromIntro") === "1";
+
+          if (!fromIntro) {
+            window.location.replace("intro/");
+            return;
+          }
+
+          document.documentElement.classList.add("from-intro");
+        } catch (_error) {
+          // ignore
+        }
+      })();
+    </script>
     <meta
       name="description"
       content="A one-page portfolio landing page with a white point-cloud hero, a centered Portfolio title, and simple navigation."
@@ -871,7 +888,7 @@
                 data-graphic-hue="24"
               >
                 <span class="home-graphic-slider__media" data-graphic-title="Branding Design">
-                  <img src="graphic-design/Branding-Design/logo/1.1.png" alt="Branding Design" loading="lazy">
+                  <img src="graphic-design/Branding-Design/logo/8.jpg" alt="Branding Design" loading="lazy">
                 </span>
                 <span class="home-graphic-slider__meta">
                   <span class="home-graphic-slider__item-title">Branding Design</span>
@@ -881,16 +898,16 @@
 
               <a
                 class="home-graphic-slider__item"
-                href="graphic-design/Rebranding-Coffeeblack/"
+                href="graphic-design/Name-Poster/"
                 data-home-graphic-item
-                data-graphic-hue="44"
+                data-graphic-hue="336"
               >
-                <span class="home-graphic-slider__media" data-graphic-title="Rebranding Coffeeblack">
-                  <img src="graphic-design/Rebranding-Coffeeblack/2.jpg.webp" alt="Rebranding Coffeeblack" loading="lazy">
+                <span class="home-graphic-slider__media" data-graphic-title="Name Poster">
+                  <img src="graphic-design/Name-Poster/1.jpg" alt="Name Poster" loading="lazy">
                 </span>
                 <span class="home-graphic-slider__meta">
-                  <span class="home-graphic-slider__item-title">Rebranding Coffeeblack</span>
-                  <span class="home-graphic-slider__item-desc">Logo redesign and refreshed visual direction for coffee shop brand communication.</span>
+                  <span class="home-graphic-slider__item-title">Name Poster</span>
+                  <span class="home-graphic-slider__item-desc">High-contrast vertical poster with expressive typography and poster-scale composition.</span>
                 </span>
               </a>
             </div>
