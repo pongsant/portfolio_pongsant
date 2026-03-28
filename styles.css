@@ -328,7 +328,7 @@ video {
 
 .site-nav a:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 1px rgba(150, 188, 243, 0.6);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.42);
 }
 
 body.is-scrolled .site-header {
@@ -392,7 +392,7 @@ body.is-scrolled .site-nav a {
 }
 
 .site-menu-toggle:focus-visible {
-  outline: 1px solid rgba(121, 168, 237, 0.82);
+  outline: 1px solid rgba(0, 0, 0, 0.62);
   outline-offset: 0.28rem;
 }
 
@@ -549,7 +549,7 @@ body.is-scrolled .site-nav a {
   top: 0.25rem;
   font-size: 0.74rem;
   letter-spacing: 0.08em;
-  color: #1f54ff;
+  color: #000000;
   opacity: 0;
   transition: opacity 380ms ease;
   transition-delay: calc(300ms + var(--menu-item-delay, 0ms));
@@ -565,7 +565,7 @@ body.is-scrolled .site-nav a {
 
 .site-staggered-menu__item-link:hover,
 .site-staggered-menu__item-link:focus-visible {
-  color: #1f54ff;
+  color: #000000;
 }
 
 .site-staggered-menu__item-link:focus-visible {
@@ -585,7 +585,7 @@ body.is-scrolled .site-nav a {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #1f54ff;
+  color: #000000;
 }
 
 .site-staggered-menu__social-links {
@@ -595,11 +595,11 @@ body.is-scrolled .site-nav a {
 }
 
 .site-staggered-menu__social-link {
-  width: 2.08rem;
+  width: 2.48rem;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  border: 1px solid rgba(4, 5, 9, 0.2);
-  color: #0a1224;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  color: #000000;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -608,14 +608,14 @@ body.is-scrolled .site-nav a {
 
 .site-staggered-menu__social-link:hover,
 .site-staggered-menu__social-link:focus-visible {
-  color: #1f54ff;
-  border-color: rgba(31, 84, 255, 0.42);
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.52);
   transform: translateY(-1px);
 }
 
 .site-staggered-menu__icon {
-  width: 1.08rem;
-  height: 1.08rem;
+  width: 1.36rem;
+  height: 1.36rem;
 }
 
 .site-staggered-menu__icon--instagram {
@@ -653,6 +653,31 @@ body.is-site-menu-open {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.78);
   white-space: nowrap;
+}
+
+/* Interactive Work: force menu effect accent to black */
+.page-interactive-archive .site-staggered-menu__layer--one {
+  background: #d2d2d2;
+}
+
+.page-interactive-archive .site-staggered-menu__layer--two {
+  background: #8c8c8c;
+}
+
+.page-interactive-archive .site-staggered-menu__item-number,
+.page-interactive-archive .site-staggered-menu__social-title {
+  color: #000000;
+}
+
+.page-interactive-archive .site-staggered-menu__item-link:hover,
+.page-interactive-archive .site-staggered-menu__item-link:focus-visible {
+  color: #000000;
+}
+
+.page-interactive-archive .site-staggered-menu__social-link:hover,
+.page-interactive-archive .site-staggered-menu__social-link:focus-visible {
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.42);
 }
 
 .page-graphic-design-archive .site-header__section-title {
@@ -1440,13 +1465,13 @@ main {
 
 .home-work-showcase--graphic-slider {
   min-height: clamp(25rem, 62svh, 38rem);
-  background: #000000;
-  color: #ffffff;
+  background: #ffffff;
+  color: #050505;
 }
 
 .home-work-showcase--graphic-slider .home-work-showcase__line-canvas {
   opacity: 1;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 }
 
 .home-work-showcase--graphic-slider .home-work-showcase__inner {
@@ -1473,10 +1498,8 @@ main {
   letter-spacing: -0.02em;
   line-height: 0.9;
   text-transform: uppercase;
-  color: #ffffff;
-  text-shadow:
-    0 0 20px hsla(var(--showcase-hue) 92% 62% / 0.34),
-    0 0 40px hsla(var(--showcase-hue) 90% 56% / 0.18);
+  color: #050505;
+  text-shadow: none;
   transition: color 260ms ease, text-shadow 260ms ease;
 }
 
@@ -1486,9 +1509,9 @@ main {
   justify-content: center;
   min-height: 42px;
   padding: 0.56rem 0.84rem;
-  border: 1px solid hsla(var(--showcase-hue) 88% 72% / 0.28);
-  background: hsla(var(--showcase-hue) 92% 72% / 0.08);
-  color: #ffffff;
+  border: 1px solid rgba(5, 5, 5, 0.24);
+  background: rgba(5, 5, 5, 0.04);
+  color: #050505;
   font-size: clamp(0.62rem, 0.56rem + 0.14vw, 0.72rem);
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1499,8 +1522,8 @@ main {
 .home-graphic-slider__more:hover,
 .home-graphic-slider__more:focus-visible {
   transform: translateY(-1px);
-  background: hsla(var(--showcase-hue) 92% 72% / 0.14);
-  border-color: hsla(var(--showcase-hue) 88% 72% / 0.42);
+  background: rgba(5, 5, 5, 0.1);
+  border-color: rgba(5, 5, 5, 0.36);
 }
 
 .home-graphic-slider__stage {
@@ -1518,9 +1541,9 @@ main {
 
 .home-graphic-slider__nav {
   appearance: none;
-  border: 1px solid hsla(var(--showcase-hue) 90% 76% / 0.34);
-  background: hsla(var(--showcase-hue) 92% 76% / 0.08);
-  color: #ffffff;
+  border: 1px solid rgba(5, 5, 5, 0.28);
+  background: rgba(5, 5, 5, 0.04);
+  color: #050505;
   font-family: var(--font-sans);
   font-size: clamp(0.66rem, 0.56rem + 0.14vw, 0.76rem);
   font-weight: 700;
@@ -1536,8 +1559,8 @@ main {
 .home-graphic-slider__nav:hover,
 .home-graphic-slider__nav:focus-visible {
   transform: translateY(-1px) scale(1.02);
-  background: hsla(var(--showcase-hue) 92% 74% / 0.14);
-  border-color: hsla(var(--showcase-hue) 90% 78% / 0.5);
+  background: rgba(5, 5, 5, 0.1);
+  border-color: rgba(5, 5, 5, 0.4);
 }
 
 .home-graphic-slider__item {
@@ -1547,7 +1570,7 @@ main {
   width: min(100%, clamp(280px, 39vw, 530px));
   display: grid;
   gap: clamp(0.48rem, 0.92vw, 0.76rem);
-  color: #f4f4f4;
+  color: #050505;
   text-decoration: none;
   transform: translate(-50%, -50%);
   transform-origin: center;
@@ -1606,11 +1629,11 @@ main {
   overflow: hidden;
   width: 100%;
   aspect-ratio: 4 / 5.4;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: #0a0d16;
+  border: 1px solid rgba(5, 5, 5, 0.22);
+  background: #ffffff;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 24px 56px rgba(0, 0, 0, 0.48);
+    0 0 0 1px rgba(5, 5, 5, 0.06),
+    0 24px 56px rgba(0, 0, 0, 0.18);
 }
 
 .home-graphic-slider__media::before {
@@ -1678,8 +1701,8 @@ main {
 }
 
 .home-work-showcase--light .home-work-showcase__line-canvas {
-  opacity: 0.94;
-  mix-blend-mode: multiply;
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 
 .home-work-showcase--light .home-work-showcase__title {
@@ -1709,7 +1732,7 @@ main {
   letter-spacing: 0.01em;
   line-height: 0.94;
   text-transform: uppercase;
-  color: #ffffff;
+  color: #050505;
 }
 
 .home-graphic-slider__item-desc {
@@ -1720,7 +1743,7 @@ main {
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.44;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(5, 5, 5, 0.82);
 }
 
 .home-work-showcase__title {
