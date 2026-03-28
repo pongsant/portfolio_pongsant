@@ -15,6 +15,202 @@ const homeWorkNetwork = document.querySelector("[data-home-work-network]");
 const homeWorkNetworkCanvas = homeWorkNetwork?.querySelector("[data-home-work-network-canvas]");
 const homeWorkNetworkLinks = Array.from(homeWorkNetwork?.querySelectorAll("[data-home-work-network-link]") ?? []);
 
+function onMediaQueryChange(mediaQueryList, handler) {
+  if (!mediaQueryList || typeof handler !== "function") {
+    return;
+  }
+
+  if (typeof mediaQueryList.addEventListener === "function") {
+    mediaQueryList.addEventListener("change", handler);
+    return;
+  }
+
+  if (typeof mediaQueryList.addListener === "function") {
+    mediaQueryList.addListener(handler);
+  }
+}
+
+function initStaggeredSiteMenu() {
+  if (!body || !header) {
+    return;
+  }
+
+  const nav = header.querySelector(".site-nav");
+
+  if (!nav || nav.dataset.menuUpgraded === "true") {
+    return;
+  }
+
+  const navLinks = Array.from(nav.querySelectorAll("a"));
+
+  if (!navLinks.length) {
+    return;
+  }
+
+  const items = navLinks
+    .map((link) => {
+      const href = link.getAttribute("href") || "#";
+      const label = (link.textContent || "").trim();
+
+      if (!label) {
+        return null;
+      }
+
+      return {
+        href,
+        label,
+        isCurrent: link.getAttribute("aria-current") === "page"
+      };
+    })
+    .filter(Boolean);
+
+  if (!items.length) {
+    return;
+  }
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "site-menu-toggle";
+  toggle.setAttribute("aria-label", "Toggle menu");
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.setAttribute("aria-controls", "site-staggered-menu-panel");
+  toggle.style.color = "#000000";
+  toggle.innerHTML = `
+    <span class="site-menu-toggle__text" data-site-menu-label>MENU</span>
+    <span class="site-menu-toggle__icon" aria-hidden="true">
+      <span class="site-menu-toggle__line"></span>
+      <span class="site-menu-toggle__line site-menu-toggle__line--vertical"></span>
+    </span>
+  `;
+
+  const menuRoot = document.createElement("div");
+  menuRoot.className = "site-staggered-menu";
+  menuRoot.setAttribute("aria-hidden", "true");
+  menuRoot.innerHTML = `
+    <div class="site-staggered-menu__scrim" data-site-menu-scrim></div>
+    <div class="site-staggered-menu__layers" aria-hidden="true">
+      <span class="site-staggered-menu__layer site-staggered-menu__layer--one"></span>
+      <span class="site-staggered-menu__layer site-staggered-menu__layer--two"></span>
+    </div>
+    <aside class="site-staggered-menu__panel" id="site-staggered-menu-panel" aria-label="Site menu">
+      <nav class="site-staggered-menu__nav" aria-label="Primary">
+        <ul class="site-staggered-menu__list" data-site-menu-list></ul>
+      </nav>
+      <div class="site-staggered-menu__socials">
+        <p class="site-staggered-menu__social-title">Social</p>
+        <div class="site-staggered-menu__social-links">
+          <a
+            class="site-staggered-menu__social-link"
+            href="https://www.instagram.com/prum20baht/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg class="site-staggered-menu__icon site-staggered-menu__icon--instagram" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+              <circle cx="12" cy="12" r="4.2"></circle>
+              <circle cx="17.3" cy="6.7" r="1.15"></circle>
+            </svg>
+            <span class="sr-only">Instagram</span>
+          </a>
+          <a
+            class="site-staggered-menu__social-link"
+            href="https://youtube.com/@prum20baht?si=_BRkFq7F7cHqmzJN"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+          >
+            <svg class="site-staggered-menu__icon site-staggered-menu__icon--youtube" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M21.6 8.3a3 3 0 0 0-2.1-2.1C17.6 5.7 12 5.7 12 5.7s-5.6 0-7.5.5a3 3 0 0 0-2.1 2.1c-.5 1.9-.5 3.7-.5 3.7s0 1.8.5 3.7a3 3 0 0 0 2.1 2.1c1.9.5 7.5.5 7.5.5s5.6 0 7.5-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-3.7.5-3.7s0-1.8-.5-3.7z"></path>
+              <path d="M10 15.3l5.2-3.3L10 8.7z"></path>
+            </svg>
+            <span class="sr-only">YouTube</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+  `;
+
+  const menuList = menuRoot.querySelector("[data-site-menu-list]");
+
+  if (!menuList) {
+    return;
+  }
+
+  items.forEach((item, index) => {
+    const listItem = document.createElement("li");
+    listItem.className = "site-staggered-menu__item";
+    listItem.style.setProperty("--menu-item-delay", `${index * 70}ms`);
+
+    const itemLink = document.createElement("a");
+    itemLink.className = "site-staggered-menu__item-link";
+    if (item.isCurrent) {
+      itemLink.classList.add("is-current");
+    }
+    itemLink.href = item.href;
+    itemLink.innerHTML = `
+      <span class="site-staggered-menu__item-label">${item.label}</span>
+      <span class="site-staggered-menu__item-number">${String(index + 1).padStart(2, "0")}</span>
+    `;
+
+    listItem.appendChild(itemLink);
+    menuList.appendChild(listItem);
+  });
+
+  document.body.append(menuRoot);
+  header.append(toggle);
+  header.classList.add("site-header--staggered-menu");
+  nav.hidden = true;
+  nav.setAttribute("aria-hidden", "true");
+  nav.dataset.menuUpgraded = "true";
+
+  const label = toggle.querySelector("[data-site-menu-label]");
+  const scrim = menuRoot.querySelector("[data-site-menu-scrim]");
+  const menuLinks = Array.from(menuRoot.querySelectorAll(".site-staggered-menu__item-link"));
+
+  let isMenuOpen = false;
+
+  function setMenuState(nextOpen) {
+    isMenuOpen = nextOpen;
+    body.classList.toggle("is-site-menu-open", nextOpen);
+    menuRoot.classList.toggle("is-open", nextOpen);
+    menuRoot.setAttribute("aria-hidden", nextOpen ? "false" : "true");
+    toggle.classList.toggle("is-open", nextOpen);
+    toggle.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+
+    if (label) {
+      label.textContent = nextOpen ? "CLOSE" : "MENU";
+    }
+  }
+
+  function toggleMenu() {
+    setMenuState(!isMenuOpen);
+  }
+
+  function closeMenu() {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    setMenuState(false);
+  }
+
+  toggle.addEventListener("click", toggleMenu);
+  scrim?.addEventListener("click", closeMenu);
+
+  menuLinks.forEach((menuLink) => {
+    menuLink.addEventListener("click", closeMenu);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    closeMenu();
+  });
+}
+
 if (body && header) {
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -27,8 +223,253 @@ if (body && header) {
 
   syncHeaderState();
   window.addEventListener("scroll", syncHeaderState, { passive: true });
-  reducedMotionQuery.addEventListener("change", syncHeaderState);
+  onMediaQueryChange(reducedMotionQuery, syncHeaderState);
 }
+
+initStaggeredSiteMenu();
+
+function initGlobalButtonGooeyEffect() {
+  if (!document.body) {
+    return;
+  }
+
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const TARGET_SELECTOR = "button, [role=\"button\"][tabindex]";
+  const particleCount = 15;
+  const particleDistances = [92, 12];
+  const particleRadius = 100;
+  const animationTime = 420;
+  const timeVariance = 240;
+  const colorSlots = [1, 2, 3, 1, 2, 3, 1, 4];
+
+  function noise(value = 1) {
+    return (value / 2) - (Math.random() * value);
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function getXY(distance, pointIndex, totalPoints) {
+    const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
+
+    return [
+      distance * Math.cos(angle),
+      distance * Math.sin(angle)
+    ];
+  }
+
+  function createParticle(index) {
+    const rotationNoise = noise(particleRadius / 10);
+    const duration = Math.max(220, animationTime * 2 + noise(timeVariance * 2));
+    const start = getXY(particleDistances[0], particleCount - index, particleCount);
+    const end = getXY(particleDistances[1] + noise(7), particleCount - index, particleCount);
+
+    return {
+      start,
+      end,
+      duration,
+      scale: 1 + noise(0.2),
+      color: colorSlots[Math.floor(Math.random() * colorSlots.length)],
+      rotate: rotationNoise > 0
+        ? (rotationNoise + (particleRadius / 20)) * 10
+        : (rotationNoise - (particleRadius / 20)) * 10
+    };
+  }
+
+  function isInteractiveTarget(element) {
+    if (!(element instanceof HTMLElement)) {
+      return false;
+    }
+
+    if (!element.matches(TARGET_SELECTOR)) {
+      return false;
+    }
+
+    if (element.hasAttribute("data-gooey-off")) {
+      return false;
+    }
+
+    if (element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true") {
+      return false;
+    }
+
+    return true;
+  }
+
+  function collectTargets(rootNode) {
+    if (!(rootNode instanceof Element || rootNode instanceof Document)) {
+      return [];
+    }
+
+    const targets = Array.from(rootNode.querySelectorAll(TARGET_SELECTOR));
+    if (rootNode instanceof Element && rootNode.matches(TARGET_SELECTOR)) {
+      targets.unshift(rootNode);
+    }
+
+    return targets.filter(isInteractiveTarget);
+  }
+
+  function markTargets(rootNode = document) {
+    const targets = collectTargets(rootNode);
+    targets.forEach((target) => {
+      target.classList.add("has-gooey-click");
+    });
+  }
+
+  function ensureLayer(target) {
+    let layer = null;
+
+    Array.from(target.children).some((child) => {
+      if (child.classList.contains("gooey-click-layer")) {
+        layer = child;
+        return true;
+      }
+
+      return false;
+    });
+
+    if (!layer) {
+      layer = document.createElement("span");
+      layer.className = "gooey-click-layer";
+      target.appendChild(layer);
+    }
+
+    return layer;
+  }
+
+  function runGooeyEffect(target, clientX, clientY) {
+    if (reducedMotionQuery.matches) {
+      return;
+    }
+
+    if (!isInteractiveTarget(target)) {
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    if (rect.width < 3 || rect.height < 3) {
+      return;
+    }
+
+    target.classList.add("has-gooey-click");
+
+    const layer = ensureLayer(target);
+    const hasPointerPosition = Number.isFinite(clientX)
+      && Number.isFinite(clientY)
+      && (Math.abs(clientX) + Math.abs(clientY) > 0);
+    const x = hasPointerPosition ? clamp(clientX - rect.left, 0, rect.width) : rect.width / 2;
+    const y = hasPointerPosition ? clamp(clientY - rect.top, 0, rect.height) : rect.height / 2;
+    const bubbleTime = animationTime * 2 + timeVariance;
+
+    layer.style.setProperty("--gooey-origin-x", `${x}px`);
+    layer.style.setProperty("--gooey-origin-y", `${y}px`);
+    layer.style.setProperty("--gooey-time", `${bubbleTime}ms`);
+    layer.classList.remove("is-active");
+
+    Array.from(layer.querySelectorAll(".gooey-click-particle")).forEach((particle) => {
+      particle.remove();
+    });
+
+    void layer.offsetWidth;
+    layer.classList.add("is-active");
+
+    for (let i = 0; i < particleCount; i += 1) {
+      const particleData = createParticle(i);
+
+      window.setTimeout(() => {
+        if (!layer.isConnected) {
+          return;
+        }
+
+        const particle = document.createElement("span");
+        const point = document.createElement("span");
+
+        particle.className = "gooey-click-particle";
+        point.className = "gooey-click-point";
+
+        particle.style.setProperty("--start-x", `${particleData.start[0]}px`);
+        particle.style.setProperty("--start-y", `${particleData.start[1]}px`);
+        particle.style.setProperty("--end-x", `${particleData.end[0]}px`);
+        particle.style.setProperty("--end-y", `${particleData.end[1]}px`);
+        particle.style.setProperty("--time", `${particleData.duration}ms`);
+        particle.style.setProperty("--scale", `${particleData.scale}`);
+        particle.style.setProperty("--color", `var(--gooey-color-${particleData.color}, currentColor)`);
+        particle.style.setProperty("--rotate", `${particleData.rotate}deg`);
+
+        particle.appendChild(point);
+        layer.appendChild(particle);
+
+        window.setTimeout(() => {
+          if (particle.parentElement === layer) {
+            layer.removeChild(particle);
+          }
+        }, particleData.duration + 80);
+      }, 22);
+    }
+  }
+
+  function findTargetFromEvent(eventTarget) {
+    if (!(eventTarget instanceof Element)) {
+      return null;
+    }
+
+    const target = eventTarget.closest(TARGET_SELECTOR);
+    return isInteractiveTarget(target) ? target : null;
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = findTargetFromEvent(event.target);
+    if (!target) {
+      return;
+    }
+
+    runGooeyEffect(target, event.clientX, event.clientY);
+  }, { passive: true });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    const focused = document.activeElement;
+    if (!(focused instanceof HTMLElement)) {
+      return;
+    }
+
+    if (focused.tagName === "BUTTON") {
+      return;
+    }
+
+    const target = findTargetFromEvent(focused);
+    if (!target) {
+      return;
+    }
+
+    runGooeyEffect(target);
+  });
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (!(node instanceof Element)) {
+          return;
+        }
+
+        markTargets(node);
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  markTargets();
+}
+
+initGlobalButtonGooeyEffect();
 
 if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   const context = workCanvas.getContext("2d");
@@ -1537,7 +1978,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       resizeWorkCanvas();
       queueWorkHubAnimation();
     });
-    reducedMotionQuery.addEventListener("change", () => {
+    onMediaQueryChange(reducedMotionQuery, () => {
       resizeWorkCanvas();
       queueWorkHubAnimation();
     });
@@ -6218,7 +6659,7 @@ if (homeWorkNetwork && homeWorkNetworkCanvas && homeWorkNetworkLinks.length > 0)
       observer.observe(homeWorkNetwork);
     }
 
-    reducedMotionQuery.addEventListener("change", () => {
+    onMediaQueryChange(reducedMotionQuery, () => {
       if (reducedMotionQuery.matches) {
         stopNetworkAnimation();
       }
@@ -7212,7 +7653,7 @@ if (homeWorkShowcaseTopics) {
       observer.observe(showcaseSection);
     }
 
-    reducedMotionQuery.addEventListener("change", () => {
+    onMediaQueryChange(reducedMotionQuery, () => {
       if (reducedMotionQuery.matches) {
         stopShowcaseLines();
         lineState.focusProgress = lineState.focusTarget;
@@ -7770,7 +8211,7 @@ if (homeGraphicSliderSection) {
     observer.observe(homeGraphicSliderSection);
   }
 
-  reducedMotionQuery.addEventListener("change", () => {
+  onMediaQueryChange(reducedMotionQuery, () => {
     if (reducedMotionQuery.matches) {
       stopHomeGraphicBackdrop();
       drawHomeGraphicBackdrop(performance.now(), true);
@@ -8639,7 +9080,7 @@ function initGraphicDesignParticleBackdrop() {
     startBackdrop();
   });
 
-  reducedMotionQuery.addEventListener("change", () => {
+  onMediaQueryChange(reducedMotionQuery, () => {
     if (reducedMotionQuery.matches) {
       stopBackdrop();
       drawBackdrop(performance.now(), true);
@@ -10622,7 +11063,7 @@ function initInteractiveWorkLiveSync() {
     observer.observe(interactiveSection);
   }
 
-  reducedMotionQuery.addEventListener("change", () => {
+  onMediaQueryChange(reducedMotionQuery, () => {
     if (reducedMotionQuery.matches) {
       stopLiveBackdrop();
       drawLiveBackdrop(performance.now(), true);
