@@ -174,7 +174,6 @@ body.page-intro {
   white-space: nowrap;
   font-family: var(--intro-font-sans);
   font-weight: 700;
-  text-transform: uppercase;
   font-size: clamp(2rem, 8vw, 7rem);
   line-height: 1;
   letter-spacing: 0.015em;
@@ -219,7 +218,16 @@ body.page-intro.is-leaving .intro-stage__hint {
 }
 
 @media (max-width: 780px) {
+  .intro-pressure {
+    padding: 0.12em;
+  }
+
+  .intro-pressure__stack {
+    gap: 0.08em;
+  }
+
   .intro-pressure__line {
-    letter-spacing: 0.01em;
+    font-size: clamp(1.12rem, 6.4vw, 1.9rem);
+    letter-spacing: 0.006em;
   }
 }

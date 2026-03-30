@@ -1,4 +1,4 @@
-const INTRO_LINES = ["PONGSANT", "CHINTANAPAKDEE"];
+const INTRO_LINES = ["Pongsant", "chintanapakdee"];
 const MOTION_DAMPING = 0.15;
 
 const introStage = document.getElementById("intro-stage");
@@ -101,9 +101,15 @@ if (introStage && introButton && introLineTop && introLineBottom) {
 
   function updateFontSize() {
     const viewportWidth = Math.max(window.innerWidth, 320);
-    const horizontalBudget = Math.min(viewportWidth * 0.92, 1320);
+    const isMobileViewport = window.innerWidth <= 780;
+    const horizontalBudget = Math.min(viewportWidth * (isMobileViewport ? 0.84 : 0.92), isMobileViewport ? 720 : 1320);
     const maxLineChars = Math.max(...INTRO_LINES.map((line) => line.length), 1);
-    const nextSize = clamp(horizontalBudget / (maxLineChars * 0.64), 24, 116);
+    const scaleFactor = isMobileViewport ? 0.84 : 0.64;
+    const nextSize = clamp(
+      horizontalBudget / (maxLineChars * scaleFactor),
+      isMobileViewport ? 18 : 24,
+      isMobileViewport ? 42 : 116
+    );
 
     lineGroups.forEach((group) => {
       group.element.style.fontSize = `${nextSize}px`;
