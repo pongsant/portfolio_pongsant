@@ -11,7 +11,6 @@
   <body class="page-graphic-design-archive">
     <header class="site-header">
       <a class="site-header__brand" href="../">PORTFOLIO</a>
-      <h1 class="site-header__section-title">GRAPHIC DESIGN</h1>
       <nav class="site-nav" aria-label="Primary">
         <a href="../">HOME</a>
         <a href="../my-work/" aria-current="page">MY WORK</a>
@@ -21,10 +20,6 @@
 
     <main class="page-main page-main--photo-poster">
       <section class="photo-poster photo-poster--graphic photo-poster--graphic-board" aria-labelledby="graphic-design-title">
-        <div class="photo-poster__top">
-          <a class="page-back" href="../my-work/" aria-label="Back to Work Topics">←</a>
-        </div>
-
         <div class="graphic-archive-board graphic-archive-grid" id="projects" aria-label="Graphic design project showcase">
           <div class="graphic-archive-center-display" aria-live="polite">
             <h1 class="graphic-archive-center-display__title photo-poster__title photo-poster__title--graphic" id="graphic-design-title" data-graphic-archive-center-title>
@@ -122,6 +117,24 @@
               <span class="graphic-archive-card__name">Rebranding Coffeeblack</span>
             </button>
           </div>
+
+          <section class="graphic-archive-detail" data-graphic-detail hidden aria-hidden="true" aria-label="Selected project detail">
+            <button class="graphic-archive-detail__close" type="button" data-graphic-detail-close aria-label="Close detail view">X</button>
+
+            <div class="graphic-archive-detail__media">
+              <figure class="graphic-archive-detail__main">
+                <img data-graphic-detail-main-image src="" alt="">
+              </figure>
+              <div class="graphic-archive-detail__thumbs" data-graphic-detail-thumbs></div>
+            </div>
+
+            <div class="graphic-archive-detail__meta">
+              <p class="graphic-archive-detail__eyebrow" data-graphic-detail-eyebrow></p>
+              <h2 class="graphic-archive-detail__title" data-graphic-detail-title></h2>
+              <div class="graphic-archive-detail__facts" data-graphic-detail-facts></div>
+              <div class="graphic-archive-detail__description" data-graphic-detail-description></div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
