@@ -1,11 +1,20 @@
-const INTRO_LINES = ["Pongsant", "chintanapakdee"];
+const INTRO_LINES = ["PNGSANT", "CHINTANAPAKDEE"];
 const MOTION_DAMPING = 0.15;
+const INTRO_SEEN_KEY = "portfolioIntroSeen";
+const INTRO_TRANSITION_KEY = "portfolioIntroTransition";
+const WELCOME_REVEAL_DELAY = 360;
+const FLASH_IMPACT_DELAY = 1220;
+const WELCOME_TO_HOME_DELAY = 2050;
+const REDUCED_WELCOME_REVEAL_DELAY = 90;
+const REDUCED_FLASH_IMPACT_DELAY = 320;
+const REDUCED_WELCOME_TO_HOME_DELAY = 900;
 
 const introStage = document.getElementById("intro-stage");
-const introButton = document.getElementById("intro-enter");
+const introName = document.getElementById("intro-name");
 const introLineTop = document.getElementById("intro-line-top");
 const introLineBottom = document.getElementById("intro-line-bottom");
 const introCanvas = document.getElementById("intro-bg-canvas");
+const introWelcome = document.getElementById("intro-welcome");
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -26,7 +35,7 @@ function onMediaQueryChange(mediaQueryList, handler) {
   }
 }
 
-if (introStage && introButton && introLineTop && introLineBottom) {
+if (introStage && introName && introLineTop && introLineBottom) {
   const lineGroups = [
     { element: introLineTop, text: INTRO_LINES[0], spans: [] },
     { element: introLineBottom, text: INTRO_LINES[1], spans: [] }
@@ -38,6 +47,10 @@ if (introStage && introButton && introLineTop && introLineBottom) {
 
   let textRafId = 0;
   let isLeaving = false;
+  let isWelcoming = false;
+  let welcomeRevealTimer = 0;
+  let flashImpactTimer = 0;
+  let navigationTimer = 0;
 
   const introContext = introCanvas?.getContext("2d");
   const backdropState = {
@@ -73,6 +86,9 @@ if (introStage && introButton && introLineTop && introLineBottom) {
 
   function buildChars() {
     allSpans.length = 0;
+    const totalChars = INTRO_LINES.reduce((sum, line) => sum + line.length, 0);
+    const centerIndex = Math.max((totalChars - 1) / 2, 0);
+    let charIndex = 0;
 
     lineGroups.forEach((group) => {
       group.element.innerHTML = "";
@@ -82,15 +98,19 @@ if (introStage && introButton && introLineTop && introLineBottom) {
         const span = document.createElement("span");
         span.className = "intro-pressure__char";
         span.textContent = char;
+        const shift = charIndex - centerIndex;
+        span.style.setProperty("--char-index", String(charIndex));
+        span.style.setProperty("--char-shift", shift.toFixed(3));
         group.element.append(span);
         group.spans.push(span);
         allSpans.push(span);
+        charIndex += 1;
       });
     });
   }
 
   function setInitialPointer() {
-    const rect = introButton.getBoundingClientRect();
+    const rect = introName.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     mouse.x = centerX;
@@ -120,7 +140,7 @@ if (introStage && introButton && introLineTop && introLineBottom) {
     mouse.x += (cursor.x - mouse.x) * MOTION_DAMPING;
     mouse.y += (cursor.y - mouse.y) * MOTION_DAMPING;
 
-    const headingRect = introButton.getBoundingClientRect();
+    const headingRect = introName.getBoundingClientRect();
     const maxDistance = Math.max(headingRect.width * 0.52, 160);
 
     allSpans.forEach((span) => {
@@ -440,19 +460,75 @@ if (introStage && introButton && introLineTop && introLineBottom) {
     queueBackdrop();
   }
 
+  function clearTransitionTimers() {
+    if (welcomeRevealTimer) {
+      window.clearTimeout(welcomeRevealTimer);
+      welcomeRevealTimer = 0;
+    }
+    if (flashImpactTimer) {
+      window.clearTimeout(flashImpactTimer);
+      flashImpactTimer = 0;
+    }
+    if (navigationTimer) {
+      window.clearTimeout(navigationTimer);
+      navigationTimer = 0;
+    }
+  }
+
   function navigateToHome() {
     if (isLeaving) {
       return;
     }
 
     isLeaving = true;
+    clearTransitionTimers();
+
+    try {
+      sessionStorage.setItem(INTRO_SEEN_KEY, "1");
+      sessionStorage.setItem(INTRO_TRANSITION_KEY, "1");
+    } catch (_error) {
+      // ignore
+    }
+
     document.body.classList.add("is-leaving");
     stopTextPressure();
     stopBackdrop();
 
     window.setTimeout(() => {
-      window.location.href = "../index.html?fromIntro=1";
+      window.location.href = "../index.html";
     }, 700);
+  }
+
+  function startWelcomeTransition() {
+    if (isLeaving || isWelcoming) {
+      return;
+    }
+
+    isWelcoming = true;
+    const showWelcomeAfter = reducedMotionQuery.matches ? REDUCED_WELCOME_REVEAL_DELAY : WELCOME_REVEAL_DELAY;
+    const showImpactAfter = reducedMotionQuery.matches ? REDUCED_FLASH_IMPACT_DELAY : FLASH_IMPACT_DELAY;
+    const waitBeforeLeave = reducedMotionQuery.matches ? REDUCED_WELCOME_TO_HOME_DELAY : WELCOME_TO_HOME_DELAY;
+
+    clearTransitionTimers();
+    document.body.classList.add("is-launching");
+    stopTextPressure();
+    triggerBackdropBurst();
+
+    welcomeRevealTimer = window.setTimeout(() => {
+      if (!isLeaving && introWelcome) {
+        document.body.classList.add("is-writing-welcome");
+      }
+    }, showWelcomeAfter);
+
+    flashImpactTimer = window.setTimeout(() => {
+      if (!isLeaving) {
+        document.body.classList.add("is-impact-flash");
+      }
+    }, showImpactAfter);
+
+    navigationTimer = window.setTimeout(() => {
+      navigateToHome();
+    }, waitBeforeLeave);
   }
 
   function handlePointerMove(event) {
@@ -512,18 +588,24 @@ if (introStage && introButton && introLineTop && introLineBottom) {
   introStage.addEventListener("pointerleave", resetBackdropPointer);
   introStage.addEventListener("pointerdown", (event) => {
     updateBackdropPointer(event);
-    triggerBackdropBurst();
+    const isNameTarget = event.target instanceof Node && introName.contains(event.target);
+    if (!isWelcoming && !isNameTarget) {
+      triggerBackdropBurst();
+    }
   });
 
-  introButton.addEventListener("click", navigateToHome);
-  introButton.addEventListener("keydown", (event) => {
+  introName.addEventListener("click", () => {
+    startWelcomeTransition();
+  });
+  introName.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      navigateToHome();
+      startWelcomeTransition();
     }
   });
 
   window.addEventListener("beforeunload", () => {
+    clearTransitionTimers();
     stopTextPressure();
     stopBackdrop();
   });

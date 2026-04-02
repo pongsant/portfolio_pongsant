@@ -15,15 +15,18 @@ const homeWorkNetwork = document.querySelector("[data-home-work-network]");
 const homeWorkNetworkCanvas = homeWorkNetwork?.querySelector("[data-home-work-network-canvas]");
 const homeWorkNetworkLinks = Array.from(homeWorkNetwork?.querySelectorAll("[data-home-work-network-link]") ?? []);
 const pageParams = new URLSearchParams(window.location.search);
-const isIntroArrival = pageParams.get("fromIntro") === "1";
+const legacyIntroArrival = pageParams.get("fromIntro") === "1";
+const isIntroArrival = document.documentElement.classList.contains("from-intro") || legacyIntroArrival;
 
 if (body?.classList.contains("page-home") && isIntroArrival) {
   window.requestAnimationFrame(() => {
     document.documentElement.classList.add("from-intro-ready");
   });
 
-  const cleanUrl = `${window.location.pathname}${window.location.hash}`;
-  window.history.replaceState({}, document.title, cleanUrl);
+  if (legacyIntroArrival) {
+    const cleanUrl = `${window.location.pathname}${window.location.hash}`;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
 }
 
 function onMediaQueryChange(mediaQueryList, handler) {

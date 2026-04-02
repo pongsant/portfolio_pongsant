@@ -6,16 +6,45 @@
     <title>Portfolio</title>
     <script>
       (() => {
+        const introSeenKey = "portfolioIntroSeen";
+        const introTransitionKey = "portfolioIntroTransition";
+
         try {
           const params = new URLSearchParams(window.location.search);
-          const fromIntro = params.get("fromIntro") === "1";
+          const legacyFromIntro = params.get("fromIntro") === "1";
+          const hasInternalReferrer = (() => {
+            if (!document.referrer) {
+              return false;
+            }
 
-          if (!fromIntro) {
+            try {
+              return new URL(document.referrer).origin === window.location.origin;
+            } catch (_error) {
+              return false;
+            }
+          })();
+          const hasSeenIntro = sessionStorage.getItem(introSeenKey) === "1";
+
+          if (legacyFromIntro) {
+            sessionStorage.setItem(introSeenKey, "1");
+            sessionStorage.setItem(introTransitionKey, "1");
+          }
+
+          if (!hasSeenIntro && hasInternalReferrer) {
+            sessionStorage.setItem(introSeenKey, "1");
+          }
+
+          if (!hasSeenIntro && !legacyFromIntro && !hasInternalReferrer) {
+            sessionStorage.setItem(introSeenKey, "1");
             window.location.replace("intro/");
             return;
           }
 
-          document.documentElement.classList.add("from-intro");
+          const shouldAnimateIntroEntry = sessionStorage.getItem(introTransitionKey) === "1" || legacyFromIntro;
+          if (shouldAnimateIntroEntry) {
+            document.documentElement.classList.add("from-intro");
+            sessionStorage.removeItem(introTransitionKey);
+          }
         } catch (_error) {
           // ignore
         }
