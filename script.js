@@ -88,7 +88,8 @@ function initStaggeredSiteMenu() {
   toggle.setAttribute("aria-label", "Toggle menu");
   toggle.setAttribute("aria-expanded", "false");
   toggle.setAttribute("aria-controls", "site-staggered-menu-panel");
-  toggle.style.color = "#000000";
+  const isGraphicArchivePage = body.classList.contains("page-graphic-design-archive");
+  toggle.style.color = isGraphicArchivePage ? "#f3f5f9" : "#000000";
   toggle.innerHTML = `
     <span class="site-menu-toggle__text" data-site-menu-label>MENU</span>
     <span class="site-menu-toggle__icon" aria-hidden="true">
@@ -5012,6 +5013,33 @@ if (photoGallery && photoLightbox) {
   let lastPhotoTrigger = null;
   let activePhotoIndex = -1;
 
+  function clampPhotoLimit(rawValue, maxCount) {
+    const parsedValue = Number.parseInt(rawValue, 10);
+    if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+      return maxCount;
+    }
+
+    return Math.max(1, Math.min(maxCount, parsedValue));
+  }
+
+  function trimPhotoSphereItems() {
+    if (!photoGallery.hasAttribute("data-photo-sphere")) {
+      return;
+    }
+
+    const allSphereItems = Array.from(photoGallery.querySelectorAll(".photography-feature__item"));
+    if (allSphereItems.length === 0) {
+      return;
+    }
+
+    const limit = clampPhotoLimit(photoGallery.getAttribute("data-photo-sphere-limit"), allSphereItems.length);
+    if (limit >= allSphereItems.length) {
+      return;
+    }
+
+    allSphereItems.slice(limit).forEach((item) => item.remove());
+  }
+
   if (photoLightboxSurface) {
     if (!photoLightboxPrev) {
       photoLightboxPrev = document.createElement("button");
@@ -5504,15 +5532,16 @@ if (photoGallery && photoLightbox) {
     function updateSphereBounds() {
       const width = photoGallery.clientWidth;
       const height = photoGallery.clientHeight;
+      const compactViewport = window.matchMedia("(max-width: 640px)").matches;
 
       state.width = width;
       state.height = height;
       state.centerX = width * 0.5;
       state.centerY = height * 0.5;
 
-      state.radiusX = width * 0.47;
-      state.radiusY = height * 0.26;
-      state.radiusZ = width * 0.18;
+      state.radiusX = width * (compactViewport ? 0.42 : 0.47);
+      state.radiusY = height * (compactViewport ? 0.21 : 0.26);
+      state.radiusZ = width * (compactViewport ? 0.15 : 0.18);
 
       if (sphereCanvas && sphereContext) {
         state.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -5774,6 +5803,7 @@ if (photoGallery && photoLightbox) {
     queueSphereFrame();
   }
 
+  trimPhotoSphereItems();
   organizeResearchGallery();
   initPhotoSphere();
   initGraphicProjectSpotlightGallery();
@@ -7684,152 +7714,101 @@ function initGraphicDesignArchivePopup() {
     return;
   }
 
-  const popup = document.querySelector("[data-graphic-archive-popup]");
-  const openButtons = Array.from(document.querySelectorAll("[data-graphic-archive-open]"));
+  const board = document.querySelector(".graphic-archive-board.graphic-archive-scatter");
+  const title = board?.querySelector("[data-graphic-archive-center-title]");
+  const subtitle = board?.querySelector("[data-graphic-archive-center-subtitle]");
+  const works = Array.from(board?.querySelectorAll(".graphic-archive-work[data-work-title]") ?? []);
 
-  if (!popup || openButtons.length === 0 || typeof popup.showModal !== "function") {
+  if (!board || !title || works.length === 0) {
     return;
   }
 
-  const closeButton = popup.querySelector("[data-graphic-archive-close]");
-  const popupPanel = popup.querySelector(".graphic-archive-popup__panel");
-  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const ARCHIVE_HASH = "#all-graphic-design-works";
-  let popupFloatFrame = 0;
-  let popupFloatTimer = 0;
-  let popupFloatStart = 0;
+  const defaultTitle = (title.textContent || "").trim() || "GRAPHIC DESIGN";
+  const defaultSubtitle = subtitle ? (subtitle.textContent || "").trim() : "";
+  let activeWork = null;
+  let clearSwapClassTimer = 0;
 
-  function hasArchiveHash() {
-    return String(window.location.hash || "").toLowerCase() === ARCHIVE_HASH;
-  }
+  function queueSwapAnimation() {
+    board.classList.remove("is-title-swap");
+    void board.offsetWidth;
+    board.classList.add("is-title-swap");
 
-  function syncArchiveHash(shouldShow) {
-    if (!window.history || typeof window.history.replaceState !== "function") {
-      return;
+    if (clearSwapClassTimer) {
+      window.clearTimeout(clearSwapClassTimer);
     }
 
-    const url = new URL(window.location.href);
-    const currentHash = String(url.hash || "").toLowerCase();
+    clearSwapClassTimer = window.setTimeout(() => {
+      clearSwapClassTimer = 0;
+      board.classList.remove("is-title-swap");
+    }, 340);
+  }
 
-    if (shouldShow) {
-      if (currentHash === ARCHIVE_HASH) {
-        return;
+  function setCenterTitle(work) {
+    if (activeWork && activeWork !== work) {
+      activeWork.classList.remove("is-highlighted");
+    }
+
+    if (!work) {
+      activeWork = null;
+      board.classList.remove("is-title-active");
+
+      if (title.textContent !== defaultTitle) {
+        title.textContent = defaultTitle;
+        queueSwapAnimation();
       }
 
-      url.hash = ARCHIVE_HASH;
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      if (subtitle) {
+        subtitle.textContent = defaultSubtitle || "HOVER A PROJECT";
+      }
+
       return;
     }
 
-    if (currentHash !== ARCHIVE_HASH) {
-      return;
+    const nextTitle = (work.dataset.workTitle || "").trim() ||
+      (work.querySelector(".graphic-archive-work__name")?.textContent || "").trim() ||
+      defaultTitle;
+    const titleHasChanged = title.textContent !== nextTitle;
+
+    activeWork = work;
+    activeWork.classList.add("is-highlighted");
+    board.classList.add("is-title-active");
+    title.textContent = nextTitle;
+
+    if (subtitle) {
+      subtitle.textContent = "SELECTED PROJECT";
     }
 
-    url.hash = "";
-    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
-  }
-
-  function stopPopupFloat() {
-    if (popupFloatTimer) {
-      window.clearTimeout(popupFloatTimer);
-      popupFloatTimer = 0;
-    }
-
-    if (popupFloatFrame) {
-      window.cancelAnimationFrame(popupFloatFrame);
-      popupFloatFrame = 0;
-    }
-
-    if (popupPanel) {
-      popupPanel.style.transform = "";
-      popupPanel.style.willChange = "";
+    if (titleHasChanged) {
+      queueSwapAnimation();
     }
   }
 
-  function animatePopupFloat(time) {
-    if (!popup.open || !popupPanel) {
-      stopPopupFloat();
-      return;
-    }
-
-    const elapsed = (time - popupFloatStart) * 0.001;
-    const driftX = Math.sin(elapsed * 0.9) * 4;
-    const driftY = Math.cos(elapsed * 1.12) * 3;
-    popupPanel.style.transform = `translate3d(${driftX}px, ${driftY}px, 0)`;
-    popupFloatFrame = window.requestAnimationFrame(animatePopupFloat);
+  function syncCenterTitleFromState() {
+    const hoveredOrFocused = works.find((item) => item.matches(":hover, :focus-within")) || null;
+    setCenterTitle(hoveredOrFocused);
   }
 
-  function startPopupFloat() {
-    stopPopupFloat();
-
-    if (!popupPanel || reducedMotionQuery.matches) {
-      return;
-    }
-
-    popupPanel.style.willChange = "transform";
-    popupFloatStart = performance.now();
-    popupFloatTimer = window.setTimeout(() => {
-      popupFloatTimer = 0;
-      popupFloatFrame = window.requestAnimationFrame(animatePopupFloat);
-    }, 360);
-  }
-
-  function openPopup() {
-    if (popup.open) {
-      return;
-    }
-
-    popup.showModal();
-    syncArchiveHash(true);
-    body.classList.add("is-graphic-archive-popup-open");
-    startPopupFloat();
-
-    window.requestAnimationFrame(() => {
-      const firstProject = popup.querySelector(".graphic-archive-popup__item");
-      firstProject?.focus({ preventScroll: true });
+  works.forEach((work) => {
+    work.addEventListener("pointerenter", () => {
+      setCenterTitle(work);
     });
-  }
 
-  function closePopup() {
-    if (!popup.open) {
-      return;
-    }
+    work.addEventListener("focus", () => {
+      setCenterTitle(work);
+    });
 
-    popup.close();
-  }
+    work.addEventListener("pointerdown", () => {
+      setCenterTitle(work);
+    }, { passive: true });
 
-  openButtons.forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      openPopup();
+    work.addEventListener("pointerleave", () => {
+      window.requestAnimationFrame(syncCenterTitleFromState);
+    });
+
+    work.addEventListener("blur", () => {
+      window.requestAnimationFrame(syncCenterTitleFromState);
     });
   });
-
-  closeButton?.addEventListener("click", closePopup);
-
-  popup.addEventListener("click", (event) => {
-    if (popupPanel && popupPanel.contains(event.target)) {
-      return;
-    }
-
-    closePopup();
-  });
-
-  popup.addEventListener("close", () => {
-    stopPopupFloat();
-    syncArchiveHash(false);
-    body.classList.remove("is-graphic-archive-popup-open");
-  });
-
-  popup.addEventListener("cancel", () => {
-    stopPopupFloat();
-    syncArchiveHash(false);
-    body.classList.remove("is-graphic-archive-popup-open");
-  });
-
-  if (hasArchiveHash()) {
-    openPopup();
-  }
 }
 
 function initGraphicDesignParticleBackdrop() {
