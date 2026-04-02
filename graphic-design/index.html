@@ -20,204 +20,108 @@
     </header>
 
     <main class="page-main page-main--photo-poster">
-      <canvas class="graphic-archive-particle-canvas" aria-hidden="true"></canvas>
-
       <section class="photo-poster photo-poster--graphic photo-poster--graphic-board" aria-labelledby="graphic-design-title">
         <div class="photo-poster__top">
-          <a class="page-back" href="../my-work/">Back to Work Topics</a>
+          <a class="page-back" href="../my-work/" aria-label="Back to Work Topics">←</a>
         </div>
 
-        <div class="graphic-archive-board graphic-archive-scatter" id="projects" aria-label="Graphic design project showcase">
-          <div class="graphic-archive-center" aria-live="polite">
-            <p class="graphic-archive-center__kicker" data-graphic-archive-center-subtitle>HOVER A PROJECT</p>
-            <h1
-              class="graphic-archive-center__title photo-poster__title photo-poster__title--graphic"
-              id="graphic-design-title"
-              data-graphic-archive-center-title
-            >
-              GRAPHIC DESIGN
+        <div class="graphic-archive-board graphic-archive-grid" id="projects" aria-label="Graphic design project showcase">
+          <div class="graphic-archive-center-display" aria-live="polite">
+            <h1 class="graphic-archive-center-display__title photo-poster__title photo-poster__title--graphic" id="graphic-design-title" data-graphic-archive-center-title>
             </h1>
           </div>
 
-          <a
-            class="graphic-archive-work"
-            href="./POTRAIT-OF-THE-SELFLESS-SELF/"
-            data-work-title="POTRAIT OF THE SELFLESS SELF"
-            style="--x: 7%; --y: 14%; --size: clamp(96px, 9.6vw, 162px); --delay: 0.02s;"
-          >
-            <img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy">
-            <span class="graphic-archive-work__name">Potrait</span>
-          </a>
+          <div class="graphic-archive-grid__list">
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="POTRAIT OF THE SELFLESS SELF" data-work-href="./POTRAIT-OF-THE-SELFLESS-SELF/" data-work-image="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg">
+              <span class="graphic-archive-card__media"><img src="./POTRAIT-OF-THE-SELFLESS-SELF/p1.jpg" alt="POTRAIT OF THE SELFLESS SELF preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Potrait</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Soft-Hands/"
-            data-work-title="SOFT HANDS"
-            style="--x: 22%; --y: 13%; --size: clamp(90px, 8.7vw, 150px); --delay: 0.04s;"
-          >
-            <img src="./Soft-Hands/Soft%20Hands%201.png.webp" alt="SOFT HANDS preview" loading="lazy">
-            <span class="graphic-archive-work__name">Soft Hands</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="SOFT HANDS" data-work-href="./Soft-Hands/" data-work-image="./Soft-Hands/Soft%20Hands%201.png.webp">
+              <span class="graphic-archive-card__media"><img src="./Soft-Hands/Soft%20Hands%201.png.webp" alt="SOFT HANDS preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Soft Hands</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Typography-Women-Designers-Poster-Series/"
-            data-work-title="TYPOGRAPHY SERIES"
-            style="--x: 39%; --y: 12%; --size: clamp(90px, 8.6vw, 148px); --delay: 0.06s;"
-          >
-            <img src="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp" alt="Typography Women Designers Poster Series preview" loading="lazy">
-            <span class="graphic-archive-work__name">Typography Series</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="TYPOGRAPHY SERIES" data-work-href="./Typography-Women-Designers-Poster-Series/" data-work-image="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp">
+              <span class="graphic-archive-card__media"><img src="./Typography-Women-Designers-Poster-Series/Typography%20Women%20Designers%20Poster%20Series.png.webp" alt="Typography Women Designers Poster Series preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Typography Series</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./John-Lennon-Poster/"
-            data-work-title="JOHN LENNON POSTER"
-            style="--x: 56%; --y: 13%; --size: clamp(88px, 8.3vw, 144px); --delay: 0.08s;"
-          >
-            <img src="./John-Lennon-Poster/John%20Lennon%20Poster.png" alt="John Lennon Poster preview" loading="lazy">
-            <span class="graphic-archive-work__name">John Lennon Poster</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="JOHN LENNON POSTER" data-work-href="./John-Lennon-Poster/" data-work-image="./John-Lennon-Poster/John%20Lennon%20Poster.png">
+              <span class="graphic-archive-card__media"><img src="./John-Lennon-Poster/John%20Lennon%20Poster.png" alt="John Lennon Poster preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">John Lennon Poster</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Font-Design-1/"
-            data-work-title="FONT DESIGN 1"
-            style="--x: 76%; --y: 16%; --size: clamp(92px, 8.9vw, 152px); --delay: 0.1s;"
-          >
-            <img src="./Font-Design-1/Font%20Design%201.1.jpg.webp" alt="Font Design 1 preview" loading="lazy">
-            <span class="graphic-archive-work__name">Font Design 1</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="FONT DESIGN 1" data-work-href="./Font-Design-1/" data-work-image="./Font-Design-1/Font%20Design%201.1.jpg.webp">
+              <span class="graphic-archive-card__media"><img src="./Font-Design-1/Font%20Design%201.1.jpg.webp" alt="Font Design 1 preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Font Design 1</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Font-Design-2/"
-            data-work-title="FONT DESIGN 2"
-            style="--x: 89%; --y: 23%; --size: clamp(84px, 8vw, 138px); --delay: 0.12s;"
-          >
-            <img src="./Font-Design-2/Font%20Design%202.png" alt="Font Design 2 preview" loading="lazy">
-            <span class="graphic-archive-work__name">Font Design 2</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="FONT DESIGN 2" data-work-href="./Font-Design-2/" data-work-image="./Font-Design-2/Font%20Design%202.png">
+              <span class="graphic-archive-card__media"><img src="./Font-Design-2/Font%20Design%202.png" alt="Font Design 2 preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Font Design 2</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Calendar-Design/"
-            data-work-title="CALENDAR DESIGN"
-            style="--x: 13%; --y: 36%; --size: clamp(90px, 8.8vw, 150px); --delay: 0.14s;"
-          >
-            <img src="./Calendar-Design/1.jpg.webp" alt="Calendar Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Calendar Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="CALENDAR DESIGN" data-work-href="./Calendar-Design/" data-work-image="./Calendar-Design/1.jpg.webp">
+              <span class="graphic-archive-card__media"><img src="./Calendar-Design/1.jpg.webp" alt="Calendar Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Calendar Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Initial-Logo-Design/"
-            data-work-title="INITIAL LOGO DESIGN"
-            style="--x: 26%; --y: 31%; --size: clamp(88px, 8.4vw, 144px); --delay: 0.16s;"
-          >
-            <img src="./Initial-Logo-Design/1.png" alt="Initial Logo Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Initial Logo Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="INITIAL LOGO DESIGN" data-work-href="./Initial-Logo-Design/" data-work-image="./Initial-Logo-Design/1.png">
+              <span class="graphic-archive-card__media"><img src="./Initial-Logo-Design/1.png" alt="Initial Logo Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Initial Logo Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Branding-Design/"
-            data-work-title="BRANDING DESIGN"
-            style="--x: 40%; --y: 30%; --size: clamp(90px, 8.6vw, 148px); --delay: 0.18s;"
-          >
-            <img src="./Branding-Design/logo/1.1.png" alt="Branding Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Branding Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="PORTRAIT POSTER DESIGN" data-work-href="./Portrait-Poster-Design/" data-work-image="./Portrait-Poster-Design/1.jpg.webp">
+              <span class="graphic-archive-card__media"><img src="./Portrait-Poster-Design/1.jpg.webp" alt="Portrait Poster Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Portrait Poster Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Rebranding-Coffeeblack/"
-            data-work-title="REBRANDING COFFEEBLACK"
-            style="--x: 88%; --y: 41%; --size: clamp(90px, 8.7vw, 150px); --delay: 0.2s;"
-          >
-            <img src="./Rebranding-Coffeeblack/2.jpg.webp" alt="Rebranding Coffeeblack preview" loading="lazy">
-            <span class="graphic-archive-work__name">Rebranding Coffeeblack</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="NAME POSTER" data-work-href="./Name-Poster/" data-work-image="./Name-Poster/1.jpg">
+              <span class="graphic-archive-card__media"><img src="./Name-Poster/1.jpg" alt="Name Poster preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Name Poster</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Portrait-Poster-Design/"
-            data-work-title="PORTRAIT POSTER DESIGN"
-            style="--x: 9%; --y: 57%; --size: clamp(94px, 9.2vw, 156px); --delay: 0.22s;"
-          >
-            <img src="./Portrait-Poster-Design/1.jpg.webp" alt="Portrait Poster Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Portrait Poster Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="7 SINS DESIGN" data-work-href="./7-Sins-Design/" data-work-image="./7-Sins-Design/Screenshot%202026-03-26%20at%2020.35.38.png">
+              <span class="graphic-archive-card__media"><img src="./7-Sins-Design/Screenshot%202026-03-26%20at%2020.35.38.png" alt="7 Sins Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">7 Sins Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Name-Poster/"
-            data-work-title="NAME POSTER"
-            style="--x: 24%; --y: 56%; --size: clamp(84px, 8vw, 138px); --delay: 0.24s;"
-          >
-            <img src="./Name-Poster/1.jpg" alt="Name Poster preview" loading="lazy">
-            <span class="graphic-archive-work__name">Name Poster</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="NATURE POSTER DESIGN" data-work-href="./Nature-Poster-Design/" data-work-image="./Nature-Poster-Design/Screenshot%202026-03-26%20at%2020.37.36.png">
+              <span class="graphic-archive-card__media"><img src="./Nature-Poster-Design/Screenshot%202026-03-26%20at%2020.37.36.png" alt="Nature Poster Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Nature Poster Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./7-Sins-Design/"
-            data-work-title="7 SINS DESIGN"
-            style="--x: 74%; --y: 57%; --size: clamp(92px, 8.9vw, 152px); --delay: 0.26s;"
-          >
-            <img src="./7-Sins-Design/Screenshot%202026-03-26%20at%2020.35.38.png" alt="7 Sins Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">7 Sins Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="YEAR POSTER DESIGN 1" data-work-href="./Year-Poster-Design-1/" data-work-image="./Year-Poster-Design-1/Year%20Poster%20Design%201.png">
+              <span class="graphic-archive-card__media"><img src="./Year-Poster-Design-1/Year%20Poster%20Design%201.png" alt="Year Poster Design 1 preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Year Poster Design 1</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Nature-Poster-Design/"
-            data-work-title="NATURE POSTER DESIGN"
-            style="--x: 89%; --y: 62%; --size: clamp(90px, 8.7vw, 150px); --delay: 0.28s;"
-          >
-            <img src="./Nature-Poster-Design/Screenshot%202026-03-26%20at%2020.37.36.png" alt="Nature Poster Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Nature Poster Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="YEAR POSTER DESIGN 2" data-work-href="./Year-Poster-Design-2/" data-work-image="./Year-Poster-Design-2/1.jpg.webp">
+              <span class="graphic-archive-card__media"><img src="./Year-Poster-Design-2/1.jpg.webp" alt="Year Poster Design 2 preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Year Poster Design 2</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Year-Poster-Design-1/"
-            data-work-title="YEAR POSTER DESIGN 1"
-            style="--x: 17%; --y: 77%; --size: clamp(90px, 8.7vw, 150px); --delay: 0.3s;"
-          >
-            <img src="./Year-Poster-Design-1/Year%20Poster%20Design%201.png" alt="Year Poster Design 1 preview" loading="lazy">
-            <span class="graphic-archive-work__name">Year Poster Design 1</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="POSTCARDS FROM THE FUTURE" data-work-href="./Postcards-from the-Future/" data-work-image="./Postcards-from the-Future/Screenshot 2026-03-26 at 21.38.02.png">
+              <span class="graphic-archive-card__media"><img src="./Postcards-from the-Future/Screenshot 2026-03-26 at 21.38.02.png" alt="Postcards from the Future preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Postcards from the Future</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Year-Poster-Design-2/"
-            data-work-title="YEAR POSTER DESIGN 2"
-            style="--x: 32%; --y: 83%; --size: clamp(92px, 8.9vw, 152px); --delay: 0.32s;"
-          >
-            <img src="./Year-Poster-Design-2/1.jpg.webp" alt="Year Poster Design 2 preview" loading="lazy">
-            <span class="graphic-archive-work__name">Year Poster Design 2</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="MAGAZINE DESIGN" data-work-href="./Magazine-Design/" data-work-image="./Magazine-Design/1.png">
+              <span class="graphic-archive-card__media"><img src="./Magazine-Design/1.png" alt="Magazine Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Magazine Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Postcards-from%20the-Future/"
-            data-work-title="POSTCARDS FROM THE FUTURE"
-            style="--x: 50%; --y: 84%; --size: clamp(96px, 9.4vw, 158px); --delay: 0.34s;"
-          >
-            <img src="./Postcards-from%20the-Future/Screenshot%202026-03-26%20at%2021.38.02.png" alt="Postcards from the Future preview" loading="lazy">
-            <span class="graphic-archive-work__name">Postcards from the Future</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="BRANDING DESIGN" data-work-href="./Branding-Design/" data-work-image="./Branding-Design/logo/1.1.png">
+              <span class="graphic-archive-card__media"><img src="./Branding-Design/logo/1.1.png" alt="Branding Design preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Branding Design</span>
+            </button>
 
-          <a
-            class="graphic-archive-work"
-            href="./Magazine-Design/"
-            data-work-title="MAGAZINE DESIGN"
-            style="--x: 67%; --y: 82%; --size: clamp(88px, 8.5vw, 146px); --delay: 0.36s;"
-          >
-            <img src="./Magazine-Design/1.png" alt="Magazine Design preview" loading="lazy">
-            <span class="graphic-archive-work__name">Magazine Design</span>
-          </a>
+            <button class="graphic-archive-card" type="button" data-graphic-card data-work-title="REBRANDING COFFEEBLACK" data-work-href="./Rebranding-Coffeeblack/" data-work-image="./Rebranding-Coffeeblack/2.jpg.webp">
+              <span class="graphic-archive-card__media"><img src="./Rebranding-Coffeeblack/2.jpg.webp" alt="Rebranding Coffeeblack preview" loading="lazy"></span>
+              <span class="graphic-archive-card__name">Rebranding Coffeeblack</span>
+            </button>
+          </div>
         </div>
       </section>
     </main>

@@ -131,6 +131,20 @@ body.page-intro {
   font-weight: 500;
 }
 
+.intro-stage__thai-name {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1rem, 4.6vh, 2.4rem);
+  transform: translateX(-50%);
+  margin: 0;
+  color: rgba(0, 0, 0, 0.64);
+  font-family: var(--intro-font-sans);
+  font-size: clamp(0.74rem, 1.55vw, 1.02rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
 .intro-pressure {
   margin: 0;
   padding: 0.2em;
@@ -273,20 +287,6 @@ body.page-intro {
   }
 }
 
-@keyframes intro-welcome-glow {
-  from {
-    text-shadow:
-      0 0 18px rgba(0, 0, 0, 0.18),
-      0 0 48px rgba(0, 0, 0, 0.1);
-  }
-
-  to {
-    text-shadow:
-      0 0 34px rgba(0, 0, 0, 0.3),
-      0 0 86px rgba(0, 0, 0, 0.16);
-  }
-}
-
 @keyframes intro-welcome-underline {
   0% {
     opacity: 0;
@@ -330,7 +330,7 @@ body.page-intro {
   clip-path: inset(0 100% 0 0);
   opacity: 0;
   filter: blur(14px);
-  text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  text-shadow: none;
   pointer-events: none;
 }
 
@@ -371,8 +371,7 @@ body.page-intro.is-writing-welcome .intro-stage__welcome {
   opacity: 1;
   animation:
     intro-welcome-write 940ms steps(7, end) forwards,
-    intro-welcome-rise 940ms cubic-bezier(0.16, 0.84, 0.2, 1) forwards,
-    intro-welcome-glow 880ms ease-in-out 940ms infinite alternate;
+    intro-welcome-rise 940ms cubic-bezier(0.16, 0.84, 0.2, 1) forwards;
 }
 
 body.page-intro.is-writing-welcome .intro-stage__welcome::after {
@@ -436,6 +435,11 @@ body.page-intro.is-leaving .intro-stage__welcome {
 @media (max-width: 780px) {
   .intro-pressure {
     padding: 0.12em;
+  }
+
+  .intro-stage__thai-name {
+    bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.74rem));
+    font-size: clamp(0.68rem, 2.5vw, 0.92rem);
   }
 
   .intro-pressure__stack {

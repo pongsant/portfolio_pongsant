@@ -1,4 +1,4 @@
-const INTRO_LINES = ["PNGSANT", "CHINTANAPAKDEE"];
+const INTRO_LINES = ["PONGSANT", "CHINTANAPAKDEE"];
 const MOTION_DAMPING = 0.15;
 const INTRO_SEEN_KEY = "portfolioIntroSeen";
 const INTRO_TRANSITION_KEY = "portfolioIntroTransition";
@@ -67,7 +67,7 @@ if (introStage && introName && introLineTop && introLineBottom) {
     pointerDrawY: 0,
     flowX: 0,
     flowY: 0,
-    gatherStrength: 0.66,
+    gatherStrength: 0.74,
     burstProgress: 0,
     clickPulse: 0,
     loopOffset: Math.random() * Math.PI * 2
@@ -208,20 +208,20 @@ if (introStage && introName && introLineTop && introLineBottom) {
 
     const area = backdropState.width * backdropState.height;
     const count = window.innerWidth < 720
-      ? clamp(Math.round(area / 12800), 90, 160)
-      : clamp(Math.round(area / 9800), 130, 220);
+      ? clamp(Math.round(area / 8600), 132, 230)
+      : clamp(Math.round(area / 6400), 220, 430);
 
     backdropState.points = Array.from({ length: count }, () => ({
       x: backdropState.width * (0.08 + Math.random() * 0.84),
       y: backdropState.height * (0.08 + Math.random() * 0.84),
       homeX: backdropState.width * (0.08 + Math.random() * 0.84),
       homeY: backdropState.height * (0.08 + Math.random() * 0.84),
-      vx: (Math.random() - 0.5) * 0.44,
-      vy: (Math.random() - 0.5) * 0.44,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
       seed: Math.random() * Math.PI * 2,
-      drift: 0.24 + Math.random() * 1.26,
-      size: 0.6 + Math.random() * 2.3,
-      clusterBias: 0.42 + Math.random() * 0.62,
+      drift: 0.54 + Math.random() * 1.84,
+      size: 0.7 + Math.random() * 2.4,
+      clusterBias: 0.4 + Math.random() * 0.7,
       burstVX: 0,
       burstVY: 0
     }));
@@ -263,8 +263,8 @@ if (introStage && introName && introLineTop && introLineBottom) {
       const radialY = dy / pointDistance;
       const tangentialX = -radialY;
       const tangentialY = radialX;
-      const impulse = 3.8 + Math.random() * 5.4;
-      const swirl = (Math.random() - 0.5) * 2.8;
+      const impulse = 6.2 + Math.random() * 8.4;
+      const swirl = (Math.random() - 0.5) * 4.8;
 
       point.burstVX = radialX * impulse + tangentialX * swirl;
       point.burstVY = radialY * impulse + tangentialY * swirl;
@@ -277,62 +277,62 @@ if (introStage && introName && introLineTop && introLineBottom) {
     const pointerTargetX = backdropState.pointerInside ? backdropState.pointerX : backdropState.flowX;
     const pointerTargetY = backdropState.pointerInside ? backdropState.pointerY : backdropState.flowY;
 
-    backdropState.pointerDrawX += (pointerTargetX - backdropState.pointerDrawX) * (frozen ? 1 : 0.18);
-    backdropState.pointerDrawY += (pointerTargetY - backdropState.pointerDrawY) * (frozen ? 1 : 0.18);
+    backdropState.pointerDrawX += (pointerTargetX - backdropState.pointerDrawX) * (frozen ? 1 : 0.24);
+    backdropState.pointerDrawY += (pointerTargetY - backdropState.pointerDrawY) * (frozen ? 1 : 0.24);
 
     if (frozen) {
       return;
     }
 
     const t = time * 0.001;
-    const gatherWave = 0.5 + Math.sin(t * 0.8 + backdropState.loopOffset) * 0.5;
-    backdropState.gatherStrength += ((0.44 + gatherWave * 0.5) - backdropState.gatherStrength) * 0.07;
-    backdropState.burstProgress = Math.max(0, backdropState.burstProgress - 0.022);
-    backdropState.clickPulse = Math.max(0, backdropState.clickPulse - 0.03);
+    const gatherWave = 0.5 + Math.sin(t * 1.35 + backdropState.loopOffset) * 0.5;
+    backdropState.gatherStrength += ((0.52 + gatherWave * 0.56) - backdropState.gatherStrength) * 0.08;
+    backdropState.burstProgress = Math.max(0, backdropState.burstProgress - 0.016);
+    backdropState.clickPulse = Math.max(0, backdropState.clickPulse - 0.022);
 
     backdropState.points.forEach((point) => {
-      const wobbleX = Math.cos(t * (0.6 + point.drift) + point.seed) * 0.84;
-      const wobbleY = Math.sin(t * (0.52 + point.drift * 1.06) + point.seed * 0.84) * 0.82;
+      const wobbleX = Math.cos(t * (0.9 + point.drift) + point.seed) * 1.4;
+      const wobbleY = Math.sin(t * (0.8 + point.drift * 1.1) + point.seed * 0.84) * 1.3;
       const gatherX = point.homeX + (backdropState.flowX - point.homeX) * backdropState.gatherStrength * point.clusterBias;
       const gatherY = point.homeY + (backdropState.flowY - point.homeY) * backdropState.gatherStrength * point.clusterBias;
-      const pullX = (gatherX - point.x) * 0.006;
-      const pullY = (gatherY - point.y) * 0.0058;
+      const pullX = (gatherX - point.x) * 0.0087;
+      const pullY = (gatherY - point.y) * 0.0084;
 
-      point.vx = (point.vx + wobbleX * 0.02 + pullX) * 0.936;
-      point.vy = (point.vy + wobbleY * 0.02 + pullY) * 0.936;
+      point.vx = (point.vx + wobbleX * 0.038 + pullX) * 0.932;
+      point.vy = (point.vy + wobbleY * 0.038 + pullY) * 0.932;
 
       if (backdropState.pointerInside) {
         const dx = backdropState.pointerDrawX - point.x;
         const dy = backdropState.pointerDrawY - point.y;
         const pointDistance = Math.hypot(dx, dy);
 
-        if (pointDistance > 0.001 && pointDistance < 260) {
-          const strength = (1 - pointDistance / 260) * 0.044;
+        if (pointDistance > 0.001 && pointDistance < 340) {
+          const strength = (1 - pointDistance / 340) * 0.066;
           point.vx += (dx / pointDistance) * strength;
           point.vy += (dy / pointDistance) * strength;
         }
       }
 
       if (backdropState.burstProgress > 0) {
-        point.vx += point.burstVX * backdropState.burstProgress * 0.23;
-        point.vy += point.burstVY * backdropState.burstProgress * 0.23;
+        point.vx += point.burstVX * backdropState.burstProgress * 0.31;
+        point.vy += point.burstVY * backdropState.burstProgress * 0.31;
       }
 
-      point.vx = clamp(point.vx, -7.8, 7.8);
-      point.vy = clamp(point.vy, -7.8, 7.8);
+      point.vx = clamp(point.vx, -10.8, 10.8);
+      point.vy = clamp(point.vy, -10.8, 10.8);
       point.x += point.vx;
       point.y += point.vy;
 
-      if (point.x < -18) {
-        point.x = backdropState.width + 18;
-      } else if (point.x > backdropState.width + 18) {
-        point.x = -18;
+      if (point.x < -28) {
+        point.x = backdropState.width + 28;
+      } else if (point.x > backdropState.width + 28) {
+        point.x = -28;
       }
 
-      if (point.y < -18) {
-        point.y = backdropState.height + 18;
-      } else if (point.y > backdropState.height + 18) {
-        point.y = -18;
+      if (point.y < -28) {
+        point.y = backdropState.height + 28;
+      } else if (point.y > backdropState.height + 28) {
+        point.y = -28;
       }
     });
   }
@@ -351,21 +351,52 @@ if (introStage && introName && introLineTop && introLineBottom) {
     introContext.fillStyle = "#ffffff";
     introContext.fillRect(0, 0, backdropState.width, backdropState.height);
 
-    const glow = introContext.createRadialGradient(
+    const scenePulse = (Math.sin(time * 0.0011 + backdropState.loopOffset) + 1) * 0.5;
+    const glowRadius = Math.max(backdropState.width, backdropState.height) * (0.66 + scenePulse * 0.18);
+    const primaryGlow = introContext.createRadialGradient(
       backdropState.flowX,
       backdropState.flowY,
       0,
       backdropState.flowX,
       backdropState.flowY,
-      Math.max(backdropState.width, backdropState.height) * 0.72
+      glowRadius
     );
-    glow.addColorStop(0, backdropColor(0.13));
-    glow.addColorStop(0.45, backdropColor(0.05));
-    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-    introContext.fillStyle = glow;
+    primaryGlow.addColorStop(0, backdropColor(0.24 + scenePulse * 0.08));
+    primaryGlow.addColorStop(0.34, backdropColor(0.11 + scenePulse * 0.05));
+    primaryGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    introContext.fillStyle = primaryGlow;
     introContext.fillRect(0, 0, backdropState.width, backdropState.height);
 
-    const linkDistance = window.innerWidth < 720 ? 130 : 176;
+    const driftX = backdropState.width * (0.22 + Math.sin(time * 0.00048 + backdropState.loopOffset * 0.8) * 0.2);
+    const driftY = backdropState.height * (0.28 + Math.cos(time * 0.00057 + backdropState.loopOffset * 0.6) * 0.22);
+    const driftGlow = introContext.createRadialGradient(
+      driftX,
+      driftY,
+      0,
+      driftX,
+      driftY,
+      Math.max(backdropState.width, backdropState.height) * 0.5
+    );
+    driftGlow.addColorStop(0, backdropColor(0.12));
+    driftGlow.addColorStop(0.54, backdropColor(0.05));
+    driftGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    introContext.fillStyle = driftGlow;
+    introContext.fillRect(0, 0, backdropState.width, backdropState.height);
+
+    const sweepShift = (time * 0.11) % 340;
+    introContext.save();
+    introContext.globalAlpha = 0.09;
+    introContext.lineWidth = 1.1;
+    introContext.strokeStyle = backdropColor(0.34);
+    for (let y = -220; y < backdropState.height + 220; y += 48) {
+      introContext.beginPath();
+      introContext.moveTo(-240 + sweepShift * 0.55, y);
+      introContext.lineTo(backdropState.width + 240 + sweepShift * 0.32, y + 110);
+      introContext.stroke();
+    }
+    introContext.restore();
+
+    const linkDistance = window.innerWidth < 720 ? 162 : 224;
     for (let index = 0; index < backdropState.points.length; index += 1) {
       const pointA = backdropState.points[index];
       for (let nextIndex = index + 1; nextIndex < backdropState.points.length; nextIndex += 1) {
@@ -375,9 +406,9 @@ if (introStage && introName && introLineTop && introLineBottom) {
           continue;
         }
 
-        const alpha = ((1 - pointDistance / linkDistance) ** 2) * 0.3;
+        const alpha = ((1 - pointDistance / linkDistance) ** 2) * 0.42;
         introContext.strokeStyle = backdropColor(alpha);
-        introContext.lineWidth = 0.32 + alpha * 1.5;
+        introContext.lineWidth = 0.34 + alpha * 1.9;
         introContext.beginPath();
         introContext.moveTo(pointA.x, pointA.y);
         introContext.lineTo(pointB.x, pointB.y);
@@ -386,25 +417,40 @@ if (introStage && introName && introLineTop && introLineBottom) {
     }
 
     backdropState.points.forEach((point) => {
-      const pulse = (Math.sin(time * 0.0014 + point.seed) + 1) * 0.5;
-      introContext.fillStyle = backdropColor(0.12 + pulse * 0.23);
+      const pulse = (Math.sin(time * 0.0019 + point.seed) + 1) * 0.5;
+      introContext.fillStyle = backdropColor(0.14 + pulse * 0.3);
       introContext.beginPath();
-      introContext.arc(point.x, point.y, point.size * (0.7 + pulse * 0.62), 0, Math.PI * 2);
+      introContext.arc(point.x, point.y, point.size * (0.68 + pulse * 0.74), 0, Math.PI * 2);
       introContext.fill();
     });
 
+    const ringBreath = (Math.sin(time * 0.0016 + backdropState.loopOffset) + 1) * 0.5;
+    introContext.save();
+    introContext.strokeStyle = backdropColor(0.22 + ringBreath * 0.12);
+    introContext.lineWidth = 1.6;
+    introContext.beginPath();
+    introContext.arc(
+      backdropState.flowX,
+      backdropState.flowY,
+      Math.min(backdropState.width, backdropState.height) * (0.12 + ringBreath * 0.06),
+      0,
+      Math.PI * 2
+    );
+    introContext.stroke();
+    introContext.restore();
+
     if (backdropState.clickPulse > 0.001) {
-      const pulseRadius = 20 + (1 - backdropState.clickPulse) * Math.min(backdropState.width, backdropState.height) * 0.18;
-      introContext.strokeStyle = backdropColor(0.25 * backdropState.clickPulse);
-      introContext.lineWidth = 2.4 * backdropState.clickPulse;
+      const pulseRadius = 24 + (1 - backdropState.clickPulse) * Math.min(backdropState.width, backdropState.height) * 0.26;
+      introContext.strokeStyle = backdropColor(0.33 * backdropState.clickPulse);
+      introContext.lineWidth = 2.8 * backdropState.clickPulse;
       introContext.beginPath();
       introContext.arc(backdropState.flowX, backdropState.flowY, pulseRadius, 0, Math.PI * 2);
       introContext.stroke();
     }
 
-    introContext.fillStyle = backdropColor(0.76);
+    introContext.fillStyle = backdropColor(0.86);
     introContext.beginPath();
-    introContext.arc(backdropState.flowX, backdropState.flowY, 3.2, 0, Math.PI * 2);
+    introContext.arc(backdropState.flowX, backdropState.flowY, 4, 0, Math.PI * 2);
     introContext.fill();
 
     if (isFrozen || !backdropState.visible) {

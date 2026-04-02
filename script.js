@@ -7714,101 +7714,133 @@ function initGraphicDesignArchivePopup() {
     return;
   }
 
-  const board = document.querySelector(".graphic-archive-board.graphic-archive-scatter");
-  const title = board?.querySelector("[data-graphic-archive-center-title]");
-  const subtitle = board?.querySelector("[data-graphic-archive-center-subtitle]");
-  const works = Array.from(board?.querySelectorAll(".graphic-archive-work[data-work-title]") ?? []);
+  const board = document.querySelector(".graphic-archive-board.graphic-archive-grid");
+  const centerTitle = board?.querySelector("[data-graphic-archive-center-title]");
+  const cards = Array.from(board?.querySelectorAll("[data-graphic-card]") ?? []);
 
-  if (!board || !title || works.length === 0) {
+  if (!board || !centerTitle || cards.length === 0) {
     return;
   }
 
-  const defaultTitle = (title.textContent || "").trim() || "GRAPHIC DESIGN";
-  const defaultSubtitle = subtitle ? (subtitle.textContent || "").trim() : "";
-  let activeWork = null;
-  let clearSwapClassTimer = 0;
+  const defaultTitle = (centerTitle.textContent || "").trim();
+  let currentCard = null;
+  let isLeaving = false;
+  let clearTitleSwapTimer = 0;
 
-  function queueSwapAnimation() {
+  function readCardData(card) {
+    const title = (card.dataset.workTitle || "").trim() ||
+      (card.querySelector(".graphic-archive-card__name")?.textContent || "").trim() ||
+      defaultTitle;
+    const href = (card.dataset.workHref || "").trim();
+
+    return {
+      title,
+      href
+    };
+  }
+
+  function animateCenterHeading(nextTitle = defaultTitle) {
+    const hasChanged = centerTitle.textContent !== nextTitle;
+    centerTitle.textContent = nextTitle;
+
+    if (!hasChanged) {
+      return;
+    }
+
     board.classList.remove("is-title-swap");
     void board.offsetWidth;
     board.classList.add("is-title-swap");
 
-    if (clearSwapClassTimer) {
-      window.clearTimeout(clearSwapClassTimer);
+    if (clearTitleSwapTimer) {
+      window.clearTimeout(clearTitleSwapTimer);
     }
 
-    clearSwapClassTimer = window.setTimeout(() => {
-      clearSwapClassTimer = 0;
+    clearTitleSwapTimer = window.setTimeout(() => {
+      clearTitleSwapTimer = 0;
       board.classList.remove("is-title-swap");
     }, 340);
   }
 
-  function setCenterTitle(work) {
-    if (activeWork && activeWork !== work) {
-      activeWork.classList.remove("is-highlighted");
+  function setCurrentCard(nextCard) {
+    if (currentCard && currentCard !== nextCard) {
+      currentCard.classList.remove("is-active");
     }
 
-    if (!work) {
-      activeWork = null;
+    currentCard = nextCard || null;
+
+    if (!currentCard) {
       board.classList.remove("is-title-active");
-
-      if (title.textContent !== defaultTitle) {
-        title.textContent = defaultTitle;
-        queueSwapAnimation();
-      }
-
-      if (subtitle) {
-        subtitle.textContent = defaultSubtitle || "HOVER A PROJECT";
-      }
-
+      animateCenterHeading(defaultTitle);
       return;
     }
 
-    const nextTitle = (work.dataset.workTitle || "").trim() ||
-      (work.querySelector(".graphic-archive-work__name")?.textContent || "").trim() ||
-      defaultTitle;
-    const titleHasChanged = title.textContent !== nextTitle;
-
-    activeWork = work;
-    activeWork.classList.add("is-highlighted");
+    currentCard.classList.add("is-active");
     board.classList.add("is-title-active");
-    title.textContent = nextTitle;
-
-    if (subtitle) {
-      subtitle.textContent = "SELECTED PROJECT";
-    }
-
-    if (titleHasChanged) {
-      queueSwapAnimation();
-    }
+    animateCenterHeading(readCardData(currentCard).title);
   }
 
-  function syncCenterTitleFromState() {
-    const hoveredOrFocused = works.find((item) => item.matches(":hover, :focus-within")) || null;
-    setCenterTitle(hoveredOrFocused);
+  function syncCurrentCardFromState() {
+    if (isLeaving) {
+      return;
+    }
+
+    const hoveredOrFocused = cards.find((card) => card.matches(":hover, :focus-within")) || null;
+    setCurrentCard(hoveredOrFocused);
   }
 
-  works.forEach((work) => {
-    work.addEventListener("pointerenter", () => {
-      setCenterTitle(work);
+  function navigateToWork(card) {
+    const { href, title } = readCardData(card);
+
+    if (!href || isLeaving) {
+      return;
+    }
+
+    isLeaving = true;
+    setCurrentCard(card);
+    animateCenterHeading(title);
+    board.classList.add("is-title-locked");
+    body.classList.add("is-graphic-archive-leaving");
+    window.setTimeout(() => {
+      window.location.href = href;
+    }, 420);
+  }
+
+  cards.forEach((card) => {
+    card.addEventListener("pointerenter", () => {
+      if (isLeaving) {
+        return;
+      }
+
+      setCurrentCard(card);
     });
 
-    work.addEventListener("focus", () => {
-      setCenterTitle(work);
+    card.addEventListener("pointerleave", () => {
+      window.requestAnimationFrame(syncCurrentCardFromState);
     });
 
-    work.addEventListener("pointerdown", () => {
-      setCenterTitle(work);
-    }, { passive: true });
+    card.addEventListener("focus", () => {
+      if (isLeaving) {
+        return;
+      }
 
-    work.addEventListener("pointerleave", () => {
-      window.requestAnimationFrame(syncCenterTitleFromState);
+      setCurrentCard(card);
     });
 
-    work.addEventListener("blur", () => {
-      window.requestAnimationFrame(syncCenterTitleFromState);
+    card.addEventListener("blur", () => {
+      window.requestAnimationFrame(syncCurrentCardFromState);
+    });
+
+    card.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigateToWork(card);
     });
   });
+
+  board.addEventListener("pointerleave", () => {
+    window.requestAnimationFrame(syncCurrentCardFromState);
+  });
+
+  animateCenterHeading(defaultTitle);
 }
 
 function initGraphicDesignParticleBackdrop() {
