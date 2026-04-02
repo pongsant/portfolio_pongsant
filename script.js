@@ -7744,6 +7744,7 @@ function initGraphicDesignArchivePopup() {
 
   const defaultTitle = (centerTitle.textContent || "").trim();
   const detailDataCache = new Map();
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let currentCard = null;
   let activeCard = null;
   let isDetailOpen = false;
@@ -7810,6 +7811,31 @@ function initGraphicDesignArchivePopup() {
     loadingText.className = "graphic-archive-detail__loading";
     loadingText.textContent = "Loading project information...";
     detailDescription.appendChild(loadingText);
+  }
+
+  function scrollWindowTo(targetTop) {
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: reducedMotionQuery.matches ? "auto" : "smooth"
+    });
+  }
+
+  function scrollElementWithOffset(targetElement, ratio, minOffset) {
+    if (!targetElement) {
+      return;
+    }
+
+    const offset = Math.max(minOffset, window.innerHeight * ratio);
+    const targetTop = window.scrollY + targetElement.getBoundingClientRect().top - offset;
+    scrollWindowTo(targetTop);
+  }
+
+  function scrollToDetailSection() {
+    scrollElementWithOffset(detail, 0.08, 64);
+  }
+
+  function scrollToGridSection() {
+    scrollElementWithOffset(board, 0.06, 56);
   }
 
   function readCardData(card) {
@@ -8149,6 +8175,22 @@ function initGraphicDesignArchivePopup() {
       swapMainImage(projectData.images[0], projectData.title || cardData.title);
     }
 
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (!isDetailOpen) {
+          return;
+        }
+
+        scrollToDetailSection();
+        window.setTimeout(() => {
+          if (!isDetailOpen) {
+            return;
+          }
+          scrollToDetailSection();
+        }, 320);
+      });
+    });
+
     window.setTimeout(() => {
       if (!isDetailOpen) {
         return;
@@ -8170,6 +8212,7 @@ function initGraphicDesignArchivePopup() {
     board.classList.remove("is-detail-open");
     board.classList.add("is-detail-closing");
     detail.setAttribute("aria-hidden", "true");
+    scrollToGridSection();
 
     if (closeDetailTimer) {
       window.clearTimeout(closeDetailTimer);

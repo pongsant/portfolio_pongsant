@@ -7102,7 +7102,7 @@ body.is-lightbox-open {
 }
 
 .page-graphic-design-archive .page-main--photo-poster {
-  background: #050505;
+  background: #ffffff;
   overflow-y: visible;
 }
 
@@ -7142,10 +7142,10 @@ body.is-lightbox-open {
   min-height: auto;
   margin: 0 auto;
   padding: clamp(1rem, 1.8vw, 1.4rem);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  background: rgba(7, 10, 16, 0.64);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   overflow: hidden;
   isolation: isolate;
 }
@@ -7159,17 +7159,17 @@ body.is-lightbox-open {
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(214, 34, 58, 0.22) 0 1px,
-      rgba(214, 34, 58, 0) 1px 48px
+      rgba(233, 46, 148, 0.16) 0 1px,
+      rgba(233, 46, 148, 0) 1px 46px
     ),
     repeating-linear-gradient(
       0deg,
-      rgba(214, 34, 58, 0.22) 0 1px,
-      rgba(214, 34, 58, 0) 1px 48px
+      rgba(233, 46, 148, 0.16) 0 1px,
+      rgba(233, 46, 148, 0) 1px 46px
     ),
-    radial-gradient(circle at 22% 26%, rgba(114, 181, 255, 0.2), rgba(114, 181, 255, 0)),
-    radial-gradient(circle at 78% 72%, rgba(95, 139, 255, 0.16), rgba(95, 139, 255, 0));
-  opacity: 0.48;
+    radial-gradient(circle at 24% 28%, rgba(233, 46, 148, 0.18), rgba(233, 46, 148, 0)),
+    radial-gradient(circle at 76% 70%, rgba(255, 119, 119, 0.12), rgba(255, 119, 119, 0));
+  opacity: 0.68;
   animation: graphic-archive-grid-shift 18s linear infinite;
 }
 
@@ -7180,8 +7180,8 @@ body.is-lightbox-open {
   pointer-events: none;
   z-index: 1;
   background:
-    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 44%),
-    linear-gradient(to bottom, rgba(5, 8, 14, 0.08), rgba(5, 8, 14, 0.54));
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0) 52%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.58));
 }
 
 .page-graphic-design-archive .graphic-archive-center-display {
@@ -7196,14 +7196,14 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-center-display__title {
   margin: 0;
-  color: rgba(246, 248, 252, 0);
+  color: rgba(9, 12, 18, 0);
   font-size: clamp(1.9rem, 8vw, 6.8rem);
   letter-spacing: -0.05em;
   line-height: 0.84;
   text-align: center;
   text-shadow:
-    0 20px 36px rgba(0, 0, 0, 0.62),
-    0 0 22px rgba(110, 166, 255, 0.2);
+    0 14px 24px rgba(0, 0, 0, 0.08),
+    0 0 18px rgba(233, 46, 148, 0.2);
   opacity: 0;
   transform: translateY(10px) scale(0.98);
   transition: color 260ms ease, text-shadow 260ms ease, opacity 240ms ease, transform 240ms ease;
@@ -7211,12 +7211,13 @@ body.is-lightbox-open {
 }
 
 .page-graphic-design-archive .graphic-archive-board.graphic-archive-grid.is-title-active .graphic-archive-center-display__title {
-  color: #ffffff;
+  color: rgba(6, 9, 14, 0.95);
   opacity: 1;
   transform: translateY(0) scale(1);
   text-shadow:
-    0 16px 30px rgba(0, 0, 0, 0.7),
-    0 0 26px rgba(130, 194, 255, 0.45);
+    0 12px 20px rgba(0, 0, 0, 0.12),
+    0 0 20px rgba(233, 46, 148, 0.34),
+    0 0 36px rgba(255, 124, 124, 0.18);
 }
 
 .page-graphic-design-archive .graphic-archive-board.graphic-archive-grid.is-title-swap .graphic-archive-center-display__title {
@@ -7224,12 +7225,12 @@ body.is-lightbox-open {
 }
 
 .page-graphic-design-archive .graphic-archive-board.graphic-archive-grid.is-title-locked .graphic-archive-center-display__title {
-  color: #ffffff;
+  color: #050505;
   opacity: 1;
   transform: translateY(0) scale(1);
   text-shadow:
-    0 0 28px rgba(139, 214, 255, 0.68),
-    0 0 54px rgba(125, 176, 255, 0.44);
+    0 0 22px rgba(233, 46, 148, 0.36),
+    0 0 42px rgba(255, 124, 124, 0.24);
 }
 
 .page-graphic-design-archive .graphic-archive-grid__list {
@@ -7246,7 +7247,7 @@ body.is-lightbox-open {
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(246, 248, 252, 0.92);
+  color: rgba(10, 14, 20, 0.94);
   text-align: left;
   cursor: pointer;
   transition: transform 220ms ease, opacity 220ms ease;
@@ -7258,9 +7259,9 @@ body.is-lightbox-open {
   width: 100%;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #0f0f0f;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.38);
+  background: #ffffff;
+  border: 1px solid rgba(5, 5, 5, 0.26);
+  box-shadow: 0 10px 22px rgba(5, 5, 5, 0.14);
   transition: border-color 240ms ease, box-shadow 240ms ease;
 }
 
@@ -7271,15 +7272,15 @@ body.is-lightbox-open {
   pointer-events: none;
   z-index: 2;
   background:
-    linear-gradient(to right, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) left top / 1px 16px no-repeat,
-    linear-gradient(to right, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) right top / 1px 16px no-repeat,
-    linear-gradient(to right, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) left bottom / 1px 16px no-repeat,
-    linear-gradient(to right, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) right bottom / 1px 16px no-repeat,
-    linear-gradient(to bottom, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) left top / 16px 1px no-repeat,
-    linear-gradient(to bottom, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) right top / 16px 1px no-repeat,
-    linear-gradient(to bottom, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) left bottom / 16px 1px no-repeat,
-    linear-gradient(to bottom, rgba(248, 250, 255, 0.9) 0 16px, transparent 16px 100%) right bottom / 16px 1px no-repeat;
-  opacity: 0.82;
+    linear-gradient(to right, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) left top / 1px 16px no-repeat,
+    linear-gradient(to right, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) right top / 1px 16px no-repeat,
+    linear-gradient(to right, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) left bottom / 1px 16px no-repeat,
+    linear-gradient(to right, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) right bottom / 1px 16px no-repeat,
+    linear-gradient(to bottom, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) left top / 16px 1px no-repeat,
+    linear-gradient(to bottom, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) right top / 16px 1px no-repeat,
+    linear-gradient(to bottom, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) left bottom / 16px 1px no-repeat,
+    linear-gradient(to bottom, rgba(10, 18, 30, 0.72) 0 16px, transparent 16px 100%) right bottom / 16px 1px no-repeat;
+  opacity: 0.62;
   transition: opacity 240ms ease;
 }
 
@@ -7304,11 +7305,11 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-card:hover .graphic-archive-card__media,
 .page-graphic-design-archive .graphic-archive-card:focus-visible .graphic-archive-card__media,
 .page-graphic-design-archive .graphic-archive-card.is-active .graphic-archive-card__media {
-  border-color: rgba(136, 208, 255, 0.9);
+  border-color: rgba(233, 46, 148, 0.64);
   box-shadow:
-    0 0 0 1px rgba(161, 224, 255, 0.52),
-    0 0 24px rgba(110, 190, 255, 0.4),
-    0 0 44px rgba(96, 132, 255, 0.28);
+    0 0 0 1px rgba(233, 46, 148, 0.26),
+    0 0 22px rgba(233, 46, 148, 0.18),
+    0 14px 24px rgba(0, 0, 0, 0.12);
 }
 
 .page-graphic-design-archive .graphic-archive-card:hover .graphic-archive-card__media img,
@@ -7369,14 +7370,14 @@ body.is-lightbox-open {
   gap: clamp(0.8rem, 1.9vw, 1.5rem);
   align-items: stretch;
   padding: clamp(0.78rem, 2vw, 1.3rem);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(8, 16, 28, 0.16);
   border-radius: 12px;
   background:
-    linear-gradient(145deg, rgba(7, 10, 16, 0.9), rgba(9, 13, 20, 0.82)),
-    radial-gradient(circle at 22% 18%, rgba(108, 182, 255, 0.2), rgba(108, 182, 255, 0));
+    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(250, 253, 255, 0.92)),
+    radial-gradient(circle at 24% 18%, rgba(233, 46, 148, 0.14), rgba(233, 46, 148, 0));
   box-shadow:
-    0 22px 56px rgba(0, 0, 0, 0.44),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    0 18px 42px rgba(8, 16, 28, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.66);
   backdrop-filter: blur(9px) saturate(132%);
   opacity: 0;
   transform: translateY(18px) scale(0.96);
@@ -7407,10 +7408,10 @@ body.is-lightbox-open {
   height: clamp(1.7rem, 3vw, 2rem);
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(8, 16, 28, 0.26);
   border-radius: 999px;
-  background: rgba(12, 16, 24, 0.76);
-  color: #f6f8fb;
+  background: rgba(255, 255, 255, 0.88);
+  color: #0a0f18;
   font-size: clamp(0.72rem, 1vw, 0.88rem);
   font-weight: 700;
   line-height: 1;
@@ -7421,11 +7422,11 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__close:hover,
 .page-graphic-design-archive .graphic-archive-detail__close:focus-visible {
   transform: scale(1.08);
-  border-color: rgba(166, 227, 255, 0.95);
-  background: rgba(18, 24, 35, 0.92);
+  border-color: rgba(233, 46, 148, 0.54);
+  background: rgba(255, 255, 255, 0.96);
   box-shadow:
-    0 0 0 1px rgba(150, 225, 255, 0.5),
-    0 0 18px rgba(120, 199, 255, 0.4);
+    0 0 0 1px rgba(233, 46, 148, 0.24),
+    0 0 14px rgba(233, 46, 148, 0.2);
   outline: none;
 }
 
@@ -7439,11 +7440,11 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__main {
   min-height: 0;
   margin: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(8, 16, 28, 0.18);
   border-radius: 10px;
-  background: rgba(5, 7, 11, 0.72);
+  background: rgba(251, 253, 255, 0.88);
   overflow: hidden;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 10px 24px rgba(8, 16, 28, 0.14);
 }
 
 .page-graphic-design-archive .graphic-archive-detail__main img {
@@ -7451,7 +7452,7 @@ body.is-lightbox-open {
   width: 100%;
   height: min(70vh, 43rem);
   object-fit: contain;
-  background: #090c13;
+  background: transparent;
   transform-origin: center;
 }
 
@@ -7472,9 +7473,9 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__thumb {
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(8, 16, 28, 0.2);
   border-radius: 8px;
-  background: rgba(9, 12, 18, 0.78);
+  background: rgba(255, 255, 255, 0.94);
   overflow: hidden;
   cursor: pointer;
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, opacity 220ms ease;
@@ -7491,10 +7492,10 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__thumb:focus-visible,
 .page-graphic-design-archive .graphic-archive-detail__thumb.is-active {
   transform: translateY(-2px) scale(1.02);
-  border-color: rgba(151, 223, 255, 0.95);
+  border-color: rgba(233, 46, 148, 0.64);
   box-shadow:
-    0 0 0 1px rgba(151, 223, 255, 0.4),
-    0 0 20px rgba(107, 191, 255, 0.42);
+    0 0 0 1px rgba(233, 46, 148, 0.22),
+    0 0 16px rgba(233, 46, 148, 0.2);
   opacity: 1;
   outline: none;
 }
@@ -7509,7 +7510,7 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__eyebrow {
   margin: 0;
-  color: rgba(162, 212, 255, 0.9);
+  color: rgba(185, 25, 115, 0.9);
   font-size: clamp(0.66rem, 1vw, 0.8rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -7517,7 +7518,7 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__title {
   margin: 0;
-  color: #f8fbff;
+  color: #070b12;
   font-size: clamp(1.18rem, 2.35vw, 2rem);
   letter-spacing: 0.01em;
   line-height: 1.06;
@@ -7532,14 +7533,14 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__fact {
   margin: 0;
   padding: 0.38rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(8, 16, 28, 0.12);
   border-radius: 8px;
-  background: rgba(12, 16, 24, 0.44);
+  background: rgba(248, 251, 255, 0.94);
 }
 
 .page-graphic-design-archive .graphic-archive-detail__fact-label {
   margin: 0 0 0.12rem;
-  color: rgba(164, 217, 255, 0.9);
+  color: rgba(185, 25, 115, 0.9);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -7547,14 +7548,14 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__fact-value {
   margin: 0;
-  color: rgba(239, 244, 252, 0.94);
+  color: rgba(12, 18, 28, 0.9);
   font-size: clamp(0.76rem, 1.05vw, 0.88rem);
   line-height: 1.38;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__description {
   margin: 0;
-  color: rgba(235, 241, 250, 0.88);
+  color: rgba(12, 18, 28, 0.86);
   font-size: clamp(0.82rem, 1.3vw, 0.94rem);
   line-height: 1.62;
   max-width: none;
@@ -7568,14 +7569,14 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__topic {
   margin: 0.28rem 0 0;
-  color: rgba(238, 246, 255, 0.96);
+  color: rgba(8, 14, 24, 0.92);
   font-size: clamp(0.88rem, 1.2vw, 1.02rem);
   letter-spacing: 0.01em;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__loading {
   margin: 0;
-  color: rgba(194, 218, 236, 0.92);
+  color: rgba(44, 78, 124, 0.82);
   font-size: 0.84rem;
 }
 
