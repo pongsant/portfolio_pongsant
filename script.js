@@ -12383,3 +12383,222 @@ function ensureGlobalSiteFootnote() {
 }
 
 ensureGlobalSiteFootnote();
+
+function initHomeDashboardOverview() {
+  if (!body || !body.classList.contains("page-home")) {
+    return;
+  }
+
+  const main = document.querySelector("main");
+  const heroSection = main?.querySelector(".hero");
+  const staticDashboardBands = main?.querySelector("[data-home-topic-dashboard]");
+
+  if (!main || !heroSection) {
+    return;
+  }
+
+  body.classList.add("page-home-dashboard-mode");
+
+  if (staticDashboardBands) {
+    if (!heroSection.querySelector(".hero-dashboard-overlay")) {
+      const overlay = document.createElement("div");
+      overlay.className = "hero-dashboard-overlay";
+      overlay.innerHTML = `
+        <p class="hero-dashboard-overlay__kicker">LIVE INDEX</p>
+        <h1 class="hero-dashboard-overlay__title">PORTFOLIO<br>DASHBOARD</h1>
+        <p class="hero-dashboard-overlay__symbols">▢ ◉ △ ◇ ▦ ◎</p>
+      `;
+      heroSection.append(overlay);
+    }
+    return;
+  }
+
+  if (main.querySelector("[data-home-dashboard-overview]")) {
+    return;
+  }
+
+  const topicMap = [
+    {
+      selector: ".feature-project",
+      id: "section-filial-project",
+      label: "Filial Project",
+      symbol: "▢",
+      value: 31,
+      summary: "Brand + web prototype highlight",
+      href: "filialproject.html"
+    },
+    {
+      selector: ".photography-feature",
+      id: "section-photography",
+      label: "Photography",
+      symbol: "◉",
+      value: 24,
+      summary: "Film and digital curation",
+      href: "photo/"
+    },
+    {
+      selector: "[data-home-graphic-slider]",
+      id: "section-graphic-design",
+      label: "Graphic Design",
+      symbol: "▦",
+      value: 5,
+      summary: "Poster and visual identity works",
+      href: "graphic-design/"
+    },
+    {
+      selector: ".home-work-showcase--light",
+      id: "section-my-work",
+      label: "My Work",
+      symbol: "◎",
+      value: 4,
+      summary: "All categories quick access",
+      href: "my-work/"
+    }
+  ];
+
+  const resolvedTopics = topicMap
+    .map((topic) => {
+      const element = main.querySelector(topic.selector);
+
+      if (!element) {
+        return null;
+      }
+
+      if (!element.id) {
+        element.id = topic.id;
+      }
+
+      return {
+        ...topic,
+        anchor: `#${element.id}`
+      };
+    })
+    .filter(Boolean);
+
+  if (!resolvedTopics.length) {
+    return;
+  }
+
+  const quickMenuMarkup = resolvedTopics
+    .map((topic) => {
+      return `
+        <a class="home-dashboard-overview__menu-link" href="${topic.anchor}">
+          <span class="home-dashboard-overview__menu-symbol">${topic.symbol}</span>
+          <span class="home-dashboard-overview__menu-label">${topic.label}</span>
+        </a>
+      `;
+    })
+    .join("");
+
+  const topicBandMarkup = resolvedTopics
+    .map((topic) => {
+      return `
+        <article class="home-dashboard-topic-band">
+          <p class="home-dashboard-topic-band__meta">${topic.symbol} ${String(topic.value).padStart(2, "0")}</p>
+          <div class="home-dashboard-topic-band__main">
+            <h3 class="home-dashboard-topic-band__title">${topic.label}</h3>
+            <p class="home-dashboard-topic-band__summary">${topic.summary}</p>
+          </div>
+          <div class="home-dashboard-topic-band__actions">
+            <a class="home-dashboard-topic-band__link" href="${topic.anchor}">View</a>
+            <a class="home-dashboard-topic-band__link" href="${topic.href}">Learn more</a>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  const metricCards = [
+    { symbol: "▢", label: "Projects", value: 12 },
+    { symbol: "◉", label: "Media Sets", value: 48 },
+    { symbol: "△", label: "Live Blocks", value: 6 }
+  ];
+
+  const metricsMarkup = metricCards
+    .map((item) => {
+      return `
+        <article class="home-dashboard-metric">
+          <p class="home-dashboard-metric__symbol">${item.symbol}</p>
+          <p class="home-dashboard-metric__value">${item.value}</p>
+          <p class="home-dashboard-metric__label">${item.label}</p>
+        </article>
+      `;
+    })
+    .join("");
+
+  const graphData = [
+    { symbol: "▢", value: 88 },
+    { symbol: "◉", value: 73 },
+    { symbol: "△", value: 81 },
+    { symbol: "◇", value: 64 },
+    { symbol: "▦", value: 92 },
+    { symbol: "◎", value: 70 }
+  ];
+
+  const graphMarkup = graphData
+    .map((item, index) => {
+      return `
+        <li class="home-dashboard-graph__bar-item" style="--bar-value: ${item.value}; --bar-delay: ${index * 90}ms;">
+          <span class="home-dashboard-graph__bar-symbol">${item.symbol}</span>
+          <span class="home-dashboard-graph__bar-value">${item.value}</span>
+        </li>
+      `;
+    })
+    .join("");
+
+  const overviewSection = document.createElement("section");
+  overviewSection.className = "home-dashboard-overview";
+  overviewSection.setAttribute("data-home-dashboard-overview", "");
+  overviewSection.innerHTML = `
+    <div class="home-dashboard-overview__frame">
+      <div class="home-dashboard-overview__main">
+        <header class="home-dashboard-overview__head">
+          <p class="home-dashboard-overview__kicker">CONTROL ROOM</p>
+          <h2 class="home-dashboard-overview__title">Portfolio Dashboard</h2>
+          <nav class="home-dashboard-overview__menu" aria-label="Summary navigation">
+            ${quickMenuMarkup}
+          </nav>
+        </header>
+
+        <div class="home-dashboard-overview__metrics">
+          ${metricsMarkup}
+        </div>
+
+        <section class="home-dashboard-graph" aria-label="Quick visual graph">
+          <header class="home-dashboard-graph__head">
+            <p class="home-dashboard-graph__title">GRAPH</p>
+            <p class="home-dashboard-graph__meta">▲ Live Summary</p>
+          </header>
+          <ol class="home-dashboard-graph__bars">
+            ${graphMarkup}
+          </ol>
+        </section>
+
+        <section class="home-dashboard-bands" aria-label="Large topic bars">
+          <header class="home-dashboard-bands__head">
+            <p class="home-dashboard-bands__title">TOPIC BARS</p>
+            <p class="home-dashboard-bands__meta">Scroll to view all</p>
+          </header>
+          <div class="home-dashboard-bands__list">
+            ${topicBandMarkup}
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  heroSection.insertAdjacentElement("afterend", overviewSection);
+
+  if (!heroSection.querySelector(".hero-dashboard-overlay")) {
+    const overlay = document.createElement("div");
+    overlay.className = "hero-dashboard-overlay";
+    overlay.innerHTML = `
+      <p class="hero-dashboard-overlay__kicker">LIVE INDEX</p>
+      <h1 class="hero-dashboard-overlay__title">PORTFOLIO<br>DASHBOARD</h1>
+      <p class="hero-dashboard-overlay__symbols">▢ ◉ △ ◇ ▦ ◎</p>
+    `;
+    heroSection.append(overlay);
+  }
+}
+
+initHomeDashboardOverview();
