@@ -7744,6 +7744,7 @@ function initGraphicDesignArchivePopup() {
 
   const defaultTitle = (centerTitle.textContent || "").trim();
   const detailDataCache = new Map();
+  const imageAvailabilityCache = new Map();
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const folderImageManifest = {
     "./POTRAIT-OF-THE-SELFLESS-SELF/": [
@@ -7882,11 +7883,19 @@ function initGraphicDesignArchivePopup() {
   let activeCard = null;
   let isDetailOpen = false;
   let currentMainAssetKey = "";
+  let currentProjectImages = [];
+  let currentProjectTitle = "";
+  let currentImageIndex = 0;
   let clearTitleSwapTimer = 0;
   let closeDetailTimer = 0;
   let detailRequestToken = 0;
   let zoomOverlay = null;
   let zoomImage = null;
+  let imageControls = detail.querySelector("[data-graphic-detail-image-controls]");
+  let imagePrevButton = imageControls?.querySelector("[data-graphic-detail-image-prev]") || null;
+  let imageNextButton = imageControls?.querySelector("[data-graphic-detail-image-next]") || null;
+  let imageCounter = imageControls?.querySelector("[data-graphic-detail-image-counter]") || null;
+  let imageControlsBound = false;
 
   function normalizeText(content) {
     return (content || "").replace(/\s+/g, " ").trim();
@@ -7927,6 +7936,59 @@ function initGraphicDesignArchivePopup() {
     });
   }
 
+  function canLoadImage(sourceUrl) {
+    if (!sourceUrl) {
+      return Promise.resolve(false);
+    }
+
+    if (imageAvailabilityCache.has(sourceUrl)) {
+      return imageAvailabilityCache.get(sourceUrl);
+    }
+
+    const checkPromise = new Promise((resolve) => {
+      const probe = new Image();
+      let settled = false;
+
+      const finalize = (isValid) => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        resolve(Boolean(isValid));
+      };
+
+      probe.onload = () => finalize(true);
+      probe.onerror = () => finalize(false);
+      probe.src = sourceUrl;
+
+      if (probe.complete) {
+        window.setTimeout(() => finalize(probe.naturalWidth > 0), 0);
+      }
+    });
+
+    imageAvailabilityCache.set(sourceUrl, checkPromise);
+    return checkPromise;
+  }
+
+  async function normalizeAndValidateImages(entries, fallbackImage, fallbackTitle, baseUrl) {
+    const normalizedEntries = normalizeImageEntries(entries, fallbackImage, fallbackTitle, baseUrl);
+
+    if (!normalizedEntries.length) {
+      return normalizedEntries;
+    }
+
+    const loadResults = await Promise.all(
+      normalizedEntries.map(async (entry) => {
+        const isLoadable = await canLoadImage(entry.src);
+        return isLoadable ? entry : null;
+      })
+    );
+    const validEntries = loadResults.filter(Boolean);
+
+    return validEntries.length ? validEntries : normalizedEntries;
+  }
+
   function getFolderImageEntries(cardData) {
     const manifestImages = folderImageManifest[cardData.href] || [];
 
@@ -7941,6 +8003,9 @@ function initGraphicDesignArchivePopup() {
   }
 
   function clearDetailContent() {
+    currentProjectImages = [];
+    currentProjectTitle = "";
+    currentImageIndex = 0;
     detailEyebrow.textContent = "";
     detailTitle.textContent = "";
     detailFacts.innerHTML = "";
@@ -7949,6 +8014,7 @@ function initGraphicDesignArchivePopup() {
     detailMainImage.removeAttribute("src");
     detailMainImage.alt = "";
     detailMainImage.classList.remove("is-switching");
+    syncImageControls();
   }
 
   function showDetailLoadingState(title) {
@@ -8061,7 +8127,7 @@ function initGraphicDesignArchivePopup() {
         eyebrow: "",
         facts: [],
         paragraphs: [],
-        images: normalizeImageEntries([], cardData.fallbackImage, cardData.title, window.location.href)
+        images: await normalizeAndValidateImages([], cardData.fallbackImage, cardData.title, window.location.href)
       };
     }
 
@@ -8151,8 +8217,8 @@ function initGraphicDesignArchivePopup() {
         eyebrow: parsedEyebrow,
         facts: parsedFacts,
         paragraphs: parsedParagraphBlocks,
-        images: normalizeImageEntries(
-          [...parsedImages, ...folderImages],
+        images: await normalizeAndValidateImages(
+          [...folderImages, ...parsedImages],
           folderImages.length ? "" : cardData.fallbackImage,
           parsedTitle,
           projectIndexUrl.href
@@ -8172,7 +8238,7 @@ function initGraphicDesignArchivePopup() {
             paragraphs: ["Unable to load saved project information from the original page."]
           }
         ],
-        images: normalizeImageEntries(
+        images: await normalizeAndValidateImages(
           getFolderImageEntries(cardData),
           cardData.fallbackImage,
           cardData.title,
@@ -8246,12 +8312,108 @@ function initGraphicDesignArchivePopup() {
     });
   }
 
+  function ensureImageControls() {
+    const mediaPanel = detailMainImage.closest(".graphic-archive-detail__media");
+
+    if (!mediaPanel && !imageControls) {
+      return;
+    }
+
+    if (!imageControls) {
+      imageControls = document.createElement("div");
+      imageControls.className = "graphic-archive-detail__image-controls is-hidden";
+      imageControls.setAttribute("data-graphic-detail-image-controls", "");
+    }
+
+    if (!imagePrevButton) {
+      imagePrevButton = document.createElement("button");
+      imagePrevButton.type = "button";
+      imagePrevButton.className = "graphic-archive-detail__image-control";
+      imagePrevButton.textContent = "Prev";
+      imagePrevButton.setAttribute("aria-label", "Show previous project image");
+      imagePrevButton.setAttribute("data-graphic-detail-image-prev", "");
+    }
+
+    if (!imageCounter) {
+      imageCounter = document.createElement("span");
+      imageCounter.className = "graphic-archive-detail__image-counter";
+      imageCounter.textContent = "01 / 01";
+      imageCounter.setAttribute("data-graphic-detail-image-counter", "");
+    }
+
+    if (!imageNextButton) {
+      imageNextButton = document.createElement("button");
+      imageNextButton.type = "button";
+      imageNextButton.className = "graphic-archive-detail__image-control";
+      imageNextButton.textContent = "Next";
+      imageNextButton.setAttribute("aria-label", "Show next project image");
+      imageNextButton.setAttribute("data-graphic-detail-image-next", "");
+    }
+
+    if (!imageControls.contains(imagePrevButton)) {
+      imageControls.append(imagePrevButton);
+    }
+    if (!imageControls.contains(imageCounter)) {
+      imageControls.append(imageCounter);
+    }
+    if (!imageControls.contains(imageNextButton)) {
+      imageControls.append(imageNextButton);
+    }
+    if (mediaPanel && !mediaPanel.contains(imageControls)) {
+      mediaPanel.insertBefore(imageControls, detailThumbs);
+    }
+
+    if (!imageControlsBound) {
+      imagePrevButton.addEventListener("click", () => showImageByStep(-1));
+      imageNextButton.addEventListener("click", () => showImageByStep(1));
+      imageControlsBound = true;
+    }
+  }
+
+  function syncImageControls() {
+    ensureImageControls();
+
+    if (!imageControls || !imageCounter) {
+      return;
+    }
+
+    const imageCount = currentProjectImages.length;
+    const hasMultipleImages = imageCount > 1;
+    imageControls.classList.toggle("is-hidden", !hasMultipleImages);
+
+    if (!hasMultipleImages) {
+      imageCounter.textContent = imageCount === 1 ? "01 / 01" : "00 / 00";
+      return;
+    }
+
+    const currentNumber = String(currentImageIndex + 1).padStart(2, "0");
+    const totalNumber = String(imageCount).padStart(2, "0");
+    imageCounter.textContent = `${currentNumber} / ${totalNumber}`;
+  }
+
+  function showImageByStep(step) {
+    const imageCount = currentProjectImages.length;
+
+    if (imageCount < 2) {
+      return;
+    }
+
+    currentImageIndex = (currentImageIndex + step + imageCount) % imageCount;
+    swapMainImage(currentProjectImages[currentImageIndex], currentProjectTitle);
+  }
+
   function swapMainImage(assetEntry, title) {
     if (!assetEntry?.src) {
       return;
     }
 
     currentMainAssetKey = assetEntry.src;
+    const matchedIndex = currentProjectImages.findIndex((entry) => entry.src === assetEntry.src);
+
+    if (matchedIndex >= 0) {
+      currentImageIndex = matchedIndex;
+    }
+
     detailMainImage.classList.remove("is-switching");
     void detailMainImage.offsetWidth;
     detailMainImage.classList.add("is-switching");
@@ -8260,10 +8422,15 @@ function initGraphicDesignArchivePopup() {
     detailMainImage.decoding = "async";
     detailMainImage.alt = assetEntry.caption || `${title} artwork`;
     markActiveThumb(assetEntry.src);
+    syncImageControls();
   }
 
   function renderDetailThumbs(projectData) {
+    currentProjectImages = projectData.images;
+    currentProjectTitle = projectData.title;
+    currentImageIndex = 0;
     detailThumbs.innerHTML = "";
+    syncImageControls();
 
     projectData.images.forEach((assetEntry, index) => {
       const thumbButton = document.createElement("button");
@@ -8486,12 +8653,34 @@ function initGraphicDesignArchivePopup() {
     closeProjectDetail();
   });
 
+  detailMainImage.addEventListener("click", openZoomOverlay);
+
   detail.addEventListener("click", (event) => {
     event.stopPropagation();
   });
 
   window.addEventListener("keydown", (event) => {
-    if (!isDetailOpen || event.key !== "Escape") {
+    if (
+      isDetailOpen &&
+      !body.classList.contains("is-graphic-image-zoom-open") &&
+      (event.key === "ArrowLeft" || event.key === "ArrowRight")
+    ) {
+      event.preventDefault();
+      showImageByStep(event.key === "ArrowLeft" ? -1 : 1);
+      return;
+    }
+
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    if (body.classList.contains("is-graphic-image-zoom-open")) {
+      event.preventDefault();
+      closeZoomOverlay();
+      return;
+    }
+
+    if (!isDetailOpen) {
       return;
     }
 

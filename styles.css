@@ -7251,7 +7251,16 @@ body.is-lightbox-open {
   color: rgba(255, 255, 255, 0.94);
   text-align: left;
   cursor: pointer;
-  transition: transform 220ms ease, opacity 220ms ease;
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 220ms ease;
+  --card-tilt: 0deg;
+}
+
+.page-graphic-design-archive .graphic-archive-card:nth-child(odd) {
+  --card-tilt: -0.9deg;
+}
+
+.page-graphic-design-archive .graphic-archive-card:nth-child(even) {
+  --card-tilt: 0.9deg;
 }
 
 .page-graphic-design-archive .graphic-archive-card__media {
@@ -7262,8 +7271,9 @@ body.is-lightbox-open {
   overflow: hidden;
   background: #111111;
   border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 1rem 0.45rem 1rem 0.45rem;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.62);
-  transition: border-color 240ms ease, box-shadow 240ms ease;
+  transition: border-color 240ms ease, box-shadow 240ms ease, border-radius 280ms ease;
 }
 
 .page-graphic-design-archive .graphic-archive-card__media::before {
@@ -7290,7 +7300,9 @@ body.is-lightbox-open {
   height: 100%;
   display: block;
   object-fit: cover;
-  transition: transform 240ms ease, filter 240ms ease;
+  image-rendering: auto;
+  transform: translateZ(0);
+  transition: transform 240ms ease;
 }
 
 .page-graphic-design-archive .graphic-archive-card__name {
@@ -7300,13 +7312,14 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-card:hover,
 .page-graphic-design-archive .graphic-archive-card:focus-visible,
 .page-graphic-design-archive .graphic-archive-card.is-active {
-  transform: translateY(-2px) scale(1.015);
+  transform: translateY(-5px) rotate(var(--card-tilt)) scale(1.02);
 }
 
 .page-graphic-design-archive .graphic-archive-card:hover .graphic-archive-card__media,
 .page-graphic-design-archive .graphic-archive-card:focus-visible .graphic-archive-card__media,
 .page-graphic-design-archive .graphic-archive-card.is-active .graphic-archive-card__media {
   border-color: rgba(233, 46, 148, 0.64);
+  border-radius: 1.35rem 0.55rem 1.35rem 0.55rem;
   box-shadow:
     0 0 0 1px rgba(233, 46, 148, 0.26),
     0 0 22px rgba(233, 46, 148, 0.18),
@@ -7316,8 +7329,7 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-card:hover .graphic-archive-card__media img,
 .page-graphic-design-archive .graphic-archive-card:focus-visible .graphic-archive-card__media img,
 .page-graphic-design-archive .graphic-archive-card.is-active .graphic-archive-card__media img {
-  transform: scale(1.06);
-  filter: saturate(1.14) contrast(1.08);
+  transform: scale(1.025);
 }
 
 .page-graphic-design-archive .graphic-archive-card:hover .graphic-archive-card__media::before,
@@ -7365,16 +7377,19 @@ body.is-lightbox-open {
   position: relative;
   z-index: 8;
   width: 100%;
-  margin-top: clamp(0.9rem, 1.8vw, 1.4rem);
+  height: auto;
+  min-height: 0;
+  margin-top: clamp(0.7rem, 1.4vw, 1.05rem);
   display: grid;
-  grid-template-columns: minmax(0, 1.28fr) minmax(18rem, 0.72fr);
+  grid-template-columns: minmax(0, 1.22fr) minmax(16rem, 0.78fr);
   gap: 0;
-  align-items: stretch;
+  align-items: start;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 0;
+  border-radius: 1.1rem 0.6rem 1.1rem 0.6rem;
   background: #f4f4f2;
   box-shadow: 0 26px 62px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
   opacity: 0;
   transform: translateY(24px) scale(0.98);
   transform-origin: center;
@@ -7400,15 +7415,15 @@ body.is-lightbox-open {
   position: absolute;
   top: clamp(0.7rem, 1.4vw, 1rem);
   right: clamp(0.7rem, 1.4vw, 1rem);
-  width: clamp(2.2rem, 3.8vw, 3.1rem);
-  height: clamp(2.2rem, 3.8vw, 3.1rem);
+  width: clamp(2rem, 3vw, 2.55rem);
+  height: clamp(2rem, 3vw, 2.55rem);
   margin: 0;
   padding: 0;
   border: 1px solid rgba(233, 46, 148, 0.52);
-  border-radius: 999px;
+  border-radius: 0.95rem 999px 999px 0.95rem;
   background: #f4f4f2;
   color: #050505;
-  font-size: clamp(1rem, 1.6vw, 1.36rem);
+  font-size: clamp(0.92rem, 1.25vw, 1.12rem);
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
@@ -7417,7 +7432,7 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__close:hover,
 .page-graphic-design-archive .graphic-archive-detail__close:focus-visible {
-  transform: scale(1.08);
+  transform: translateY(-1px) rotate(-7deg) scale(1.07);
   border-color: rgba(233, 46, 148, 0.88);
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(233, 46, 148, 0.16);
@@ -7427,40 +7442,98 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__media {
   min-width: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: clamp(0.56rem, 1vw, 0.8rem);
-  padding: clamp(0.75rem, 1.5vw, 1.15rem);
-  background: #050505;
+  grid-template-rows: auto auto auto;
+  gap: clamp(0.42rem, 0.8vw, 0.64rem);
+  padding: clamp(0.56rem, 1.1vw, 0.86rem);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 38%),
+    #050505;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__main {
-  min-height: 0;
+  min-height: min(52svh, 34rem);
+  height: auto;
   margin: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: 0.8rem 0.3rem 0.8rem 0.3rem;
   background: #111111;
   overflow: hidden;
   box-shadow: none;
+  display: grid;
+  place-items: center;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__main img {
   display: block;
   width: 100%;
-  height: min(72vh, 45rem);
+  height: auto;
+  max-width: 100%;
+  max-height: min(52svh, 34rem);
   object-fit: contain;
   background: #111111;
   transform-origin: center;
+  image-rendering: auto;
+  cursor: zoom-in;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__main img.is-switching {
   animation: graphic-archive-detail-image-swap 360ms cubic-bezier(0.2, 0.82, 0.2, 1);
 }
 
+.page-graphic-design-archive .graphic-archive-detail__image-controls {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(4.4rem, auto) 1fr minmax(4.4rem, auto);
+  align-items: center;
+  gap: 0.46rem;
+  color: #ffffff;
+}
+
+.page-graphic-design-archive .graphic-archive-detail__image-controls.is-hidden {
+  display: none;
+}
+
+.page-graphic-design-archive .graphic-archive-detail__image-control {
+  min-height: 2rem;
+  margin: 0;
+  padding: 0 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03));
+  color: #ffffff;
+  font-size: clamp(0.58rem, 0.78vw, 0.72rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.page-graphic-design-archive .graphic-archive-detail__image-control:hover,
+.page-graphic-design-archive .graphic-archive-detail__image-control:focus-visible {
+  border-color: rgba(233, 46, 148, 0.92);
+  background: #ffffff;
+  color: #050505;
+  transform: translateY(-1px) scale(1.03);
+  outline: none;
+}
+
+.page-graphic-design-archive .graphic-archive-detail__image-counter {
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(0.62rem, 0.82vw, 0.76rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .page-graphic-design-archive .graphic-archive-detail__thumbs {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: clamp(4.3rem, 7vw, 5.8rem);
-  gap: 0.45rem;
+  grid-auto-columns: clamp(3rem, 4.7vw, 4.25rem);
+  gap: 0.36rem;
   overflow-x: auto;
   padding-bottom: 0.2rem;
   scrollbar-width: thin;
@@ -7470,7 +7543,7 @@ body.is-lightbox-open {
   margin: 0;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 0;
+  border-radius: 0.55rem 0.2rem 0.55rem 0.2rem;
   background: #111111;
   overflow: hidden;
   cursor: pointer;
@@ -7498,15 +7571,18 @@ body.is-lightbox-open {
   min-width: 0;
   display: grid;
   align-content: start;
-  gap: clamp(0.65rem, 1.25vw, 1rem);
-  padding: clamp(1.2rem, 2.4vw, 2rem) clamp(1rem, 2vw, 1.7rem) clamp(1.4rem, 2.4vw, 2rem);
-  background: #f4f4f2;
+  gap: clamp(0.44rem, 0.9vw, 0.76rem);
+  padding: clamp(0.9rem, 1.6vw, 1.35rem) clamp(0.82rem, 1.5vw, 1.22rem);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.18)),
+    #f4f4f2;
+  overflow: visible;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__eyebrow {
   margin: 0;
   color: rgba(205, 37, 132, 0.96);
-  font-size: clamp(0.74rem, 1.08vw, 1rem);
+  font-size: clamp(0.58rem, 0.82vw, 0.78rem);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -7514,10 +7590,10 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__title {
   margin: 0;
   color: #050505;
-  font-size: clamp(2.35rem, 5.4vw, 5.4rem);
+  font-size: clamp(1.45rem, 3.35vw, 3.05rem);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 0.9;
+  line-height: 0.94;
   text-transform: uppercase;
 }
 
@@ -7530,7 +7606,7 @@ body.is-lightbox-open {
 
 .page-graphic-design-archive .graphic-archive-detail__fact {
   margin: 0;
-  padding: 0.55rem 0;
+  padding: clamp(0.32rem, 0.62vw, 0.48rem) 0;
   border: 0;
   border-bottom: 1px solid rgba(5, 5, 5, 0.22);
   border-radius: 0;
@@ -7540,7 +7616,7 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__fact-label {
   margin: 0 0 0.08rem;
   color: rgba(205, 37, 132, 0.96);
-  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  font-size: clamp(0.55rem, 0.72vw, 0.68rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -7548,18 +7624,18 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__fact-value {
   margin: 0;
   color: rgba(5, 5, 5, 0.88);
-  font-size: clamp(0.94rem, 1.35vw, 1.18rem);
+  font-size: clamp(0.78rem, 1.02vw, 0.98rem);
   line-height: 1.2;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__description {
   margin: 0;
   color: rgba(5, 5, 5, 0.86);
-  font-size: clamp(1rem, 1.55vw, 1.34rem);
-  line-height: 1.34;
+  font-size: clamp(0.78rem, 1.08vw, 1rem);
+  line-height: 1.38;
   max-width: none;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .page-graphic-design-archive .graphic-archive-detail__description p {
@@ -7569,7 +7645,7 @@ body.is-lightbox-open {
 .page-graphic-design-archive .graphic-archive-detail__topic {
   margin: 0.34rem 0 0;
   color: #050505;
-  font-size: clamp(1rem, 1.4vw, 1.24rem);
+  font-size: clamp(0.82rem, 1.04vw, 1rem);
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -7578,6 +7654,63 @@ body.is-lightbox-open {
   margin: 0;
   color: rgba(44, 78, 124, 0.82);
   font-size: 0.84rem;
+}
+
+.graphic-archive-image-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.8rem, 2vw, 1.6rem);
+  background: rgba(0, 0, 0, 0.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.graphic-archive-image-zoom.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.graphic-archive-image-zoom__image {
+  display: block;
+  max-width: min(96vw, 1500px);
+  max-height: 92vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  image-rendering: auto;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.62);
+}
+
+.graphic-archive-image-zoom__close {
+  position: fixed;
+  top: clamp(0.72rem, 2vw, 1.35rem);
+  right: clamp(0.72rem, 2vw, 1.35rem);
+  width: clamp(2.25rem, 4vw, 3.1rem);
+  height: clamp(2.25rem, 4vw, 3.1rem);
+  border: 1px solid rgba(233, 46, 148, 0.72);
+  border-radius: 999px;
+  background: #f4f4f2;
+  color: #050505;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.graphic-archive-image-zoom__close:hover,
+.graphic-archive-image-zoom__close:focus-visible {
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(233, 46, 148, 0.2);
+}
+
+body.is-graphic-image-zoom-open {
+  overflow: hidden;
 }
 
 body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-card {
@@ -7687,6 +7820,8 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
 
 @media (max-width: 980px) {
   .page-graphic-design-archive .graphic-archive-detail {
+    height: auto;
+    min-height: 0;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, auto) auto;
     align-content: start;
@@ -7695,7 +7830,9 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
   }
 
   .page-graphic-design-archive .graphic-archive-detail__main img {
-    height: min(52vh, 29rem);
+    width: 100%;
+    height: min(54svh, 30rem);
+    max-height: min(54svh, 30rem);
   }
 
   .page-graphic-design-archive .graphic-archive-detail__description {
@@ -7716,7 +7853,7 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
 
   .page-graphic-design-archive .graphic-archive-detail {
     margin-top: 0.72rem;
-    border-radius: 0;
+    border-radius: 0.78rem;
   }
 
   .page-graphic-design-archive .graphic-archive-detail__close {
@@ -7725,16 +7862,21 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
   }
 
   .page-graphic-design-archive .graphic-archive-detail__main img {
-    height: min(44vh, 20rem);
+    height: min(46svh, 21rem);
+    max-height: min(46svh, 21rem);
   }
 
   .page-graphic-design-archive .graphic-archive-detail__thumbs {
-    grid-auto-columns: 4rem;
+    grid-auto-columns: 3.5rem;
   }
 
   .page-graphic-design-archive .graphic-archive-detail__description {
-    font-size: 0.94rem;
+    font-size: 0.82rem;
     line-height: 1.4;
+  }
+
+  .page-graphic-design-archive .graphic-archive-detail__title {
+    font-size: clamp(1.45rem, 9vw, 2.7rem);
   }
 }
 
