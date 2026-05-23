@@ -88,8 +88,7 @@ function initStaggeredSiteMenu() {
   toggle.setAttribute("aria-label", "Toggle menu");
   toggle.setAttribute("aria-expanded", "false");
   toggle.setAttribute("aria-controls", "site-staggered-menu-panel");
-  const isGraphicArchivePage = body.classList.contains("page-graphic-design-archive");
-  toggle.style.color = isGraphicArchivePage ? "#f3f5f9" : "#000000";
+  toggle.style.color = "#000000";
   toggle.innerHTML = `
     <span class="site-menu-toggle__text" data-site-menu-label>MENU</span>
     <span class="site-menu-toggle__icon" aria-hidden="true">
@@ -332,7 +331,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function workHubColor(hue, alpha, saturation = 84, lightness = 56) {
-    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+    return `rgba(0, 0, 0, ${alpha})`;
   }
 
   function mixWorkHubHues(hueA, hueB) {
@@ -395,9 +394,9 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         `${ringRotationsSecondary[index % ringRotationsSecondary.length]}deg`
       );
       option.style.setProperty("--option-hue", String(hue));
-      option.style.setProperty("--option-accent", workHubColor(hue, 0.56, 88, 48));
-      option.style.setProperty("--option-accent-soft", workHubColor(hue, 0.34, 84, 64));
-      option.style.setProperty("--option-accent-glow", workHubColor(hue, 0.18, 90, 58));
+      option.style.setProperty("--option-accent", "rgba(0, 0, 0, 0.58)");
+      option.style.setProperty("--option-accent-soft", "rgba(0, 0, 0, 0.34)");
+      option.style.setProperty("--option-accent-glow", "rgba(0, 0, 0, 0.16)");
     });
   }
 
@@ -1035,7 +1034,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
     context.save();
     context.translate(x, y);
     context.rotate(rotation);
-    context.strokeStyle = `rgba(36, 52, 107, ${alpha})`;
+    context.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
     context.lineWidth = Math.max(0.8, size * 0.028);
     context.beginPath();
     context.rect(-size / 2, -size / 2, size, size);
@@ -1068,7 +1067,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         line.by * state.height - driftY * (0.16 + progress * 0.38)
       );
       context.lineWidth = line.width;
-      context.strokeStyle = `rgba(128, 149, 196, ${lineAlpha})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${lineAlpha})`;
       context.stroke();
     });
 
@@ -1387,7 +1386,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         TWO_PI
       );
       context.lineWidth = orbit.width * (0.4 + progress * 0.6);
-      context.strokeStyle = `rgba(28, 39, 95, ${orbit.alpha * (0.2 + progress * 0.8)})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${orbit.alpha * (0.2 + progress * 0.8)})`;
       context.stroke();
     });
 
@@ -1422,7 +1421,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       context.moveTo(lerpWork(center.x, start.x, 0.18 + progress * 0.82), lerpWork(center.y, start.y, 0.18 + progress * 0.82));
       context.quadraticCurveTo(controlX, controlY, end.x, end.y);
       context.lineWidth = width * (0.32 + progress * 0.68);
-      context.strokeStyle = `rgba(31, 43, 100, ${alpha * progress})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${alpha * progress})`;
       context.stroke();
     });
 
@@ -1470,12 +1469,12 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       const lastPoint = points[points.length - 1];
       context.lineTo(lastPoint.x, lastPoint.y);
       context.lineWidth = (scribble.width + burst * 1.4) * (0.16 + progress * 0.84);
-      context.strokeStyle = `rgba(23, 34, 89, ${alpha * progress})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${alpha * progress})`;
       context.stroke();
 
       if (scribbleIndex === 0) {
         context.lineWidth = Math.max(0.8, context.lineWidth * 0.3);
-        context.strokeStyle = `rgba(104, 128, 189, ${0.2 * progress})`;
+        context.strokeStyle = `rgba(0, 0, 0, ${0.16 * progress})`;
         context.stroke();
       }
     });
@@ -1500,7 +1499,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       context.save();
       context.translate(patchX, patchY);
       context.rotate(rotation);
-      context.strokeStyle = `rgba(58, 79, 142, ${patch.alpha * progress})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${patch.alpha * progress})`;
       context.lineWidth = 0.6;
 
       for (let column = 0; column <= patch.cols; column += 1) {
@@ -1520,7 +1519,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       }
 
       if (patchIndex % 2 === 0) {
-        context.strokeStyle = `rgba(100, 125, 188, ${patch.alpha * progress * 0.56})`;
+        context.strokeStyle = `rgba(0, 0, 0, ${patch.alpha * progress * 0.56})`;
         context.beginPath();
         context.moveTo(-size / 2, -size / 2);
         context.lineTo(size / 2, size / 2);
@@ -1554,7 +1553,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
 
         context.beginPath();
         context.arc(drawX, drawY, size, 0, TWO_PI);
-        context.fillStyle = `rgba(24, 34, 90, ${cluster.alpha * progress})`;
+        context.fillStyle = `rgba(0, 0, 0, ${cluster.alpha * progress})`;
         context.fill();
       });
     });
@@ -1596,7 +1595,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
       }
 
       context.closePath();
-      context.fillStyle = `rgba(19, 26, 70, ${blob.alpha * progress})`;
+      context.fillStyle = `rgba(0, 0, 0, ${blob.alpha * progress})`;
       context.fill();
       context.restore();
     });
@@ -9000,28 +8999,28 @@ function initGraphicDesignParticleBackdrop() {
         (tendril.branchBias - 0.5) * 0.34
       );
 
-      context.strokeStyle = `rgba(124, 166, 255, ${0.08 * alpha})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${0.08 * alpha})`;
       context.lineWidth = tendril.thickness * 3.7;
       context.beginPath();
       context.moveTo(origin.x, origin.y);
       context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
       context.stroke();
 
-      context.strokeStyle = `rgba(186, 216, 255, ${0.24 * alpha})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${0.16 * alpha})`;
       context.lineWidth = tendril.thickness * 1.42;
       context.beginPath();
       context.moveTo(origin.x, origin.y);
       context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
       context.stroke();
 
-      context.strokeStyle = `rgba(255, 255, 255, ${0.38 * alpha})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${0.32 * alpha})`;
       context.lineWidth = tendril.thickness * 0.64;
       context.beginPath();
       context.moveTo(origin.x, origin.y);
       context.bezierCurveTo(control1X, control1Y, control2X, control2Y, target.x, target.y);
       context.stroke();
 
-      context.strokeStyle = `rgba(198, 226, 255, ${0.16 * alpha})`;
+      context.strokeStyle = `rgba(0, 0, 0, ${0.12 * alpha})`;
       context.lineWidth = tendril.thickness * 0.72;
       context.beginPath();
       context.moveTo(
@@ -9036,7 +9035,7 @@ function initGraphicDesignParticleBackdrop() {
       );
       context.stroke();
 
-      context.fillStyle = `rgba(236, 246, 255, ${0.28 * alpha})`;
+      context.fillStyle = `rgba(0, 0, 0, ${0.22 * alpha})`;
       context.beginPath();
       context.arc(target.x, target.y, 1 + tendril.thickness * 0.62, 0, Math.PI * 2);
       context.fill();
@@ -9060,12 +9059,12 @@ function initGraphicDesignParticleBackdrop() {
       const coreRadius = star.size * (0.26 + twinkle * 0.82);
       const haloRadius = star.size * (1.6 + twinkle * 3.1);
 
-      context.fillStyle = `rgba(188, 224, 255, ${alpha * 0.18})`;
+      context.fillStyle = `rgba(0, 0, 0, ${alpha * 0.08})`;
       context.beginPath();
       context.arc(star.x, star.y, haloRadius, 0, Math.PI * 2);
       context.fill();
 
-      context.fillStyle = `rgba(255, 255, 255, ${alpha * 0.88})`;
+      context.fillStyle = `rgba(0, 0, 0, ${alpha * 0.54})`;
       context.beginPath();
       context.arc(star.x, star.y, coreRadius, 0, Math.PI * 2);
       context.fill();
@@ -9075,7 +9074,7 @@ function initGraphicDesignParticleBackdrop() {
         const crossAlpha = (alpha - 0.15) * 0.34;
 
         if (crossAlpha > 0.02) {
-          context.strokeStyle = `rgba(236, 246, 255, ${crossAlpha})`;
+          context.strokeStyle = `rgba(0, 0, 0, ${crossAlpha * 0.72})`;
           context.lineWidth = 0.42 + star.size * 0.28;
           context.beginPath();
           context.moveTo(star.x - flare, star.y);
@@ -9178,7 +9177,7 @@ function initGraphicDesignParticleBackdrop() {
 
         const ratio = 1 - (distance / dynamicLinkDistance);
         const alpha = ratio * ratio * 0.48;
-        context.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+        context.strokeStyle = `rgba(0, 0, 0, ${alpha * 0.68})`;
         context.lineWidth = 0.34 + ratio * 1.18;
         context.beginPath();
         context.moveTo(particleA.x, particleA.y);
@@ -9192,12 +9191,12 @@ function initGraphicDesignParticleBackdrop() {
       const coreRadius = particle.size * (0.44 + particle.pulse * 0.3);
       const haloRadius = particle.size * (2.1 + particle.pulse * 1.6);
 
-      context.fillStyle = `rgba(255, 255, 255, ${0.2 + glow * 0.22})`;
+      context.fillStyle = `rgba(0, 0, 0, ${0.18 + glow * 0.18})`;
       context.beginPath();
       context.arc(particle.x, particle.y, coreRadius, 0, Math.PI * 2);
       context.fill();
 
-      context.fillStyle = `rgba(255, 255, 255, ${0.08 + glow * 0.12})`;
+      context.fillStyle = `rgba(0, 0, 0, ${0.04 + glow * 0.08})`;
       context.beginPath();
       context.arc(particle.x, particle.y, haloRadius, 0, Math.PI * 2);
       context.fill();
