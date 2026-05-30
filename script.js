@@ -331,7 +331,7 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
   }
 
   function workHubColor(hue, alpha, saturation = 84, lightness = 56) {
-    return `rgba(0, 0, 0, ${alpha})`;
+    return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
   }
 
   function mixWorkHubHues(hueA, hueB) {
@@ -394,9 +394,9 @@ if (workScene && workCanvas && workTrigger && workOptions.length > 0) {
         `${ringRotationsSecondary[index % ringRotationsSecondary.length]}deg`
       );
       option.style.setProperty("--option-hue", String(hue));
-      option.style.setProperty("--option-accent", "rgba(0, 0, 0, 0.58)");
-      option.style.setProperty("--option-accent-soft", "rgba(0, 0, 0, 0.34)");
-      option.style.setProperty("--option-accent-glow", "rgba(0, 0, 0, 0.16)");
+      option.style.setProperty("--option-accent", workHubColor(hue, 0.56, 88, 48));
+      option.style.setProperty("--option-accent-soft", workHubColor(hue, 0.34, 84, 64));
+      option.style.setProperty("--option-accent-glow", workHubColor(hue, 0.18, 90, 58));
     });
   }
 
