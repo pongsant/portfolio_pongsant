@@ -3340,8 +3340,10 @@ main {
 }
 
 .about-editorial__bio {
+  grid-column: 3;
+  grid-row: 1 / span 2;
   min-width: 0;
-  align-self: start;
+  align-self: end;
   display: grid;
   gap: clamp(0.5rem, 0.9vw, 0.78rem);
   color: #111111;
@@ -3381,6 +3383,7 @@ main {
   .about-editorial__bio {
     grid-column: 2;
     grid-row: 2;
+    align-self: end;
     font-size: clamp(0.74rem, 1.35vw, 0.92rem);
   }
 
@@ -3430,6 +3433,7 @@ main {
   }
 
   .about-editorial__bio {
+    align-self: start;
     font-size: 0.78rem;
     line-height: 1.18;
     letter-spacing: -0.025em;

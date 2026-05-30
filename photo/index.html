@@ -4,220 +4,219 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Photo</title>
-    <meta name="description" content="Photo category page.">
-    <link rel="stylesheet" href="../styles.css?v=20260529f">
-    <script src="../script.js?v=20260529f" defer></script>
+    <meta name="description" content="Selected digital and film photography.">
+    <link rel="stylesheet" href="../styles.css?v=20260529o">
+    <script src="../script.js?v=20260529o" defer></script>
     <style>
-      .page-photo-archive.page-photo-tunnel-lite {
-        background: #02040b;
-        color: #eaf3ff;
+      .page-photo-index {
+        background: #ffffff;
+        color: #050505;
       }
 
-      .page-photo-archive.page-photo-tunnel-lite .site-header {
-        border-bottom-color: rgba(180, 212, 255, 0.24);
-        background: linear-gradient(180deg, rgba(3, 7, 17, 0.86), rgba(3, 7, 17, 0.14));
-        --nav-pill-bg: rgba(236, 244, 255, 0.08);
-        --nav-pill-border: rgba(201, 222, 255, 0.38);
-        --nav-pill-fill: rgba(236, 244, 255, 0.96);
-        --nav-pill-text: rgba(231, 242, 255, 0.94);
-        --nav-pill-hover-text: #060d1b;
+      .page-photo-index .site-header {
+        background: rgba(255, 255, 255, 0.92);
       }
 
-      body.page-photo-tunnel-lite.is-scrolled .site-header {
-        background: rgba(3, 7, 17, 0.76);
-        border-bottom-color: rgba(180, 212, 255, 0.3);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      .photo-index {
+        background: #ffffff;
       }
 
-      .page-photo-archive.page-photo-tunnel-lite .site-header__brand,
-      .page-photo-archive.page-photo-tunnel-lite .site-header__section-title {
-        color: rgba(231, 242, 255, 0.94);
-      }
-
-      .photo-tunnel-lite {
+      .photo-index-section {
         min-height: 100svh;
-        padding: clamp(6.9rem, 9vw, 8rem) clamp(0.6rem, 1.6vw, 1.05rem) clamp(0.7rem, 1.8vw, 1.1rem);
-      }
-
-      .photo-tunnel-lite__scene {
-        position: relative;
-        width: 100%;
-        min-height: calc(100svh - clamp(8rem, 10vw, 9rem));
-        overflow: hidden;
-        border-radius: clamp(14px, 2.4vw, 28px);
-        border: 1px solid rgba(184, 210, 255, 0.22);
-        background:
-          radial-gradient(circle at 50% 50%, rgba(38, 61, 97, 0.48) 0%, rgba(9, 13, 24, 0.94) 48%, rgba(0, 0, 0, 1) 100%),
-          #000;
-        box-shadow:
-          0 34px 84px rgba(0, 0, 0, 0.55),
-          inset 0 0 0 1px rgba(200, 223, 255, 0.08);
-        perspective: 1500px;
-      }
-
-      .photo-tunnel-lite__scene::before,
-      .photo-tunnel-lite__scene::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-      }
-
-      .photo-tunnel-lite__scene::before {
-        z-index: 5;
-        background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.7) 100%);
-      }
-
-      .photo-tunnel-lite__scene::after {
-        z-index: 6;
-        opacity: 0.16;
-        background: repeating-linear-gradient(0deg, rgba(218, 231, 255, 0.36) 0 1px, rgba(218, 231, 255, 0) 1px 4px);
-      }
-
-      .photo-tunnel-lite__space {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 170%;
-        height: 170%;
-        transform-style: preserve-3d;
-        --travel: 0px;
-        --scale: 1;
-        --tilt-x: 0deg;
-        --tilt-y: 0deg;
-        transform: translate(-50%, -50%) translateZ(var(--travel)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(var(--scale));
-      }
-
-      .photo-tunnel-lite__layer {
-        position: absolute;
-        inset: 0;
-        border-radius: 14%;
-        border: 1px solid rgba(170, 201, 248, 0.15);
-        background:
-          linear-gradient(90deg, rgba(0, 0, 0, 0.82) 0 7%, rgba(0, 0, 0, 0) 7% 93%, rgba(0, 0, 0, 0.82) 93% 100%),
-          linear-gradient(0deg, rgba(0, 0, 0, 0.82) 0 9%, rgba(0, 0, 0, 0) 9% 91%, rgba(0, 0, 0, 0.82) 91% 100%),
-          repeating-linear-gradient(90deg,
-            rgba(214, 230, 255, 0.9) 0 3.1%,
-            rgba(5, 10, 18, 0.85) 3.1% 5.2%,
-            rgba(56, 85, 123, 0.55) 5.2% 10.4%),
-          repeating-linear-gradient(0deg,
-            rgba(10, 15, 27, 0.96) 0 10%,
-            rgba(198, 216, 245, 0.66) 10% 14%,
-            rgba(12, 18, 31, 0.94) 14% 20%);
-        background-blend-mode: normal, normal, screen, normal;
-        box-shadow:
-          inset 0 0 46px rgba(0, 0, 0, 0.7),
-          inset 0 0 0 1px rgba(190, 215, 255, 0.07);
-        transform: translateZ(var(--z));
-      }
-
-      .photo-tunnel-lite__void {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: clamp(150px, 19vw, 300px);
-        aspect-ratio: 1 / 1;
-        border-radius: 20%;
-        transform: translate(-50%, -50%) translateZ(-2200px);
-        background: radial-gradient(circle, rgba(0, 0, 0, 0.98) 20%, rgba(0, 0, 0, 0.82) 58%, rgba(0, 0, 0, 0) 100%);
-      }
-
-      .photo-tunnel-lite__back {
-        position: absolute;
-        left: clamp(0.8rem, 2vw, 1.15rem);
-        top: clamp(0.8rem, 2vw, 1.15rem);
-        z-index: 9;
-        margin: 0;
-        color: rgba(222, 237, 255, 0.9);
-        border-bottom-color: rgba(222, 237, 255, 0.54);
-      }
-
-      .photo-tunnel-lite__hud {
-        position: absolute;
-        left: 50%;
-        bottom: clamp(0.75rem, 2vw, 1.3rem);
-        transform: translateX(-50%);
-        z-index: 10;
-        width: min(95%, 780px);
         display: grid;
-        justify-items: center;
-        gap: 0.58rem;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: clamp(0.65rem, 1.3vw, 1rem);
+        padding:
+          calc(5.6rem + var(--safe-top))
+          clamp(0.65rem, 1.2vw, 1rem)
+          clamp(0.65rem, 1.2vw, 1rem);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+        background: #ffffff;
       }
 
-      .photo-tunnel-lite__title {
-        margin: 0;
-        font-size: clamp(1.42rem, 3.6vw, 2.3rem);
-        font-weight: 800;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: rgba(241, 248, 255, 0.94);
-        text-shadow: 0 8px 20px rgba(0, 0, 0, 0.58);
-      }
-
-      .photo-tunnel-lite__topics {
-        width: 100%;
+      .photo-index-section__topline {
         display: flex;
-        justify-content: center;
-        gap: clamp(0.52rem, 1.6vw, 0.9rem);
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: clamp(0.62rem, 0.75vw, 0.78rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
-      .photo-tunnel-lite__topic {
-        flex: 0 1 clamp(176px, 20vw, 246px);
-        min-height: 72px;
-        padding: 0.66rem 0.88rem;
-        border: 1px solid rgba(199, 220, 255, 0.46);
-        background: rgba(5, 12, 24, 0.66);
-        color: #f4f9ff;
+      .photo-index-section__back,
+      .photo-index-section__more {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.16em;
+      }
+
+      .photo-index-section__back {
+        width: 2.1rem;
+        height: 2.1rem;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 999px;
         text-decoration: none;
+        font-size: 1.28rem;
+        line-height: 1;
+      }
+
+      .photo-index-section__layout {
+        min-height: 0;
         display: grid;
-        align-content: center;
-        justify-items: center;
-        gap: 0.14rem;
-        transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+        grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+        gap: clamp(1rem, 2vw, 1.8rem);
+        align-items: end;
       }
 
-      .photo-tunnel-lite__topic:hover,
-      .photo-tunnel-lite__topic:focus-visible {
+      .photo-index-section__copy {
+        display: grid;
+        align-content: end;
+        gap: clamp(0.55rem, 1vw, 0.85rem);
+        min-height: 0;
+      }
+
+      .photo-index-section__count {
+        margin: 0;
+        font-size: clamp(0.72rem, 0.9vw, 0.9rem);
+        font-weight: 500;
+        letter-spacing: 0.05em;
+      }
+
+      .photo-index-section__title {
+        margin: 0;
+        max-width: 8ch;
+        font-size: clamp(4.2rem, 9.3vw, 10.6rem);
+        font-weight: 900;
+        line-height: 0.82;
+        letter-spacing: -0.07em;
+        text-transform: uppercase;
+      }
+
+      .photo-index-section__copy .photo-index-section__more {
+        width: fit-content;
+        margin-top: 0.12rem;
+        font-size: clamp(0.72rem, 0.86vw, 0.9rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .photo-index-section__feature {
+        min-width: 0;
+        margin: 0;
+        display: grid;
+        gap: 0.42rem;
+      }
+
+      .photo-index-section__feature-image {
+        width: 100%;
+        height: min(68svh, 720px);
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+        border: 1px solid rgba(0, 0, 0, 0.16);
+        background: #f2f2f2;
+      }
+
+      .photo-index-section__caption {
+        display: block;
+        font-size: clamp(0.62rem, 0.75vw, 0.78rem);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .photo-index-strip {
+        display: grid;
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        gap: clamp(0.28rem, 0.62vw, 0.56rem);
+      }
+
+      .photo-index-strip__item {
+        appearance: none;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        min-width: 0;
+        display: grid;
+        gap: 0.18rem;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .photo-index-strip__number {
+        font-size: clamp(0.56rem, 0.68vw, 0.7rem);
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .photo-index-strip__image {
+        width: 100%;
+        aspect-ratio: 1 / 1.22;
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        background: #f2f2f2;
+        transition: transform 180ms ease, border-color 180ms ease;
+      }
+
+      .photo-index-strip__item:hover .photo-index-strip__image,
+      .photo-index-strip__item:focus-visible .photo-index-strip__image,
+      .photo-index-strip__item.is-active .photo-index-strip__image {
         transform: translateY(-2px);
-        border-color: rgba(235, 244, 255, 0.9);
-        background: rgba(16, 30, 56, 0.84);
+        border-color: rgba(0, 0, 0, 0.58);
       }
 
-      .photo-tunnel-lite__topic-name {
-        font-size: clamp(0.9rem, 0.8rem + 0.46vw, 1.18rem);
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+      .photo-index-strip__item.is-active .photo-index-strip__number {
+        text-decoration: underline;
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.18em;
       }
 
-      .photo-tunnel-lite__topic-meta {
-        font-size: 0.62rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: rgba(206, 225, 250, 0.82);
-      }
-
-      @media (max-width: 760px) {
-        .photo-tunnel-lite__space {
-          width: 205%;
-          height: 205%;
+      @media (max-width: 900px) {
+        .photo-index-section {
+          min-height: auto;
         }
 
-        .photo-tunnel-lite__topics {
-          flex-direction: column;
-          align-items: stretch;
+        .photo-index-section__layout {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+
+        .photo-index-section__title {
+          max-width: none;
+          font-size: clamp(3.2rem, 16vw, 7rem);
+        }
+
+        .photo-index-section__feature-image {
+          height: auto;
+          aspect-ratio: 4 / 3;
+        }
+
+        .photo-index-strip {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
         }
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .photo-tunnel-lite__space,
-        .photo-tunnel-lite__topic {
-          transition: none;
+      @media (max-width: 560px) {
+        .photo-index-section {
+          padding-top: calc(5.2rem + var(--safe-top));
+        }
+
+        .photo-index-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
     </style>
   </head>
-  <body class="page-photo-archive page-photo-tunnel-lite">
+  <body class="page-photo-archive page-photo-index">
     <header class="site-header">
       <a class="site-header__brand" href="../">PORTFOLIO</a>
       <h1 class="site-header__section-title">PHOTOS</h1>
@@ -228,93 +227,96 @@
       </nav>
     </header>
 
-    <main class="photo-tunnel-lite">
-      <section class="photo-tunnel-lite__scene" aria-labelledby="photo-tunnel-lite-title">
-        <a class="page-back photo-tunnel-lite__back" href="../my-work/">Back to Work Topics</a>
-
-        <div class="photo-tunnel-lite__space" data-photo-tunnel-lite>
-          <div class="photo-tunnel-lite__layer" style="--z: 0px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -220px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -440px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -660px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -880px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -1100px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -1320px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -1540px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -1760px"></div>
-          <div class="photo-tunnel-lite__layer" style="--z: -1980px"></div>
-          <div class="photo-tunnel-lite__void" aria-hidden="true"></div>
+    <main class="photo-index">
+      <section class="photo-index-section" aria-labelledby="digital-title">
+        <div class="photo-index-section__topline">
+          <a class="photo-index-section__back" href="../my-work/" aria-label="Back to work topics">←</a>
+          <span>Digital Photos</span>
         </div>
 
-        <div class="photo-tunnel-lite__hud">
-          <h2 class="photo-tunnel-lite__title" id="photo-tunnel-lite-title">PHOTOS</h2>
-          <div class="photo-tunnel-lite__topics">
-            <a class="photo-tunnel-lite__topic" href="./digital-photos/">
-              <span class="photo-tunnel-lite__topic-name">DIGITAL</span>
-              <span class="photo-tunnel-lite__topic-meta">Digital Photos</span>
-            </a>
-            <a class="photo-tunnel-lite__topic" href="./film-photos/">
-              <span class="photo-tunnel-lite__topic-name">FILM</span>
-              <span class="photo-tunnel-lite__topic-meta">Film Photos</span>
-            </a>
+        <div class="photo-index-section__layout">
+          <div class="photo-index-section__copy">
+            <p class="photo-index-section__count">01/10</p>
+            <h2 class="photo-index-section__title" id="digital-title">Digital Photo</h2>
+            <a class="photo-index-section__more" href="./digital-photos/">View More</a>
           </div>
+
+          <figure class="photo-index-section__feature">
+            <img class="photo-index-section__feature-image" src="./digital-photos/L1000238.jpeg" alt="Digital photo selection 01">
+            <figcaption class="photo-index-section__caption">
+              <span>Digital selection</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="photo-index-strip" aria-label="Digital photo preview strip">
+          <button class="photo-index-strip__item is-active" type="button" data-large-src="./digital-photos/L1000238.jpeg" data-large-alt="Digital photo selection 01"><span class="photo-index-strip__number">01</span><img class="photo-index-strip__image" src="./digital-photos/L1000238.jpeg" alt="Digital preview 01" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1252.JPG" data-large-alt="Digital photo selection 02"><span class="photo-index-strip__number">02</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1252.JPG" alt="Digital preview 02" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1253.JPG" data-large-alt="Digital photo selection 03"><span class="photo-index-strip__number">03</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1253.JPG" alt="Digital preview 03" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1256.JPG" data-large-alt="Digital photo selection 04"><span class="photo-index-strip__number">04</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1256.JPG" alt="Digital preview 04" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1259.JPG" data-large-alt="Digital photo selection 05"><span class="photo-index-strip__number">05</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1259.JPG" alt="Digital preview 05" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1260.JPG" data-large-alt="Digital photo selection 06"><span class="photo-index-strip__number">06</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1260.JPG" alt="Digital preview 06" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1261.JPG" data-large-alt="Digital photo selection 07"><span class="photo-index-strip__number">07</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1261.JPG" alt="Digital preview 07" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/IMG_1264.JPG" data-large-alt="Digital photo selection 08"><span class="photo-index-strip__number">08</span><img class="photo-index-strip__image" src="./digital-photos/IMG_1264.JPG" alt="Digital preview 08" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/L1000078.jpeg" data-large-alt="Digital photo selection 09"><span class="photo-index-strip__number">09</span><img class="photo-index-strip__image" src="./digital-photos/L1000078.jpeg" alt="Digital preview 09" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./digital-photos/L1000087.jpeg" data-large-alt="Digital photo selection 10"><span class="photo-index-strip__number">10</span><img class="photo-index-strip__image" src="./digital-photos/L1000087.jpeg" alt="Digital preview 10" loading="lazy"></button>
+        </div>
+      </section>
+
+      <section class="photo-index-section" aria-labelledby="film-title">
+        <div class="photo-index-section__topline">
+          <span>Scroll / 02</span>
+          <span>Film Photos</span>
+        </div>
+
+        <div class="photo-index-section__layout">
+          <div class="photo-index-section__copy">
+            <p class="photo-index-section__count">01/10</p>
+            <h2 class="photo-index-section__title" id="film-title">Film Photo</h2>
+            <a class="photo-index-section__more" href="./film-photos/">View More</a>
+          </div>
+
+          <figure class="photo-index-section__feature">
+            <img class="photo-index-section__feature-image" src="./film-photos/IMG_2039.JPG" alt="Film photo selection 01">
+            <figcaption class="photo-index-section__caption">
+              <span>Film selection</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="photo-index-strip" aria-label="Film photo preview strip">
+          <button class="photo-index-strip__item is-active" type="button" data-large-src="./film-photos/IMG_2039.JPG" data-large-alt="Film photo selection 01"><span class="photo-index-strip__number">01</span><img class="photo-index-strip__image" src="./film-photos/IMG_2039.JPG" alt="Film preview 01" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2043.JPG" data-large-alt="Film photo selection 02"><span class="photo-index-strip__number">02</span><img class="photo-index-strip__image" src="./film-photos/IMG_2043.JPG" alt="Film preview 02" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2046.JPG" data-large-alt="Film photo selection 03"><span class="photo-index-strip__number">03</span><img class="photo-index-strip__image" src="./film-photos/IMG_2046.JPG" alt="Film preview 03" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2048.JPG" data-large-alt="Film photo selection 04"><span class="photo-index-strip__number">04</span><img class="photo-index-strip__image" src="./film-photos/IMG_2048.JPG" alt="Film preview 04" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2054.JPG" data-large-alt="Film photo selection 05"><span class="photo-index-strip__number">05</span><img class="photo-index-strip__image" src="./film-photos/IMG_2054.JPG" alt="Film preview 05" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2057.JPG" data-large-alt="Film photo selection 06"><span class="photo-index-strip__number">06</span><img class="photo-index-strip__image" src="./film-photos/IMG_2057.JPG" alt="Film preview 06" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2061.JPG" data-large-alt="Film photo selection 07"><span class="photo-index-strip__number">07</span><img class="photo-index-strip__image" src="./film-photos/IMG_2061.JPG" alt="Film preview 07" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2074.jpg" data-large-alt="Film photo selection 08"><span class="photo-index-strip__number">08</span><img class="photo-index-strip__image" src="./film-photos/IMG_2074.jpg" alt="Film preview 08" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2076.JPG" data-large-alt="Film photo selection 09"><span class="photo-index-strip__number">09</span><img class="photo-index-strip__image" src="./film-photos/IMG_2076.JPG" alt="Film preview 09" loading="lazy"></button>
+          <button class="photo-index-strip__item" type="button" data-large-src="./film-photos/IMG_2112.JPG" data-large-alt="Film photo selection 10"><span class="photo-index-strip__number">10</span><img class="photo-index-strip__image" src="./film-photos/IMG_2112.JPG" alt="Film preview 10" loading="lazy"></button>
         </div>
       </section>
     </main>
-
     <script>
-      (() => {
-        const tunnel = document.querySelector("[data-photo-tunnel-lite]");
-        const scene = document.querySelector(".photo-tunnel-lite__scene");
+      document.querySelectorAll(".photo-index-section").forEach((section) => {
+        const featureImage = section.querySelector(".photo-index-section__feature-image");
+        const count = section.querySelector(".photo-index-section__count");
+        const buttons = Array.from(section.querySelectorAll(".photo-index-strip__item"));
 
-        if (!tunnel || !scene) {
-          return;
-        }
+        buttons.forEach((button, index) => {
+          button.addEventListener("click", () => {
+            if (!featureImage) return;
 
-        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-        let frame = 0;
-        let startedAt = 0;
+            featureImage.src = button.dataset.largeSrc;
+            featureImage.alt = button.dataset.largeAlt || "";
+            if (count) count.textContent = `${String(index + 1).padStart(2, "0")}/10`;
 
-        function animate(now) {
-          if (!startedAt) {
-            startedAt = now;
-          }
-
-          const elapsed = now - startedAt;
-          const travel = (elapsed * 0.026) % 220;
-          const breathing = Math.sin(elapsed * 0.0011) * 0.008;
-          tunnel.style.setProperty("--travel", `${travel}px`);
-          tunnel.style.setProperty("--scale", String(1 + breathing));
-          frame = window.requestAnimationFrame(animate);
-        }
-
-        if (!reducedMotion.matches) {
-          frame = window.requestAnimationFrame(animate);
-        }
-
-        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-        scene.addEventListener("pointermove", (event) => {
-          const bounds = scene.getBoundingClientRect();
-          const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-          const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-          const tiltY = clamp(x * 7.5, -7.5, 7.5);
-          const tiltX = clamp(-y * 6.4, -6.4, 6.4);
-          tunnel.style.setProperty("--tilt-y", `${tiltY}deg`);
-          tunnel.style.setProperty("--tilt-x", `${tiltX}deg`);
-        }, { passive: true });
-
-        scene.addEventListener("pointerleave", () => {
-          tunnel.style.setProperty("--tilt-y", "0deg");
-          tunnel.style.setProperty("--tilt-x", "0deg");
+            buttons.forEach((item) => item.classList.remove("is-active"));
+            button.classList.add("is-active");
+          });
         });
-
-        window.addEventListener("beforeunload", () => {
-          if (frame) {
-            window.cancelAnimationFrame(frame);
-          }
-        });
-      })();
+      });
     </script>
   </body>
 </html>
