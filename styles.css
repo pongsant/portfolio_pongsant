@@ -9055,3 +9055,77 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
     margin-right: max(0.72rem, env(safe-area-inset-right));
   }
 }
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .page-product-archive .photo-poster__top,
+  .page-interactive-archive .photo-poster__top {
+    position: relative;
+    padding-bottom: 1.25rem;
+  }
+
+  .page-product-archive .photo-poster__top::before,
+  .page-interactive-archive .photo-poster__top::before {
+    content: "";
+    position: absolute;
+    left: max(0.18rem, var(--safe-left));
+    right: max(0.18rem, var(--safe-right));
+    bottom: 0.28rem;
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.34) 42%,
+      rgba(0, 0, 0, 0.34) 58%,
+      rgba(0, 0, 0, 0.1)
+    );
+    transform-origin: center;
+    opacity: 0.78;
+    pointer-events: none;
+  }
+
+  .page-product-archive .photo-poster__top::after,
+  .page-interactive-archive .photo-poster__top::after {
+    content: "";
+    position: absolute;
+    left: max(0.18rem, var(--safe-left));
+    bottom: 0.12rem;
+    width: min(34vw, 8rem);
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.86);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.16);
+    transform: translateX(0);
+    pointer-events: none;
+    animation: mobile-scroll-cue 2.8s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+  }
+
+  .page-interactive-archive .photo-poster__top::before,
+  .page-interactive-archive .photo-poster__top::after {
+    opacity: 0;
+  }
+
+  .page-interactive-archive.is-interactive-work-open .photo-poster__top::before {
+    opacity: 0.78;
+  }
+
+  .page-interactive-archive.is-interactive-work-open .photo-poster__top::after {
+    opacity: 1;
+  }
+}
+
+@keyframes mobile-scroll-cue {
+  0%,
+  18% {
+    transform: translateX(0) scaleX(0.72);
+  }
+
+  48% {
+    transform: translateX(calc(100vw - min(34vw, 8rem) - 1.1rem - var(--safe-left) - var(--safe-right))) scaleX(1);
+  }
+
+  76%,
+  100% {
+    transform: translateX(0) scaleX(0.72);
+  }
+}
