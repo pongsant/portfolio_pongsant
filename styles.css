@@ -3346,6 +3346,16 @@ main {
   margin: 0;
 }
 
+.about-editorial__meta a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.about-editorial__meta a:hover,
+.about-editorial__meta a:focus-visible {
+  text-decoration: underline;
+}
+
 .about-editorial__bio {
   grid-column: 1;
   grid-row: 1 / span 2;
