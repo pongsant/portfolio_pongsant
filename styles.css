@@ -3422,8 +3422,8 @@ main {
   }
 
   .about-editorial__name {
-    font-size: clamp(2.55rem, 15vw, 4.35rem);
-    line-height: 0.84;
+    font-size: clamp(2.15rem, 11.5vw, 3.35rem);
+    line-height: 0.88;
   }
 
   .about-editorial__grid {
@@ -9196,8 +9196,9 @@ body.page-graphic-design-archive.is-graphic-archive-leaving .graphic-archive-cen
 
   .about-editorial__name {
     display: block;
-    font-size: clamp(2.15rem, 13.2vw, 3.75rem);
-    letter-spacing: -0.045em;
+    font-size: clamp(1.75rem, 10vw, 2.85rem);
+    letter-spacing: -0.035em;
+    line-height: 0.9;
   }
 
   .about-editorial__name span {
